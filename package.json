@@ -1,0 +1,18 @@
+{
+  "name": "playwright-drupal",
+  "version": "1.0.0-dev",
+  "description": "Playwright / Drupal integration, supporting fast parallel tests and visual comparisons",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Andrew Berry <andrew@furrypaws.ca>",
+  "license": "Apache-2.0",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@playwright/test": "^1.39.0",
+    "@types/node": "^20.9.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}

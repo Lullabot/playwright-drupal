@@ -1,0 +1,164 @@
+#file: noinspection YAMLSchemaValidation
+version: '3'
+tasks:
+  run:
+    desc: "Runs playwright functional tests."
+    summary: |
+      Runs Playwright tests.
+        - shard=x/y: Run a fraction of tests. Optional.
+    cmds:
+      - task: install
+      - |
+        cd test/playwright
+        npx playwright test --shard={{ default "1/1" .shard }}
+        STATUS=$?
+        echo "System uptime and load average statistics:"; uptime
+        echo "If the load average is significantly different than **$(cat /proc/cpuinfo | grep processor | wc -l)** there may be too many or two few Playwright workers assigned. You might want to tweak the number of workers or shards."
+        exit $STATUS
+
+  install:
+    desc: "Install a base copy of the site for testing."
+    summary: |
+      This installs Drupal using sqlite. This allows for each test case to
+      start with a fixed installation state, with significantly improved
+      performance compared to mariadb / mysql. This command should be run
+      any time configuration has changed that would change the installed site
+      state.
+    cmds:
+      - |
+        # This environment variable tells Drupal to alter the database settings
+        # in settings.php.
+        export PLAYWRIGHT_SETUP=1
+        task playwright:install:hook
+        if [[ $? -ne 0 ]]; then
+          echo "Did you define playwright:install:hook in your root Taskfile.yml? Make sure that command works before continuing."
+          exit 1
+        fi;
+
+  prepare:
+    desc: "Import a database in preparation for a test run."
+    summary: |
+      This copies a database created with playwright:install to a now location.
+
+      task playwright:prepare test_id=456
+
+      will import the database into `web/sites/simpletest/456/.ht.sqlite`.
+    preconditions:
+      - sh: test -f /tmp/sqlite/.ht.sqlite
+        msg: 'test:playwright:install needs to be run before tests can run.'
+    cmds:
+      - |
+        export PLAYWRIGHT_SETUP=1
+
+        # Recreate the sites directory.
+        rm -rf web/sites/simpletest/{{ shellQuote .test_id }}/
+        mkdir -p web/sites/simpletest/{{ shellQuote .test_id }}/
+        mkdir -p /tmp/sqlite/{{ shellQuote .test_id }}/
+
+        # On locals, copying in only the files we need (and not all assets
+        # downloaded via stage file proxy) saves several seconds.
+
+        # Copy in settings.php and our services files.
+        cp -a web/sites/default/*.php web/sites/simpletest/{{ shellQuote .test_id }}/
+        cp -a web/sites/default/*.yml web/sites/simpletest/{{ shellQuote .test_id }}/
+
+        # Copy the database.
+        cp -a /tmp/sqlite/.ht.sqlite /tmp/sqlite/{{ shellQuote .test_id }}/
+
+        # Get a user agent based on the test ID. We need to convert colons to
+        # URL-escaped characters.
+        UA=$(drush ev 'echo drupal_generate_test_ua("test{{ shellQuote .test_id }}");' | sed 's/:/%3A/g')
+
+        set +e
+        task playwright:prepare:hook test_id={{ shellQuote .test_id }}
+        # 200 is the exit code when a task doesn't exist.
+        if [[ $? -ne 0 && $? -ne 200 ]]; then
+          exit $?
+        fi;
+
+  ua:
+    desc: Return the cookie value for a given test ID.
+    summary: |
+      Playwright tests need to know the cookie value to use to tell Drupal to
+      use a specific test prefix. It turns out this is a single global function
+      function, so we haven't gone to the trouble of writing a full Drush
+      command for it.
+
+      This command will only ever output the direct cookie value unless there
+      is an error. The cookie value will have colons replaced with %3A.
+    cmds:
+      - PLAYWRIGHT_SETUP=1 drush ev 'echo drupal_generate_test_ua("test{{ shellQuote .test_id }}");' | sed 's/:/%3A/g'
+
+  cleanup:
+    desc: Clean up after a test run.
+    summary: |
+      Deletes databases and simpletest/* files directories after a test successfully completes.
+    cmds:
+      - |
+        # Delete the files and settings directories.
+        rm -rf web/sites/simpletest/{{ shellQuote .test_id }}/
+
+        # Delete the database.
+        rm -rf /tmp/sqlite/{{ shellQuote .test_id }}/
+
+        set +e
+        task playwright:cleanup:hook test_id={{ shellQuote .test_id }}
+        # 200 is the exit code when a task doesn't exist.
+        if [[ $? -ne 0 && $? -ne 200 ]]; then
+          exit $?
+        fi;
+
+  visualdiff:
+    desc: Runs only visual diff tests
+    deps:
+      - playwright:install
+    cmds:
+      - |
+        cd test/playwright
+
+        # First capture all tests that have snapshots.
+        TESTS=$(find . -name '*-snapshots' -type d | sed 's/-snapshots//' | sed 's/\.\///')
+
+        # Run just tests with snapshots.
+        echo $TESTS | xargs npx playwright test
+
+  regenerate:
+    desc: Regenerates all Playwright snapshots, deleting existing ones by default
+    summary: |
+      This task deletes all files listed in the -snapshots directories in each
+      Playwright test. Then, it reruns tests with the --update-snapshots
+      argument.
+        - delete=<0,1>: Set to 0 to not delete existing snapshots. Useful
+                        when snapshot filenames should not change. Optional.
+
+      Examples:
+        Do not delete snapshots when regenerating.
+        - task playwright:regenerate delete=0
+    deps:
+      - playwright:install
+    vars:
+      delete: '{{ default "1" .delete }}'
+    cmds:
+      - |
+        cd test/playwright
+        # First capture all tests that have snapshots.
+        TESTS=$(find . -name '*-snapshots' -type d | sed 's/-snapshots//' | sed 's/\.\///')
+
+        # Remove snapshot files, but keep the directories. That way if tests
+        # fail and this is rerun, we know what tests should have snapshots.
+        if [[ {{ .delete }} -eq 1 ]]; then
+          find . -name '*-snapshots' -type d | xargs -I {} -n1 /bin/sh -c 'rm -rf {}/*'
+        fi
+
+        # Run just tests with snapshots.
+        echo $TESTS | xargs npx playwright test --update-snapshots --retries 3
+        echo "From your host, run the following from the project directory to add all changes to commit."
+        echo "Be sure to review for unexpected changes, and don't be surprised if modified tests cause"
+        echo "files to be renamed."
+        echo ""
+        echo "find test/playwright -name '*-snapshots' -type d | xargs git add -A"
+        echo ""
+        echo "Some images may show minor variations, especially with the position of Drupal's admin"
+        echo "toolbar. Typically those variations are handled automatically by Playwright's retry"
+        echo "settings. Consider reverting those changes to avoid extra repository growth."
+
