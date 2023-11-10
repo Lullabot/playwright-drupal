@@ -1,6 +1,11 @@
 {
   "compilerOptions": {
+    "noEmit": true,
     "outDir": "lib/",
-    "declaration": true
+    "declaration": true,
+    "module": "CommonJS",
+    "strict": true,
+    "noImplicitAny": true,
+    "esModuleInterop": true
   }
 }

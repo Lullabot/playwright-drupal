@@ -1,15 +1,16 @@
 import {test as base_test, expect, TestFixture, WebError} from '@playwright/test';
 import * as child_process from "child_process";
+import {ObjectEncodingOptions} from "fs";
 
 /**
  * Run task either inside of the web container or from the host.
  *
  * @param command
  */
-function taskSync(command) {
+function taskSync(command: string) {
     let ddev = process.env.DDEV_HOSTNAME ? 'task' : 'ddev task';
     return child_process.execSync(`${ddev} ${command}`, {
-        cwd: process.env.DDEV_HOSTNAME ? '/var/www/html' : null,
+        cwd: process.env.DDEV_HOSTNAME ? '/var/www/html' : process.cwd(),
     });
 }
 
@@ -18,19 +19,21 @@ function taskSync(command) {
  *
  * @param command
  */
-function task(command) {
+function task(command: string) {
     let ddev = process.env.DDEV_HOSTNAME ? 'task' : 'ddev task';
     let options = {
-        cwd: process.env.DDEV_HOSTNAME ? '/var/www/html' : null,
+        cwd: process.env.DDEV_HOSTNAME ? '/var/www/html' : process.cwd(),
     };
 
     let childProcess = child_process.exec(`${ddev} ${command}`, options);
-    childProcess.stdout.on('data', (data) => {
+    if (childProcess.stdout && childProcess.stderr) {
+      childProcess.stdout.on('data', (data) => {
         console.log(data.toString());
-    });
-    childProcess.stderr.on('data', (data) => {
+      });
+      childProcess.stderr.on('data', (data) => {
         console.log(data.toString());
-    });
+      });
+    }
 
     return childProcess;
 }
@@ -54,7 +57,7 @@ const test = base_test.extend<TestFixture<any, any>>( {
         drupal_id = id;
         let install = task('test:playwright:prepare test_id=' + id);
         install.on('exit', async (code) => {
-            if (code > 0) {
+            if (code === null || code > 0) {
                 throw new Error("Task errored with exit code " + code);
             }
         })
