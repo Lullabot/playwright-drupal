@@ -1,0 +1,6 @@
+{
+  "compilerOptions": {
+    "outDir": "lib/",
+    "declaration": true
+  }
+}
