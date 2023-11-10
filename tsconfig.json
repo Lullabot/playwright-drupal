@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "noEmit": true,
     "outDir": "lib/",
     "declaration": true,
     "module": "CommonJS",

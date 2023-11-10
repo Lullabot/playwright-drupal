@@ -87,9 +87,9 @@ const test = base_test.extend<TestFixture<any, any>>( {
     },
 });
 
-test.afterEach(async ({ page }, testInfo) => {
-    let logPath = '../../web/sites/simpletest/' + drupal_id + '/error.log';
-    testInfo.attach('error.log', {path: logPath});
-});
+// test.afterEach(async ({ page }, testInfo) => {
+//     let logPath = '../../web/sites/simpletest/' + drupal_id + '/error.log';
+//     testInfo.attach('error.log', {path: logPath});
+// });
 
 export { test, expect };
