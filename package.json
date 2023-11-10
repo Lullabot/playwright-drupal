@@ -8,6 +8,7 @@
   "author": "Andrew Berry <andrew@furrypaws.ca>",
   "license": "Apache-2.0",
   "main": "src/index.ts",
+  "type": "module",
   "dependencies": {
     "@playwright/test": "^1.39.0",
     "@types/node": "^20.9.0"
