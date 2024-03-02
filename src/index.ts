@@ -70,4 +70,32 @@ test.afterEach(async ({ page }, testInfo) => {
     }
 });
 
-export { test, expect };
+/**
+ * Run a Drush command in a test site.
+ *
+ * @param command
+ *   The drush command and flags to use, such as
+ *   `pm:uninstall environment_indicator -y`.
+ */
+async function execDrushInTestSite(command: string) {
+  const drush = process.env.DDEV_HOSTNAME ? `./test/playwright/node_modules/playwright-drupal/bin/drush-playwright ${drupal_test_id}` : `ddev exec ./test/playwright/node_modules/playwright-drupal/bin/drush-playwright ${drupal_test_id}`;
+
+  const exec = util.promisify(child_process.exec);
+  const p = exec(`${drush} ${command}`, {
+    // @ts-ignore
+    cwd: process.env.DDEV_HOSTNAME ? '/var/www/html' : null,
+  });
+  p.then((res) => {
+    console.log(res.stdout);
+    console.error(res.stderr);
+  }, (reason) => {
+    console.error(reason);
+  });
+  p.catch((error) => {
+    console.error(error.stderr);
+  });
+
+  return p;
+}
+
+export { test, expect, execDrushInTestSite};

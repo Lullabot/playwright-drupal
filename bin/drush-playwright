@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Wraps drush-playwright so we can pass an environment variable in when running
+# playwright from the host.
+
+if [ "$#" -lt 1 ]; then
+    echo "Error: No arguments provided. Please provide a numeric argument." >&2
+    exit 1
+fi
+
+if [[ "$1" =~ ^[0-9]+$ ]]; then
+    DRUPAL_TEST_ID=$1 test/playwright/node_modules/playwright-drupal/bin/drush-playwright-internal "${@:2}"
+else
+    echo "Error: The first argument $1 is not numeric. Please provide a numeric argument." >&2
+    exit 1
+fi

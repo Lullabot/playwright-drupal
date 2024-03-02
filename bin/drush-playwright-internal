@@ -1,0 +1,45 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * This allows us to run any Drush command without modification against a
+ * Playwright test instance.
+ *
+ * A first approach would guess that we could solve this only with changes in
+ * settings.php. However, drupal_valid_test_ua() gets called before settings.php
+ * is loaded, and it caches its result.
+ *
+ * A second approach would guess that a Drush command hook would allow us to
+ * set $_COOKIE['SIMPLETEST_USER_AGENT'] early, before Drupal is bootstrapped,
+ * allowing the test prefix to be set. Unfortunately, even the earliest command
+ * hook won't work. That's because Drush creates a Request object with a
+ * hardcoded empty cookie bin. Note the comment says to get request data from
+ * globals for Drupal 10, but the Drupal 9 code is currently called as create()
+ * still exists. Perhaps it was added back to Symfony? 🤷
+ *
+ * https://github.com/drush-ops/drush/blob/a34508223a80e42609544b4c9589ce09636e5a45/src/Boot/DrupalBoot8.php#L126-L134
+ *
+ * Finally, we land at this approach. By including bootstrap.inc, we can set the
+ * static cache before drush has run at all. Then, our code in settings.php
+ * works with zero modifications. Nice!
+ *
+ * One thing to remember when testing. drupal_valid_test_ua() only respects
+ * cookie values less than 10 minutes old. If command start failing during
+ * development, create a new cookie with task test:playwright:ua. Note this
+ * isn't a problem for tests, since Playwright is configured to a 70-second test
+ * timeout anyway.
+ */
+require_once '/var/www/html/vendor/autoload.php';
+
+// We have to use an environment variable as we can't manipulate $argv.
+// https://stackoverflow.com/a/12638442
+$test_id = getenv('DRUPAL_TEST_ID');
+if (!$test_id) {
+  print "DRUPAL_TEST_ID must be defined as an environment variable using a valid generated user agent.";
+  exit(1);
+}
+
+include_once '/var/www/html/web/core/includes/bootstrap.inc';
+drupal_valid_test_ua('test' . $test_id);
+
+return include '/var/www/html/vendor/bin/drush';
