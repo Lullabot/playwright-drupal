@@ -113,7 +113,11 @@ tasks:
     cmds:
       - |
         # Delete the files and settings directories.
-        rm -rf web/sites/simpletest/{{ shellQuote .test_id }}/
+        # Fast tests that do not require a full page render may finish before Drupal
+        # has fully written files like aggregated JavaScript to disk.
+        while [ -d web/sites/simpletest/{{ shellQuote .test_id }}/ ]; do
+          rm -rf web/sites/simpletest/{{ shellQuote .test_id }}/ 2>/dev/null || true
+        done;
 
         # Delete the database.
         rm -rf /tmp/sqlite/{{ shellQuote .test_id }}/
