@@ -135,7 +135,7 @@ includes:
 
 ### Add Playwright to Drupal's Settings
 
-Add the following line to `sites/default/settings.php`:
+Add the following line to `web/sites/default/settings.php`:
 
 ```php
 include '../test/playwright/node_modules/playwright-drupal/settings/settings.playwright.php';
