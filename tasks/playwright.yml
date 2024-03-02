@@ -72,6 +72,20 @@ tasks:
         # URL-escaped characters.
         UA=$(drush ev 'echo drupal_generate_test_ua("test{{ shellQuote .test_id }}");' | sed 's/:/%3A/g')
 
+        # Make sure we can load a page before running any tests.
+        # These steps are slow, adding a second or more to each test preparation
+        # step. However, these steps would also be run on a first page load by a
+        # test, so we may as well add this early check to make sure the test
+        # site is working.
+        curl -s -k -b SIMPLETEST_USER_AGENT=$UA https://iowadt.ddev.site/core/rebuild.php > /dev/null
+        STATUS=$(curl -s -k -b SIMPLETEST_USER_AGENT=$UA -w "%{http_code}\n" -o /dev/null https://iowadt.ddev.site/)
+        if [[ $STATUS != "200" ]]; then
+          (echo "The test site {{ shellQuote .test_id }} is not working as it returned HTTP status $STATUS.";
+          echo "Likely your code changes are causing an exception to be thrown.";
+          echo "Test by reinstalling the base site and ensuring the home page loads.";) >&2
+          exit 1
+        fi
+
         set +e
         task --dry playwright:prepare:hook 2>/dev/null 1>/dev/null
         if [[ $? -ne 200 ]]; then
