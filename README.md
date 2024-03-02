@@ -93,6 +93,7 @@ ddev exec -d /var/www/html/test/playwright npx playwright test
 ```console
 ddev exec -d /var/www/html/test/playwright npm i playwright-drupal
 ```
+
 ```console
 # Or, to pull from GitHub's main branch:
 ddev exec -d /var/www/html/test/playwright npm i playwright-drupal@github:deviantintegral/playwright-drupal
