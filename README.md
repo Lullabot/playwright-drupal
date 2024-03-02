@@ -105,6 +105,7 @@ Add the following `globalSetup` and `use` line to the `defineConfig` section in 
 ```typescript
 export default defineConfig({
   globalSetup: require.resolve('./node_modules/playwright-drupal/lib/global-setup'),
+  baseURL: process.env.DDEV_PRIMARY_URL,
   use: {
     ignoreHTTPSErrors: true,
   }
