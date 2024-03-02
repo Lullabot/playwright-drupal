@@ -1,6 +1,6 @@
 # Playwright in Drupal (in DDEV)
 
-This project, building on deviantintegral/ddev-playwright, enables full support for Playwright testing of Drupal websites.
+This project, building on [deviantintegral/ddev-playwright](https://github.com/deviantintegral/ddev-playwright), enables full support for Playwright testing of Drupal websites.
 
 1. Supports fast parallel tests by installing sites into sqlite databases.
 2. Enables Playwright tests to run Drush commands against a test site.
