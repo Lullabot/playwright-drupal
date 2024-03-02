@@ -14,7 +14,7 @@ let drupal_test_id: number;
  */
 const test = base_test.extend<TestFixture<any, any>>( {
     async context( { context, request }, use ) {
-      // Test against a single database in the base site.
+      // Test against a single database in the default (typically mariadb) site.
       if (process.env.PLAYWRIGHT_NO_TEST_ISOLATION) {
         await use( context );
         return;
