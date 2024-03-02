@@ -47,6 +47,7 @@ This project, building on [deviantintegral/ddev-playwright](https://github.com/d
 - We use Playwright's concept of "packages" to allow for a npm dependency to export a test function.
 - Test requests from the web browser are directed to the right database though `settings.php` additions.
 - `drush-playwright` does its own bootstrap to route drush commands to the right site.
+- We use [Task](https://taskfile.dev) as a task runner to install Drupal and set up the tests. This allows developers to easily run individual components of the test setup and teardown without having to step through JavaScript, or reuse them in other non-testing scenarios.
 - While as of this writing (March 2024) this is new code, a nearly identical version of this has been running on a real-world project for over a year.
 
 ## Getting Started
