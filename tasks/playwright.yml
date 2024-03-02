@@ -29,14 +29,17 @@ tasks:
         # This environment variable tells Drupal to alter the database settings
         # in settings.php.
         export PLAYWRIGHT_SETUP=1
-        task playwright:install:hook
-        if [[ $? -ne 0 ]]; then
-          echo "Did you define playwright:install:hook in your root Taskfile.yml? Make sure that command works before continuing."
-          exit 1
-        fi;
+        set +e
+        task --dry playwright:install:hook 2>/dev/null 1>/dev/null
+        if [[ $? -eq 200 ]]; then
+          echo "Task playwright:install:hook does not exist. Running drush site:install --yes..."
+          drush site:install --yes --site-name Playwright
+        else
+          task playwright:install:hook
+        fi
 
   prepare:
-    desc: "Import a database in preparation for a test run."
+    desc: "Copy a database in preparation for a test run."
     summary: |
       This copies a database created with playwright:install to a now location.
 
@@ -45,7 +48,7 @@ tasks:
       will import the database into `web/sites/simpletest/456/.ht.sqlite`.
     preconditions:
       - sh: test -f /tmp/sqlite/.ht.sqlite
-        msg: 'test:playwright:install needs to be run before tests can run.'
+        msg: 'playwright:install needs to be run before tests can run.'
     cmds:
       - |
         export PLAYWRIGHT_SETUP=1
@@ -70,11 +73,11 @@ tasks:
         UA=$(drush ev 'echo drupal_generate_test_ua("test{{ shellQuote .test_id }}");' | sed 's/:/%3A/g')
 
         set +e
-        task playwright:prepare:hook test_id={{ shellQuote .test_id }}
-        # 200 is the exit code when a task doesn't exist.
-        if [[ $? -ne 0 && $? -ne 200 ]]; then
-          exit $?
-        fi;
+        task --dry playwright:prepare:hook 2>/dev/null 1>/dev/null
+        if [[ $? -ne 200 ]]; then
+          set -e
+          task playwright:prepare:hook test_id={{ shellQuote .test_id }}
+        fi
 
   ua:
     desc: Return the cookie value for a given test ID.
@@ -102,10 +105,11 @@ tasks:
         rm -rf /tmp/sqlite/{{ shellQuote .test_id }}/
 
         set +e
-        task playwright:cleanup:hook test_id={{ shellQuote .test_id }}
+        task --dry playwright:cleanup:hook test_id={{ shellQuote .test_id }} 2>/dev/null 1>/dev/null
         # 200 is the exit code when a task doesn't exist.
-        if [[ $? -ne 0 && $? -ne 200 ]]; then
-          exit $?
+        if [[ $? -ne 200 ]]; then
+          set -e
+          task playwright:cleanup:hook test_id={{ shellQuote .test_id }}
         fi;
 
   visualdiff:
