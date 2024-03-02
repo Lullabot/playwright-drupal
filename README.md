@@ -12,6 +12,7 @@ This project, building on [deviantintegral/ddev-playwright](https://github.com/d
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [Requirements](#requirements)
+- [How This Works](#how-this-works)
 - [Getting Started](#getting-started)
   - [Create the Drupal Site and Initialize DDEV](#create-the-drupal-site-and-initialize-ddev)
   - [Initialize Playwright Tests](#initialize-playwright-tests)
@@ -37,6 +38,14 @@ This project, building on [deviantintegral/ddev-playwright](https://github.com/d
 - The Playwright tests must be using `npm` as their package manager.
   - PRs supporting yarn are welcome! It's unclear at this moment how we could integrate yarn packages into the separate directory Playwright requires for test libraries.
 - Playwright tests will be written in TypeScript.
+
+## How This Works
+
+- This library includes an extended version of Playwright's `test` function that sets up and tears down isolated Drupal sites.
+- We use Playwright's concept of "packages" to allow for a npm dependency to export a test function.
+- Test requests from the web browser are directed to the right database though `settings.php` additions.
+- `drush-playwright` does its own bootstrap to route drush commands to the right site.
+- While as of this writing (March 2024) this is new code, a nearly identical version of this has been running on a real-world project for over a year.
 
 ## Getting Started
 
