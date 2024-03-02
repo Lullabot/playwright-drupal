@@ -5,6 +5,28 @@ This project, building on deviantintegral/ddev-playwright, enables full support 
 1. Supports fast parallel tests by installing sites into sqlite databases.
 2. Enables Playwright tests to run Drush commands against a test site.
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+  - [Create the Drupal Site and Initialize DDEV](#create-the-drupal-site-and-initialize-ddev)
+  - [Initialize Playwright Tests](#initialize-playwright-tests)
+  - [Install Playwright Dependencies](#install-playwright-dependencies)
+  - [Check Playwright Works](#check-playwright-works)
+  - [Add the playwright-drupal Integration](#add-the-playwright-drupal-integration)
+  - [Configure Playwright](#configure-playwright)
+  - [Ignore playwright-drupal from Git](#ignore-playwright-drupal-from-git)
+  - [Create Taskfile.yml](#create-taskfileyml)
+  - [Add Playwright to Drupal's Settings](#add-playwright-to-drupals-settings)
+  - [Create and Run an Example Drupal Test](#create-and-run-an-example-drupal-test)
+- [Replacing the Standard Profile With Your Own](#replacing-the-standard-profile-with-your-own)
+- [Running Drush in Tests](#running-drush-in-tests)
+- [Running Tests Without Isolation](#running-tests-without-isolation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Requirements
 
 - The Drupal site must be using DDEV for development environments.
