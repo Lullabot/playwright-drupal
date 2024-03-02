@@ -51,7 +51,7 @@ function copyDirectory(src: string, dest: string) {
  */
 function installBaseDrupalSite(): void {
   if (!fs.existsSync('/tmp/sqlite/.ht.sqlite')) {
-    taskSync('playwright:install', {stdio: 'inherit'}, 'task');
+    taskSync('playwright:install', {stdio: 'inherit'});
   }
   else {
     console.log("/tmp/sqlite/.ht.sqlite exists. Not installing Drupal. Run task playwright:install to reinstall if needed.")
