@@ -23,6 +23,7 @@ This project, building on [deviantintegral/ddev-playwright](https://github.com/d
   - [Create Taskfile.yml](#create-taskfileyml)
   - [Add Playwright to Drupal's Settings](#add-playwright-to-drupals-settings)
   - [Create and Run an Example Drupal Test](#create-and-run-an-example-drupal-test)
+- [Writing Tests](#writing-tests)
 - [Replacing the Standard Profile With Your Own](#replacing-the-standard-profile-with-your-own)
 - [Running Drush in Tests](#running-drush-in-tests)
 - [Running Tests Without Isolation](#running-tests-without-isolation)
@@ -248,6 +249,18 @@ To open last HTML report run:
 ```
 
 You're now ready for the hard part - writing tests for your own application! 🙌
+
+## Writing Tests
+
+The important part of writing a test is to use the Test class shipped with this library (that extends Playwright's normal Test class):
+
+```typescript
+import { test, expect } from '@playwright-drupal';
+```
+
+This will trigger the setup and teardown of the separate Drupal site.
+
+If you have a test that you don't want to run this way, import test and expect from `@playwright/test` as normal.
 
 ## Replacing the Standard Profile With Your Own
 
