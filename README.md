@@ -43,6 +43,7 @@ Integrating this library into a site takes several steps. For the sake of comple
 
 ```console
 composer create-project drupal/recommended-project pwtest
+composer require drush/drush
 cd pwtest
 ddev config --project-type drupal10
 ddev get deviantintegral/ddev-playwright
