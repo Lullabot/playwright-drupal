@@ -1,11 +1,13 @@
 import {expect, test as base_test, TestFixture, WebError} from '@playwright/test';
 import {task, taskSync} from "./task";
 import * as fs from "fs";
+import * as util from "util";
+import child_process from "child_process";
 
 /**
  * Keep a reference to the test ID, so we can use it to attach the error log.
  */
-let drupal_id: number;
+let drupal_test_id: number;
 
 /**
  * Set a simpletest cookie for routing the tests to a separate database.
@@ -22,7 +24,7 @@ const test = base_test.extend<TestFixture<any, any>>( {
       // if we ever get reports of failures.
       // See \Drupal\Core\Test\TestDatabase::getTestLock().
       let id = Math.round(Math.random() * 1000000);
-      drupal_id = id;
+      drupal_test_id = id;
 
       // Copy the base database to a new one.
       let install = task('playwright:prepare test_id=' + id);
@@ -59,10 +61,10 @@ const test = base_test.extend<TestFixture<any, any>>( {
 });
 
 /**
- * Attach the PHP error log to the test restuls.
+ * Attach the PHP error log to the test results.
  */
 test.afterEach(async ({ page }, testInfo) => {
-    let logPath = '../../web/sites/simpletest/' + drupal_id + '/error.log';
+    let logPath = '../../web/sites/simpletest/' + drupal_test_id + '/error.log';
     if (fs.existsSync(logPath)) {
       await testInfo.attach('error.log', {path: logPath});
     }
