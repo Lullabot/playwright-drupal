@@ -185,6 +185,9 @@ Run the test with:
 
 ```console
 ddev playwright test
+```
+
+```console
 # Or you can run inside the container with:
 ddev ssh
 cd test/playwright
