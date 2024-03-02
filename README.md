@@ -4,6 +4,8 @@ This project, building on [deviantintegral/ddev-playwright](https://github.com/d
 
 1. Supports fast parallel tests by installing sites into sqlite databases.
 2. Enables Playwright tests to run Drush commands against a test site.
+3. Shows browser console errors during the test.
+4. Attaches PHP's error log to the Playwright test results.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -194,7 +196,7 @@ cd test/playwright
 npx playwright test
 ```
 
-You should see output similar to this:
+You should see output similar to this. If you see JavaScript browser console errors, those are likely Drupal core bugs to investigate and report.
 
 ```console
 $ ddev playwright test
