@@ -125,7 +125,7 @@ Set the following in `test/playwright/tsconfig.json`, merging with any existing 
 Add the following `globalSetup` and `use` line to the `defineConfig` section in `test/playwright/playwright.config.ts`:
 ```typescript
 export default defineConfig({
-  globalSetup: require.resolve('./node_modules/playwright-drupal/lib/global-setup'),
+  globalSetup: require.resolve('./node_modules/playwright-drupal/lib/setup/global-setup'),
   baseURL: process.env.DDEV_PRIMARY_URL,
   use: {
     ignoreHTTPSErrors: true,
