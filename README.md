@@ -27,6 +27,10 @@ This project, building on [deviantintegral/ddev-playwright](https://github.com/d
   - [Add Playwright to Drupal's Settings](#add-playwright-to-drupals-settings)
   - [Create and Run an Example Drupal Test](#create-and-run-an-example-drupal-test)
 - [Writing Tests](#writing-tests)
+- [Visual Comparisons (Diffs)](#visual-comparisons-diffs)
+  - [Visual Comparisons for Static Content](#visual-comparisons-for-static-content)
+  - [Including the Visual Comparison Drupal database as a fixture](#including-the-visual-comparison-drupal-database-as-a-fixture)
+  - [Replacing the test case with your own](#replacing-the-test-case-with-your-own)
 - [Replacing the Standard Profile With Your Own](#replacing-the-standard-profile-with-your-own)
 - [Running Drush in Tests](#running-drush-in-tests)
 - [Running Tests Without Isolation](#running-tests-without-isolation)
@@ -275,6 +279,159 @@ This will trigger the setup and teardown of the separate Drupal site.
 
 If you have a test that you don't want to run this way, import test and expect from `@playwright/test` as normal.
 
+## Visual Comparisons (Diffs)
+
+Playwright Visual Comparisons are a great way to add additional assertions to your tests. Since visual comparisons are integrated into the testing system, developers can compare all aspects of a site - including content forms or other authenticated content.
+
+We've found that taking a screenshot for a visual comparison is a great point to check for accessibility issues. Unlike other steps in a test, a visual comparison is specifically declaring that the page is ready for human consumption.
+
+The `takeAccessibleScreenshot()` method will:
+
+1. Ensure that complex pages like node forms have time to stabilize before taking screenshots.
+2. Handle browsers that have non-deterministic rendering of images (in particular, WebP) and allow for minute pixel differences in images that are not observable by a human.
+3. Automatically trigger loading of all lazy-loaded images.
+4. Automatically trigger loading of all lazy-loaded iframes.
+5. Generate an accessibility report of the element being tested.
+
+The accessibility reports save a JSON object with all accessibility failures. Commit these to your repository to mark those failures as ignored. Pages with no failures will generate a report with an empty array (`[]`).
+
+### Visual Comparisons for Static Content
+
+The above workflow is great for testing after creating or editing content. However, teams may also want visual comparisons purely of the front-end. In that case, there's no concurrency issues (every request can use the same Drupal database), and often the content itself comes from a test website whose database has been copied down.
+
+The `VisualDiffTestCases` class scaffolds out support for this use case, including:
+
+- The ability to define a configuration file of URLs to test.
+- Grouping of related tests for better reporting.
+- The ability to skip specific tests. This is useful when a test is added and later determined to be flaky.
+- Links to related content, such as a link to a production URL similar to the tested content, or a ticket for fixing the underlying reason behind a skipped test.
+
+To set up visual comparisons this way:
+
+1. Create a file at `test/playwright/tests/visualdiff/urls.ts` to hold pages to compare. Here is an example using the Drupal Umami install profile.
+
+```typescript
+const config: VisualDiffUrlConfig = {
+  name: "Umami Visual Diffs",
+  description: "Execute a series of visual diffs against the Umami site.",
+  groups: [
+    {
+      name: "Recipes",
+      description: "Pages built using the Recipe content type.",
+      // There isn't a stable link to a running copy of the Umami profile, but
+      // imagine this goes to a production website.
+      representativeUrl: "https://drupal.org/...",
+      testCases: [
+        {
+          name: "TBD",
+          path: "/asdf",
+        },
+        {
+          name: "Alternate Recipe View",
+          path: "/zzzz",
+          skip: {
+            reason: "The recipies are listed in random order",
+            willBeFixedIn: "https://drupal.org/node/12345",
+          }
+        }
+      ]
+    }
+  ],
+}
+
+export default config;
+```
+
+2. Create a test file at `test/playwright/tests/visualdiff/visualdiffs.spec.ts`:
+
+```typescript
+import { VisualDiffTestCases } from "playwright-drupal";
+import { config } from './urls.ts';
+
+const visualdiffs = new VisualDiffTestCases(config);
+visualdiffs.describe();
+```
+
+3. Update the Playwright configuration to skip these tests in normal functional tests, and skip normal functional tests when running these tests.
+
+For all existing tests, add `testIgnore` like so:
+
+```typescript
+{
+  name: 'desktop chrome',
+  testIgnore: '/visualdiffs/*',
+  use: { ...devices['Desktop Chrome'] },
+},
+```
+
+Then, add the following as projects to run the new visual diffs, editing as needed.
+
+```typescript
+{
+  name: 'visualdiff-desktop',
+  testMatch: '/visualdiff/*',
+  use: { baseURL: "https://<MYPROJECT>.ddev.site/", ...devices['Desktop Chrome'] },
+},
+{
+  name: 'visualdiff-tablet',
+  testMatch: '/visualdiff/*',
+  use: { baseURL: "https://<MYPROJECT>.ddev.site/", ...devices['Galaxy Tab S4'] },
+},
+{
+  name: 'visualdiff-phone',
+  testMatch: '/visualdiff/*',
+  use: { baseURL: "https://<MYPROJECT>.ddev.site/", ...devices['Pixel 5'] },
+},
+```
+Now, you can run just these tests with a command like:
+
+```console
+# Run all visual diff tests, using path matching.
+ddev playwright test -- tests/visualdiff
+```
+
+```console
+# Run all tests, but only at desktop.
+ddev playwright --project 'visualdiff-desktop'
+```
+
+### Including the Visual Comparison Drupal database as a fixture
+
+It's important that the database with the content is tied to version control somehow. Otherwise, changes to content will yield false failures and developer tears. Since every site is different, we don't automatically set this up in this project. However, if you are using [lullabot/drainpipe](https://github.com/lullabot/drainpipe), you likely already have much of this wired up. Otherwise, consider adding something like the following to the end of your `playwright:install:hook` task:
+
+```yaml
+# Now set up the Visual Comparison database.
+unset PLAYWRIGHT_SETUP
+
+# Remove any old databases from prior checkouts.
+rm -f .private/databases/MYSITE-live_*_database.sql.gz
+
+# Create the directory for first-runs.
+mkdir -p ./private/databases
+
+# Copy the database to the expected location before refreshing the site.
+cp ./test/playwright/tests/visualdiff/fixtures/MYSITE-live_*_database.sql.gz ./private/databases/
+
+# Restore the database, but don't download a new one, and don't enable
+# development dependencies.
+# "refresh" should be the command that imports the database, runs database
+# updates, and so on.
+task refresh site=@mysite no_fetch=1 production_mode=1
+
+# Enable Stage File Proxy for images.
+./vendor/bin/drush @mysite -y en stage_file_proxy
+```
+
+### Replacing the test case with your own
+
+The describe() function can optionally take a replacement test function. This is useful if you need to mock HTTP responses or add other custom logic.
+
+```typescript
+visualdiffs.describe(async ({page, browserName}, defaultCallback) => {
+  test.skip(browserName == 'firefox', 'Skip Firefox as we are trying to save CI budget.');
+  defaultCallback(testCase, group)();
+})
+```
 ## Replacing the Standard Profile With Your Own
 
 Out of the box, we can't know what setup steps your site needs to work correctly. To use your own steps, add a `playwright:install:hook` task to your Taskfile. This will be called with the right environment set so that the site is installed into sqlite (and not your normal ddev database). From here, run Drush commands or call other tasks as needed to install your site. To test this when developing, feel free to call `task playwright:install` without actually running tests.
