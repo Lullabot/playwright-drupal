@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import path from "path";
 import {FullConfig} from "@playwright/test";
-import {taskSync} from "./task";
+import {taskSync} from "../cli/task";
 
 /**
  * Global setup callback for Playwright
