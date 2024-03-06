@@ -11,6 +11,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "dependencies": {
+    "@axe-core/playwright": "^4.8.5",
     "@playwright/test": "^1.39.0",
     "@types/node": "^20.9.0"
   },
