@@ -26,6 +26,7 @@ function globalSetup(config: FullConfig): void {
  */
 function copyDirectory(src: string, dest: string) {
   try {
+    fs.rmSync(dest, {recursive: true, force: true});
 
     fs.mkdirSync(dest, {recursive: true});
     let entries = fs.readdirSync(src, { withFileTypes: true });
