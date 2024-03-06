@@ -1,13 +1,14 @@
-import {test, type TestInfo, PlaywrightTestArgs} from '@playwright/test';
+import {test} from '@playwright/test';
 
-import {takeAccessibleScreenshot} from "../util/accessible-screenshot";
+import {takeAccessibleScreenshot} from "../util";
 
 export function defineVisualDiffConfig(cases: VisualDiffUrlConfig) {
   return new VisualDiffTestCases(cases);
 }
 
 export function defaultTestFunction(testCase: VisualDiff, group: VisualDiffGroup) {
-  return async (args: PlaywrightTestArgs, testInfo: TestInfo) => {
+  // @ts-ignore
+  return async ({page}, testInfo) => {
     testInfo.annotations.push({
       type: 'Description',
       description: testCase.description,
@@ -32,8 +33,8 @@ export function defaultTestFunction(testCase: VisualDiff, group: VisualDiffGroup
       path = group.pathPrefix + path;
     }
 
-    await args.page.goto(path);
-    await takeAccessibleScreenshot(args.page, testInfo, {fullPage: true});
+    await page.goto(path);
+    await takeAccessibleScreenshot(page, testInfo, {fullPage: true});
   };
 }
 
@@ -61,13 +62,13 @@ export class VisualDiffTestCases {
    *
    * @param overriddenTestFunction
    */
-  // public describe(overriddenTestFunction?: (args: PlaywrightTestArgs, testInfo: TestInfo) => Promise<void> | void) {
   public describe(overriddenTestFunction?: (testCase: VisualDiff, group: VisualDiffGroup) => Function | void) {
     // Handle skipping of test cases, either based on a simple boolean or a callback.
     function doSkip(testCase: BaseVisualDiff) {
       if (typeof testCase.skip !== 'undefined' && (typeof testCase.skip.callback == 'undefined' || testCase.skip.callback(testCase))) {
         // eslint-disable-ext-line @typescript-eslint/no-unused-vars
-        test.skip(`${testCase.name}: ${testCase.skip.reason} <${testCase.skip.willBeFixedIn}>`, async ({page}, testInfo) => {});
+        test.skip(`${testCase.name}: ${testCase.skip.reason} <${testCase.skip.willBeFixedIn}>`, async ({page}, testInfo) => {
+        });
       }
     }
 
@@ -91,17 +92,16 @@ export class VisualDiffTestCases {
           let testFunction: any;
           if (typeof overriddenTestFunction != 'function') {
             testFunction = defaultTestFunction(testCase, group)
-          }
-          else {
+          } else {
             testFunction = overriddenTestFunction(testCase, group);
           }
 
           test(`${testCase.name}: ${testCase.path}`, testFunction);
-        }))
+        }));
       });
     });
-  }
 
+  }
 }
 
 
