@@ -133,7 +133,7 @@ tasks:
   visualdiff:
     desc: Runs only visual diff tests
     deps:
-      - playwright:install
+      - install
     cmds:
       - |
         cd test/playwright
