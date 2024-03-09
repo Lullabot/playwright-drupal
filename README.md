@@ -113,7 +113,7 @@ Set the following in `test/playwright/tsconfig.json`, merging with any existing 
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@playwright-drupal": ["./packages/playwright-drupal"]
+      "@packages/playwright-drupal": ["./packages/playwright-drupal"]
     }
   },
   "include": [
@@ -167,7 +167,7 @@ include '../test/playwright/node_modules/playwright-drupal/settings/settings.pla
 Copy the following to `test/playwright/tests/example.drupal.spec.ts`.
 
 ```typescript
-import { test, expect, execDrushInTestSite } from '@playwright-drupal';
+import { test, expect, execDrushInTestSite } from '@packages/playwright-drupal';
 
 test('has title', async ({ page }) => {
   await page.goto('/');
@@ -272,7 +272,7 @@ You're now ready for the hard part - writing tests for your own application! ðŸ™
 The important part of writing a test is to use the Test class shipped with this library (that extends Playwright's normal Test class):
 
 ```typescript
-import { test, expect } from '@playwright-drupal';
+import { test, expect } from '@packages/playwright-drupal';
 ```
 
 This will trigger the setup and teardown of the separate Drupal site.
@@ -311,7 +311,9 @@ To set up visual comparisons this way:
 1. Create a file at `test/playwright/tests/visualdiff/urls.ts` to hold pages to compare. Here is an example using the Drupal Umami install profile.
 
 ```typescript
-const config: VisualDiffUrlConfig = {
+import { defineVisualDiffConfig } from '@packages/playwright-drupal';
+
+export const config = defineVisualDiffConfig({
   name: "Umami Visual Diffs",
   description: "Execute a series of visual diffs against the Umami site.",
   groups: [
@@ -337,19 +339,15 @@ const config: VisualDiffUrlConfig = {
       ]
     }
   ],
-}
-
-export default config;
+});
 ```
 
 2. Create a test file at `test/playwright/tests/visualdiff/visualdiffs.spec.ts`:
 
 ```typescript
-import { VisualDiffTestCases } from "playwright-drupal";
-import { config } from './urls.ts';
+import {config} from './urls';
 
-const visualdiffs = new VisualDiffTestCases(config);
-visualdiffs.describe();
+config.describe();
 ```
 
 3. Update the Playwright configuration to skip these tests in normal functional tests, and skip normal functional tests when running these tests.
