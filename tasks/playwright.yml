@@ -32,8 +32,8 @@ tasks:
         set +e
         task --dry playwright:install:hook 2>/dev/null 1>/dev/null
         if [[ $? -eq 200 ]]; then
-          echo "Task playwright:install:hook does not exist. Running drush site:install --yes..."
-          drush site:install --yes --site-name Playwright
+          echo "Task playwright:install:hook does not exist. Running drush site:install --yes demo_umami..."
+          drush site:install --yes --site-name Playwright demo_umami
         else
           task playwright:install:hook
         fi
