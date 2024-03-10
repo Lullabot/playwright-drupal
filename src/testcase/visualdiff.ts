@@ -1,4 +1,4 @@
-import {test} from '@playwright/test';
+import {test, WebError} from '@playwright/test';
 
 import {takeAccessibleScreenshot} from "../util";
 
@@ -8,7 +8,10 @@ export function defineVisualDiffConfig(cases: VisualDiffUrlConfig) {
 
 export function defaultTestFunction(testCase: VisualDiff, group: VisualDiffGroup) {
   // @ts-ignore
-  return async ({page}, testInfo) => {
+  return async ({page, context}, testInfo) => {
+    // Log any errors to the Playwright console too.
+
+    context.on('weberror', (webError: WebError) => console.log(webError.error()));
     testInfo.annotations.push({
       type: 'Description',
       description: testCase.description,
