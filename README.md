@@ -113,6 +113,8 @@ Set the following in `test/playwright/tsconfig.json`, merging with any existing 
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
+      "~": ["./src"],
+      "~*": ["./src/*"],
       "@packages/playwright-drupal": ["./packages/playwright-drupal"]
     }
   },
