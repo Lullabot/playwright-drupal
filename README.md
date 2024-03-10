@@ -367,7 +367,7 @@ For all existing tests, add `testIgnore` like so:
 ```typescript
 {
   name: 'desktop chrome',
-  testIgnore: '/visualdiffs/*',
+  testIgnore: '/visualdiff/*',
   use: { ...devices['Desktop Chrome'] },
 },
 ```
