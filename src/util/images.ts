@@ -27,7 +27,14 @@ export async function waitForImages(page: Page, selector: string): Promise<Seria
 
   // Make sure all images have loaded.
   // @ts-ignore
-  const promises = (await locators.all()).map(locator => locator.evaluate(image => image.complete || new Promise(f => image.onload = f)));
+  const promises = (await locators.all()).map(locator => locator.evaluate(image => {
+    // Make sure 1x1 images that are visually hidden for accessibility (like
+    // on the Umami home page) don't hang waiting for the image to load. Even
+    // though the images are :visible, Chrome doesn't load the image at desktop
+    // widths.
+    // @ts-ignore
+    return ((image.width <= 1 && image.height <= 1) || image.complete || new Promise(f => image.onload = f));
+  }));
   await Promise.all(promises);
 
   // Scroll to the top.
