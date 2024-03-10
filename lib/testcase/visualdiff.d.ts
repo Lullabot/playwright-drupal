@@ -1,6 +1,8 @@
-import { type TestInfo, PlaywrightTestArgs } from '@playwright/test';
 export declare function defineVisualDiffConfig(cases: VisualDiffUrlConfig): VisualDiffTestCases;
-export declare function defaultTestFunction(testCase: VisualDiff, group: VisualDiffGroup): (args: PlaywrightTestArgs, testInfo: TestInfo) => Promise<void>;
+export declare function defaultTestFunction(testCase: VisualDiff, group: VisualDiffGroup): ({ page, context }: {
+    page: any;
+    context: any;
+}, testInfo: any) => Promise<void>;
 /**
  * Execute a set of visual diffs against groups of test cases.
  */
