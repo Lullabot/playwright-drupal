@@ -310,7 +310,7 @@ The `VisualDiffTestCases` class scaffolds out support for this use case, includi
 
 To set up visual comparisons this way:
 
-1. Create a file at `test/playwright/tests/visualdiff/urls.ts` to hold pages to compare. Here is an example using the Drupal Umami install profile.
+1. Create a file at `test/playwright/src/visualdiff-urls.ts` to hold pages to compare. Here is an example using the Drupal Umami install profile.
 
 ```typescript
 import { defineVisualDiffConfig } from '@packages/playwright-drupal';
@@ -347,7 +347,7 @@ export const config = defineVisualDiffConfig({
 2. Create a test file at `test/playwright/tests/visualdiff/visualdiffs.spec.ts`:
 
 ```typescript
-import {config} from './urls';
+import {config} from '~/visualdiff-urls';
 
 config.describe();
 ```
