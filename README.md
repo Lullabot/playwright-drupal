@@ -435,11 +435,47 @@ task refresh site=@mysite no_fetch=1 production_mode=1
 The describe() function can optionally take a replacement test function. This is useful if you need to mock HTTP responses or add other custom logic.
 
 ```typescript
-visualdiffs.describe(async ({page, browserName}, defaultCallback) => {
-  test.skip(browserName == 'firefox', 'Skip Firefox as we are trying to save CI budget.');
-  defaultCallback(testCase, group)();
-})
+import {config} from '~/visualdiff-urls';
+import {defaultTestFunction, VisualDiff, VisualDiffGroup} from "@packages/playwright-drupal";
+import {test, TestInfo} from "@playwright/test";
+
+/**
+ * Skips Firefox on /en/articles.
+ */
+const skipFirefox = function (testCase: VisualDiff, group: VisualDiffGroup) {
+  const defaultFunction = defaultTestFunction(testCase, group);
+  return async ({page, context, browserName}, testInfo: TestInfo) => {
+    test.skip(browserName == 'firefox' && testCase.path == '/en/articles', 'Skip Firefox as we are trying to save CI budget.');
+    await defaultFunction({page, context}, testInfo);
+  };
+}
+
+config.describe(skipFirefox);
 ```
+
+```typescript
+import {config} from '~/visualdiff-urls';
+import {defaultTestFunction, VisualDiff, VisualDiffGroup} from "@packages/playwright-drupal";
+import {TestInfo} from "@playwright/test";
+
+/**
+ * Mirror all console messages to the Playwright console, even if they aren't
+ * errors.
+ */
+const consoleLoggingTestFunction = function (testCase: VisualDiff, group: VisualDiffGroup) {
+  const defaultFunction = defaultTestFunction(testCase, group);
+  return async ({page, context}, testInfo: TestInfo) => {
+    context.on('console', (message) => {
+      console.log(message.text());
+    });
+
+    await defaultFunction({page, context}, testInfo);
+  };
+}
+
+config.describe(consoleLoggingTestFunction);
+```
+
 ## Replacing the Standard Profile With Your Own
 
 Out of the box, we can't know what setup steps your site needs to work correctly. To use your own steps, add a `playwright:install:hook` task to your Taskfile. This will be called with the right environment set so that the site is installed into sqlite (and not your normal ddev database). From here, run Drush commands or call other tasks as needed to install your site. To test this when developing, feel free to call `task playwright:install` without actually running tests.
