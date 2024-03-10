@@ -320,21 +320,29 @@ export const config = defineVisualDiffConfig({
   description: "Execute a series of visual diffs against the Umami site.",
   groups: [
     {
-      name: "Recipes",
-      description: "Pages built using the Recipe content type.",
+      name: "Landing Pages",
+      description: "Pages built with Layout Builder and Views.",
       // There isn't a stable link to a running copy of the Umami profile, but
       // imagine this goes to a production website.
       representativeUrl: "https://drupal.org/...",
       testCases: [
         {
-          name: "TBD",
-          path: "/asdf",
+          name: "Home Page",
+          path: "/",
+        },
+        {
+          name: "Articles",
+          path: "/en/articles",
+        },
+        {
+          name: "Recipes",
+          path: "/en/recipes",
         },
         {
           name: "Alternate Recipe View",
-          path: "/zzzz",
+          path: "/en/recipes-alt",
           skip: {
-            reason: "The recipies are listed in random order",
+            reason: "The recipes are listed in random order",
             willBeFixedIn: "https://drupal.org/node/12345",
           }
         }
