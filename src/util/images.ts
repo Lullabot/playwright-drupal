@@ -32,6 +32,8 @@ export async function waitForImages(page: Page, selector: string): Promise<Seria
     // on the Umami home page) don't hang waiting for the image to load. Even
     // though the images are :visible, Chrome doesn't load the image at desktop
     // widths.
+    // See https://www.tpgi.com/the-anatomy-of-visually-hidden/ for details on
+    // how .visually-hidden works.
     // @ts-ignore
     return ((image.width <= 1 && image.height <= 1) || image.complete || new Promise(f => image.onload = f));
   }));
