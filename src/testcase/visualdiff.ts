@@ -70,7 +70,9 @@ export class VisualDiffTestCases {
     function doSkip(testCase: BaseVisualDiff) {
       if (typeof testCase.skip !== 'undefined' && (typeof testCase.skip.callback == 'undefined' || testCase.skip.callback(testCase))) {
         // eslint-disable-ext-line @typescript-eslint/no-unused-vars
-        test.skip(`${testCase.name}: ${testCase.skip.reason} <${testCase.skip.willBeFixedIn}>`, async ({page}, testInfo) => {
+        test.skip(`${testCase.name}: ${testCase.skip.reason} <${testCase.skip.willBeFixedIn}>`, {
+          tag: testCase.tags
+        }, async ({page}, testInfo) => {
         });
       }
     }
