@@ -99,7 +99,9 @@ export class VisualDiffTestCases {
             testFunction = overriddenTestFunction(testCase, group);
           }
 
-          test(`${testCase.name}: ${testCase.path}`, testFunction);
+          test(`${testCase.name}: ${testCase.path}`, {
+            tag: testCase.tags
+          }, testFunction);
         }));
       });
     });
@@ -147,6 +149,7 @@ export type BaseVisualDiff = {
   representativeUrl?: string,
   // Allow skipping of this test.
   skip?: SkipTest,
+  tags?: string[],
 }
 
 /**
