@@ -69,8 +69,21 @@ export class VisualDiffTestCases {
     // Handle skipping of test cases, either based on a simple boolean or a callback.
     function doSkip(testCase: BaseVisualDiff) {
       if (typeof testCase.skip !== 'undefined' && (typeof testCase.skip.callback == 'undefined' || testCase.skip.callback(testCase))) {
+        const skipOrFixmethod = testCase.skip.willBeFixedIn ? test.fixme : test.skip;
+        const annotations = [{
+          type: 'skip reason',
+          description: testCase.skip.reason,
+        }];
+        if (testCase.skip.willBeFixedIn) {
+          annotations.push({
+            type: 'will be fixed in',
+            description: testCase.skip.willBeFixedIn
+          });
+        }
         // eslint-disable-ext-line @typescript-eslint/no-unused-vars
-        test.skip(`${testCase.name}: ${testCase.skip.reason} <${testCase.skip.willBeFixedIn}>`, async ({page}, testInfo) => {
+        skipOrFixmethod(`${testCase.name}: ${testCase.path}`, {
+          annotation: annotations,
+        }, async ({page}, testInfo) => {
         });
       }
     }
