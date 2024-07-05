@@ -9,34 +9,6 @@ This project, building on [deviantintegral/ddev-playwright](https://github.com/d
 3. Shows browser console errors during the test.
 4. Attaches PHP's error log to the Playwright test results.
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [Requirements](#requirements)
-- [How This Works](#how-this-works)
-- [Getting Started](#getting-started)
-  - [Create the Drupal Site and Initialize DDEV](#create-the-drupal-site-and-initialize-ddev)
-  - [Initialize Playwright Tests](#initialize-playwright-tests)
-  - [Install Playwright Dependencies](#install-playwright-dependencies)
-  - [Check Playwright Works](#check-playwright-works)
-  - [Add the playwright-drupal Integration](#add-the-playwright-drupal-integration)
-  - [Configure Playwright](#configure-playwright)
-  - [Ignore playwright-drupal from Git](#ignore-playwright-drupal-from-git)
-  - [Create Taskfile.yml](#create-taskfileyml)
-  - [Add Playwright to Drupal's Settings](#add-playwright-to-drupals-settings)
-  - [Create and Run an Example Drupal Test](#create-and-run-an-example-drupal-test)
-- [Writing Tests](#writing-tests)
-- [Visual Comparisons (Diffs)](#visual-comparisons-diffs)
-  - [Visual Comparisons for Static Content](#visual-comparisons-for-static-content)
-  - [Including the Visual Comparison Drupal database as a fixture](#including-the-visual-comparison-drupal-database-as-a-fixture)
-  - [Replacing the test case with your own](#replacing-the-test-case-with-your-own)
-- [Replacing the Standard Profile With Your Own](#replacing-the-standard-profile-with-your-own)
-- [Running Drush in Tests](#running-drush-in-tests)
-- [Running Tests Without Isolation](#running-tests-without-isolation)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 ## Requirements
 
 - The Drupal site must be using DDEV for development environments.
