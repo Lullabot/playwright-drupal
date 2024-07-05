@@ -82,6 +82,7 @@ export class VisualDiffTestCases {
         }
         // eslint-disable-ext-line @typescript-eslint/no-unused-vars
         skipOrFixmethod(`${testCase.name}: ${testCase.path}`, {
+          tag: testCase.tags,
           annotation: annotations,
         }, async ({page}, testInfo) => {
         });
@@ -112,7 +113,9 @@ export class VisualDiffTestCases {
             testFunction = overriddenTestFunction(testCase, group);
           }
 
-          test(`${testCase.name}: ${testCase.path}`, testFunction);
+          test(`${testCase.name}: ${testCase.path}`, {
+            tag: testCase.tags
+          }, testFunction);
         }));
       });
     });
@@ -160,6 +163,7 @@ export type BaseVisualDiff = {
   representativeUrl?: string,
   // Allow skipping of this test.
   skip?: SkipTest,
+  tags?: string[],
 }
 
 /**
