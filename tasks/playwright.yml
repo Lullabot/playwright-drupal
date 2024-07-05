@@ -77,8 +77,8 @@ tasks:
         # step. However, these steps would also be run on a first page load by a
         # test, so we may as well add this early check to make sure the test
         # site is working.
-        curl -s -k -b SIMPLETEST_USER_AGENT=$UA https://iowadt.ddev.site/core/rebuild.php > /dev/null
-        STATUS=$(curl -s -k -b SIMPLETEST_USER_AGENT=$UA -w "%{http_code}\n" -o /dev/null https://iowadt.ddev.site/)
+        curl -s -k -b SIMPLETEST_USER_AGENT=$UA $DDEV_PRIMARY_URL/core/rebuild.php > /dev/null
+        STATUS=$(curl -s -k -b SIMPLETEST_USER_AGENT=$UA -w "%{http_code}\n" -o /dev/null $DDEV_PRIMARY_URL)
         if [[ $STATUS != "200" ]]; then
           (echo "The test site {{ shellQuote .test_id }} is not working as it returned HTTP status $STATUS.";
           echo "Likely your code changes are causing an exception to be thrown.";
