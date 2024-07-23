@@ -54,11 +54,10 @@ export type BaseVisualDiff = {
  * A declaration that a test should be skipped.
  *
  * Nothing prevents calling test.skip() in a custom test function, but this
- * type ensures that every skip has both a reason and, optionally, a link to a
- * ticket.
+ * type ensures that every skip has both a reason and a link to a ticket.
  */
 export type SkipTest = {
     reason: string;
-    willBeFixedIn?: string;
+    willBeFixedIn: string;
     callback?: (testCase: BaseVisualDiff) => boolean;
 };
