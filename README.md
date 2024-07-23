@@ -305,17 +305,14 @@ export const config = defineVisualDiffConfig({
         {
           name: "Articles",
           path: "/en/articles",
-          tags: ["@articles"],
         },
         {
           name: "Recipes",
           path: "/en/recipes",
-          tags: ["@recipes"],
         },
         {
           name: "Alternate Recipe View",
           path: "/en/recipes-alt",
-          tags: ["@recipes"],
           skip: {
             reason: "The recipes are listed in random order",
             willBeFixedIn: "https://drupal.org/node/12345",
