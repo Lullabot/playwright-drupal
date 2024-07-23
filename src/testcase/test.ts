@@ -39,12 +39,14 @@ const test = base_test.extend<TestFixture<any, any>>( {
     install.on('exit', async (code) => {
       let ua = taskSync('-o group playwright:ua test_id=' + id).toString();
 
-      await context.addCookies( [{
-        name: 'SIMPLETEST_USER_AGENT',
-        value: ua,
-        path: '/',
-        domain: process.env.DDEV_HOSTNAME
-      }]);
+      if (typeof process.env.DDEV_HOSTNAME !== 'undefined') {
+        await context.addCookies( [{
+          name: 'SIMPLETEST_USER_AGENT',
+          value: ua,
+          path: '/',
+          domain: process.env.DDEV_HOSTNAME.split(',')[0],
+        }]);
+      }
 
       // Mirror browser errors to the Playwright console log.
       context.on('weberror', (webError: WebError) => console.log(webError.error()));
