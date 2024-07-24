@@ -39,7 +39,25 @@ if (!$test_id) {
   exit(1);
 }
 
-include_once '/var/www/html/web/core/includes/bootstrap.inc';
+// Get the docroot directory from the environment variable.
+$docroot_dir = getenv('DOCROOT');
+if (!$docroot_dir) {
+  print "DOCROOT must be defined as an environment variable.";
+  exit(1);
+}
+
+// Construct the path to the bootstrap.inc file based on the docroot directory.
+$bootstrap_path = "/var/www/html/$docroot_dir/core/includes/bootstrap.inc";
+
+// Check if the file exists and include it.
+if (file_exists($bootstrap_path)) {
+  include_once $bootstrap_path;
+}
+else {
+  print "bootstrap.inc file not found in the specified directory.";
+  exit(1);
+}
+
 drupal_valid_test_ua('test' . $test_id);
 
 return include '/var/www/html/vendor/bin/drush';
