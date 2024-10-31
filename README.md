@@ -112,7 +112,7 @@ export default defineConfig({
 We have to copy the library outside the `node_modules` directory for Playwright to work correctly. Ignore this directory from git, since it's effectively a npm package:
 
 ```console
-echo './packages/playwright-drupal' >> test/playwright/.gitignore
+echo '/packages/playwright-drupal' >> test/playwright/.gitignore
 ```
 
 ### Create Taskfile.yml
