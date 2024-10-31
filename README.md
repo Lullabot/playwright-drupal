@@ -33,12 +33,14 @@ Integrating this library into a site takes several steps. For the sake of comple
 ### Create the Drupal Site and Initialize DDEV
 
 ```console
-composer create-project drupal/recommended-project pwtest
-composer require drush/drush
+mkdir pwtest
 cd pwtest
-ddev config --project-type drupal10
-ddev get deviantintegral/ddev-playwright
+ddev config --project-type=drupal --php-version=8.3 --docroot=web
 ddev start
+ddev composer create drupal/recommended-project:^10
+ddev composer require drush/drush
+ddev get deviantintegral/ddev-playwright
+ddev restart
 ```
 
 ### Initialize Playwright Tests
@@ -85,8 +87,8 @@ Set the following in `test/playwright/tsconfig.json`, merging with any existing 
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "~": ["./src"],
-      "~*": ["./src/*"],
+      "~": ["./tests"],
+      "~*": ["./tests/*"],
       "@packages/playwright-drupal": ["./packages/playwright-drupal"]
     }
   },
@@ -100,8 +102,8 @@ Add the following `globalSetup` and `use` line to the `defineConfig` section in 
 ```typescript
 export default defineConfig({
   globalSetup: require.resolve('./node_modules/playwright-drupal/lib/setup/global-setup'),
-  baseURL: process.env.DDEV_PRIMARY_URL,
   use: {
+    baseURL: process.env.DDEV_PRIMARY_URL,
     ignoreHTTPSErrors: true,
   }
 })
@@ -167,8 +169,6 @@ test('proves parallel tests work', async ({ page }) => {
   let randomTitle = (Math.random() + 1).toString(36).substring(2);
   await page.getByLabel('Title', { exact: true }).fill(randomTitle);
   await page.getByRole('button', { name: 'Save' }).click();
-
-  await expect(page.url()).toMatch('node/1')
 
   await expect(page).toHaveTitle(`${randomTitle} | Playwright`);
   await expect(page.locator('h1')).toHaveText(randomTitle);
@@ -332,7 +332,7 @@ import {config} from '~/visualdiff-urls';
 config.describe();
 ```
 
-3. Update the Playwright configuration to skip these tests in normal functional tests, and skip normal functional tests when running these tests.
+3. Update the Playwright configuration at `playwright.config.ts` to skip these tests in normal functional tests, and skip normal functional tests when running these tests.
 
 For all existing tests, add `testIgnore` like so:
 
