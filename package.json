@@ -1,12 +1,12 @@
 {
   "name": "playwright-drupal",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Playwright / Drupal integration, supporting fast parallel tests and visual comparisons",
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Andrew Berry <andrew@furrypaws.ca>",
+  "author": "Andrew Berry <andrew.berry@lullabot.com>",
   "license": "Apache-2.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
