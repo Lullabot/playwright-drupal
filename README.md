@@ -13,8 +13,7 @@ This project, building on [lullabot/ddev-playwright](https://github.com/lullabot
 
 - The Drupal site must be using DDEV for development environments.
 - The Drupal site is meant to be tested after a site install, like how Drupal core tests work.
-- The Playwright tests must be using `npm` as their package manager.
-  - PRs supporting yarn are welcome! It's unclear at this moment how we could integrate yarn packages into the separate directory Playwright requires for test libraries.
+- The Playwright tests must be using `npm` as their package manager, or creating an npm-like node_modules directory. It's unclear at this moment how we could integrate yarn packages into the separate directory Playwright requires for test libraries. PRs welcome!
 - Playwright tests will be written in TypeScript.
 
 ## How This Works
