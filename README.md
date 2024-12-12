@@ -36,7 +36,7 @@ composer create-project drupal/recommended-project pwtest
 composer require drush/drush
 cd pwtest
 ddev config --project-type drupal10
-ddev get deviantintegral/ddev-playwright
+ddev get Lullabot/ddev-playwright
 ddev start
 ```
 
@@ -71,7 +71,7 @@ ddev exec -d /var/www/html/test/playwright npm i playwright-drupal
 
 ```console
 # Or, to pull from GitHub's main branch:
-ddev exec -d /var/www/html/test/playwright npm i playwright-drupal@github:deviantintegral/playwright-drupal
+ddev exec -d /var/www/html/test/playwright npm i playwright-drupal@github:Lullabot/playwright-drupal
 ```
 
 ### Configure Playwright
