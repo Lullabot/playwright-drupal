@@ -3,7 +3,7 @@ version: '3'
 
 vars:
   DOCROOT: '{{ default "web" .DOCROOT }}'
-  SITE_FOLDER: '{{ default "default" .SITE_FOLDER }}'
+  PLAYWRIGHT_SITE_FOLDER: '{{ default "default" .PLAYWRIGHT_SITE_FOLDER }}'
 
 tasks:
   run:
@@ -69,8 +69,8 @@ tasks:
         # downloaded via stage file proxy) saves several seconds.
 
         # Copy in settings.php and our services files.
-        cp -a {{ .DOCROOT }}/sites/{{ .SITE_FOLDER }}/*.php {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/
-        cp -a {{ .DOCROOT }}/sites/{{ .SITE_FOLDER }}/*.yml {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/
+        cp -a {{ .DOCROOT }}/sites/{{ .PLAYWRIGHT_SITE_FOLDER }}/*.php {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/
+        cp -a {{ .DOCROOT }}/sites/{{ .PLAYWRIGHT_SITE_FOLDER }}/*.yml {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/
 
         # Copy the database.
         cp -a /tmp/sqlite/.ht.sqlite /tmp/sqlite/{{ shellQuote .test_id }}/
