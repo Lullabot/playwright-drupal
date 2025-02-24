@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import child_process from "child_process";
 /**
  * Run a command either inside of the web container or from the host.
