@@ -1,6 +1,6 @@
 {
-  "name": "playwright-drupal",
-  "version": "1.0.3",
+  "name": "@lullabot/playwright-drupal",
+  "version": "1.0.4",
   "description": "Playwright / Drupal integration, supporting fast parallel tests and visual comparisons",
   "scripts": {
     "build": "tsc",
