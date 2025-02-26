@@ -1,3 +1,4 @@
+import { Page } from '@playwright/test';
 export declare function defineVisualDiffConfig(cases: VisualDiffUrlConfig): VisualDiffTestCases;
 export declare function defaultTestFunction(testCase: VisualDiff, group: VisualDiffGroup): ({ page, context }: {
     page: any;
@@ -40,6 +41,12 @@ export type VisualDiffGroup = BaseVisualDiff & {
     pathPrefix?: string;
     testCases: VisualDiff[];
 };
+export interface MockableConstructor {
+    new (): Mockable;
+}
+export interface Mockable {
+    mock(page: Page): Promise<void>;
+}
 /**
  * An individual test case.
  */
@@ -51,6 +58,7 @@ export type BaseVisualDiff = {
     description?: string;
     representativeUrl?: string;
     skip?: SkipTest;
+    mockClass?: MockableConstructor | void;
 };
 /**
  * A declaration that a test should be skipped.
