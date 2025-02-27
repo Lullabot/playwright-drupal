@@ -66,12 +66,12 @@ ddev exec -d /var/www/html/test/playwright npx playwright test
 ### Add the playwright-drupal Integration
 
 ```console
-ddev exec -d /var/www/html/test/playwright npm i playwright-drupal
+ddev exec -d /var/www/html/test/playwright npm i lullabot/playwright-drupal
 ```
 
 ```console
 # Or, to pull from GitHub's main branch:
-ddev exec -d /var/www/html/test/playwright npm i playwright-drupal@github:Lullabot/playwright-drupal
+ddev exec -d /var/www/html/test/playwright npm i lullabot/playwright-drupal@github:Lullabot/playwright-drupal
 ```
 
 ### Configure Playwright
