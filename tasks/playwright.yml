@@ -1,5 +1,9 @@
 #file: noinspection YAMLSchemaValidation
 version: '3'
+
+vars:
+  DOCROOT: '{{ default "web" .DOCROOT }}'
+
 tasks:
   run:
     desc: "Runs playwright functional tests."
@@ -45,7 +49,9 @@ tasks:
 
       task playwright:prepare test_id=456
 
-      will import the database into `web/sites/simpletest/456/.ht.sqlite`.
+      will import the database into `web/sites/simpletest/456/.ht.sqlite` or
+      `docroot/sites/simpletest/456/.ht.sqlite` depending on the DOCROOT
+      configuration.
     preconditions:
       - sh: test -f /tmp/sqlite/.ht.sqlite
         msg: 'playwright:install needs to be run before tests can run.'
@@ -54,16 +60,16 @@ tasks:
         export PLAYWRIGHT_SETUP=1
 
         # Recreate the sites directory.
-        rm -rf web/sites/simpletest/{{ shellQuote .test_id }}/
-        mkdir -p web/sites/simpletest/{{ shellQuote .test_id }}/
+        rm -rf {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/
+        mkdir -p {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/
         mkdir -p /tmp/sqlite/{{ shellQuote .test_id }}/
 
         # On locals, copying in only the files we need (and not all assets
         # downloaded via stage file proxy) saves several seconds.
 
         # Copy in settings.php and our services files.
-        cp -a web/sites/default/*.php web/sites/simpletest/{{ shellQuote .test_id }}/
-        cp -a web/sites/default/*.yml web/sites/simpletest/{{ shellQuote .test_id }}/
+        cp -a {{ .DOCROOT }}/sites/default/*.php {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/
+        cp -a {{ .DOCROOT }}/sites/default/*.yml {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/
 
         # Copy the database.
         cp -a /tmp/sqlite/.ht.sqlite /tmp/sqlite/{{ shellQuote .test_id }}/
@@ -115,8 +121,8 @@ tasks:
         # Delete the files and settings directories.
         # Fast tests that do not require a full page render may finish before Drupal
         # has fully written files like aggregated JavaScript to disk.
-        while [ -d web/sites/simpletest/{{ shellQuote .test_id }}/ ]; do
-          rm -rf web/sites/simpletest/{{ shellQuote .test_id }}/ 2>/dev/null || true
+        while [ -d {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/ ]; do
+          rm -rf {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/ 2>/dev/null || true
         done;
 
         # Delete the database.
