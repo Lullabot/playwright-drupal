@@ -98,7 +98,7 @@ Set the following in `test/playwright/tsconfig.json`, merging with any existing 
 Add the following `globalSetup` and `use` line to the `defineConfig` section in `test/playwright/playwright.config.ts`:
 ```typescript
 export default defineConfig({
-  globalSetup: require.resolve('./node_modules/playwright-drupal/lib/setup/global-setup'),
+  globalSetup: require.resolve('./node_modules/@lullabot/playwright-drupal/lib/setup/global-setup'),
   baseURL: process.env.DDEV_PRIMARY_URL,
   use: {
     ignoreHTTPSErrors: true,
@@ -123,7 +123,7 @@ version: '3'
 silent: true
 includes:
   playwright:
-    taskfile: test/playwright/node_modules/playwright-drupal/tasks/playwright.yml
+    taskfile: test/playwright/node_modules/@lullabot/playwright-drupal/tasks/playwright.yml
     optional: true
 ```
 
@@ -132,7 +132,7 @@ includes:
 Add the following line to `web/sites/default/settings.php`:
 
 ```php
-include '../test/playwright/node_modules/playwright-drupal/settings/settings.playwright.php';
+include '../test/playwright/node_modules/@lullabot/playwright-drupal/settings/settings.playwright.php';
 ```
 
 ### Create and Run an Example Drupal Test
