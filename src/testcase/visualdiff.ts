@@ -1,4 +1,4 @@
-import {test, WebError} from '@playwright/test';
+import {Page, test, WebError} from '@playwright/test';
 
 import {takeAccessibleScreenshot} from "../util";
 
@@ -9,8 +9,12 @@ export function defineVisualDiffConfig(cases: VisualDiffUrlConfig) {
 export function defaultTestFunction(testCase: VisualDiff, group: VisualDiffGroup) {
   // @ts-ignore
   return async ({page, context}, testInfo) => {
-    // Log any errors to the Playwright console too.
+    if (testCase.mockClass != undefined) {
+      const mock = new testCase.mockClass;
+      await mock.mock(page);
+    }
 
+    // Log any errors to the Playwright console too.
     context.on('weberror', (webError: WebError) => console.log(webError.error()));
     testInfo.annotations.push({
       type: 'Description',
@@ -130,6 +134,13 @@ export type VisualDiffGroup = BaseVisualDiff & {
   testCases: VisualDiff[],
 }
 
+export interface MockableConstructor {
+  new (): Mockable;
+}
+export interface Mockable {
+  mock(page: Page): Promise<void>
+}
+
 /**
  * An individual test case.
  */
@@ -147,6 +158,7 @@ export type BaseVisualDiff = {
   representativeUrl?: string,
   // Allow skipping of this test.
   skip?: SkipTest,
+  mockClass?: MockableConstructor | void
 }
 
 /**
