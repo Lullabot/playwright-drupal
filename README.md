@@ -32,11 +32,11 @@ Integrating this library into a site takes several steps. For the sake of comple
 ### Create the Drupal Site and Initialize DDEV
 
 ```console
-composer create-project drupal/recommended-project pwtest
-composer require drush/drush
-cd pwtest
-ddev config --project-type drupal10
-ddev get Lullabot/ddev-playwright
+mkdir pwtest && cd pwtest
+ddev config --project-type=drupal11 --docroot=web
+ddev composer create-project drupal/recommended-project
+ddev composer require drush/drush
+ddev add-on get Lullabot/ddev-playwright
 ddev start
 ```
 
