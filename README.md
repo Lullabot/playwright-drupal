@@ -99,8 +99,8 @@ Add the following `globalSetup` and `use` line to the `defineConfig` section in 
 ```typescript
 export default defineConfig({
   globalSetup: require.resolve('./node_modules/@lullabot/playwright-drupal/lib/setup/global-setup'),
-  baseURL: process.env.DDEV_PRIMARY_URL,
   use: {
+    baseURL: process.env.DDEV_PRIMARY_URL,
     ignoreHTTPSErrors: true,
   }
 })
