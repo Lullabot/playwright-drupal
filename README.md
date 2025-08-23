@@ -167,7 +167,10 @@ test('proves parallel tests work', async ({ page }) => {
   await page.getByLabel('Title', { exact: true }).fill(randomTitle);
   await page.getByRole('button', { name: 'Save' }).click();
 
-  await expect(page.url()).toMatch('node/1')
+  // Since we're testing with Umami, upstream changes may change the node ID.
+  // If you are creating a test like this on your own site, and the node ID is
+  // deterministic, consider hard-coding that node ID instead.
+  await expect(page).toHaveURL(/\/node\/\d+(?:\?.*)?$/);
 
   await expect(page).toHaveTitle(`${randomTitle} | Playwright`);
   await expect(page.locator('h1')).toHaveText(randomTitle);
