@@ -12,7 +12,7 @@ import {taskSync} from "../cli/task";
 function globalSetup(config: FullConfig): void {
   // We cannot directly reference the files in the node_modules directory,
   // otherwise Playwright's TypeScript processing gets confused.
-  copyDirectory('node_modules/playwright-drupal/src', 'packages/playwright-drupal');
+  copyDirectory('node_modules/@lullabot/playwright-drupal/src', 'packages/playwright-drupal');
 
   // Make sure we have the initial site database.
   installBaseDrupalSite();

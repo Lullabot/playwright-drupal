@@ -13,8 +13,7 @@ This project, building on [lullabot/ddev-playwright](https://github.com/lullabot
 
 - The Drupal site must be using DDEV for development environments.
 - The Drupal site is meant to be tested after a site install, like how Drupal core tests work.
-- The Playwright tests must be using `npm` as their package manager.
-  - PRs supporting yarn are welcome! It's unclear at this moment how we could integrate yarn packages into the separate directory Playwright requires for test libraries.
+- The Playwright tests must be using `npm` as their package manager, or creating an npm-like node_modules directory. It's unclear at this moment how we could integrate yarn packages into the separate directory Playwright requires for test libraries. PRs welcome!
 - Playwright tests will be written in TypeScript.
 
 ## How This Works
@@ -33,11 +32,11 @@ Integrating this library into a site takes several steps. For the sake of comple
 ### Create the Drupal Site and Initialize DDEV
 
 ```console
-composer create-project drupal/recommended-project pwtest
-composer require drush/drush
-cd pwtest
-ddev config --project-type drupal10
-ddev get deviantintegral/ddev-playwright
+mkdir pwtest && cd pwtest
+ddev config --project-type=drupal11 --docroot=web
+ddev composer create-project drupal/recommended-project
+ddev composer require drush/drush
+ddev add-on get Lullabot/ddev-playwright
 ddev start
 ```
 
@@ -67,12 +66,12 @@ ddev exec -d /var/www/html/test/playwright npx playwright test
 ### Add the playwright-drupal Integration
 
 ```console
-ddev exec -d /var/www/html/test/playwright npm i playwright-drupal
+ddev exec -d /var/www/html/test/playwright npm i lullabot/playwright-drupal
 ```
 
 ```console
 # Or, to pull from GitHub's main branch:
-ddev exec -d /var/www/html/test/playwright npm i playwright-drupal@github:deviantintegral/playwright-drupal
+ddev exec -d /var/www/html/test/playwright npm i lullabot/playwright-drupal@github:Lullabot/playwright-drupal
 ```
 
 ### Configure Playwright
@@ -99,9 +98,9 @@ Set the following in `test/playwright/tsconfig.json`, merging with any existing 
 Add the following `globalSetup` and `use` line to the `defineConfig` section in `test/playwright/playwright.config.ts`:
 ```typescript
 export default defineConfig({
-  globalSetup: require.resolve('./node_modules/playwright-drupal/lib/setup/global-setup'),
-  baseURL: process.env.DDEV_PRIMARY_URL,
+  globalSetup: require.resolve('./node_modules/@lullabot/playwright-drupal/lib/setup/global-setup'),
   use: {
+    baseURL: process.env.DDEV_PRIMARY_URL,
     ignoreHTTPSErrors: true,
   }
 })
@@ -124,7 +123,7 @@ version: '3'
 silent: true
 includes:
   playwright:
-    taskfile: test/playwright/node_modules/playwright-drupal/tasks/playwright.yml
+    taskfile: test/playwright/node_modules/@lullabot/playwright-drupal/tasks/playwright.yml
     optional: true
 ```
 
@@ -133,7 +132,7 @@ includes:
 Add the following line to `web/sites/default/settings.php`:
 
 ```php
-include '../test/playwright/node_modules/playwright-drupal/settings/settings.playwright.php';
+include '../test/playwright/node_modules/@lullabot/playwright-drupal/settings/settings.playwright.php';
 ```
 
 ### Create and Run an Example Drupal Test
@@ -168,7 +167,10 @@ test('proves parallel tests work', async ({ page }) => {
   await page.getByLabel('Title', { exact: true }).fill(randomTitle);
   await page.getByRole('button', { name: 'Save' }).click();
 
-  await expect(page.url()).toMatch('node/1')
+  // Since we're testing with Umami, upstream changes may change the node ID.
+  // If you are creating a test like this on your own site, and the node ID is
+  // deterministic, consider hard-coding that node ID instead.
+  await expect(page).toHaveURL(/\/node\/\d+(?:\?.*)?$/);
 
   await expect(page).toHaveTitle(`${randomTitle} | Playwright`);
   await expect(page.locator('h1')).toHaveText(randomTitle);

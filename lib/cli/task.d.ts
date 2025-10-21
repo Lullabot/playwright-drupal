@@ -1,4 +1,3 @@
-/// <reference types="node" />
 /**
  * Run task either inside of the web container or from the host.
  *

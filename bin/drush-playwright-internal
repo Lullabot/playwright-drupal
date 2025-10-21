@@ -60,4 +60,11 @@ else {
 
 drupal_valid_test_ua('test' . $test_id);
 
-return include '/var/www/html/vendor/bin/drush';
+# Drush 13.3.1+
+if (file_exists('/var/www/html/vendor/bin/drush.php')) {
+  return include '/var/www/html/vendor/bin/drush.php';
+}
+else {
+  # Drush < 13.3
+  return include '/var/www/html/vendor/bin/drush';
+}

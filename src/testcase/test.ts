@@ -80,7 +80,7 @@ test.afterEach(async ({ page }, testInfo) => {
  *   `pm:uninstall environment_indicator -y`.
  */
 async function execDrushInTestSite(command: string) {
-  const drush = process.env.DDEV_HOSTNAME ? `./test/playwright/node_modules/playwright-drupal/bin/drush-playwright ${drupal_test_id}` : `ddev exec ./test/playwright/node_modules/playwright-drupal/bin/drush-playwright ${drupal_test_id}`;
+  const drush = process.env.DDEV_HOSTNAME ? `./test/playwright/node_modules/@lullabot/playwright-drupal/bin/drush-playwright ${drupal_test_id}` : `ddev exec ./test/playwright/node_modules/@lullabot/playwright-drupal/bin/drush-playwright ${drupal_test_id}`;
 
   const exec = util.promisify(child_process.exec);
   const p = exec(`${drush} ${command}`, {

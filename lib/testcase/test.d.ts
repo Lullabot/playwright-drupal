@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { expect, TestFixture } from '@playwright/test';
 /**
  * Set a simpletest cookie for routing the tests to a separate database.

@@ -9,7 +9,7 @@ if [ "$#" -lt 1 ]; then
 fi
 
 if [[ "$1" =~ ^[0-9]+$ ]]; then
-    DRUPAL_TEST_ID=$1 test/playwright/node_modules/playwright-drupal/bin/drush-playwright-internal "${@:2}"
+    DRUPAL_TEST_ID=$1 test/playwright/node_modules/@lullabot/playwright-drupal/bin/drush-playwright-internal "${@:2}"
 else
     echo "Error: The first argument $1 is not numeric. Please provide a numeric argument." >&2
     exit 1
