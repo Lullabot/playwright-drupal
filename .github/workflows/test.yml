@@ -165,7 +165,7 @@ jobs:
 
       - name: Run Playwright tests
         working-directory: drupal-test
-        run: ddev exec -d /var/www/html/test/playwright npx playwright test
+        run: ddev exec -d /var/www/html/test/playwright CI=true npx playwright test
 
       - name: Upload Playwright report
         if: always()
