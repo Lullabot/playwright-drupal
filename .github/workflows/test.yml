@@ -33,13 +33,16 @@ jobs:
         run: |
           ddev add-on get Lullabot/ddev-playwright
           ddev restart
-          ddev install-playwright
 
       - name: Initialize Playwright
         working-directory: drupal-test
         run: |
           mkdir -p test/playwright
           ddev exec -- npx create-playwright@latest --lang=TypeScript --quiet test/playwright --no-browsers
+
+      - name: Install Playwright browsers
+        working-directory: drupal-test
+        run: ddev install-playwright
 
       - name: Install playwright-drupal from current repo
         run: |
