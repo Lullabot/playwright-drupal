@@ -188,3 +188,37 @@ After all tests pass locally, push the `add-tests` branch and monitor the GitHub
 ### Change Log
 - 2026-02-27: Initial plan creation
 - 2026-02-27: Refinement — clarified `ddev composer create` deprecation; confirmed no build step needed (lib/ committed); detailed host-vs-container npm pack flow; specified no bats-assert library needed (YAGNI); added CI worker count detail; updated mermaid diagram with accurate assertion details; expanded risk mitigations
+- 2026-02-27: Task generation — created 4 tasks, appended execution blueprint
+
+## Dependency Diagram
+
+```mermaid
+graph TD
+    001[Task 01: Create bats integration test suite] --> 003[Task 03: Run tests locally and fix]
+    002[Task 02: Create GitHub Actions CI workflow] --> 003
+    003 --> 004[Task 04: Update README and push to validate CI]
+```
+
+## Execution Blueprint
+
+**Validation Gates:**
+- Reference: `/config/hooks/POST_PHASE.md`
+
+### Phase 1: Create Test Infrastructure
+**Parallel Tasks:**
+- Task 01: Create bats integration test suite
+- Task 02: Create GitHub Actions CI workflow
+
+### Phase 2: Local Validation
+**Parallel Tasks:**
+- Task 03: Run tests locally and fix until passing (depends on: 01, 02)
+
+### Phase 3: Documentation and CI Validation
+**Parallel Tasks:**
+- Task 04: Update README and push to validate CI (depends on: 03)
+
+### Execution Summary
+- Total Phases: 3
+- Total Tasks: 4
+- Maximum Parallelism: 2 tasks (in Phase 1)
+- Critical Path Length: 3 phases
