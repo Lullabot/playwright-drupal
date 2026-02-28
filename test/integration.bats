@@ -32,13 +32,27 @@ teardown_file() {
 }
 
 @test "playwright tests exit with code 0" {
-  [ "$(cat "$BATS_FILE_TMPDIR/playwright_exit_code")" -eq 0 ]
+  local exit_code
+  exit_code="$(cat "$BATS_FILE_TMPDIR/playwright_exit_code")"
+  if [ "$exit_code" -ne 0 ]; then
+    echo "Playwright exited with code $exit_code. Output:" >&2
+    cat "$BATS_FILE_TMPDIR/playwright_output.txt" >&2
+    return 1
+  fi
 }
 
 @test "playwright output shows passed tests" {
-  grep -q "passed" "$BATS_FILE_TMPDIR/playwright_output.txt"
+  if ! grep -q "passed" "$BATS_FILE_TMPDIR/playwright_output.txt"; then
+    echo "Expected 'passed' in output. Actual output:" >&2
+    cat "$BATS_FILE_TMPDIR/playwright_output.txt" >&2
+    return 1
+  fi
 }
 
 @test "playwright output shows no failures" {
-  ! grep -q "failed" "$BATS_FILE_TMPDIR/playwright_output.txt"
+  if grep -q "failed" "$BATS_FILE_TMPDIR/playwright_output.txt"; then
+    echo "Found 'failed' in output:" >&2
+    cat "$BATS_FILE_TMPDIR/playwright_output.txt" >&2
+    return 1
+  fi
 }
