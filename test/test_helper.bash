@@ -9,7 +9,7 @@ setup_drupal_project() {
   PROJECT_DIR="$(mktemp -d)"
 
   # Generate a randomized project name to avoid collisions.
-  PROJECT_NAME="pwtest-$(head -c 4 /dev/urandom | xxd -p | head -c 4)"
+  PROJECT_NAME="pwtest-$(tr -dc 'a-z0-9' < /dev/urandom | head -c 4)"
 
   # Persist these values so other functions and tests can access them.
   echo "$PROJECT_DIR" > "$BATS_FILE_TMPDIR/project_dir"

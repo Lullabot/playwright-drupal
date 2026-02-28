@@ -28,37 +28,42 @@ const test = base_test.extend<TestFixture<any, any>>( {
 
     // Copy the base database to a new one.
     let install = task('playwright:prepare test_id=' + id);
-    install.on('exit', async (code) => {
-      if (code === null || code > 0) {
-        throw new Error("Task errored with exit code " + code);
-      }
-    })
+
+    // Wait for the installation to complete.
+    await new Promise<void>((resolve, reject) => {
+      install.on('exit', async (code) => {
+        if (code === null || code > 0) {
+          reject(new Error("Task errored with exit code " + code));
+          return;
+        }
+        resolve();
+      });
+    });
 
     // After installation, set the right cookie in the browser so tests are
     // routed correctly.
-    install.on('exit', async (code) => {
-      let ua = taskSync('-o group playwright:ua test_id=' + id).toString();
+    let ua = taskSync('-o group playwright:ua test_id=' + id).toString();
 
-      if (typeof process.env.DDEV_HOSTNAME !== 'undefined') {
-        await context.addCookies( [{
-          name: 'SIMPLETEST_USER_AGENT',
-          value: ua,
-          path: '/',
-          domain: process.env.DDEV_HOSTNAME.split(',')[0],
-        }]);
-      }
+    if (typeof process.env.DDEV_HOSTNAME !== 'undefined') {
+      await context.addCookies( [{
+        name: 'SIMPLETEST_USER_AGENT',
+        value: ua,
+        path: '/',
+        domain: process.env.DDEV_HOSTNAME.split(',')[0],
+      }]);
+    }
 
-      // Mirror browser errors to the Playwright console log.
-      context.on('weberror', (webError: WebError) => console.log(webError.error()));
+    // Mirror browser errors to the Playwright console log.
+    context.on('weberror', (webError: WebError) => console.log(webError.error()));
 
-      // Clean up tests after they are complete.
-      // This must be done when closing the context, and not in test.afterEach(),
-      // as afterEach() still has a reference to a page object and active browser.
-      context.on("close", (browserContext) => {
-        task('playwright:cleanup test_id=' + id);
-      })
-      await use( context );
+    // Clean up tests after they are complete.
+    // This must be done when closing the context, and not in test.afterEach(),
+    // as afterEach() still has a reference to a page object and active browser.
+    context.on("close", (browserContext) => {
+      task('playwright:cleanup test_id=' + id);
     });
+
+    await use( context );
   },
 });
 
