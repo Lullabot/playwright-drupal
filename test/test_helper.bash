@@ -214,6 +214,8 @@ cleanup_drupal_project() {
     echo "--- ddev delete" >&3
     ddev delete -Oy >&3 2>&3 || true
     cd /
-    rm -rf "$PROJECT_DIR"
+    # Do not rm -rf "$PROJECT_DIR" here — the Playwright HTML report at
+    # $PROJECT_DIR/test/playwright/playwright-report/ must survive until
+    # the GitHub Actions upload-artifact step can collect it.
   fi
 }
