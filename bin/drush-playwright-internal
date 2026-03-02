@@ -54,7 +54,7 @@ if (file_exists($bootstrap_path)) {
   include_once $bootstrap_path;
 }
 else {
-  print sprintf("bootstrap.inc file not found at %s", $bootstrap_path");
+  print sprintf("bootstrap.inc file not found at %s", $bootstrap_path);
   exit(1);
 }
 
