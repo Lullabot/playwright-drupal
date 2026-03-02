@@ -21,21 +21,31 @@ setup_drupal_project() {
   cd "$PROJECT_DIR"
 
   # Follow the README steps: Create the Drupal Site and Initialize DDEV.
-  ddev config --project-type=drupal11 --docroot=web --project-name="$PROJECT_NAME"
-  ddev start
-  ddev composer create-project drupal/recommended-project
-  ddev composer require drush/drush
+  # Each command's output is written to FD 3 (bats' real-time log channel)
+  # so progress is visible in CI logs as each sub-step runs.
+  echo "--- ddev config" >&3
+  ddev config --project-type=drupal11 --docroot=web --project-name="$PROJECT_NAME" >&3 2>&3
+  echo "--- ddev start" >&3
+  ddev start >&3 2>&3
+  echo "--- ddev composer create-project drupal/recommended-project" >&3
+  ddev composer create-project drupal/recommended-project >&3 2>&3
+  echo "--- ddev composer require drush/drush" >&3
+  ddev composer require drush/drush >&3 2>&3
 
   # Install the ddev-playwright add-on and restart.
-  ddev add-on get Lullabot/ddev-playwright
-  ddev restart
+  echo "--- ddev add-on get Lullabot/ddev-playwright" >&3
+  ddev add-on get Lullabot/ddev-playwright >&3 2>&3
+  echo "--- ddev restart" >&3
+  ddev restart >&3 2>&3
 
   # Initialize Playwright tests.
   mkdir -p test/playwright
-  ddev exec -- npx create-playwright@latest --lang=TypeScript --quiet test/playwright --no-browsers
+  echo "--- npx create-playwright" >&3
+  ddev exec -- npx create-playwright@latest --lang=TypeScript --quiet test/playwright --no-browsers >&3 2>&3
 
   # Install Playwright browsers via the DDEV add-on command.
-  ddev install-playwright
+  echo "--- ddev install-playwright" >&3
+  ddev install-playwright >&3 2>&3
 }
 
 install_playwright_drupal() {
@@ -43,7 +53,8 @@ install_playwright_drupal() {
 
   # Run npm pack from the repo root (on the host) to create a tarball.
   cd "$REPO_ROOT"
-  npm pack
+  echo "--- npm pack" >&3
+  npm pack >&3 2>&3
 
   # Find the generated tarball.
   TARBALL="$(ls -t lullabot-playwright-drupal-*.tgz | head -n 1)"
@@ -54,7 +65,8 @@ install_playwright_drupal() {
 
   # Install the tarball inside the DDEV container.
   cd "$PROJECT_DIR"
-  ddev exec -d /var/www/html/test/playwright npm install "/var/www/html/$TARBALL"
+  echo "--- npm install @lullabot/playwright-drupal" >&3
+  ddev exec -d /var/www/html/test/playwright npm install "/var/www/html/$TARBALL" >&3 2>&3
 
   # Clean up the tarball from the repo root.
   rm -f "$REPO_ROOT/$TARBALL"
@@ -199,7 +211,8 @@ cleanup_drupal_project() {
 
   if [[ -n "$PROJECT_DIR" && -d "$PROJECT_DIR" ]]; then
     cd "$PROJECT_DIR"
-    ddev delete -Oy || true
+    echo "--- ddev delete" >&3
+    ddev delete -Oy >&3 2>&3 || true
     cd /
     rm -rf "$PROJECT_DIR"
   fi
