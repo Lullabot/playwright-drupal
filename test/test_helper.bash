@@ -182,13 +182,14 @@ run_playwright_tests() {
 
   cd "$PROJECT_DIR"
 
-  # Run Playwright tests and capture output and exit code.
-  # We use set +e to prevent bats from aborting on a non-zero exit code,
-  # since we want to capture the exit code for assertion in individual tests.
+  # Run Playwright tests, streaming output to FD 3 for real-time CI log
+  # visibility while also saving it for assertions in subsequent tests.
+  # FD 3 is bats' real-time output channel, opened by the test runner
+  # before each @test, setup(), and teardown() call.
   set +e
   ddev exec -d /var/www/html/test/playwright npx playwright test \
-    > "$BATS_FILE_TMPDIR/playwright_output.txt" 2>&1
-  echo "$?" > "$BATS_FILE_TMPDIR/playwright_exit_code"
+    2>&1 | tee "$BATS_FILE_TMPDIR/playwright_output.txt" >&3
+  echo "${PIPESTATUS[0]}" > "$BATS_FILE_TMPDIR/playwright_exit_code"
   set -e
 }
 
