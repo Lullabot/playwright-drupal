@@ -95,7 +95,7 @@ configure_playwright() {
 }
 EOF
 
-  # Write playwright.config.ts with chromium-only config.
+  # Write playwright.config.ts with chromium, firefox, and webkit targets.
   cat > test/playwright/playwright.config.ts << 'TSEOF'
 import { defineConfig, devices } from '@playwright/test';
 
@@ -116,6 +116,14 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
     },
   ],
 });
