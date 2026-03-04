@@ -58,7 +58,9 @@ setup_drupal_project() {
   # at /var/www/html inside the DDEV container.
   cp "$TARBALL" "$PROJECT_DIR/"
   echo "--- Waiting for mutagen..." >&3
-  sleep 5
+  # On macOS with mutagen enabled, sync so the tarball is visible inside the
+  # container immediately. On Linux (no mutagen), this is a no-op.
+  ddev mutagen sync 2>/dev/null || true
 
   # Install the tarball inside the DDEV container.
   cd "$PROJECT_DIR"
@@ -176,6 +178,9 @@ test('proves parallel tests work', async ({ page }) => {
   await username.fill('admin');
   await password.fill('correct horse battery staple');
   await loginButton.click();
+  // A waitForURL or page assertion is needed here; otherwise Playwright's
+  // next goto() call won't wait for the form submission to finish before
+  // navigating, which can cause the login to be skipped.
   await page.waitForURL(/\/user\//);
 
   await page.goto('/node/add/article');
@@ -184,6 +189,8 @@ test('proves parallel tests work', async ({ page }) => {
   await page.getByLabel('Title', { exact: true }).fill(randomTitle);
   await page.getByRole('button', { name: 'Save' }).click();
 
+  // A waitForURL or page assertion is needed here; otherwise Playwright's
+  // next goto() or assertion may execute before the form submission finishes.
   // Since we're testing with Umami, upstream changes may change the node ID.
   // If you are creating a test like this on your own site, and the node ID is
   // deterministic, consider hard-coding that node ID instead.
