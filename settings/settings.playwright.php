@@ -11,6 +11,9 @@ if (getenv('PLAYWRIGHT_SETUP') !== FALSE) {
   $databases['default']['default'] = [
     'driver' => 'sqlite',
     'database' => '/tmp/sqlite/.ht.sqlite',
+    'init_commands' => [
+      'synchronous' => "PRAGMA synchronous=OFF",
+    ],
   ];
 }
 
@@ -30,6 +33,9 @@ if (defined('DRUPAL_TEST_IN_CHILD_SITE') && DRUPAL_TEST_IN_CHILD_SITE) {
     $databases['default']['default'] = [
       'driver' => 'sqlite',
       'database' => '/tmp/sqlite/' . $numeric . '/.ht.sqlite',
+      'init_commands' => [
+        'synchronous' => "PRAGMA synchronous=OFF",
+      ],
     ];
 
     // This path with simpletest is what Drupal's kernel expects for test.
