@@ -44,12 +44,6 @@ setup_drupal_project() {
   echo "--- npx create-playwright" >&3
   ddev exec -- npx create-playwright@latest --lang=TypeScript --quiet test/playwright --no-browsers >&3 2>&3
 
-  # Install Playwright browsers via the DDEV add-on command.
-  echo "--- ddev install-playwright" >&3
-  ddev install-playwright >&3 2>&3
-}
-
-install_playwright_drupal() {
   PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
 
   # Run npm pack from the repo root (on the host) to create a tarball.
@@ -71,6 +65,10 @@ install_playwright_drupal() {
 
   # Clean up the tarball from the repo root.
   rm -f "$REPO_ROOT/$TARBALL"
+
+  # Install Playwright browsers via the DDEV add-on command.
+  echo "--- ddev install-playwright" >&3
+  ddev install-playwright >&3 2>&3
 }
 
 configure_playwright() {

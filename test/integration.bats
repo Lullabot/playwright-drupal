@@ -34,10 +34,6 @@ setup() {
   setup_drupal_project
 }
 
-@test "setup: install playwright-drupal package" {
-  install_playwright_drupal
-}
-
 @test "setup: configure Playwright" {
   configure_playwright
 }
