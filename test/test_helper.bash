@@ -27,37 +27,33 @@ setup_drupal_project() {
   echo "--- ddev config" >&3
   ddev config --project-type=drupal11 --docroot=web --project-name="$PROJECT_NAME" >&3 2>&3
 
-  # Docker injects host CA certificates into containers via a bind mount on
-  # /etc/ssl/certs.  The temp directory it creates is mode 0700 root:root,
-  # preventing the non-root web-container user from writing to it.  Because
-  # ddev's /start.sh calls mkcert to generate a TLS certificate into that
-  # directory, the container crashes immediately.  Work around this by
-  # wrapping /start.sh to widen the directory permissions before mkcert runs.
-  #
-  # When NODE_EXTRA_CA_CERTS is set (e.g. in a sandbox with a TLS-intercepting
-  # proxy), also install the custom CA into the container's trust store so
-  # that `playwright install` can download browsers without certificate errors.
-  mkdir -p .ddev/web-build
-  cat > .ddev/web-build/Dockerfile <<'DOCKERFILE'
+  # In the Copilot agent sandbox, Docker may inject host CA certificates into
+  # containers via a bind mount on /etc/ssl/certs with mode 0700 root:root.
+  # This prevents the non-root web-container user from writing there, and
+  # ddev's /start.sh (which calls mkcert) crashes.  Only apply these
+  # workarounds when running inside the Copilot agent sandbox.
+  if [[ -n "${COPILOT_AGENT_CALLBACK_URL:-}" ]]; then
+    mkdir -p .ddev/web-build
+    cat > .ddev/web-build/Dockerfile <<'DOCKERFILE'
 RUN mv /start.sh /start-original.sh && \
     printf '#!/bin/bash\nsudo chown "$(id -u)" /etc/ssl/certs 2>/dev/null || true\nexec /start-original.sh "$@"\n' > /start.sh && \
     chmod +x /start.sh
 DOCKERFILE
 
-  if [[ -n "${NODE_EXTRA_CA_CERTS:-}" && -f "${NODE_EXTRA_CA_CERTS}" ]]; then
-    cp "$NODE_EXTRA_CA_CERTS" .ddev/web-build/custom-ca.crt
-    # The sandbox's Docker daemon injects NODE_EXTRA_CA_CERTS pointing to
-    # /etc/ssl/certs/ca-certificates.crt and re-mounts /etc/ssl/certs with
-    # mode 0700 on every build RUN step, making it unreadable by non-root
-    # users.  Since the ddev-playwright Dockerfile runs `sudo -u $username
-    # npx playwright install`, Node.js can't read the cert bundle and
-    # browser downloads fail with SELF_SIGNED_CERT_IN_CHAIN.
-    #
-    # Work around this by:
-    # 1. Installing the custom CA into the system trust store.
-    # 2. Copying the resulting bundle to a world-readable path.
-    # 3. Wrapping sudo to point NODE_EXTRA_CA_CERTS at the readable copy.
-    cat >> .ddev/web-build/Dockerfile <<'DOCKERFILE'
+    if [[ -n "${NODE_EXTRA_CA_CERTS:-}" && -f "${NODE_EXTRA_CA_CERTS}" ]]; then
+      cp "$NODE_EXTRA_CA_CERTS" .ddev/web-build/custom-ca.crt
+      # The sandbox's Docker daemon injects NODE_EXTRA_CA_CERTS pointing to
+      # /etc/ssl/certs/ca-certificates.crt and re-mounts /etc/ssl/certs with
+      # mode 0700 on every build RUN step, making it unreadable by non-root
+      # users.  Since the ddev-playwright Dockerfile runs `sudo -u $username
+      # npx playwright install`, Node.js can't read the cert bundle and
+      # browser downloads fail with SELF_SIGNED_CERT_IN_CHAIN.
+      #
+      # Work around this by:
+      # 1. Installing the custom CA into the system trust store.
+      # 2. Copying the resulting bundle to a world-readable path.
+      # 3. Wrapping sudo to point NODE_EXTRA_CA_CERTS at the readable copy.
+      cat >> .ddev/web-build/Dockerfile <<'DOCKERFILE'
 COPY custom-ca.crt /usr/local/share/ca-certificates/custom-ca.crt
 RUN chmod 755 /etc/ssl/certs && \
     update-ca-certificates && \
@@ -67,6 +63,7 @@ RUN chmod 755 /etc/ssl/certs && \
     printf '#!/bin/bash\nexec /usr/bin/sudo.orig NODE_EXTRA_CA_CERTS=/etc/ssl/ca-bundle-with-custom.crt "$@"\n' > /usr/bin/sudo && \
     chmod +x /usr/bin/sudo
 DOCKERFILE
+    fi
   fi
 
   echo "--- ddev start" >&3
