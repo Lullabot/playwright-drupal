@@ -7,7 +7,8 @@
 setup_drupal_project() {
   # Create a temporary directory for the Drupal project.
   # Use the pwtest- prefix so the CI artifact upload glob matches.
-  PROJECT_DIR="$(mktemp -d /tmp/pwtest-XXXXXXXXXX)"
+  mkdir -p tmp
+  PROJECT_DIR="$(mktemp -d ./tmp/pwtest-XXXXXXXXXX)"
 
   # Generate a randomized project name to avoid collisions.
   PROJECT_NAME="pwtest-$(tr -dc 'a-z0-9' < /dev/urandom | head -c 4)"
