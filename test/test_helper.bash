@@ -176,6 +176,7 @@ test('proves parallel tests work', async ({ page }) => {
   await username.fill('admin');
   await password.fill('correct horse battery staple');
   await loginButton.click();
+  await page.waitForURL(/\/user\//);
 
   await page.goto('/node/add/article');
 
