@@ -212,7 +212,7 @@ run_playwright_tests() {
   # FD 3 is bats' real-time output channel, opened by the test runner
   # before each @test, setup(), and teardown() call.
   set +e
-  ddev exec -d /var/www/html/test/playwright npx playwright test \
+  ddev exec -d /var/www/html/test/playwright npx playwright test --repeat-each 5 \
     2>&1 | tee "$BATS_FILE_TMPDIR/playwright_output.txt" >&3
   echo "${PIPESTATUS[0]}" > "$BATS_FILE_TMPDIR/playwright_exit_code"
   set -e
