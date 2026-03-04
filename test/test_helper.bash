@@ -36,7 +36,7 @@ setup_drupal_project() {
   mkdir -p .ddev/web-build
   cat > .ddev/web-build/Dockerfile <<'DOCKERFILE'
 RUN mv /start.sh /start-original.sh && \
-    printf '#!/bin/bash\nsudo chmod 777 /etc/ssl/certs 2>/dev/null || true\nexec /start-original.sh "$@"\n' > /start.sh && \
+    printf '#!/bin/bash\nsudo chown "$(id -u)" /etc/ssl/certs 2>/dev/null || true\nexec /start-original.sh "$@"\n' > /start.sh && \
     chmod +x /start.sh
 DOCKERFILE
 
