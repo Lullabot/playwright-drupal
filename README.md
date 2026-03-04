@@ -160,6 +160,10 @@ test('proves parallel tests work', async ({ page }) => {
   await username.fill('admin');
   await password.fill('correct horse battery staple');
   await loginButton.click();
+  // A waitForURL or page assertion is needed here; otherwise Playwright's
+  // next goto() call won't wait for the form submission to finish before
+  // navigating, which can cause the login to be skipped.
+  await page.waitForURL(/\/user\//);
 
   await page.goto('/node/add/article');
 
@@ -167,6 +171,8 @@ test('proves parallel tests work', async ({ page }) => {
   await page.getByLabel('Title', { exact: true }).fill(randomTitle);
   await page.getByRole('button', { name: 'Save' }).click();
 
+  // A waitForURL or page assertion is needed here; otherwise Playwright's
+  // next goto() or assertion may execute before the form submission finishes.
   // Since we're testing with Umami, upstream changes may change the node ID.
   // If you are creating a test like this on your own site, and the node ID is
   // deterministic, consider hard-coding that node ID instead.
@@ -467,3 +473,21 @@ There may be times you want to run Drush once, globally before all tests. In tha
 There are times you may want to run Playwright without isolating test runs. Perhaps you're manually scaffolding test content by hand, before writing code to create it. Or perhaps you would like to be absolutely sure that a test passes or fails when running against mariadb.
 
 To do this, run `export PLAYWRIGHT_NO_TEST_ISOLATION=1`. This **must** be done inside a ddev shell (via ddev ssh) and not `ddev playwright` or `ddev exec`. Consider running Playwright with `--workers=1` and with a single browser, since any changes to the database will persist.
+
+## Development
+
+### Running Tests
+
+This project uses [bats-core](https://github.com/bats-core/bats-core) for integration testing. The tests create a fresh DDEV Drupal project, install this library, and run the example Playwright tests to verify everything works end-to-end.
+
+**Prerequisites:**
+- [DDEV](https://ddev.readthedocs.io/en/stable/) (v1.25+)
+- [Docker](https://docs.docker.com/get-docker/)
+- [bats-core](https://bats-core.readthedocs.io/en/stable/installation.html)
+
+**Run the tests:**
+```console
+bats test/
+```
+
+Tests take approximately 10-15 minutes as they set up a complete Drupal environment.
