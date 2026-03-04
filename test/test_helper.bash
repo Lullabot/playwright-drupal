@@ -57,6 +57,8 @@ setup_drupal_project() {
   # Copy the tarball into the Drupal project root, which is bind-mounted
   # at /var/www/html inside the DDEV container.
   cp "$TARBALL" "$PROJECT_DIR/"
+  echo "--- Waiting for mutagen..." >&3
+  sleep 5
 
   # Install the tarball inside the DDEV container.
   cd "$PROJECT_DIR"
