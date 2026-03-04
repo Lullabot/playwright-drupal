@@ -33,12 +33,41 @@ setup_drupal_project() {
   # ddev's /start.sh calls mkcert to generate a TLS certificate into that
   # directory, the container crashes immediately.  Work around this by
   # wrapping /start.sh to widen the directory permissions before mkcert runs.
+  #
+  # When NODE_EXTRA_CA_CERTS is set (e.g. in a sandbox with a TLS-intercepting
+  # proxy), also install the custom CA into the container's trust store so
+  # that `playwright install` can download browsers without certificate errors.
   mkdir -p .ddev/web-build
   cat > .ddev/web-build/Dockerfile <<'DOCKERFILE'
 RUN mv /start.sh /start-original.sh && \
     printf '#!/bin/bash\nsudo chown "$(id -u)" /etc/ssl/certs 2>/dev/null || true\nexec /start-original.sh "$@"\n' > /start.sh && \
     chmod +x /start.sh
 DOCKERFILE
+
+  if [[ -n "${NODE_EXTRA_CA_CERTS:-}" && -f "${NODE_EXTRA_CA_CERTS}" ]]; then
+    cp "$NODE_EXTRA_CA_CERTS" .ddev/web-build/custom-ca.crt
+    # The sandbox's Docker daemon injects NODE_EXTRA_CA_CERTS pointing to
+    # /etc/ssl/certs/ca-certificates.crt and re-mounts /etc/ssl/certs with
+    # mode 0700 on every build RUN step, making it unreadable by non-root
+    # users.  Since the ddev-playwright Dockerfile runs `sudo -u $username
+    # npx playwright install`, Node.js can't read the cert bundle and
+    # browser downloads fail with SELF_SIGNED_CERT_IN_CHAIN.
+    #
+    # Work around this by:
+    # 1. Installing the custom CA into the system trust store.
+    # 2. Copying the resulting bundle to a world-readable path.
+    # 3. Wrapping sudo to point NODE_EXTRA_CA_CERTS at the readable copy.
+    cat >> .ddev/web-build/Dockerfile <<'DOCKERFILE'
+COPY custom-ca.crt /usr/local/share/ca-certificates/custom-ca.crt
+RUN chmod 755 /etc/ssl/certs && \
+    update-ca-certificates && \
+    cp /etc/ssl/certs/ca-certificates.crt /etc/ssl/ca-bundle-with-custom.crt && \
+    chmod 644 /etc/ssl/ca-bundle-with-custom.crt && \
+    mv /usr/bin/sudo /usr/bin/sudo.orig && \
+    printf '#!/bin/bash\nexec /usr/bin/sudo.orig NODE_EXTRA_CA_CERTS=/etc/ssl/ca-bundle-with-custom.crt "$@"\n' > /usr/bin/sudo && \
+    chmod +x /usr/bin/sudo
+DOCKERFILE
+  fi
 
   echo "--- ddev start" >&3
   ddev start >&3 2>&3
