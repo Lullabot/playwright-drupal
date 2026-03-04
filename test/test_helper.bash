@@ -26,6 +26,20 @@ setup_drupal_project() {
   # so progress is visible in CI logs as each sub-step runs.
   echo "--- ddev config" >&3
   ddev config --project-type=drupal11 --docroot=web --project-name="$PROJECT_NAME" >&3 2>&3
+
+  # Docker injects host CA certificates into containers via a bind mount on
+  # /etc/ssl/certs.  The temp directory it creates is mode 0700 root:root,
+  # preventing the non-root web-container user from writing to it.  Because
+  # ddev's /start.sh calls mkcert to generate a TLS certificate into that
+  # directory, the container crashes immediately.  Work around this by
+  # wrapping /start.sh to widen the directory permissions before mkcert runs.
+  mkdir -p .ddev/web-build
+  cat > .ddev/web-build/Dockerfile <<'DOCKERFILE'
+RUN mv /start.sh /start-original.sh && \
+    printf '#!/bin/bash\nsudo chmod 777 /etc/ssl/certs 2>/dev/null || true\nexec /start-original.sh "$@"\n' > /start.sh && \
+    chmod +x /start.sh
+DOCKERFILE
+
   echo "--- ddev start" >&3
   ddev start >&3 2>&3
   echo "--- ddev composer create-project drupal/recommended-project" >&3
