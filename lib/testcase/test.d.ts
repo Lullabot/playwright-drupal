@@ -14,10 +14,10 @@ declare function execDrushInTestSite(command: string): Promise<{
     stdout: string;
     stderr: string;
 } & {
-    stdout: Buffer;
-    stderr: Buffer;
+    stdout: NonSharedBuffer;
+    stderr: NonSharedBuffer;
 } & {
-    stdout: string | Buffer;
-    stderr: string | Buffer;
+    stdout: string | NonSharedBuffer;
+    stderr: string | NonSharedBuffer;
 }>;
 export { test, expect, execDrushInTestSite };
