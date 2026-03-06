@@ -1,0 +1,176 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout playwright-drupal
+        uses: actions/checkout@v4
+        with:
+          path: playwright-drupal
+
+      - name: Install DDEV
+        uses: ddev/github-action-setup-ddev@v1
+        with:
+          autostart: false
+
+      - name: Create and start Drupal project
+        run: |
+          mkdir drupal-test && cd drupal-test
+          ddev config --project-type=drupal11 --docroot=web --project-name=pwtest
+          ddev start
+          ddev composer create drupal/recommended-project
+          ddev composer require drush/drush
+
+      - name: Install ddev-playwright addon
+        working-directory: drupal-test
+        run: |
+          ddev add-on get Lullabot/ddev-playwright
+          ddev restart
+
+      - name: Initialize Playwright
+        working-directory: drupal-test
+        run: |
+          mkdir -p test/playwright
+          ddev exec -- npx create-playwright@latest --lang=TypeScript --quiet test/playwright --no-browsers
+
+      - name: Install Playwright browsers
+        working-directory: drupal-test
+        run: ddev install-playwright
+
+      - name: Install playwright-drupal from current repo
+        run: |
+          cd playwright-drupal
+          npm pack
+          TARBALL=$(ls *.tgz)
+          cp "$TARBALL" ../drupal-test/
+          cd ../drupal-test
+          ddev exec -d /var/www/html/test/playwright npm install "/var/www/html/$TARBALL"
+
+      - name: Configure Drupal for Playwright
+        working-directory: drupal-test
+        run: |
+          # Add Playwright settings to Drupal's settings.php
+          chmod 666 web/sites/default/settings.php
+          echo "include '../test/playwright/node_modules/@lullabot/playwright-drupal/settings/settings.playwright.php';" >> web/sites/default/settings.php
+
+          # Create Taskfile.yml in the project root
+          cat > Taskfile.yml << 'EOF'
+          version: '3'
+          silent: true
+          includes:
+            playwright:
+              taskfile: test/playwright/node_modules/@lullabot/playwright-drupal/tasks/playwright.yml
+              optional: true
+          EOF
+
+      - name: Configure Playwright tests
+        working-directory: drupal-test
+        run: |
+          # Set up tsconfig.json
+          cat > test/playwright/tsconfig.json << 'EOF'
+          {
+            "compilerOptions": {
+              "noEmit": true,
+              "baseUrl": ".",
+              "paths": {
+                "~": ["./src"],
+                "~*": ["./src/*"],
+                "@packages/playwright-drupal": ["./packages/playwright-drupal"]
+              }
+            },
+            "include": [
+              "tests/**/*.ts"
+            ]
+          }
+          EOF
+
+          # Set up playwright.config.ts
+          cat > test/playwright/playwright.config.ts << 'TSEOF'
+          import { defineConfig, devices } from '@playwright/test';
+
+          export default defineConfig({
+            testDir: './tests',
+            fullyParallel: true,
+            forbidOnly: !!process.env.CI,
+            retries: process.env.CI ? 2 : 0,
+            workers: process.env.CI ? 1 : undefined,
+            reporter: 'html',
+            globalSetup: require.resolve('./node_modules/@lullabot/playwright-drupal/lib/setup/global-setup'),
+            use: {
+              baseURL: process.env.DDEV_PRIMARY_URL,
+              ignoreHTTPSErrors: true,
+              trace: 'on-first-retry',
+            },
+            projects: [
+              {
+                name: 'chromium',
+                use: { ...devices['Desktop Chrome'] },
+              },
+            ],
+          });
+          TSEOF
+
+          # Remove default example tests from create-playwright
+          rm -f test/playwright/tests/example.spec.ts
+          rm -rf test/playwright/tests-examples
+
+          # Create the example Drupal test from the README
+          cat > test/playwright/tests/example.drupal.spec.ts << 'TESTEOF'
+          import { test, expect, execDrushInTestSite } from '@packages/playwright-drupal';
+
+          test('has title', async ({ page }) => {
+            await page.goto('/');
+
+            // Expect a title "to contain" a substring.
+            await expect(page).toHaveTitle(/Playwright/);
+          });
+
+          // This tests proves parallel databases work by setting a random title for the
+          // first node created in the site.
+          test('proves parallel tests work', async ({ page }) => {
+            await execDrushInTestSite('user:password admin "correct horse battery staple"');
+            await page.goto('/user/login');
+            const username = page.getByLabel('Username');
+            const password = page.getByLabel('Password');
+            const loginButton = page.getByRole('button', { name: 'Log in' });
+            await username.fill('admin');
+            await password.fill('correct horse battery staple');
+            await loginButton.click();
+
+            await page.goto('/node/add/article');
+
+            let randomTitle = (Math.random() + 1).toString(36).substring(2);
+            await page.getByLabel('Title', { exact: true }).fill(randomTitle);
+            await page.getByRole('button', { name: 'Save' }).click();
+
+            // Since we're testing with Umami, upstream changes may change the node ID.
+            // If you are creating a test like this on your own site, and the node ID is
+            // deterministic, consider hard-coding that node ID instead.
+            await expect(page).toHaveURL(/\/node\/\d+(?:\?.*)?$/);
+
+            await expect(page).toHaveTitle(`${randomTitle} | Playwright`);
+            await expect(page.locator('h1')).toHaveText(randomTitle);
+          });
+          TESTEOF
+
+          # Add .gitignore entry for packages directory
+          echo '/packages/playwright-drupal' >> test/playwright/.gitignore
+
+      - name: Run Playwright tests
+        working-directory: drupal-test
+        run: ddev exec -d /var/www/html/test/playwright CI=true npx playwright test
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: drupal-test/test/playwright/playwright-report/
+          retention-days: 7
