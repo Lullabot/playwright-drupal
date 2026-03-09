@@ -1,0 +1,22 @@
+name: Conventional Commits
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  lint-pr-title:
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  lint-commits:
+    name: Validate Commits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check commit messages
+        uses: webiny/action-conventional-commits@v1.3.1
