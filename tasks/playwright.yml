@@ -65,12 +65,17 @@ tasks:
         cp -a web/sites/default/*.php web/sites/simpletest/{{ shellQuote .test_id }}/
         cp -a web/sites/default/*.yml web/sites/simpletest/{{ shellQuote .test_id }}/
 
-        # Copy the database.
-        cp -a /tmp/sqlite/.ht.sqlite /tmp/sqlite/{{ shellQuote .test_id }}/
+        # Copy the database while holding an exclusive lock. Multiple test
+        # workers run prepare concurrently, and drush bootstrap writes to
+        # the base database (cache tables). Without serialization, a cp
+        # during a concurrent drush write can copy a partially-written
+        # WAL, resulting in missing tables like cache_bootstrap.
+        flock /tmp/sqlite/.lock cp -a /tmp/sqlite/.ht.sqlite /tmp/sqlite/{{ shellQuote .test_id }}/
 
         # Get a user agent based on the test ID. We need to convert colons to
-        # URL-escaped characters.
-        UA=$(drush ev 'echo drupal_generate_test_ua("test{{ shellQuote .test_id }}");' | sed 's/:/%3A/g')
+        # URL-escaped characters. Hold the same lock since drush bootstrap
+        # writes to the base database.
+        UA=$(flock /tmp/sqlite/.lock drush ev 'echo drupal_generate_test_ua("test{{ shellQuote .test_id }}");' | sed 's/:/%3A/g')
 
         # Make sure we can load a page before running any tests.
         # These steps are slow, adding a second or more to each test preparation

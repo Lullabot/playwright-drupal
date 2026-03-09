@@ -11,6 +11,9 @@ if (getenv('PLAYWRIGHT_SETUP') !== FALSE) {
   $databases['default']['default'] = [
     'driver' => 'sqlite',
     'database' => '/tmp/sqlite/.ht.sqlite',
+    'init_commands' => [
+      'synchronous' => "PRAGMA synchronous=OFF",
+    ],
   ];
 }
 
