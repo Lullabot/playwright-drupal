@@ -5,3 +5,4 @@ tmp
 .ai
 .github
 commitlint.config.js
+release-please-config.json
