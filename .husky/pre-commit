@@ -1,0 +1,7 @@
+# Run tests only under AI agents (Claude Code, GitHub Copilot).
+# For human commits, skip tests to avoid long DDEV startup times.
+if [ -n "$CLAUDE_CODE" ] || [ -n "$GITHUB_COPILOT" ] || [ -n "$CODESPACES" ]; then
+  npm test
+else
+  echo "Skipping pre-commit tests (not running under an AI agent)."
+fi

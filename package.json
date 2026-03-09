@@ -4,6 +4,7 @@
   "description": "Playwright / Drupal integration, supporting fast parallel tests and visual comparisons",
   "scripts": {
     "build": "tsc",
+    "prepare": "husky || true",
     "test": "bats test/"
   },
   "author": "Andrew Berry <andrew.berry@lullabot.com>",
@@ -16,6 +17,9 @@
     "@types/node": "^20.9.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.4.3",
+    "@commitlint/config-conventional": "^20.4.3",
+    "husky": "^9.1.7",
     "typescript": "^5.2.2"
   }
 }

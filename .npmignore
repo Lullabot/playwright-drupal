@@ -1,3 +1,7 @@
 .idea
 .ddev
 tmp
+.husky
+.ai
+.github
+commitlint.config.js
