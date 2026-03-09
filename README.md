@@ -160,6 +160,10 @@ test('proves parallel tests work', async ({ page }) => {
   await username.fill('admin');
   await password.fill('correct horse battery staple');
   await loginButton.click();
+  // A waitForURL or page assertion is needed here; otherwise Playwright's
+  // next goto() call won't wait for the form submission to finish before
+  // navigating, which can cause the login to be skipped.
+  await page.waitForURL(/\/user\//);
 
   await page.goto('/node/add/article');
 
