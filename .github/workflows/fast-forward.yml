@@ -20,4 +20,4 @@ jobs:
         uses: sequoia-pgp/fast-forward@v1
         with:
           merge: true
-          token: ${{ steps.app-token.outputs.token }}
+          github_token: ${{ steps.app-token.outputs.token }}
