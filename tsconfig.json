@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
+    "rootDir": "src/",
     "outDir": "lib/",
     "declaration": true,
     "module": "CommonJS",
     "strict": true,
     "noImplicitAny": true,
     "esModuleInterop": true
-  }
+  },
+  "include": ["src"]
 }
