@@ -186,3 +186,43 @@ Update the project README with a section on iframe mocking, showing how to use `
 - 2026-03-10: Added CI and pre-commit hook integration for Vitest
 - 2026-03-10: Renamed test scripts (`test`, `test:unit`, `test:bats`)
 - 2026-03-10: Refinement — added `tsconfig.json` exclude for test files, clarified `lib/` will be gitignored on main before execution, confirmed dev machines have bats/ddev
+
+## Dependency Diagram
+
+```mermaid
+graph TD
+    01[Task 01: Mockable Interface & Integration] --> 02[Task 02: YoutubeMock & Exports]
+    02 --> 03[Task 03: Vitest Setup & Unit Test]
+    02 --> 05[Task 05: Documentation]
+    03 --> 04[Task 04: CI & Pre-commit Integration]
+```
+
+## Execution Blueprint
+
+**Validation Gates:**
+- Reference: `/config/hooks/POST_PHASE.md`
+
+### Phase 1: Core Interfaces
+**Parallel Tasks:**
+- Task 01: Add Mockable interface and mock integration to visualdiff.ts
+
+### Phase 2: Mock Implementation
+**Parallel Tasks:**
+- Task 02: Create YoutubeMock class and package exports (depends on: 01)
+
+### Phase 3: Testing & Documentation
+**Parallel Tasks:**
+- Task 03: Set up Vitest and write YoutubeMock unit test (depends on: 02)
+- Task 05: Add iframe mock documentation to README (depends on: 02)
+
+### Phase 4: CI Integration
+**Parallel Tasks:**
+- Task 04: Add unit tests to CI and pre-commit hook (depends on: 03)
+
+### Post-phase Actions
+
+### Execution Summary
+- Total Phases: 4
+- Total Tasks: 5
+- Maximum Parallelism: 2 tasks (in Phase 3)
+- Critical Path Length: 4 phases
