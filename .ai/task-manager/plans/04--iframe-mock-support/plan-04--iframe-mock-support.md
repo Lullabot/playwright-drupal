@@ -210,10 +210,10 @@ graph TD
 **Parallel Tasks:**
 - ✔️ Task 02: Create YoutubeMock class and package exports (depends on: 01)
 
-### Phase 3: Testing & Documentation
+### ✅ Phase 3: Testing & Documentation
 **Parallel Tasks:**
-- Task 03: Set up Vitest and write YoutubeMock unit test (depends on: 02)
-- Task 05: Add iframe mock documentation to README (depends on: 02)
+- ✔️ Task 03: Set up Vitest and write YoutubeMock unit test (depends on: 02)
+- ✔️ Task 05: Add iframe mock documentation to README (depends on: 02)
 
 ### Phase 4: CI Integration
 **Parallel Tasks:**

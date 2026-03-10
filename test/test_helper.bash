@@ -126,7 +126,11 @@ DOCKERFILE
   PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
 
   # Run npm pack from the repo root (on the host) to create a tarball.
+  # npm install is needed first because prepack runs "npm run build" (tsc),
+  # which requires @playwright/test and typescript to be installed.
   cd "$REPO_ROOT"
+  echo "--- npm install (repo root)" >&3
+  npm install >&3 2>&3
   echo "--- npm pack" >&3
   npm pack >&3 2>&3
 
