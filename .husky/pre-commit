@@ -2,7 +2,7 @@
 # staged files affect testable paths. This avoids long DDEV startup
 # times for human commits while ensuring AI-driven changes are tested.
 TESTABLE_PATHS="package.json|settings/|src/|tasks/|test/|tsconfig.json"
-if [ -n "$CLAUDE_CODE" ] || [ -n "$GITHUB_COPILOT" ] || [ -n "$CODESPACES" ]; then
+if [ -n "$CLAUDECODE" ] || [ -n "$GITHUB_COPILOT" ] || [ -n "$CODESPACES" ]; then
   if git diff --cached --name-only | grep -qE "^($TESTABLE_PATHS)"; then
     npm test
   fi
