@@ -1,0 +1,28 @@
+name: Rebase
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  rebase:
+    if: >-
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/rebase') &&
+      (
+        github.event.comment.author_association == 'OWNER' ||
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.author_association == 'COLLABORATOR'
+      )
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.REBASE_APP_ID }}
+          private-key: ${{ secrets.REBASE_PRIVATE_KEY }}
+      - name: Rebase PR branch
+        uses: peter-evans/rebase@v3
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          rebase-options: '--no-keep-empty'
