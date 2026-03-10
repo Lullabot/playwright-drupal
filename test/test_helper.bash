@@ -91,10 +91,22 @@ DOCKERFILE
         newPaths[key.replace(/^web\//, '${docroot}/')] = val;
       }
       c.extra['installer-paths'] = newPaths;
+      // Update autoload paths (classmap and files) that reference web/
+      if (c.autoload) {
+        for (const key of ['classmap', 'files']) {
+          if (Array.isArray(c.autoload[key])) {
+            c.autoload[key] = c.autoload[key].map(p => p.replace(/^web\//, '${docroot}/'));
+          }
+        }
+      }
       fs.writeFileSync('composer.json', JSON.stringify(c, null, 4) + '\n');
     " >&3 2>&3
     # Rename the directory
     ddev exec mv web "$docroot" >&3 2>&3
+    # Re-run composer install so Composer recalculates package install paths
+    # (installed.json) and regenerates the autoloader for the new docroot.
+    echo "--- ddev composer install (recalculate paths)" >&3
+    ddev composer install --no-progress >&3 2>&3
     # Restart DDEV to pick up the new docroot
     echo "--- ddev restart (docroot change)" >&3
     ddev restart >&3 2>&3
