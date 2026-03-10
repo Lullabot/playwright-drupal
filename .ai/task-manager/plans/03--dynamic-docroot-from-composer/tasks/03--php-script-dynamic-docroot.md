@@ -2,7 +2,7 @@
 id: 3
 group: "docroot-detection"
 dependencies: []
-status: "pending"
+status: "completed"
 created: "2026-03-10"
 skills:
   - php

@@ -1,5 +1,6 @@
 import {expect, test as base_test, TestFixture, WebError} from '@playwright/test';
 import {task, taskSync} from "../cli/task";
+import {getDocroot} from "../util/docroot";
 import * as fs from "fs";
 import * as util from "util";
 import child_process from "child_process";
@@ -71,7 +72,7 @@ const test = base_test.extend<TestFixture<any, any>>( {
  * Attach the PHP error log to the test results.
  */
 test.afterEach(async ({ page }, testInfo) => {
-  let logPath = '../../web/sites/simpletest/' + drupal_test_id + '/error.log';
+  let logPath = '../../' + getDocroot('../../composer.json') + '/sites/simpletest/' + drupal_test_id + '/error.log';
   if (fs.existsSync(logPath)) {
     await testInfo.attach('error.log', {path: logPath});
   }

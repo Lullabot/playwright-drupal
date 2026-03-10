@@ -39,7 +39,22 @@ if (!$test_id) {
   exit(1);
 }
 
-include_once '/var/www/html/web/core/includes/bootstrap.inc';
+// Detect the docroot from composer.json's drupal-scaffold configuration.
+$docroot = 'web';
+$composer_json_path = '/var/www/html/composer.json';
+if (file_exists($composer_json_path)) {
+  $composer = json_decode(file_get_contents($composer_json_path), true);
+  if (isset($composer['extra']['drupal-scaffold']['locations']['web-root'])) {
+    $docroot = rtrim($composer['extra']['drupal-scaffold']['locations']['web-root'], '/');
+  }
+}
+
+$bootstrap_path = "/var/www/html/$docroot/core/includes/bootstrap.inc";
+if (!file_exists($bootstrap_path)) {
+  print "bootstrap.inc not found at $bootstrap_path. Check your composer.json drupal-scaffold.locations.web-root setting.";
+  exit(1);
+}
+include_once $bootstrap_path;
 drupal_valid_test_ua('test' . $test_id);
 
 # Drush 13.3.1+
