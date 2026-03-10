@@ -1,19 +1,11 @@
 name: Rebase
 
 on:
-  issue_comment:
-    types: [created]
+  repository_dispatch:
+    types: [rebase-command]
 
 jobs:
   rebase:
-    if: >-
-      github.event.issue.pull_request &&
-      contains(github.event.comment.body, '/rebase') &&
-      (
-        github.event.comment.author_association == 'OWNER' ||
-        github.event.comment.author_association == 'MEMBER' ||
-        github.event.comment.author_association == 'COLLABORATOR'
-      )
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/create-github-app-token@v2
@@ -21,17 +13,19 @@ jobs:
         with:
           app-id: ${{ vars.REBASE_APP_ID }}
           private-key: ${{ secrets.REBASE_PRIVATE_KEY }}
-      - name: Get PR head ref
-        id: pr
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: |
-          head=$(gh pr view ${{ github.event.issue.number }} --repo ${{ github.repository }} --json headRefName -q .headRefName)
-          echo "head=$head" >> "$GITHUB_OUTPUT"
       - name: Rebase PR branch
+        id: rebase
         uses: deviantintegral/rebase@0af71d3f8ec5bb2f8636e2f932268d3a64872bba
         with:
           token: ${{ steps.app-token.outputs.token }}
-          head: ${{ github.repository_owner }}:${{ steps.pr.outputs.head }}
+          head: ${{ github.event.client_payload.pull_request.head.label }}
           rebase-options: '--no-keep-empty'
           incremental-push: true
+      - name: Add reaction
+        if: steps.rebase.outputs.rebased-count == 1
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          reactions: hooray
