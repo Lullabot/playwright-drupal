@@ -8,7 +8,7 @@ jobs:
   rebase:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/create-github-app-token@v2
+      - uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2
         id: app-token
         with:
           app-id: ${{ vars.REBASE_APP_ID }}
@@ -23,7 +23,7 @@ jobs:
           incremental-push: true
       - name: Add reaction
         if: steps.rebase.outputs.rebased-count == 1
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4
         with:
           token: ${{ steps.app-token.outputs.token }}
           repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
