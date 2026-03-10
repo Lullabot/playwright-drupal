@@ -17,6 +17,7 @@ jobs:
         uses: peter-evans/slash-command-dispatch@v5
         with:
           token: ${{ steps.app-token.outputs.token }}
+          reaction-token: ${{ steps.app-token.outputs.token }}
           commands: rebase
           permission: write
           issue-type: pull-request
