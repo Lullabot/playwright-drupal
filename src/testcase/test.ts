@@ -9,6 +9,7 @@ import child_process from "child_process";
  * Keep a reference to the test ID, so we can use it to attach the error log.
  */
 let drupal_test_id: number;
+const docroot = getDocroot('../../composer.json');
 
 /**
  * Set a simpletest cookie for routing the tests to a separate database.
@@ -72,7 +73,7 @@ const test = base_test.extend<TestFixture<any, any>>( {
  * Attach the PHP error log to the test results.
  */
 test.afterEach(async ({ page }, testInfo) => {
-  let logPath = '../../' + getDocroot('../../composer.json') + '/sites/simpletest/' + drupal_test_id + '/error.log';
+  let logPath = '../../' + docroot + '/sites/simpletest/' + drupal_test_id + '/error.log';
   if (fs.existsSync(logPath)) {
     await testInfo.attach('error.log', {path: logPath});
   }
