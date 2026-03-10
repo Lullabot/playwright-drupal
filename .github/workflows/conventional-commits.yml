@@ -16,7 +16,7 @@ jobs:
 
   lint-commits:
     name: Validate Commits
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check commit messages
         uses: webiny/action-conventional-commits@v1.3.1
