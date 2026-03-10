@@ -133,3 +133,5 @@ dist
 package-lock.json
 .idea
 tmp/
+
+.claude/worktrees
