@@ -14,7 +14,7 @@
   "dependencies": {
     "@axe-core/playwright": "^4.8.5",
     "@playwright/test": "^1.39.0",
-    "@types/node": "^20.9.0"
+    "@types/node": "^24.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.3",
