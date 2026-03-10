@@ -1,9 +1,10 @@
-# Run tests only under AI agents (Claude Code, GitHub Copilot) when
-# staged files affect testable paths. This avoids long DDEV startup
-# times for human commits while ensuring AI-driven changes are tested.
+# Always run fast unit tests (sub-second).
+npm run test:unit
+
+# Run slow integration tests only under AI agents when testable paths change.
 TESTABLE_PATHS="package.json|settings/|src/|tasks/|test/|tsconfig.json"
 if [ -n "$CLAUDECODE" ] || [ -n "$GITHUB_COPILOT" ] || [ -n "$CODESPACES" ]; then
   if git diff --cached --name-only | grep -qE "^($TESTABLE_PATHS)"; then
-    npm test
+    npm run test:bats
   fi
 fi
