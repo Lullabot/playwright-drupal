@@ -58,16 +58,16 @@ tasks:
         export PLAYWRIGHT_SETUP=1
 
         # Recreate the sites directory.
-        rm -rf {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/
-        mkdir -p {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/
+        rm -rf "{{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/"
+        mkdir -p "{{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/"
         mkdir -p /tmp/sqlite/{{ shellQuote .test_id }}/
 
         # On locals, copying in only the files we need (and not all assets
         # downloaded via stage file proxy) saves several seconds.
 
         # Copy in settings.php and our services files.
-        cp -a {{ .DOCROOT }}/sites/default/*.php {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/
-        cp -a {{ .DOCROOT }}/sites/default/*.yml {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/
+        cp -a "{{ .DOCROOT }}/sites/default/"*.php "{{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/"
+        cp -a "{{ .DOCROOT }}/sites/default/"*.yml "{{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/"
 
         # Copy the database while holding an exclusive lock. Multiple test
         # workers run prepare concurrently, and drush bootstrap writes to
@@ -124,8 +124,8 @@ tasks:
         # Delete the files and settings directories.
         # Fast tests that do not require a full page render may finish before Drupal
         # has fully written files like aggregated JavaScript to disk.
-        while [ -d {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/ ]; do
-          rm -rf {{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/ 2>/dev/null || true
+        while [ -d "{{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/" ]; do
+          rm -rf "{{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/" 2>/dev/null || true
         done;
 
         # Delete the database.
