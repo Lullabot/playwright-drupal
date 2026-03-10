@@ -463,6 +463,57 @@ const consoleLoggingTestFunction = function (testCase: VisualDiff, group: Visual
 config.describe(consoleLoggingTestFunction);
 ```
 
+### Mocking Iframe Content
+
+External iframes (such as YouTube embeds) load third-party content that changes independently of your site, causing non-deterministic screenshots in visual diff tests. The `mockClass` property on test cases allows you to intercept and replace these requests with stable placeholder content.
+
+#### Using the Built-in YouTube Mock
+
+```typescript
+import { defineVisualDiffConfig } from '@packages/playwright-drupal';
+import { YoutubeMock } from '@packages/playwright-drupal';
+
+export const config = defineVisualDiffConfig({
+  name: "MySite Visual Diffs",
+  groups: [
+    {
+      name: "Landing Pages",
+      testCases: [
+        {
+          name: "About Us",
+          path: "/about-us",
+          mockClass: YoutubeMock,
+        }
+      ]
+    }
+  ],
+});
+```
+
+When `mockClass` is set, the mock's `mock(page)` method is called before the page navigates to the test URL. `YoutubeMock` intercepts all requests to `www.youtube.com` and returns a simple HTML placeholder, ensuring consistent screenshots regardless of YouTube's actual content.
+
+#### Creating a Custom Mock
+
+Any class implementing the `Mockable` interface can be used with `mockClass`. The interface requires a single method:
+
+```typescript
+import { Page } from '@playwright/test';
+import { Mockable } from '@packages/playwright-drupal';
+
+export class VimeoMock implements Mockable {
+  public async mock(page: Page): Promise<void> {
+    await page.route(/player\.vimeo\.com/i, async route => {
+      await route.fulfill({
+        contentType: 'text/html',
+        body: '<html><body><div>Vimeo Mock</div></body></html>',
+      });
+    });
+  }
+}
+```
+
+Use Playwright's [`page.route()`](https://playwright.dev/docs/api/class-page#page-route) to intercept requests matching a URL pattern and return deterministic content via `route.fulfill()`.
+
 ## Replacing the Standard Profile With Your Own
 
 Out of the box, we can't know what setup steps your site needs to work correctly. To use your own steps, add a `playwright:install:hook` task to your Taskfile. This will be called with the right environment set so that the site is installed into sqlite (and not your normal ddev database). From here, run Drush commands or call other tasks as needed to install your site. To test this when developing, feel free to call `task playwright:install` without actually running tests.

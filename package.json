@@ -14,7 +14,9 @@
     "build": "tsc",
     "prepack": "npm run build",
     "prepare": "husky || true",
-    "test": "bats test/"
+    "test": "npm run test:unit && npm run test:bats",
+    "test:unit": "vitest run",
+    "test:bats": "bats test/"
   },
   "author": "Andrew Berry <andrew.berry@lullabot.com>",
   "license": "Apache-2.0",
@@ -33,6 +35,7 @@
     "@commitlint/cli": "^20.4.3",
     "@commitlint/config-conventional": "^20.4.3",
     "husky": "^9.1.7",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^4.0.18"
   }
 }
