@@ -4,6 +4,7 @@
   "description": "Playwright / Drupal integration, supporting fast parallel tests and visual comparisons",
   "files": [
     "lib/",
+    "src/",
     "bin/",
     "settings/",
     "tasks/",
