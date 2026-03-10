@@ -21,9 +21,17 @@ jobs:
         with:
           app-id: ${{ vars.REBASE_APP_ID }}
           private-key: ${{ secrets.REBASE_PRIVATE_KEY }}
+      - name: Get PR head ref
+        id: pr
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          head=$(gh pr view ${{ github.event.issue.number }} --repo ${{ github.repository }} --json headRefName -q .headRefName)
+          echo "head=$head" >> "$GITHUB_OUTPUT"
       - name: Rebase PR branch
         uses: deviantintegral/rebase@0af71d3f8ec5bb2f8636e2f932268d3a64872bba
         with:
           token: ${{ steps.app-token.outputs.token }}
+          head: ${{ github.repository_owner }}:${{ steps.pr.outputs.head }}
           rebase-options: '--no-keep-empty'
           incremental-push: true
