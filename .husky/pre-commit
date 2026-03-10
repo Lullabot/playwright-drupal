@@ -1,7 +1,9 @@
-# Run tests only under AI agents (Claude Code, GitHub Copilot).
-# For human commits, skip tests to avoid long DDEV startup times.
+# Run tests only under AI agents (Claude Code, GitHub Copilot) when
+# staged files affect testable paths. This avoids long DDEV startup
+# times for human commits while ensuring AI-driven changes are tested.
+TESTABLE_PATHS="package.json|settings/|src/|tasks/|test/|tsconfig.json"
 if [ -n "$CLAUDE_CODE" ] || [ -n "$GITHUB_COPILOT" ] || [ -n "$CODESPACES" ]; then
-  npm test
-else
-  echo "Skipping pre-commit tests (not running under an AI agent)."
+  if git diff --cached --name-only | grep -qE "^($TESTABLE_PATHS)"; then
+    npm test
+  fi
 fi
