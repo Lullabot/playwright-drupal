@@ -8,13 +8,13 @@ jobs:
   slashCommandDispatch:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/create-github-app-token@v2
+      - uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2
         id: app-token
         with:
           app-id: ${{ vars.REBASE_APP_ID }}
           private-key: ${{ secrets.REBASE_PRIVATE_KEY }}
       - name: Slash Command Dispatch
-        uses: peter-evans/slash-command-dispatch@v5
+        uses: peter-evans/slash-command-dispatch@9bdcd7914ec1b75590b790b844aa3b8eee7c683a # v5
         with:
           token: ${{ steps.app-token.outputs.token }}
           reaction-token: ${{ steps.app-token.outputs.token }}
