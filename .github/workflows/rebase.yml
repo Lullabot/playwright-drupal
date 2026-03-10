@@ -22,7 +22,8 @@ jobs:
           app-id: ${{ vars.REBASE_APP_ID }}
           private-key: ${{ secrets.REBASE_PRIVATE_KEY }}
       - name: Rebase PR branch
-        uses: peter-evans/rebase@v3
+        uses: deviantintegral/rebase@0af71d3f8ec5bb2f8636e2f932268d3a64872bba
         with:
           token: ${{ steps.app-token.outputs.token }}
           rebase-options: '--no-keep-empty'
+          incremental-push: true
