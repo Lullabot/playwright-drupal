@@ -2,8 +2,16 @@
   "name": "@lullabot/playwright-drupal",
   "version": "1.0.7",
   "description": "Playwright / Drupal integration, supporting fast parallel tests and visual comparisons",
+  "files": [
+    "lib/",
+    "bin/",
+    "settings/",
+    "tasks/",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
+    "prepack": "npm run build",
     "prepare": "husky || true",
     "test": "bats test/"
   },

@@ -135,3 +135,6 @@ package-lock.json
 tmp/
 
 .claude/worktrees
+
+# Build output
+lib/
