@@ -51,7 +51,7 @@ if (file_exists($composer_json_path)) {
 
 $bootstrap_path = "/var/www/html/$docroot/core/includes/bootstrap.inc";
 if (!file_exists($bootstrap_path)) {
-  print "bootstrap.inc not found at $bootstrap_path. Check your composer.json drupal-scaffold.locations.web-root setting.";
+  print "bootstrap.inc not found at $bootstrap_path. Check your composer.json drupal-scaffold.locations.web-root setting.\n";
   exit(1);
 }
 include_once $bootstrap_path;
