@@ -18,6 +18,10 @@
   },
   "author": "Andrew Berry <andrew.berry@lullabot.com>",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lullabot/playwright-drupal.git"
+  },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "dependencies": {
