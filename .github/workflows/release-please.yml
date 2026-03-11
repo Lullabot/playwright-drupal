@@ -28,39 +28,7 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
 
   test:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
-        with:
-          node-version: '24'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Install bats
-        run: sudo apt-get update && sudo apt-get install -y bats
-
-      - name: Install DDEV
-        uses: ddev/github-action-setup-ddev@fdf2f5c97943bae638f31df6df86f1defa6210c0 # v1
-        with:
-          autostart: false
-
-      - name: Run integration tests
-        run: bats test/
-
-      - name: Upload Playwright report
-        if: always()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
-        with:
-          name: playwright-report
-          path: /tmp/pwtest-*/test/playwright/playwright-report/
-          retention-days: 7
-          if-no-files-found: ignore
+    uses: ./.github/workflows/test.yml
 
   publish:
     needs: [release-please, test]
