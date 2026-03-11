@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   release-please:
+    needs: test
     runs-on: ubuntu-24.04
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
@@ -31,7 +32,7 @@ jobs:
     uses: ./.github/workflows/test.yml
 
   publish:
-    needs: [release-please, test]
+    needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
     runs-on: ubuntu-24.04
     environment: release-please
