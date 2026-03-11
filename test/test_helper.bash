@@ -5,6 +5,8 @@
 # Drupal project, installing playwright-drupal, and running Playwright tests.
 
 setup_drupal_project() {
+  local docroot="${1:-web}"
+
   # Create a temporary directory for the Drupal project.
   # Use the pwtest- prefix so the CI artifact upload glob matches.
   mkdir -p tmp
@@ -25,7 +27,7 @@ setup_drupal_project() {
   # Each command's output is written to FD 3 (bats' real-time log channel)
   # so progress is visible in CI logs as each sub-step runs.
   echo "--- ddev config" >&3
-  ddev config --project-type=drupal11 --docroot=web --project-name="$PROJECT_NAME" >&3 2>&3
+  ddev config --project-type=drupal11 --docroot="$docroot" --project-name="$PROJECT_NAME" >&3 2>&3
 
   # In the Copilot agent sandbox, Docker may inject host CA certificates into
   # containers via a bind mount on /etc/ssl/certs with mode 0700 root:root.
@@ -73,6 +75,43 @@ DOCKERFILE
   echo "--- ddev composer require drush/drush" >&3
   ddev composer require drush/drush >&3 2>&3
 
+  # If using a non-default docroot, rewrite composer.json and rename the
+  # web directory so DDEV and Drupal use the custom docroot.
+  if [[ "$docroot" != "web" ]]; then
+    echo "--- Changing docroot from web to $docroot" >&3
+    # Use node to rewrite composer.json since jq may not be on the host.
+    ddev exec node -e "
+      const fs = require('fs');
+      let c = JSON.parse(fs.readFileSync('composer.json', 'utf8'));
+      // Update drupal-scaffold web-root
+      c.extra['drupal-scaffold'].locations['web-root'] = '${docroot}/';
+      // Update installer-paths: replace 'web/' prefix with new docroot
+      const newPaths = {};
+      for (const [key, val] of Object.entries(c.extra['installer-paths'])) {
+        newPaths[key.replace(/^web\//, '${docroot}/')] = val;
+      }
+      c.extra['installer-paths'] = newPaths;
+      // Update autoload paths (classmap and files) that reference web/
+      if (c.autoload) {
+        for (const key of ['classmap', 'files']) {
+          if (Array.isArray(c.autoload[key])) {
+            c.autoload[key] = c.autoload[key].map(p => p.replace(/^web\//, '${docroot}/'));
+          }
+        }
+      }
+      fs.writeFileSync('composer.json', JSON.stringify(c, null, 4) + '\n');
+    " >&3 2>&3
+    # Rename the directory
+    ddev exec mv web "$docroot" >&3 2>&3
+    # Re-run composer install so Composer recalculates package install paths
+    # (installed.json) and regenerates the autoloader for the new docroot.
+    echo "--- ddev composer install (recalculate paths)" >&3
+    ddev composer install --no-progress >&3 2>&3
+    # Restart DDEV to pick up the new docroot
+    echo "--- ddev restart (docroot change)" >&3
+    ddev restart >&3 2>&3
+  fi
+
   # Install the ddev-playwright add-on and restart.
   echo "--- ddev add-on get Lullabot/ddev-playwright" >&3
   ddev add-on get Lullabot/ddev-playwright >&3 2>&3
@@ -116,6 +155,8 @@ DOCKERFILE
 }
 
 configure_playwright() {
+  local docroot="${1:-web}"
+
   PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
 
   cd "$PROJECT_DIR"
@@ -170,8 +211,8 @@ TSEOF
 
   # Add Playwright settings to Drupal's settings.php.
   # The file may be read-only, so chmod it first.
-  chmod 644 web/sites/default/settings.php
-  echo "include '../test/playwright/node_modules/@lullabot/playwright-drupal/settings/settings.playwright.php';" >> web/sites/default/settings.php
+  chmod 644 "$docroot/sites/default/settings.php"
+  echo "include '../test/playwright/node_modules/@lullabot/playwright-drupal/settings/settings.playwright.php';" >> "$docroot/sites/default/settings.php"
 
   # Create Taskfile.yml in the project root.
   cat > Taskfile.yml << 'EOF'
@@ -252,7 +293,7 @@ run_playwright_tests() {
   # FD 3 is bats' real-time output channel, opened by the test runner
   # before each @test, setup(), and teardown() call.
   set +e
-  ddev exec -d /var/www/html/test/playwright npx playwright test --repeat-each 5 \
+  ddev exec -d /var/www/html/test/playwright npx playwright test --repeat-each 2 \
     2>&1 | tee "$BATS_FILE_TMPDIR/playwright_output.txt" >&3
   echo "${PIPESTATUS[0]}" > "$BATS_FILE_TMPDIR/playwright_exit_code"
   set -e

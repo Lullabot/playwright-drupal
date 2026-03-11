@@ -30,6 +30,10 @@ This project, building on [lullabot/ddev-playwright](https://github.com/lullabot
 - We use [Task](https://taskfile.dev) as a task runner to install Drupal and set up the tests. This allows developers to easily run individual components of the test setup and teardown without having to step through JavaScript, or reuse them in other non-testing scenarios.
 - While as of this writing (March 2024) this is new code, a nearly identical version of this has been running on a real-world project for over a year.
 
+## Docroot Auto-Detection
+
+This library automatically detects your Drupal docroot by reading the `extra.drupal-scaffold.locations.web-root` key from your project's `composer.json`. This means it works out of the box with `web/`, `docroot/`, or any custom directory name — no manual configuration is needed. If the key is not present in `composer.json`, it defaults to `web`.
+
 ## Getting Started
 
 Integrating this library into a site takes several steps. For the sake of completeness, these steps start as if you are starting a brand-new Drupal site.
@@ -134,7 +138,7 @@ includes:
 
 ### Add Playwright to Drupal's Settings
 
-Add the following line to `web/sites/default/settings.php`:
+Add the following line to your Drupal `sites/default/settings.php` (e.g. `web/sites/default/settings.php` or `docroot/sites/default/settings.php`, depending on your project):
 
 ```php
 include '../test/playwright/node_modules/@lullabot/playwright-drupal/settings/settings.playwright.php';
