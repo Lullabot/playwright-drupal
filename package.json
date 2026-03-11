@@ -1,6 +1,6 @@
 {
   "name": "@lullabot/playwright-drupal",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "Playwright / Drupal integration, supporting fast parallel tests and visual comparisons",
   "files": [
     "lib/",
@@ -18,6 +18,10 @@
   },
   "author": "Andrew Berry <andrew.berry@lullabot.com>",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lullabot/playwright-drupal.git"
+  },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "dependencies": {
