@@ -275,7 +275,7 @@ The VS Code “Record new” command generates absolute URLs and default imports
 1. Create a test from the following template:
 
    ```ts
-   // test/playwright/e2e/test1.spec.ts
+   // test/playwright/tests/test1.spec.ts
    import { test, expect, execDrushInTestSite } from '@packages/playwright-drupal';
 
    // 1. Update the test name.
