@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.1.0...playwright-drupal-1.2.0) (2026-03-12)
+
+
+### Features
+
+* add Mockable interface and mock integration to visualdiff ([7458990](https://github.com/Lullabot/playwright-drupal/commit/745899063da073deda6f01536516ece101a23701))
+* add Vitest unit tests for YoutubeMock and iframe mock docs ([ac291f1](https://github.com/Lullabot/playwright-drupal/commit/ac291f15122fbbc852c5ec1e2442969fecc4c72e))
+* add YoutubeMock class and package exports ([8819542](https://github.com/Lullabot/playwright-drupal/commit/88195423c055d4bcccd2247dc821a49b04c77636))
+* detect docroot from composer.json instead of hardcoding web/ ([#59](https://github.com/Lullabot/playwright-drupal/issues/59)) ([9c5ba1b](https://github.com/Lullabot/playwright-drupal/commit/9c5ba1bca77d5923e4382726a511d1393fbe7552))
+
 ## [1.1.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.0.7...playwright-drupal-1.1.0) (2026-03-11)
 
 
