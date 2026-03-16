@@ -184,12 +184,12 @@ configure_playwright() {
 EOF
 
   # Write playwright.config.ts using definePlaywrightDrupalConfig() helper.
-  # Note: playwright.config.ts is loaded before globalSetup runs, so we must
-  # import from the real npm package (@lullabot/playwright-drupal) rather than
-  # the @packages/playwright-drupal alias (which is only available after
-  # globalSetup copies the source into packages/).
+  # Import from '@lullabot/playwright-drupal/config' (subpath export) to avoid
+  # loading the test fixture module which registers test.afterEach() side
+  # effects. Test files import from '@packages/playwright-drupal' (source copy),
+  # so loading the full compiled package here would cause duplicate registration.
   cat > test/playwright/playwright.config.ts << 'TSEOF'
-import { definePlaywrightDrupalConfig } from '@lullabot/playwright-drupal';
+import { definePlaywrightDrupalConfig } from '@lullabot/playwright-drupal/config';
 import { devices } from '@playwright/test';
 
 export default definePlaywrightDrupalConfig({

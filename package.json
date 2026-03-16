@@ -26,6 +26,16 @@
   },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./config": {
+      "types": "./lib/config.d.ts",
+      "default": "./lib/config.js"
+    }
+  },
   "dependencies": {
     "@axe-core/playwright": "^4.8.5",
     "@playwright/test": "^1.39.0",

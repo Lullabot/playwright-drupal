@@ -106,7 +106,7 @@ Set the following in `test/playwright/tsconfig.json`, merging with any existing 
 
 Replace the contents of `test/playwright/playwright.config.ts` with:
 ```typescript
-import { definePlaywrightDrupalConfig } from '@lullabot/playwright-drupal';
+import { definePlaywrightDrupalConfig } from '@lullabot/playwright-drupal/config';
 import { devices } from '@playwright/test';
 
 export default definePlaywrightDrupalConfig({
@@ -130,7 +130,7 @@ export default definePlaywrightDrupalConfig({
 });
 ```
 
-`definePlaywrightDrupalConfig()` automatically provides sensible defaults (see [Configuration Helper](#configuration-helper) below), so you only need to specify project-specific settings. Note: import from `@lullabot/playwright-drupal` (the npm package) rather than `@packages/playwright-drupal` in the config file, since the config is loaded before `globalSetup` copies the source into the packages directory.
+`definePlaywrightDrupalConfig()` automatically provides sensible defaults (see [Configuration Helper](#configuration-helper) below), so you only need to specify project-specific settings. Import from `@lullabot/playwright-drupal/config` (the subpath export) to avoid loading the test fixture module, which would conflict with the source copy used by test files.
 
 ### Ignore playwright-drupal from Git
 
@@ -640,7 +640,7 @@ The `definePlaywrightDrupalConfig()` function returns a complete Playwright conf
 ### Usage
 
 ```typescript
-import { definePlaywrightDrupalConfig } from '@lullabot/playwright-drupal';
+import { definePlaywrightDrupalConfig } from '@lullabot/playwright-drupal/config';
 import { devices } from '@playwright/test';
 
 export default definePlaywrightDrupalConfig({
