@@ -49,5 +49,27 @@ if (defined('DRUPAL_TEST_IN_CHILD_SITE') && DRUPAL_TEST_IN_CHILD_SITE) {
     // caches for database caching, but has no real effect in that case.
     $settings['cache_prefix']['default'] = $id;
   }
+
+  // Suppress X-Drupal-Assertion headers in test child sites. During cold
+  // container compilation, Drupal adds an X-Drupal-Assertion-N HTTP header
+  // for every error and deprecation (see _drupal_error_header() in errors.inc).
+  // With many contrib modules, this produces headers totaling >64KB,
+  // exceeding nginx's fastcgi_buffer_size and causing 502 errors on the
+  // first request after rebuild.php.
+  //
+  // Two code paths in _drupal_error_handler_real() add assertion headers:
+  // 1. _drupal_log_error() — controlled by SIMPLETEST_COLLECT_ERRORS
+  // 2. Direct E_USER_DEPRECATED handler (line 86) — ignores SIMPLETEST_COLLECT_ERRORS
+  //    This path fires when E_USER_DEPRECATED is triggered inside @-suppressed
+  //    code, because error_reporting() excludes it, bypassing path #1.
+  //
+  // We wrap Drupal's error handler to swallow deprecation notices entirely,
+  // preventing both paths from adding assertion headers.
+  $previousHandler = set_error_handler(function ($errno, $errstr, $errfile, $errline) use (&$previousHandler) {
+    if ($errno === E_USER_DEPRECATED || $errno === E_DEPRECATED) {
+      return TRUE;
+    }
+    return $previousHandler ? $previousHandler($errno, $errstr, $errfile, $errline) : FALSE;
+  });
 }
 
