@@ -46,7 +46,10 @@ tasks:
     cmds:
       - mkdir -p /tmp/sqlite
       - >-
-        uv tool run --from 'mysql-to-sqlite3>=2,<3' mysql2sqlite
+        uv tool run
+        --from 'mysql-to-sqlite3>=2,<3'
+        --with 'sqlglot>=27,<30'
+        mysql2sqlite
         --mysql-host db
         --mysql-port 3306
         --mysql-user db

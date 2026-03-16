@@ -51,8 +51,8 @@ setup() {
   PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
   cd "$PROJECT_DIR"
 
-  echo "--- ddev task playwright:mysql-to-sqlite" >&3
-  ddev task playwright:mysql-to-sqlite >&3 2>&3
+  echo "--- ddev exec task playwright:mysql-to-sqlite" >&3
+  ddev exec task playwright:mysql-to-sqlite >&3 2>&3
 }
 
 @test "mysql-to-sqlite: SQLite file exists" {
