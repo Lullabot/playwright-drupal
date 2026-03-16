@@ -243,7 +243,7 @@ write_example_test() {
 
   # Write the example Drupal test from the README (lines 143-177).
   cat > test/playwright/tests/example.drupal.spec.ts << 'TESTEOF'
-import { test, expect, execDrushInTestSite } from '@packages/playwright-drupal';
+import { test, expect, execDrushInTestSite, login } from '@packages/playwright-drupal';
 
 test('has title', async ({ page }) => {
   await page.goto('/');
@@ -286,7 +286,6 @@ test('proves parallel tests work', async ({ page }) => {
 });
 
 test('login helper works', async ({ page }) => {
-  const { login } = await import('@packages/playwright-drupal');
   await login(page);
   // Verify we're logged in by checking we can access admin.
   await page.goto('/admin');
