@@ -724,7 +724,7 @@ import { test, expect, login } from '@packages/playwright-drupal';
 test('can access the admin dashboard', async ({ page }) => {
   await login(page);
   await page.goto('/admin');
-  await expect(page).toHaveTitle(/Drupal/);
+  await expect(page).toHaveTitle(/Administration/);
 });
 ```
 

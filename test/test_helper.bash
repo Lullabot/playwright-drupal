@@ -308,7 +308,7 @@ test('login helper works', async ({ page }) => {
   await login(page);
   // Verify we're logged in by checking we can access admin.
   await page.goto('/admin');
-  await expect(page).toHaveTitle(/Drupal/);
+  await expect(page).toHaveTitle(/Administration/);
 });
 TESTEOF
 }
