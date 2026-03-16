@@ -41,6 +41,19 @@ tasks:
           task playwright:install:hook
         fi
 
+  mysql-to-sqlite:
+    desc: "Convert the active MySQL/MariaDB database to SQLite for Playwright tests"
+    cmds:
+      - mkdir -p /tmp/sqlite
+      - >-
+        uv tool run --from 'mysql-to-sqlite3>=2,<3' mysql2sqlite
+        --mysql-host db
+        --mysql-port 3306
+        --mysql-user db
+        --mysql-password db
+        --mysql-database db
+        --sqlite-file /tmp/sqlite/.ht.sqlite
+
   prepare:
     desc: "Copy a database in preparation for a test run."
     summary: |
