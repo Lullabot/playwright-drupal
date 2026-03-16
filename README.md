@@ -544,6 +544,70 @@ export class VimeoMock implements Mockable {
 
 Use Playwright's [`page.route()`](https://playwright.dev/docs/api/class-page#page-route) to intercept requests matching a URL pattern and return deterministic content via `route.fulfill()`.
 
+### Masking Dynamic Elements
+
+Some elements change over time independently of your code — copyright years, timestamps, or live counters. These cause false snapshot failures. You can mask such elements by providing CSS selectors at any level of the visual diff configuration. Masked elements are covered with an overlay box (pink `#FF00FF` by default) in the screenshot.
+
+Masks defined at multiple levels are merged together, so you can set global masks on the config and add more at the group or test-case level.
+
+```typescript
+import { defineVisualDiffConfig } from '@packages/playwright-drupal';
+
+export const config = defineVisualDiffConfig({
+  name: "MySite Visual Diffs",
+  // Global masks applied to every screenshot.
+  mask: ['.footer__copyright-year'],
+  groups: [
+    {
+      name: "Landing Pages",
+      // Additional masks for this group, merged with the global masks.
+      mask: ['.live-counter'],
+      testCases: [
+        {
+          name: "Home Page",
+          path: "/",
+        },
+        {
+          name: "Events",
+          path: "/events",
+          // Test-case masks are also merged with config and group masks.
+          mask: ['.event-countdown'],
+        },
+      ]
+    }
+  ],
+});
+```
+
+In this example, the "Events" screenshot will mask `.footer__copyright-year`, `.live-counter`, and `.event-countdown`. The "Home Page" screenshot will mask `.footer__copyright-year` and `.live-counter`.
+
+You can also override the mask overlay color at any level. The most specific level wins (test case > group > config):
+
+```typescript
+{
+  name: "MySite Visual Diffs",
+  mask: ['.copyright-year'],
+  maskColor: '#000000',  // Black overlay globally
+  groups: [
+    {
+      name: "Landing Pages",
+      maskColor: '#333333',  // Dark gray for this group
+      testCases: [
+        {
+          name: "Home Page",
+          path: "/",
+          maskColor: '#666666',  // Lighter gray for this specific test
+        },
+      ]
+    }
+  ],
+}
+```
+
+Selectors that don't match any element on the page are silently ignored — no error is thrown.
+
+**Note:** When using a custom test function via `config.describe(myTestFunction)`, automatic mask merging is bypassed. Your custom function is responsible for applying masks itself.
+
 ## Replacing the Standard Profile With Your Own
 
 Out of the box, we can't know what setup steps your site needs to work correctly. To use your own steps, add a `playwright:install:hook` task to your Taskfile. This will be called with the right environment set so that the site is installed into sqlite (and not your normal ddev database). From here, run Drush commands or call other tasks as needed to install your site. To test this when developing, feel free to call `task playwright:install` without actually running tests.
