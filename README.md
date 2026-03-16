@@ -138,11 +138,15 @@ includes:
 
 ### Add Playwright to Drupal's Settings
 
-Add the following line to your Drupal `sites/default/settings.php` (e.g. `web/sites/default/settings.php` or `docroot/sites/default/settings.php`, depending on your project):
+Add the following to your Drupal `sites/default/settings.php` (e.g. `web/sites/default/settings.php` or `docroot/sites/default/settings.php`, depending on your project). A `file_exists()` guard is used so that Drupal can still boot normally when the package is not installed:
 
 ```php
-include '../test/playwright/node_modules/@lullabot/playwright-drupal/settings/settings.playwright.php';
+if (file_exists('../test/playwright/node_modules/@lullabot/playwright-drupal/settings/settings.playwright.php')) {
+  include '../test/playwright/node_modules/@lullabot/playwright-drupal/settings/settings.playwright.php';
+}
 ```
+
+The relative path `../test/playwright/...` resolves from Drupal's docroot directory (where `index.php` lives), since PHP's working directory is set to that location during request handling — not from the directory where `settings.php` itself resides.
 
 ### Create and Run an Example Drupal Test
 
