@@ -284,6 +284,14 @@ test('proves parallel tests work', async ({ page }) => {
   await expect(page).toHaveTitle(`${randomTitle} | Playwright`);
   await expect(page.locator('h1')).toHaveText(randomTitle);
 });
+
+test('login helper works', async ({ page }) => {
+  const { login } = await import('@packages/playwright-drupal');
+  await login(page);
+  // Verify we're logged in by checking we can access admin.
+  await page.goto('/admin');
+  await expect(page).toHaveTitle(/Drupal/);
+});
 TESTEOF
 }
 
