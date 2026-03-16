@@ -6,7 +6,7 @@ export function defineVisualDiffConfig(cases: VisualDiffUrlConfig) {
   return new VisualDiffTestCases(cases);
 }
 
-export function defaultTestFunction(testCase: VisualDiff, group: VisualDiffGroup) {
+export function defaultTestFunction(testCase: VisualDiff, group: VisualDiffGroup, config?: VisualDiffUrlConfig) {
   // @ts-ignore
   return async ({page, context}, testInfo) => {
     if (testCase.mockClass != undefined) {
@@ -41,7 +41,27 @@ export function defaultTestFunction(testCase: VisualDiff, group: VisualDiffGroup
     }
 
     await page.goto(path);
-    await takeAccessibleScreenshot(page, testInfo, {fullPage: true});
+
+    // Merge masks from all three levels: config, group, and testCase.
+    const maskSelectors: string[] = [
+      ...(config?.mask ?? []),
+      ...(group.mask ?? []),
+      ...(testCase.mask ?? []),
+    ];
+    const maskLocators = maskSelectors.map(selector => page.locator(selector));
+
+    // Most-specific-wins for maskColor: testCase > group > config.
+    const maskColor = testCase.maskColor ?? group.maskColor ?? config?.maskColor;
+
+    const screenshotOptions: Record<string, any> = {fullPage: true};
+    if (maskLocators.length > 0) {
+      screenshotOptions.mask = maskLocators;
+    }
+    if (maskColor) {
+      screenshotOptions.maskColor = maskColor;
+    }
+
+    await takeAccessibleScreenshot(page, testInfo, screenshotOptions);
   };
 }
 
@@ -67,7 +87,9 @@ export class VisualDiffTestCases {
   /**
    * Describe, execute, and skip test cases
    *
-   * @param overriddenTestFunction
+   * @param overriddenTestFunction An optional custom test function. Note: when
+   *   using a custom test function, automatic mask merging from config, group,
+   *   and test-case levels is bypassed. You must handle mask application yourself.
    */
   public describe(overriddenTestFunction?: (testCase: VisualDiff, group: VisualDiffGroup) => Function | void) {
     // Handle skipping of test cases, either based on a simple boolean or a callback.
@@ -98,7 +120,7 @@ export class VisualDiffTestCases {
           // Define a default function for test cases.
           let testFunction: any;
           if (typeof overriddenTestFunction != 'function') {
-            testFunction = defaultTestFunction(testCase, group)
+            testFunction = defaultTestFunction(testCase, group, this.config)
           } else {
             testFunction = overriddenTestFunction(testCase, group);
           }
@@ -123,6 +145,17 @@ export type VisualDiffUrlConfig = {
   // An array of groups of visual diffs. Good groups include by content type, site
   // section, or common feature.
   groups: VisualDiffGroup[],
+  /**
+   * CSS selectors for elements to mask globally across all test cases.
+   * Useful for dynamic content like copyright years that change over time.
+   * These are merged with any group-level and test-case-level masks.
+   */
+  mask?: string[],
+  /**
+   * The color of the overlay box for masked elements, in CSS color format.
+   * Can be overridden at the group or test-case level.
+   */
+  maskColor?: string,
 }
 
 /**
@@ -159,6 +192,16 @@ export type BaseVisualDiff = {
   // Allow skipping of this test.
   skip?: SkipTest,
   mockClass?: MockableConstructor,
+  /**
+   * CSS selectors for elements to mask when taking screenshots.
+   * These are merged with any config-level and (for test cases) group-level masks.
+   */
+  mask?: string[],
+  /**
+   * The color of the overlay box for masked elements, in CSS color format.
+   * Overrides the mask color set at less-specific levels (config or group).
+   */
+  maskColor?: string,
 }
 
 /**
