@@ -183,20 +183,20 @@ configure_playwright() {
 }
 EOF
 
-  # Write playwright.config.ts with chromium, firefox, and webkit targets.
+  # Write playwright.config.ts using definePlaywrightDrupalConfig() helper.
+  # Note: playwright.config.ts is loaded before globalSetup runs, so we must
+  # import from the real npm package (@lullabot/playwright-drupal) rather than
+  # the @packages/playwright-drupal alias (which is only available after
+  # globalSetup copies the source into packages/).
   cat > test/playwright/playwright.config.ts << 'TSEOF'
-import { defineConfig, devices } from '@playwright/test';
+import { definePlaywrightDrupalConfig } from '@lullabot/playwright-drupal';
+import { devices } from '@playwright/test';
 
-export default defineConfig({
+export default definePlaywrightDrupalConfig({
   testDir: './tests',
-  fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
-  globalSetup: require.resolve('./node_modules/@lullabot/playwright-drupal/lib/setup/global-setup'),
   use: {
-    baseURL: process.env.DDEV_PRIMARY_URL,
     ignoreHTTPSErrors: true,
     trace: 'on-first-retry',
   },
