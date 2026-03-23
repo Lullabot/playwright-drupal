@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.3.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.2.0...playwright-drupal-1.3.0) (2026-03-23)
+
+
+### Features
+
+* add definePlaywrightDrupalConfig() config helper ([#77](https://github.com/Lullabot/playwright-drupal/issues/77)) ([4475def](https://github.com/Lullabot/playwright-drupal/commit/4475def0563fbda0ac018571e14253fdaf932552))
+* add global mask support for visual diff screenshots ([#73](https://github.com/Lullabot/playwright-drupal/issues/73)) ([ae4b495](https://github.com/Lullabot/playwright-drupal/commit/ae4b495c85fe076906cea5cb86c0b3b29d3c83eb))
+* add login helper utility ([#78](https://github.com/Lullabot/playwright-drupal/issues/78)) ([67cf077](https://github.com/Lullabot/playwright-drupal/commit/67cf077ae19c74385385e25818112f6a195c00bc))
+* add mysql-to-sqlite conversion task ([#75](https://github.com/Lullabot/playwright-drupal/issues/75)) ([d4c4d5e](https://github.com/Lullabot/playwright-drupal/commit/d4c4d5e6bfc393826f1c9ac5adc32cf0231bb02b))
+
+
+### Bug Fixes
+
+* apply deprecation suppression during setup and test execution ([ed794a2](https://github.com/Lullabot/playwright-drupal/commit/ed794a28ba2f87c6bfc43ab609e932aabc55d5c7))
+* suppress deprecation headers in test child sites ([1cda7b3](https://github.com/Lullabot/playwright-drupal/commit/1cda7b3af8a2be1e3e2eb845852f433eb06a4899))
+
 ## [1.2.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.1.0...playwright-drupal-1.2.0) (2026-03-16)
 
 
