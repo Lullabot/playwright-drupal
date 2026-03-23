@@ -622,7 +622,7 @@ There may be times you want to run Drush once, globally before all tests. In tha
 
 ## Logging In
 
-The `login()` helper authenticates a Drupal admin user during a test. It resets the password via Drush (so it works with each test's isolated SQLite database), navigates to the login form, and waits for the admin toolbar to appear.
+The `login()` helper authenticates a Drupal user during a test. It uses `drush user:login` to generate a one-time login link, navigates to it, and asserts that login succeeded by checking for the admin toolbar.
 
 ```typescript
 import { test, expect, login } from '@packages/playwright-drupal';
@@ -632,18 +632,21 @@ test('can access the admin dashboard', async ({ page }) => {
   await page.goto('/admin');
   await expect(page).toHaveTitle(/Administration/);
 });
+
+test('can log in as a specific user', async ({ page }) => {
+  await login(page, 'editor');
+  // ...
+});
 ```
 
-**API:** `login(page: Page): Promise<void>`
+**API:** `login(page: Page, user?: string): Promise<void>`
 
-**Environment variables:**
-
-| Variable | Default | Description |
+| Parameter | Default | Description |
 |---|---|---|
-| `DRUPAL_USER` | `admin` | The Drupal username to log in as |
-| `DRUPAL_PASS` | `admin` | The password to set and use for login |
+| `page` | *(required)* | The Playwright page object |
+| `user` | `'admin'` | The Drupal username to log in as |
 
-The helper supports both the legacy Admin Toolbar (`#toolbar-administration`) and the Navigation module (`#admin-toolbar`, available since Drupal 10.3). If the user is already logged in when navigating to `/user/login`, the helper detects the toolbar and returns immediately.
+The helper supports both the legacy Admin Toolbar (`#toolbar-administration`) and the Navigation module (`#admin-toolbar`, available since Drupal 10.3).
 
 ## Running Tests Without Isolation
 

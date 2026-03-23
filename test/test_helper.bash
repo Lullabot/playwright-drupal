@@ -291,6 +291,13 @@ test('login helper works', async ({ page }) => {
   await page.goto('/admin');
   await expect(page).toHaveTitle(/Administration/);
 });
+
+test('login helper works with a specific username', async ({ page }) => {
+  await login(page, 'admin');
+  // Verify we're logged in by checking we can access admin.
+  await page.goto('/admin');
+  await expect(page).toHaveTitle(/Administration/);
+});
 TESTEOF
 }
 

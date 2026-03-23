@@ -1,40 +1,28 @@
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import { execDrushInTestSite } from '../testcase/test';
 
 /**
- * Log in to Drupal as an admin user.
+ * Log in to Drupal using a one-time login link.
  *
- * Reads credentials from DRUPAL_USER/DRUPAL_PASS environment variables,
- * defaulting to admin/admin. Resets the password via drush to ensure it
- * matches the expected value in the test's isolated database.
+ * Uses `drush user:login` to generate a one-time login URL, navigates to it,
+ * and asserts that the user is logged in by checking for the `user-logged-in`
+ * body class that Drupal adds for authenticated users.
  *
- * Supports both the legacy Admin Toolbar (#toolbar-administration) and
- * the Navigation module (#admin-toolbar).
+ * @param page - The Playwright page object.
+ * @param user - The Drupal username to log in as (defaults to "admin").
  */
-export async function login(page: Page) {
-  const username = process.env.DRUPAL_USER || 'admin';
-  const password = process.env.DRUPAL_PASS || 'admin';
+export async function login(page: Page, user: string = 'admin') {
+  // Generate a one-time login link for the user.
+  const result = await execDrushInTestSite(`user:login --name="${user}"`);
+  const loginUrl = result.stdout.trim();
 
-  // Reset password for this test's isolated database.
-  await execDrushInTestSite(`user:password "${username}" "${password}"`);
+  // drush user:login returns an absolute URL (e.g. http://...). Extract the
+  // path so we can use page.goto() which prepends baseURL.
+  const url = new URL(loginUrl);
+  await page.goto(url.pathname + url.search);
 
-  await page.goto('/user/login');
-
-  // Detect both toolbar variants — they are mutually exclusive.
-  const toolbar = page.locator('#toolbar-administration, #admin-toolbar');
-  const loginForm = page.locator('form#user-login-form');
-
-  const visible = await Promise.race([
-    toolbar.waitFor({ state: 'visible', timeout: 5000 }).then(() => 'toolbar' as const),
-    loginForm.waitFor({ state: 'visible', timeout: 5000 }).then(() => 'form' as const),
-  ]);
-
-  if (visible === 'toolbar') {
-    return; // Already logged in
-  }
-
-  await page.getByLabel('Username').fill(username);
-  await page.getByLabel('Password').fill(password);
-  await page.click('form#user-login-form input#edit-submit');
-  await toolbar.waitFor({ state: 'visible' });
+  // Assert that login succeeded. Drupal adds the `user-logged-in` class to
+  // <body> for authenticated users — this is more reliable than checking for
+  // the toolbar, which may remain CSS-hidden due to toolbarAntiFlicker.
+  await expect(page.locator('body.user-logged-in')).toBeAttached();
 }
