@@ -662,7 +662,7 @@ export default definePlaywrightDrupalConfig({
 
 ### Overriding Defaults
 
-Properties you pass are shallow-merged with the defaults. For most top-level properties (like `reporter` or `workers`), providing a value replaces the corresponding default entirely. The `use` object is shallow-merged, so providing `use.ignoreHTTPSErrors` keeps the default `use.baseURL` while adding your setting.
+Plain-object properties are deep-merged with their defaults at every nesting level, so providing `use.ignoreHTTPSErrors` keeps the default `use.baseURL` while adding your setting. Non-object properties (including arrays like `reporter`) replace the default entirely.
 
 If you need full control, you can always use Playwright's `defineConfig()` directly with the `globalSetup` path from this package, as described in prior versions of this README.
 

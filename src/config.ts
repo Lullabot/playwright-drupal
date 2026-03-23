@@ -12,11 +12,11 @@ import os from 'os';
  * - CI-aware `reporter` (line + html on CI; html + list locally)
  * - `globalSetup` pointing to this package's global-setup module
  *
- * @param overrides - Optional Playwright config overrides. Properties are
- *   shallow-merged with defaults, so providing `reporter` replaces the entire
- *   default reporter array. The `use` object is also shallow-merged, so
- *   providing `use.baseURL` replaces the default while keeping other `use`
- *   defaults.
+ * @param overrides - Optional Playwright config overrides. Plain-object
+ *   properties are deep-merged with the corresponding defaults at every
+ *   level, so providing `use.baseURL` replaces the default while keeping
+ *   other `use` defaults. Non-object properties (including arrays like
+ *   `reporter`) replace the default entirely.
  */
 export function definePlaywrightDrupalConfig(overrides: PlaywrightTestConfig = {}): PlaywrightTestConfig {
   const isCI = !!process.env.CI;
@@ -33,10 +33,19 @@ export function definePlaywrightDrupalConfig(overrides: PlaywrightTestConfig = {
     },
   };
 
-  // Shallow-merge `use` separately so user overrides extend rather than
-  // fully replace the default `use` object.
-  const { use: overrideUse, ...restOverrides } = overrides;
-  const mergedUse = { ...defaults.use, ...overrideUse };
+  return defineConfig(deepMerge(defaults, overrides));
+}
 
-  return defineConfig({ ...defaults, ...restOverrides, use: mergedUse });
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function deepMerge(target: Record<string, any>, source: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = { ...target, ...source };
+  for (const key of Object.keys(target)) {
+    if (isPlainObject(target[key]) && isPlainObject(source[key])) {
+      result[key] = deepMerge(target[key], source[key]);
+    }
+  }
+  return result;
 }

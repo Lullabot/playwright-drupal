@@ -101,7 +101,7 @@ describe('definePlaywrightDrupalConfig', () => {
     expect(config.fullyParallel).toBe(false)
   })
 
-  it('shallow-merges user use overrides with default use', async () => {
+  it('deep-merges user use overrides with default use', async () => {
     process.env.DDEV_PRIMARY_URL = 'https://my-site.ddev.site'
     const config = await loadConfig({ use: { ignoreHTTPSErrors: true } })
     // Default baseURL should be preserved.
@@ -114,5 +114,14 @@ describe('definePlaywrightDrupalConfig', () => {
     process.env.DDEV_PRIMARY_URL = 'https://my-site.ddev.site'
     const config = await loadConfig({ use: { baseURL: 'https://custom.site' } })
     expect(config.use?.baseURL).toBe('https://custom.site')
+  })
+
+  it('deep-merges any plain-object overrides with defaults', async () => {
+    process.env.DDEV_PRIMARY_URL = 'https://my-site.ddev.site'
+    const config = await loadConfig({ expect: { timeout: 10000 } })
+    // use defaults should still be present.
+    expect(config.use?.baseURL).toBe('https://my-site.ddev.site')
+    // expect override should be present.
+    expect(config.expect?.timeout).toBe(10000)
   })
 })
