@@ -68,6 +68,11 @@ DOCKERFILE
     fi
   fi
 
+  # In CI, skip containers that aren't needed to reduce startup time.
+  if [[ -n "${CI:-}" ]]; then
+    ddev config global --omit-containers=ddev-ssh-agent >&3 2>&3
+  fi
+
   echo "--- ddev start" >&3
   ddev start >&3 2>&3
   echo "--- ddev composer create-project drupal/recommended-project" >&3
@@ -125,21 +130,29 @@ DOCKERFILE
 
   PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
 
-  # Run npm pack from the repo root (on the host) to create a tarball.
-  # npm install is needed first because prepack runs "npm run build" (tsc),
-  # which requires @playwright/test and typescript to be installed.
-  cd "$REPO_ROOT"
-  echo "--- npm install (repo root)" >&3
-  npm install >&3 2>&3
-  echo "--- npm pack" >&3
-  npm pack >&3 2>&3
+  # Use a pre-built tarball if available (set by CI), otherwise build one.
+  if [[ -n "${PLAYWRIGHT_DRUPAL_TARBALL:-}" && -f "$PLAYWRIGHT_DRUPAL_TARBALL" ]]; then
+    echo "--- Using pre-built tarball: $PLAYWRIGHT_DRUPAL_TARBALL" >&3
+    TARBALL_PATH="$PLAYWRIGHT_DRUPAL_TARBALL"
+  else
+    # Run npm pack from the repo root (on the host) to create a tarball.
+    # npm install is needed first because prepack runs "npm run build" (tsc),
+    # which requires @playwright/test and typescript to be installed.
+    cd "$REPO_ROOT"
+    echo "--- npm install (repo root)" >&3
+    npm install >&3 2>&3
+    echo "--- npm pack" >&3
+    npm pack >&3 2>&3
 
-  # Find the generated tarball.
-  TARBALL="$(ls -t lullabot-playwright-drupal-*.tgz | head -n 1)"
+    # Find the generated tarball.
+    TARBALL_PATH="$REPO_ROOT/$(ls -t lullabot-playwright-drupal-*.tgz | head -n 1)"
+  fi
+
+  TARBALL="$(basename "$TARBALL_PATH")"
 
   # Copy the tarball into the Drupal project root, which is bind-mounted
   # at /var/www/html inside the DDEV container.
-  cp "$TARBALL" "$PROJECT_DIR/"
+  cp "$TARBALL_PATH" "$PROJECT_DIR/"
   echo "--- Waiting for mutagen..." >&3
   # On macOS with mutagen enabled, sync so the tarball is visible inside the
   # container immediately. On Linux (no mutagen), this is a no-op.
@@ -150,8 +163,10 @@ DOCKERFILE
   echo "--- npm install @lullabot/playwright-drupal" >&3
   ddev exec -d /var/www/html/test/playwright npm install "/var/www/html/$TARBALL" >&3 2>&3
 
-  # Clean up the tarball from the repo root.
-  rm -f "$REPO_ROOT/$TARBALL"
+  # Clean up the tarball from the repo root (only if we built it).
+  if [[ -z "${PLAYWRIGHT_DRUPAL_TARBALL:-}" ]]; then
+    rm -f "$TARBALL_PATH"
+  fi
 
   # Install Playwright browsers via the DDEV add-on command.
   echo "--- ddev install-playwright" >&3
@@ -192,7 +207,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: undefined,
   reporter: 'html',
   globalSetup: require.resolve('./node_modules/@lullabot/playwright-drupal/lib/setup/global-setup'),
   use: {

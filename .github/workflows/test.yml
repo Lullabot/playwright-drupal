@@ -23,9 +23,39 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
 
-  test:
+  build:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        with:
+          node-version: '24'
+
+      - name: Install dependencies and pack
+        run: npm install && npm pack
+
+      - name: Upload tarball
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+        with:
+          name: playwright-drupal-tarball
+          path: lullabot-playwright-drupal-*.tgz
+          retention-days: 1
+
+  test:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - integration
+          - integration-docroot
+          - integration-mysql-to-sqlite
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -38,14 +68,22 @@ jobs:
         with:
           autostart: false
 
+      - name: Download tarball
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4
+        with:
+          name: playwright-drupal-tarball
+
+      - name: Set tarball path
+        run: echo "PLAYWRIGHT_DRUPAL_TARBALL=$(ls "$GITHUB_WORKSPACE"/lullabot-playwright-drupal-*.tgz)" >> "$GITHUB_ENV"
+
       - name: Run integration tests
-        run: npm run test:bats
+        run: bats test/${{ matrix.suite }}.bats
 
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.suite }}
           path: /tmp/pwtest-*/test/playwright/playwright-report/
           retention-days: 7
           if-no-files-found: ignore
