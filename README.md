@@ -9,7 +9,7 @@
 
 This project, building on [lullabot/ddev-playwright](https://github.com/lullabot/ddev-playwright), enables full support for Playwright testing of Drupal websites.
 
-1. Supports fast parallel tests by installing sites into sqlite databases.
+1. Supports fast parallel tests by installing or importing sites into sqlite databases.
 2. Enables Playwright tests to run Drush commands against a test site.
 3. Shows browser console errors during the test.
 4. Attaches PHP's error log to the Playwright test results.
@@ -17,13 +17,13 @@ This project, building on [lullabot/ddev-playwright](https://github.com/lullabot
 ## Requirements
 
 - The Drupal site must be using DDEV for development environments.
-- The Drupal site is meant to be tested after a site install, like how Drupal core tests work.
+- The Drupal site is meant to be tested after a site install or database import, like how Drupal core tests work.
 - The Playwright tests must be using `npm` as their package manager, or creating an npm-like node_modules directory. It's unclear at this moment how we could integrate yarn packages into the separate directory Playwright requires for test libraries. PRs welcome!
 - Playwright tests will be written in TypeScript.
 
 ## How This Works
 
-- This library includes an extended version of Playwright's `test` function that sets up and tears down isolated Drupal sites.
+- This library includes an extended version of Playwright's `test` function that sets up and tears down isolated Drupal sites. Each test gets its own copy of a base SQLite database, whether that database was created by a fresh site install or converted from an existing MySQL/MariaDB database.
 - We use Playwright's concept of "packages" to allow for a npm dependency to export a test function.
 - Test requests from the web browser are directed to the right database though `settings.php` additions.
 - `drush-playwright` does its own bootstrap to route drush commands to the right site.
@@ -611,6 +611,42 @@ Selectors that don't match any element on the page are silently ignored — no e
 ## Replacing the Standard Profile With Your Own
 
 Out of the box, we can't know what setup steps your site needs to work correctly. To use your own steps, add a `playwright:install:hook` task to your Taskfile. This will be called with the right environment set so that the site is installed into sqlite (and not your normal ddev database). From here, run Drush commands or call other tasks as needed to install your site. To test this when developing, feel free to call `task playwright:install` without actually running tests.
+
+If your site is too complex for a fresh install, consider using `playwright:mysql-to-sqlite` to convert an existing database instead. See [Testing With an Existing Database](#testing-with-an-existing-database) for details.
+
+## Testing With an Existing Database
+
+Instead of installing a fresh site, you can convert your existing MySQL/MariaDB database to SQLite. This is useful when your site has complex configuration, content, or setup that is difficult to reproduce with `drush site:install`.
+
+The `playwright:mysql-to-sqlite` task converts the active DDEV database to SQLite:
+
+```console
+ddev exec task playwright:mysql-to-sqlite
+```
+
+This creates the base SQLite database at `/tmp/sqlite/.ht.sqlite`, which is the same location used by `playwright:install`. From there, tests run identically — each test gets its own copy of the database.
+
+To integrate this into your workflow, create a `playwright:install:hook` task in your `Taskfile.yml` that calls `mysql-to-sqlite` instead of (or after) a site install:
+
+```yaml
+version: '3'
+silent: true
+includes:
+  playwright:
+    taskfile: test/playwright/node_modules/@lullabot/playwright-drupal/tasks/playwright.yml
+    optional: true
+
+tasks:
+  playwright:install:hook:
+    cmds:
+      # Import your database first (e.g. from a dump file).
+      # - drush sql:cli < path/to/dump.sql
+
+      # Then convert it to SQLite for parallel test isolation.
+      - task playwright:mysql-to-sqlite
+```
+
+The conversion uses [mysql-to-sqlite3](https://github.com/techouse/mysql-to-sqlite3) and requires `uv` (which is pre-installed in DDEV). No additional dependencies need to be installed.
 
 ## Running Drush in Tests
 
