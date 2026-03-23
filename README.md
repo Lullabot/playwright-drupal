@@ -714,6 +714,34 @@ To run Drush during a test, use `execDrushInTestSite` as shown in the example te
 
 There may be times you want to run Drush once, globally before all tests. In that case, add a `playwright:install:hook` task to your Taskfile, and from there you can call Drush or anything else you may need to do during setup.
 
+## Logging In
+
+The `login()` helper authenticates a Drupal user during a test. It uses `drush user:login` to generate a one-time login link, navigates to it, and asserts that login succeeded by checking for the admin toolbar.
+
+```typescript
+import { test, expect, login } from '@packages/playwright-drupal';
+
+test('can access the admin dashboard', async ({ page }) => {
+  await login(page);
+  await page.goto('/admin');
+  await expect(page).toHaveTitle(/Administration/);
+});
+
+test('can log in as a specific user', async ({ page }) => {
+  await login(page, 'editor');
+  // ...
+});
+```
+
+**API:** `login(page: Page, user?: string): Promise<void>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object |
+| `user` | `'admin'` | The Drupal username to log in as |
+
+The helper supports both the legacy Admin Toolbar (`#toolbar-administration`) and the Navigation module (`#admin-toolbar`, available since Drupal 10.3).
+
 ## Running Tests Without Isolation
 
 There are times you may want to run Playwright without isolating test runs. Perhaps you're manually scaffolding test content by hand, before writing code to create it. Or perhaps you would like to be absolutely sure that a test passes or fails when running against mariadb.

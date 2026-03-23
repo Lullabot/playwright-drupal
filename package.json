@@ -39,11 +39,13 @@
   "dependencies": {
     "@axe-core/playwright": "^4.8.5",
     "@playwright/test": "^1.39.0",
-    "@types/node": "^24.0.0"
+    "@types/node": "^24.0.0",
+    "shell-quote": "^1.8.3"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.3",
     "@commitlint/config-conventional": "^20.4.3",
+    "@types/shell-quote": "^1.7.5",
     "husky": "^9.1.7",
     "typescript": "^5.2.2",
     "vitest": "^4.0.18"

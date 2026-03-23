@@ -52,7 +52,7 @@ export async function waitForImages(page: Page, selector: string): Promise<Seria
   // This is especially noticeable in tablet viewports. The toolbar also ends
   // up slightly below the top of the viewport, but at least this way we have
   // more consistent screenshots.
-  if (await page.locator('#toolbar-administration').count() > 0) {
+  if (await page.locator('#toolbar-administration, #admin-toolbar').count() > 0) {
     await page.waitForTimeout(250);
   }
 

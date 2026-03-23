@@ -262,7 +262,7 @@ write_example_test() {
 
   # Write the example Drupal test from the README (lines 143-177).
   cat > test/playwright/tests/example.drupal.spec.ts << 'TESTEOF'
-import { test, expect, execDrushInTestSite } from '@packages/playwright-drupal';
+import { test, expect, execDrushInTestSite, login } from '@packages/playwright-drupal';
 
 test('has title', async ({ page }) => {
   await page.goto('/');
@@ -302,6 +302,20 @@ test('proves parallel tests work', async ({ page }) => {
 
   await expect(page).toHaveTitle(`${randomTitle} | Playwright`);
   await expect(page.locator('h1')).toHaveText(randomTitle);
+});
+
+test('login helper works', async ({ page }) => {
+  await login(page);
+  // Verify we're logged in by checking we can access admin.
+  await page.goto('/admin');
+  await expect(page).toHaveTitle(/Administration/);
+});
+
+test('login helper works with a specific username', async ({ page }) => {
+  await login(page, 'admin');
+  // Verify we're logged in by checking we can access admin.
+  await page.goto('/admin');
+  await expect(page).toHaveTitle(/Administration/);
 });
 TESTEOF
 }
