@@ -45,6 +45,7 @@
   "devDependencies": {
     "@commitlint/cli": "^20.4.3",
     "@commitlint/config-conventional": "^20.4.3",
+    "@types/shell-quote": "^1.7.5",
     "husky": "^9.1.7",
     "typescript": "^5.2.2",
     "vitest": "^4.0.18"
