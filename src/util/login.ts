@@ -1,5 +1,6 @@
 import { expect, Page } from '@playwright/test';
 import { execDrushInTestSite } from '../testcase/test';
+import { quote as shellQuote } from 'shell-quote';
 
 /**
  * Log in to Drupal using a one-time login link.
@@ -13,7 +14,8 @@ import { execDrushInTestSite } from '../testcase/test';
  */
 export async function login(page: Page, user: string = 'admin') {
   // Generate a one-time login link for the user.
-  const result = await execDrushInTestSite(`user:login --name="${user}"`);
+  const safeUser = shellQuote([user]);
+  const result = await execDrushInTestSite(`user:login --name=${safeUser}`);
   const loginUrl = result.stdout.trim();
 
   // drush user:login returns an absolute URL (e.g. http://...). Extract the
