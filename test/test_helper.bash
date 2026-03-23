@@ -130,6 +130,10 @@ DOCKERFILE
 
   PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
 
+  # Return to the repo root so that the relative PROJECT_DIR path resolves
+  # correctly regardless of whether we build the tarball or use a pre-built one.
+  cd "$REPO_ROOT"
+
   # Use a pre-built tarball if available (set by CI), otherwise build one.
   if [[ -n "${PLAYWRIGHT_DRUPAL_TARBALL:-}" && -f "$PLAYWRIGHT_DRUPAL_TARBALL" ]]; then
     echo "--- Using pre-built tarball: $PLAYWRIGHT_DRUPAL_TARBALL" >&3
