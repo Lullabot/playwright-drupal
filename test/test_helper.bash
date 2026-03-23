@@ -202,20 +202,20 @@ configure_playwright() {
 }
 EOF
 
-  # Write playwright.config.ts with chromium, firefox, and webkit targets.
+  # Write playwright.config.ts using definePlaywrightDrupalConfig() helper.
+  # Import from '@lullabot/playwright-drupal/config' (subpath export) to avoid
+  # loading the test fixture module which registers test.afterEach() side
+  # effects. Test files import from '@packages/playwright-drupal' (source copy),
+  # so loading the full compiled package here would cause duplicate registration.
   cat > test/playwright/playwright.config.ts << 'TSEOF'
-import { defineConfig, devices } from '@playwright/test';
+import { definePlaywrightDrupalConfig } from '@lullabot/playwright-drupal/config';
+import { devices } from '@playwright/test';
 
-export default defineConfig({
+export default definePlaywrightDrupalConfig({
   testDir: './tests',
-  fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: undefined,
-  reporter: 'html',
-  globalSetup: require.resolve('./node_modules/@lullabot/playwright-drupal/lib/setup/global-setup'),
   use: {
-    baseURL: process.env.DDEV_PRIMARY_URL,
     ignoreHTTPSErrors: true,
     trace: 'on-first-retry',
   },

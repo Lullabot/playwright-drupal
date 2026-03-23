@@ -104,16 +104,33 @@ Set the following in `test/playwright/tsconfig.json`, merging with any existing 
 }
 ```
 
-Add the following `globalSetup` and `use` line to the `defineConfig` section in `test/playwright/playwright.config.ts`:
+Replace the contents of `test/playwright/playwright.config.ts` with:
 ```typescript
-export default defineConfig({
-  globalSetup: require.resolve('./node_modules/@lullabot/playwright-drupal/lib/setup/global-setup'),
+import { definePlaywrightDrupalConfig } from '@lullabot/playwright-drupal/config';
+import { devices } from '@playwright/test';
+
+export default definePlaywrightDrupalConfig({
+  testDir: './tests',
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
   use: {
-    baseURL: process.env.DDEV_PRIMARY_URL,
     ignoreHTTPSErrors: true,
-  }
-})
+    trace: 'on-first-retry',
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    }
+  ],
+});
 ```
+
+`definePlaywrightDrupalConfig()` automatically provides sensible defaults (see [Configuration Helper](#configuration-helper) below), so you only need to specify project-specific settings. Import from `@lullabot/playwright-drupal/config` (the subpath export) to avoid loading the test fixture module, which would conflict with the source copy used by test files.
 
 ### Ignore playwright-drupal from Git
 
@@ -607,6 +624,47 @@ You can also override the mask overlay color at any level. The most specific lev
 Selectors that don't match any element on the page are silently ignored — no error is thrown.
 
 **Note:** When using a custom test function via `config.describe(myTestFunction)`, automatic mask merging is bypassed. Your custom function is responsible for applying masks itself.
+
+## Configuration Helper
+
+The `definePlaywrightDrupalConfig()` function returns a complete Playwright configuration with sensible defaults for Drupal testing. It wraps Playwright's `defineConfig()` and applies the following defaults:
+
+| Setting | Default |
+|---|---|
+| `use.baseURL` | `process.env.DDEV_PRIMARY_URL` |
+| `fullyParallel` | `true` |
+| `workers` | `Math.max(2, os.cpus().length - 2)` |
+| `reporter` | CI: `[['line'], ['html']]`; Local: `[['html', { host: '0.0.0.0', port: 9323 }], ['list']]` |
+| `globalSetup` | Auto-resolved path to this package's `global-setup` module |
+
+### Usage
+
+```typescript
+import { definePlaywrightDrupalConfig } from '@lullabot/playwright-drupal/config';
+import { devices } from '@playwright/test';
+
+export default definePlaywrightDrupalConfig({
+  testDir: './tests',
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  use: {
+    ignoreHTTPSErrors: true,
+    trace: 'on-first-retry',
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
+});
+```
+
+### Overriding Defaults
+
+Plain-object properties are deep-merged with their defaults at every nesting level, so providing `use.ignoreHTTPSErrors` keeps the default `use.baseURL` while adding your setting. Non-object properties (including arrays like `reporter`) replace the default entirely.
+
+If you need full control, you can always use Playwright's `defineConfig()` directly with the `globalSetup` path from this package, as described in prior versions of this README.
 
 ## Replacing the Standard Profile With Your Own
 
