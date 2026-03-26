@@ -15,7 +15,7 @@ jobs:
           private-key: ${{ secrets.REBASE_PRIVATE_KEY }}
       - name: Rebase PR branch
         id: rebase
-        uses: deviantintegral/rebase@integration/pr-1-and-2
+        uses: deviantintegral/rebase@a73ae721a193a620cc0a691123775bfad56e413f # integration/pr-1-and-2
         with:
           token: ${{ steps.app-token.outputs.token }}
           head: ${{ github.event.client_payload.pull_request.head.label }}
