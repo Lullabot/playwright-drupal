@@ -1,5 +1,4 @@
 import {Page} from "@playwright/test";
-import {Serializable} from "playwright-core/types/structs";
 
 /**
  * Wait for images specified by a selector to load.
@@ -12,7 +11,7 @@ import {Serializable} from "playwright-core/types/structs";
  * @param page
  * @param selector
  */
-export async function waitForImages(page: Page, selector: string): Promise<Serializable> {
+export async function waitForImages(page: Page, selector: string): Promise<void> {
   const locators = page.locator(selector);
 
   // Trigger lazy-loading images. Since this should be fast, and we don't want to
@@ -59,7 +58,7 @@ export async function waitForImages(page: Page, selector: string): Promise<Seria
   // window.scroll is async and doesn't return a promise, so wait until the
   // browser confirms we are at the top again.
   const forcedScroll = false;
-  return page.waitForFunction(forcedScroll => {
+  await page.waitForFunction(forcedScroll => {
     // The above scroll can fail when a Drupal dialog is open. So, if we
     // haven't scrolled successfully, we trigger another one.
     if (window.scrollY !== 0 && !forcedScroll) {
@@ -82,6 +81,6 @@ export async function waitForImages(page: Page, selector: string): Promise<Seria
  *
  * @param page
  */
-export async function waitForAllImages(page: Page): Promise<Serializable> {
-  return waitForImages(page, 'img:visible');
+export async function waitForAllImages(page: Page): Promise<void> {
+  await waitForImages(page, 'img:visible');
 }

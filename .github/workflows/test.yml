@@ -8,6 +8,10 @@ jobs:
   unit-test:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        typescript-version: ['5', '6']
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -20,12 +24,19 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Install TypeScript ${{ matrix.typescript-version }}
+        run: npm install --no-save typescript@${{ matrix.typescript-version }}
+
       - name: Run unit tests
         run: npm run test:unit
 
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        typescript-version: ['5', '6']
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -35,13 +46,19 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Install dependencies and pack
-        run: npm install && npm pack
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install TypeScript ${{ matrix.typescript-version }}
+        run: npm install --no-save typescript@${{ matrix.typescript-version }}
+
+      - name: Pack
+        run: npm pack
 
       - name: Upload tarball
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
-          name: playwright-drupal-tarball
+          name: playwright-drupal-tarball-ts${{ matrix.typescript-version }}
           path: lullabot-playwright-drupal-*.tgz
           retention-days: 1
 
@@ -71,7 +88,7 @@ jobs:
       - name: Download tarball
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          name: playwright-drupal-tarball
+          name: playwright-drupal-tarball-ts6
 
       - name: Set tarball path
         run: echo "PLAYWRIGHT_DRUPAL_TARBALL=$(ls "$GITHUB_WORKSPACE"/lullabot-playwright-drupal-*.tgz)" >> "$GITHUB_ENV"
