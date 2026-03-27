@@ -336,6 +336,54 @@ run_playwright_tests() {
   set -e
 }
 
+assert_wrong_import_error() {
+  local import_path="$1"
+  local description="$2"
+
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+  cd "$PROJECT_DIR"
+
+  # Save the correct config so we can restore it after this test.
+  cp test/playwright/playwright.config.ts "$BATS_FILE_TMPDIR/playwright.config.ts.bak"
+
+  # Write a bad config that imports from the given path.
+  cat > test/playwright/playwright.config.ts << TSEOF
+import { definePlaywrightDrupalConfig } from '${import_path}';
+
+export default definePlaywrightDrupalConfig({
+  testDir: './tests',
+});
+TSEOF
+
+  # Run Playwright — it should fail with our error message.
+  set +e
+  local output
+  output="$(ddev exec -d /var/www/html/test/playwright npx playwright test 2>&1)"
+  local exit_code=$?
+  set -e
+
+  # Restore the correct config.
+  cp "$BATS_FILE_TMPDIR/playwright.config.ts.bak" test/playwright/playwright.config.ts
+
+  if [ "$exit_code" -eq 0 ]; then
+    echo "[$description] Expected Playwright to fail but it exited with code 0. Output:" >&2
+    echo "$output" >&2
+    return 1
+  fi
+
+  if ! echo "$output" | grep -q "Wrong import path in playwright.config"; then
+    echo "[$description] Expected 'Wrong import path in playwright.config' error message. Actual output:" >&2
+    echo "$output" >&2
+    return 1
+  fi
+
+  if ! echo "$output" | grep -q "@lullabot/playwright-drupal/config"; then
+    echo "[$description] Expected correct import suggestion in error. Actual output:" >&2
+    echo "$output" >&2
+    return 1
+  fi
+}
+
 cleanup_drupal_project() {
   PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir" 2>/dev/null || true)"
   PROJECT_NAME="$(cat "$BATS_FILE_TMPDIR/project_name" 2>/dev/null || true)"
