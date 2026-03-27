@@ -2,6 +2,29 @@ import { defineConfig, PlaywrightTestConfig } from '@playwright/test';
 import path from 'path';
 import os from 'os';
 
+// Detect when this module is loaded from the packages/ source copy in a config
+// file. The barrel (index.ts) re-exports config before testcase, so this check
+// fires before testcase/test.ts tries to call test.afterEach() — which would
+// otherwise produce a confusing Playwright error.
+if (__dirname.includes(path.sep + 'packages' + path.sep + 'playwright-drupal')) {
+  const stack = new Error().stack || '';
+  if (/playwright\.config\.[tj]s/.test(stack)) {
+    throw new Error(
+      [
+        'Wrong import path in playwright.config.ts.',
+        '',
+        'You are importing from the packages/ directory, which is a runtime',
+        'copy intended only for test files.',
+        '',
+        'In your playwright.config.ts, change:',
+        '  import { definePlaywrightDrupalConfig } from \'@packages/playwright-drupal\';',
+        'to:',
+        '  import { definePlaywrightDrupalConfig } from \'@lullabot/playwright-drupal/config\';',
+      ].join('\n')
+    );
+  }
+}
+
 /**
  * Define a Playwright configuration with sensible defaults for Drupal testing.
  *

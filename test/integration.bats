@@ -71,3 +71,11 @@ setup() {
     return 1
   fi
 }
+
+@test "playwright: @packages/ alias import shows helpful error" {
+  assert_wrong_import_error '@packages/playwright-drupal' 'alias import'
+}
+
+@test "playwright: relative ./packages/ import shows helpful error" {
+  assert_wrong_import_error './packages/playwright-drupal' 'relative import'
+}
