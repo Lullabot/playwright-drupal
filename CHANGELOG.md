@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.3.0...playwright-drupal-1.4.0) (2026-03-27)
+
+
+### Features
+
+* detect incorrect import from packages/ in config ([#89](https://github.com/Lullabot/playwright-drupal/issues/89)) ([3b4e132](https://github.com/Lullabot/playwright-drupal/commit/3b4e132d515be2942780cd0bde5110095763dafa))
+* support TypeScript 6 ([#87](https://github.com/Lullabot/playwright-drupal/issues/87)) ([987d6c3](https://github.com/Lullabot/playwright-drupal/commit/987d6c315c4ddf815c4a66caf75639778746dfe4))
+
 ## [1.3.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.2.0...playwright-drupal-1.3.0) (2026-03-23)
 
 
