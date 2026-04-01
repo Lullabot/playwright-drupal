@@ -47,7 +47,7 @@ tasks:
       - mkdir -p /tmp/sqlite
       - >-
         uv tool run
-        --from 'mysql-to-sqlite3>=2,<3'
+        --from 'mysql-to-sqlite3==2.5.5'
         --with 'sqlglot>=27,<30'
         mysql2sqlite
         --mysql-host db

@@ -3,5 +3,16 @@
   "extends": [
     "config:recommended",
     "helpers:pinGitHubActionDigests"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["tasks/playwright\\.yml$"],
+      "matchStrings": [
+        "--from 'mysql-to-sqlite3==(?<currentValue>[^']+)'"
+      ],
+      "depNameTemplate": "mysql-to-sqlite3",
+      "datasourceTemplate": "pypi"
+    }
   ]
 }
