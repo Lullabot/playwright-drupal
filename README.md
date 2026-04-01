@@ -165,7 +165,7 @@ if (file_exists('../test/playwright/node_modules/@lullabot/playwright-drupal/set
 
 The relative path `../test/playwright/...` resolves from Drupal's docroot directory (where `index.php` lives), since PHP's working directory is set to that location during request handling — not from the directory where `settings.php` itself resides.
 
-This addon assumes that DDEV's built in settings.php management is also used. If you have set `disable_settings_management` in your `.ddev/config.yml` file, edit your custom files manually to make sure tests can bootstrap properly.
+This addon assumes that DDEV's built in settings.php management is used. If you have set `disable_settings_management` in your `.ddev/config.yml` file, or are testing with a multisite where bootstrapping is not in `sites/default`, edit your custom files manually to make sure tests can bootstrap properly.
 
 ### Create and Run an Example Drupal Test
 
