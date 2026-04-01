@@ -1,6 +1,6 @@
 {
   "name": "@lullabot/playwright-drupal",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Playwright / Drupal integration, supporting fast parallel tests and visual comparisons",
   "files": [
     "lib/",

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.4.0...playwright-drupal-1.4.1) (2026-04-01)
+
+
+### Bug Fixes
+
+* pin mysql-to-sqlite3 to 2.5.5 due to regression in 2.5.6 ([6336542](https://github.com/Lullabot/playwright-drupal/commit/63365428393c3058256f6097c15d1568f5904448))
+
 ## [1.4.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.3.0...playwright-drupal-1.4.0) (2026-03-27)
 
 
