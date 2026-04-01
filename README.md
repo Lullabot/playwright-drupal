@@ -625,6 +625,13 @@ Selectors that don't match any element on the page are silently ignored — no e
 
 **Note:** When using a custom test function via `config.describe(myTestFunction)`, automatic mask merging is bypassed. Your custom function is responsible for applying masks itself.
 
+### Snapshot Storage
+
+Commiting screenshots to your project repository is the easiest way to save and compare them. However, projects with many snapshots or design changes may lead to significant churn on the snapshots, which can cause [git repository size to grow significantly](https://www.lullabot.com/articles/how-calculate-git-repository-growth-over-time). Instead of committing snapshots directly to your project, consider:
+
+- Using [git-lfs](https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage) to store snapshots (and even static assets like databases and images).
+- Using a third-party service integrated with Playwright to upload snapshots for storage and comparison.
+
 ## Configuration Helper
 
 The `definePlaywrightDrupalConfig()` function returns a complete Playwright configuration with sensible defaults for Drupal testing. It wraps Playwright's `defineConfig()` and applies the following defaults:
