@@ -1,6 +1,7 @@
 import {expect, test as base_test, TestFixture, WebError} from '@playwright/test';
 import {task, taskSync} from "../cli/task";
 import {getDocroot} from "../util/docroot";
+import {collector, isVerbose} from "../cli/output-collector";
 import * as fs from "fs";
 import * as util from "util";
 import child_process from "child_process";
@@ -15,12 +16,14 @@ const docroot = getDocroot('../../composer.json');
  * Set a simpletest cookie for routing the tests to a separate database.
  */
 const test = base_test.extend<TestFixture<any, any>>( {
-  async context( { context, request }, use ) {
+  async context( { context, request }, use, testInfo ) {
     // Test against a single database in the default (typically mariadb) site.
     if (process.env.PLAYWRIGHT_NO_TEST_ISOLATION) {
       await use( context );
       return;
     }
+
+    collector.reset();
 
     // We don't implement a lock like how Drupal core does. We may want to
     // if we ever get reports of failures.
@@ -55,28 +58,58 @@ const test = base_test.extend<TestFixture<any, any>>( {
       }]);
     }
 
-    // Mirror browser errors to the Playwright console log.
-    context.on('weberror', (webError: WebError) => console.log(webError.error()));
-
-    // Clean up tests after they are complete.
-    // This must be done when closing the context, and not in test.afterEach(),
-    // as afterEach() still has a reference to a page object and active browser.
-    context.on("close", (browserContext) => {
-      task('playwright:cleanup test_id=' + id);
+    // Mirror browser errors to the Playwright console log or collector.
+    context.on('weberror', (webError: WebError) => {
+      const message = webError.error().toString();
+      if (isVerbose()) {
+        console.log(message);
+      } else {
+        collector.addWebError(message);
+      }
     });
 
     await use( context );
-  },
-});
 
-/**
- * Attach the PHP error log to the test results.
- */
-test.afterEach(async ({ page }, testInfo) => {
-  let logPath = '../../' + docroot + '/sites/simpletest/' + drupal_test_id + '/error.log';
-  if (fs.existsSync(logPath)) {
-    await testInfo.attach('error.log', {path: logPath});
-  }
+    // Clean up after the test is complete. This runs after afterEach() and
+    // the browser context is no longer in use.
+    await context.close();
+
+    let cleanup = task('playwright:cleanup test_id=' + id);
+    await new Promise<void>((resolve) => {
+      cleanup.on('exit', () => resolve());
+    });
+
+    // Attach the PHP error log to the test results.
+    let logPath = '../../' + docroot + '/sites/simpletest/' + drupal_test_id + '/error.log';
+    if (fs.existsSync(logPath)) {
+      await testInfo.attach('error.log', {path: logPath});
+    }
+
+    // Attach collected CLI output and web errors to the test results.
+    if (!isVerbose()) {
+      for (const entry of collector.getEntries()) {
+        if (entry.stdout.trim()) {
+          await testInfo.attach(`${entry.label}-stdout.txt`, {
+            body: entry.stdout,
+            contentType: 'text/plain',
+          });
+        }
+        if (entry.stderr.trim()) {
+          await testInfo.attach(`${entry.label}-stderr.txt`, {
+            body: entry.stderr,
+            contentType: 'text/plain',
+          });
+        }
+      }
+      const webErrors = collector.getWebErrors();
+      if (webErrors.length > 0) {
+        await testInfo.attach('web-errors.txt', {
+          body: webErrors.join('\n\n'),
+          contentType: 'text/plain',
+        });
+      }
+    }
+  },
 });
 
 /**
@@ -95,13 +128,30 @@ async function execDrushInTestSite(command: string) {
     cwd: process.env.DDEV_HOSTNAME ? '/var/www/html' : null,
   });
   p.then((res) => {
-    console.log(res.stdout);
-    console.error(res.stderr);
+    if (isVerbose()) {
+      console.log(res.stdout);
+      console.error(res.stderr);
+    } else {
+      const label = `drush-test-${command}`;
+      collector.startCommand(label);
+      collector.appendStdout(res.stdout);
+      collector.appendStderr(res.stderr);
+      collector.finishCommand();
+    }
   }, (reason) => {
-    console.error(reason);
+    if (isVerbose()) {
+      console.error(reason);
+    } else {
+      const label = `drush-test-${command}`;
+      collector.startCommand(label);
+      collector.appendStderr(reason.stderr || reason.toString());
+      collector.finishCommand();
+    }
   });
   p.catch((error) => {
-    console.error(error.stderr);
+    if (isVerbose()) {
+      console.error(error.stderr);
+    }
   });
 
   return p;

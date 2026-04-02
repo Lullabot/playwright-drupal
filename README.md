@@ -757,6 +757,18 @@ There are times you may want to run Playwright without isolating test runs. Perh
 
 To do this, run `export PLAYWRIGHT_NO_TEST_ISOLATION=1`. This **must** be done inside a ddev shell (via ddev ssh) and not `ddev playwright` or `ddev exec`. Consider running Playwright with `--workers=1` and with a single browser, since any changes to the database will persist.
 
+## Verbose CLI Output
+
+By default, output from CLI commands (drush, task) and browser web errors is captured and attached to each test result as text files. This keeps the terminal clean when running tests in parallel, since output from different workers would otherwise be interleaved.
+
+To print CLI output inline instead (the original behavior), set:
+
+```bash
+export PLAYWRIGHT_DRUPAL_VERBOSE=1
+```
+
+This is useful when debugging a single test or running with `--workers=1`, where interleaved output is not a concern. The attached output files are available in the HTML test report regardless of this setting.
+
 ## Pull Request Commands
 
 Maintainers can use the following commands by posting a comment on a pull request:
