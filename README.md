@@ -761,7 +761,7 @@ To do this, run `export PLAYWRIGHT_NO_TEST_ISOLATION=1`. This **must** be done i
 
 By default, output from CLI commands (drush, task) and browser web errors is captured and attached to each test result as text files. This keeps the terminal clean when running tests in parallel, since output from different workers would otherwise be interleaved.
 
-To print CLI output inline instead (the original behavior), set:
+To print CLI output inline instead (the original behavior), set in your DDEV shell:
 
 ```bash
 export PLAYWRIGHT_DRUPAL_VERBOSE=1
