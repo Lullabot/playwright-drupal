@@ -72,6 +72,40 @@ setup() {
   fi
 }
 
+@test "setup: write recipe test" {
+  write_recipe_test
+}
+
+@test "recipe: run playwright test" {
+  run_recipe_playwright_test
+}
+
+@test "recipe: tests exit with code 0" {
+  local exit_code
+  exit_code="$(cat "$BATS_FILE_TMPDIR/recipe_playwright_exit_code")"
+  if [ "$exit_code" -ne 0 ]; then
+    echo "Recipe Playwright exited with code $exit_code. Output:" >&2
+    cat "$BATS_FILE_TMPDIR/recipe_playwright_output.txt" >&2
+    return 1
+  fi
+}
+
+@test "recipe: output shows passed tests" {
+  if ! grep -q "passed" "$BATS_FILE_TMPDIR/recipe_playwright_output.txt"; then
+    echo "Expected 'passed' in recipe output. Actual output:" >&2
+    cat "$BATS_FILE_TMPDIR/recipe_playwright_output.txt" >&2
+    return 1
+  fi
+}
+
+@test "recipe: output shows no failures" {
+  if grep -q "failed" "$BATS_FILE_TMPDIR/recipe_playwright_output.txt"; then
+    echo "Found 'failed' in recipe output:" >&2
+    cat "$BATS_FILE_TMPDIR/recipe_playwright_output.txt" >&2
+    return 1
+  fi
+}
+
 @test "playwright: @packages/ alias import shows helpful error" {
   assert_wrong_import_error '@packages/playwright-drupal' 'alias import'
 }

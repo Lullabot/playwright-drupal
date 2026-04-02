@@ -9,6 +9,12 @@ if [ "$#" -lt 1 ]; then
 fi
 
 if [[ "$1" =~ ^[0-9]+$ ]]; then
+    # Detect the Drupal docroot from composer.json (same logic as drush-playwright-internal).
+    DOCROOT=$(node -e "try { const c = require('./composer.json'); const w = (c.extra?.['drupal-scaffold']?.locations?.['web-root'] || 'web').replace(/\/$/, ''); process.stdout.write(w); } catch(e) { process.stdout.write('web'); }" 2>/dev/null || echo "web")
+    # Set DRUPAL_DEV_SITE_PATH so RecipeCommand (via BootableCommandTrait) boots
+    # the kernel with the correct test site path. Without this, the container is
+    # cached under sites/default and the test site's container stays stale.
+    DRUPAL_DEV_SITE_PATH="${DOCROOT}/sites/simpletest/$1" \
     DRUPAL_TEST_ID=$1 test/playwright/node_modules/@lullabot/playwright-drupal/bin/drush-playwright-internal "${@:2}"
 else
     echo "Error: The first argument $1 is not numeric. Please provide a numeric argument." >&2
