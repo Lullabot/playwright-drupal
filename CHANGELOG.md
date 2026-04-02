@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.5.0...playwright-drupal-1.5.1) (2026-04-02)
+
+
+### Bug Fixes
+
+* remove docroot prefix from DRUPAL_DEV_SITE_PATH ([#101](https://github.com/Lullabot/playwright-drupal/issues/101)) ([ee29770](https://github.com/Lullabot/playwright-drupal/commit/ee29770e6b3888899cb0662f8d1f18991e672844))
+
 ## [1.5.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.4.1...playwright-drupal-1.5.0) (2026-04-02)
 
 
