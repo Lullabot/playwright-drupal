@@ -1,4 +1,5 @@
 import child_process from "child_process";
+import {collector, isVerbose} from "./output-collector";
 
 /**
  * Run a command either inside of the web container or from the host.
@@ -14,6 +15,16 @@ export function execSync(baseCommand: string, command: string, options: any) {
   }
 
   options.cwd = process.env.DDEV_HOSTNAME ? '/var/www/html' : process.cwd();
+
+  if (!isVerbose() && options.stdio !== 'inherit') {
+    const label = `${baseCommand}-${command}`;
+    const result = child_process.execSync(`${ddev} ${command}`, options);
+    collector.startCommand(label);
+    collector.appendStdout(result.toString());
+    collector.finishCommand();
+    return result;
+  }
+
   return child_process.execSync(`${ddev} ${command}`, options);
 }
 
@@ -31,12 +42,26 @@ export function exec(baseCommand: string, command: string) {
 
   let childProcess = child_process.exec(`${ddev} ${command}`, options);
   if (childProcess.stdout && childProcess.stderr) {
-    childProcess.stdout.on('data', (data) => {
-      console.log(data.toString());
-    });
-    childProcess.stderr.on('data', (data) => {
-      console.log(data.toString());
-    });
+    if (isVerbose()) {
+      childProcess.stdout.on('data', (data) => {
+        console.log(data.toString());
+      });
+      childProcess.stderr.on('data', (data) => {
+        console.log(data.toString());
+      });
+    } else {
+      const label = `${baseCommand}-${command}`;
+      collector.startCommand(label);
+      childProcess.stdout.on('data', (data) => {
+        collector.appendStdout(data.toString());
+      });
+      childProcess.stderr.on('data', (data) => {
+        collector.appendStderr(data.toString());
+      });
+      childProcess.on('exit', () => {
+        collector.finishCommand();
+      });
+    }
   }
 
   return childProcess;
