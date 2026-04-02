@@ -341,29 +341,39 @@ write_recipe_test() {
 
   cd "$PROJECT_DIR"
 
-  # Create a test recipe that installs the syslog module (not part of demo_umami).
+  # Create a test recipe that installs the language module. Language provides
+  # field type plugins (DefaultLanguageItem) that must be in the container for
+  # subsequent commands to work. This catches DRUPAL_DEV_SITE_PATH bugs where
+  # the recipe caches the container under a different key than regular drush
+  # commands, leaving the test site's container stale.
   echo "--- Creating test recipe fixture" >&3
   ddev exec mkdir -p /var/www/html/test-recipe
   ddev exec bash -c 'cat > /var/www/html/test-recipe/recipe.yml << RECIPE
 name: "Test Recipe"
-description: "Installs syslog module for testing."
+description: "Installs language module for testing."
 type: "Testing"
 install:
-  - syslog
+  - language
 RECIPE'
 
-  # Write a Playwright spec that applies the recipe and verifies the module.
+  # Write a Playwright spec that applies the recipe and then runs a drush
+  # command that requires the newly-installed module's classes to be in the
+  # container. user:login triggers a full bootstrap that loads language plugin
+  # classes — if DRUPAL_DEV_SITE_PATH is wrong, the container cache key
+  # mismatches between the recipe command and regular drush commands, and
+  # this fails with "Plugin (language) instance class does not exist".
   cat > test/playwright/tests/recipe.spec.ts << 'TESTEOF'
 import { test, expect, execDrushInTestSite } from '@packages/playwright-drupal';
 
 test('recipe installs module visible to subsequent commands', async ({ page }) => {
-  // Apply a recipe that installs the syslog module.
+  // Apply a recipe that installs the language module.
   await execDrushInTestSite('recipe /var/www/html/test-recipe');
 
-  // This drush command boots a fresh kernel. Without DRUPAL_DEV_SITE_PATH,
-  // it reads the stale container and can't find the syslog module's classes.
-  const result = await execDrushInTestSite('pm:list --status=enabled --field=name');
-  expect(result.stdout).toContain('syslog');
+  // user:login triggers a full Drupal bootstrap that loads language module
+  // plugin classes. If the container is stale (wrong DRUPAL_DEV_SITE_PATH),
+  // this will fail with "DefaultLanguageItem does not exist".
+  const result = await execDrushInTestSite('user:login --name=admin');
+  expect(result.stdout).toContain('/user/reset');
 });
 TESTEOF
 }
