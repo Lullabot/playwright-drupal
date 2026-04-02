@@ -336,6 +336,51 @@ run_playwright_tests() {
   set -e
 }
 
+write_recipe_test() {
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+
+  cd "$PROJECT_DIR"
+
+  # Create a test recipe that installs the syslog module (not part of demo_umami).
+  echo "--- Creating test recipe fixture" >&3
+  ddev exec mkdir -p /var/www/html/test-recipe
+  ddev exec bash -c 'cat > /var/www/html/test-recipe/recipe.yml << RECIPE
+name: "Test Recipe"
+description: "Installs syslog module for testing."
+type: "Testing"
+install:
+  - syslog
+RECIPE'
+
+  # Write a Playwright spec that applies the recipe and verifies the module.
+  cat > test/playwright/tests/recipe.spec.ts << 'TESTEOF'
+import { test, expect, execDrushInTestSite } from '@packages/playwright-drupal';
+
+test('recipe installs module visible to subsequent commands', async ({ page }) => {
+  // Apply a recipe that installs the syslog module.
+  await execDrushInTestSite('recipe /var/www/html/test-recipe');
+
+  // This drush command boots a fresh kernel. Without DRUPAL_DEV_SITE_PATH,
+  // it reads the stale container and can't find the syslog module's classes.
+  const result = await execDrushInTestSite('pm:list --status=enabled --field=name');
+  expect(result.stdout).toContain('syslog');
+});
+TESTEOF
+}
+
+run_recipe_playwright_test() {
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+
+  cd "$PROJECT_DIR"
+
+  # Run only the recipe spec file.
+  set +e
+  ddev exec -d /var/www/html/test/playwright npx playwright test tests/recipe.spec.ts \
+    2>&1 | tee "$BATS_FILE_TMPDIR/recipe_playwright_output.txt" >&3
+  echo "${PIPESTATUS[0]}" > "$BATS_FILE_TMPDIR/recipe_playwright_exit_code"
+  set -e
+}
+
 assert_wrong_import_error() {
   local import_path="$1"
   local description="$2"
