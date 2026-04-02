@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.5.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.4.1...playwright-drupal-1.5.0) (2026-04-02)
+
+
+### Features
+
+* capture CLI output as test attachments ([#97](https://github.com/Lullabot/playwright-drupal/issues/97)) ([96668e9](https://github.com/Lullabot/playwright-drupal/commit/96668e985f85e11cf916a570f93885fa3f2bfea0))
+
+
+### Bug Fixes
+
+* make login() theme-agnostic ([#98](https://github.com/Lullabot/playwright-drupal/issues/98)) ([79306e5](https://github.com/Lullabot/playwright-drupal/commit/79306e5bdf3f16b50693d586634382339b7d8d31))
+* set DRUPAL_DEV_SITE_PATH so drush recipe works in test isolation ([#99](https://github.com/Lullabot/playwright-drupal/issues/99)) ([fa94748](https://github.com/Lullabot/playwright-drupal/commit/fa94748e0db6daec02e7b2e855efa928669e75f3))
+
 ## [1.4.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.4.0...playwright-drupal-1.4.1) (2026-04-01)
 
 
