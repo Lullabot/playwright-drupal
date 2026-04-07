@@ -476,6 +476,10 @@ When a baseline is provided, the WCAG scan switches from snapshot-based assertio
 
 A violation matches a baseline entry when the rule ID matches and at least one CSS selector target overlaps. Targets are normalized to handle dynamic HTML IDs (e.g., `#edit-field--123` becomes `#edit-field--UNIQUE-ID`).
 
+When using baselines, the report annotations show which violations were suppressed and which baseline entries are stale:
+
+![Baseline annotations showing stale entries and scan summary](images/a11y-report-baseline-annotations.webp)
+
 #### Copy-Pasteable Entries
 
 When violations are detected, the failure output includes ready-to-paste baseline entries. In snapshot mode, these are also attached to the test as an `a11y-baseline-suggestions` text file. Each suggestion includes placeholder `reason` and `willBeFixedIn` fields for you to fill in:
@@ -489,6 +493,10 @@ When violations are detected, the failure output includes ready-to-paste baselin
 },
 ```
 
+In the Playwright HTML report, unmatched violations show the full error details including the copy-pasteable baseline entry:
+
+![Error output showing violation details, help URL, and copy-pasteable baseline entry](images/a11y-report-baseline-errors.webp)
+
 ### Test Report Integration
 
 Accessibility results integrate into the Playwright HTML test report in several ways:
@@ -497,6 +505,10 @@ Accessibility results integrate into the Playwright HTML test report in several 
 - **Summary annotations** — Each scan adds an `Accessibility` annotation summarizing pass/fail counts (e.g., "WCAG scan: 0 new violations (2 baselined)").
 - **Baseline annotations** — When using baselines, matched violations appear as `Baselined a11y violation` annotations with the reason and ticket link. Stale entries appear as `Stale a11y baseline entry` annotations.
 - **JSON attachments** — Full axe-core results are attached as `a11y-best-practice-scan-results` and `a11y-wcag-scan-results` JSON files for detailed inspection.
+
+A passing test shows the `@a11y` tag and scan summary:
+
+![Annotations section showing @a11y tag and WCAG scan summary](images/a11y-report-annotations.webp)
 
 ### Combined with Visual Comparisons
 
