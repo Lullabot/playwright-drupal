@@ -1,6 +1,6 @@
 import {Page, test, WebError} from '@playwright/test';
 
-import {takeAccessibleScreenshot} from "../util";
+import {takeAccessibleScreenshot, AccessibilityBaseline} from "../util";
 
 export function defineVisualDiffConfig(cases: VisualDiffUrlConfig) {
   return new VisualDiffTestCases(cases);
@@ -59,6 +59,9 @@ export function defaultTestFunction(testCase: VisualDiff, group: VisualDiffGroup
     }
     if (maskColor) {
       screenshotOptions.maskColor = maskColor;
+    }
+    if (config?.a11yBaseline) {
+      screenshotOptions.accessibility = { baseline: config.a11yBaseline }
     }
 
     await takeAccessibleScreenshot(page, testInfo, screenshotOptions);
@@ -156,6 +159,12 @@ export type VisualDiffUrlConfig = {
    * Can be overridden at the group or test-case level.
    */
   maskColor?: string,
+  /**
+   * Accessibility baseline for managing known violations.
+   * When provided, violations matching the baseline are suppressed and
+   * toMatchSnapshot() is skipped in favour of baseline-driven assertions.
+   */
+  a11yBaseline?: AccessibilityBaseline,
 }
 
 /**

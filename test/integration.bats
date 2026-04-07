@@ -120,6 +120,88 @@ setup() {
   fi
 }
 
+@test "setup: write a11y fixture test" {
+  write_a11y_fixture_test
+}
+
+@test "a11y fixture: update snapshots" {
+  run_a11y_fixture_update_snapshots
+}
+
+@test "a11y fixture: update snapshots exits with code 0" {
+  local exit_code
+  exit_code="$(cat "$BATS_FILE_TMPDIR/a11y_fixture_update_exit_code")"
+  if [ "$exit_code" -ne 0 ]; then
+    echo "a11y fixture update snapshots exited with code $exit_code. Output:" >&2
+    cat "$BATS_FILE_TMPDIR/a11y_fixture_update_output.txt" >&2
+    return 1
+  fi
+}
+
+@test "a11y fixture: run tests" {
+  run_a11y_fixture_tests
+}
+
+@test "a11y fixture: tests exit with code 0" {
+  local exit_code
+  exit_code="$(cat "$BATS_FILE_TMPDIR/a11y_fixture_exit_code")"
+  if [ "$exit_code" -ne 0 ]; then
+    echo "a11y fixture tests exited with code $exit_code. Output:" >&2
+    cat "$BATS_FILE_TMPDIR/a11y_fixture_output.txt" >&2
+    return 1
+  fi
+}
+
+@test "a11y fixture: output shows passed tests" {
+  if ! grep -q "passed" "$BATS_FILE_TMPDIR/a11y_fixture_output.txt"; then
+    echo "Expected 'passed' in a11y fixture output. Actual output:" >&2
+    cat "$BATS_FILE_TMPDIR/a11y_fixture_output.txt" >&2
+    return 1
+  fi
+}
+
+@test "a11y fixture: output shows no failures" {
+  if grep -q "failed" "$BATS_FILE_TMPDIR/a11y_fixture_output.txt"; then
+    echo "Found 'failed' in a11y fixture output:" >&2
+    cat "$BATS_FILE_TMPDIR/a11y_fixture_output.txt" >&2
+    return 1
+  fi
+}
+
+@test "setup: write a11y baseline test" {
+  write_a11y_baseline_test
+}
+
+@test "a11y baseline: run tests" {
+  run_a11y_baseline_tests
+}
+
+@test "a11y baseline: tests exit with code 0" {
+  local exit_code
+  exit_code="$(cat "$BATS_FILE_TMPDIR/a11y_baseline_exit_code")"
+  if [ "$exit_code" -ne 0 ]; then
+    echo "a11y baseline tests exited with code $exit_code. Output:" >&2
+    cat "$BATS_FILE_TMPDIR/a11y_baseline_output.txt" >&2
+    return 1
+  fi
+}
+
+@test "a11y baseline: output shows passed tests" {
+  if ! grep -q "passed" "$BATS_FILE_TMPDIR/a11y_baseline_output.txt"; then
+    echo "Expected 'passed' in a11y baseline output. Actual output:" >&2
+    cat "$BATS_FILE_TMPDIR/a11y_baseline_output.txt" >&2
+    return 1
+  fi
+}
+
+@test "a11y baseline: output shows no failures" {
+  if grep -q "failed" "$BATS_FILE_TMPDIR/a11y_baseline_output.txt"; then
+    echo "Found 'failed' in a11y baseline output:" >&2
+    cat "$BATS_FILE_TMPDIR/a11y_baseline_output.txt" >&2
+    return 1
+  fi
+}
+
 @test "setup: write recipe test" {
   write_recipe_test
 }
