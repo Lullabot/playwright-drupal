@@ -381,7 +381,7 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
  * deterministic across runs.
  */
 export function normalizeTarget(target: string | string[]): string | string[] {
-  const uniqueHtmlID = /(#.*)--\d+/
+  const uniqueHtmlID = /(#[^#]*)--\d+/
   const ariaLabelledById = /(aria-labelledby="[^"]+)--\d+"/
   if (typeof target === 'string') {
     return target
