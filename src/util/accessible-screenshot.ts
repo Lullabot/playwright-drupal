@@ -108,6 +108,13 @@ export interface AccessibilityOptions {
 
   /** When true, removes hardcoded Drupal exclusions from scans. Default: false. */
   disableDefaultExclusions?: boolean
+
+  /**
+   * When true, captures a full-page screenshot with violating elements
+   * highlighted (red outline) and attaches it to the test report.
+   * Default: true.
+   */
+  screenshotViolations?: boolean
 }
 
 /**
@@ -128,6 +135,7 @@ export async function checkAccessibility(page: Page, testInfo: TestInfo, options
     rules,
     baseline,
     disableDefaultExclusions = false,
+    screenshotViolations = true,
   } = options ?? {}
 
   // Add @a11y annotation (deduplicated).
@@ -140,6 +148,10 @@ export async function checkAccessibility(page: Page, testInfo: TestInfo, options
   }
 
   const wcagScanResults = await runWcagScan(page, testInfo, { wcagTags, exclude, rules, disableDefaultExclusions })
+
+  if (screenshotViolations && wcagScanResults.violations.length > 0) {
+    await screenshotViolatingElements(page, testInfo, wcagScanResults)
+  }
 
   // Baseline mode: match violations against the baseline instead of using snapshots.
   if (baseline) {
@@ -245,6 +257,43 @@ async function runWcagScan(
   })
 
   return results
+}
+
+/**
+ * Take a full-page screenshot with violating elements highlighted and
+ * attach it to the test report.
+ */
+async function screenshotViolatingElements(page: Page, testInfo: TestInfo, results: axe.AxeResults) {
+  // Collect all raw CSS selectors from violation nodes.
+  const selectors = results.violations
+    .flatMap(v => v.nodes)
+    .flatMap(n => n.target)
+    .filter((t): t is string => typeof t === 'string')
+
+  if (selectors.length === 0) return
+
+  // Inject highlight outlines on all violating elements.
+  await page.evaluate((sels) => {
+    const style = document.createElement('style')
+    style.setAttribute('data-a11y-highlight', 'true')
+    // Use a CSS rule for each selector so the outline persists even if
+    // elements are repositioned during the screenshot.
+    const rules = sels.map(s => `${s} { outline: 3px solid #e53e3e !important; outline-offset: 2px !important; }`).join('\n')
+    style.textContent = rules
+    document.head.appendChild(style)
+  }, selectors)
+
+  const screenshot = await page.screenshot({ fullPage: true })
+
+  await testInfo.attach('a11y-violation-screenshot', {
+    body: screenshot,
+    contentType: 'image/png',
+  })
+
+  // Remove the injected styles so they don't affect subsequent assertions.
+  await page.evaluate(() => {
+    document.querySelector('style[data-a11y-highlight]')?.remove()
+  })
 }
 
 /**

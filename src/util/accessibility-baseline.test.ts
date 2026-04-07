@@ -69,6 +69,13 @@ function makeTestInfo() {
   }
 }
 
+function makePage() {
+  return {
+    evaluate: vi.fn().mockResolvedValue(undefined),
+    screenshot: vi.fn().mockResolvedValue(Buffer.from('fake-png')),
+  }
+}
+
 function makeViolation(rule: string, targets: string[][], extras?: { description?: string, impact?: string, helpUrl?: string }) {
   return {
     id: rule,
@@ -108,7 +115,7 @@ describe('accessibility baseline', () => {
         { rule: 'color-contrast', targets: ['#sidebar .tag'], reason: 'Known issue', willBeFixedIn: 'PROJ-123' },
       ]
 
-      await checkAccessibility({} as any, testInfo as any, {
+      await checkAccessibility(makePage() as any, testInfo as any, {
         bestPracticeMode: 'off',
         baseline,
       })
@@ -130,7 +137,7 @@ describe('accessibility baseline', () => {
         { rule: 'color-contrast', targets: ['#edit-field--UNIQUE-ID'], reason: 'Dynamic ID', willBeFixedIn: 'PROJ-456' },
       ]
 
-      await checkAccessibility({} as any, testInfo as any, {
+      await checkAccessibility(makePage() as any, testInfo as any, {
         bestPracticeMode: 'off',
         baseline,
       })
@@ -150,7 +157,7 @@ describe('accessibility baseline', () => {
       mockAnalyze.mockResolvedValue(wcagResults)
 
       const testInfo = makeTestInfo()
-      await checkAccessibility({} as any, testInfo as any, {
+      await checkAccessibility(makePage() as any, testInfo as any, {
         bestPracticeMode: 'off',
         baseline: [],
       })
@@ -180,7 +187,7 @@ describe('accessibility baseline', () => {
         { rule: 'color-contrast', targets: ['#old-element'], reason: 'Was broken', willBeFixedIn: 'PROJ-789' },
       ]
 
-      await checkAccessibility({} as any, testInfo as any, {
+      await checkAccessibility(makePage() as any, testInfo as any, {
         bestPracticeMode: 'off',
         baseline,
       })
@@ -199,7 +206,7 @@ describe('accessibility baseline', () => {
       mockAnalyze.mockResolvedValue(wcagResults)
 
       const testInfo = makeTestInfo()
-      await checkAccessibility({} as any, testInfo as any, {
+      await checkAccessibility(makePage() as any, testInfo as any, {
         bestPracticeMode: 'off',
         baseline: [],
       })
@@ -209,7 +216,7 @@ describe('accessibility baseline', () => {
 
     it('calls toMatchSnapshot when no baseline is provided', async () => {
       const testInfo = makeTestInfo()
-      await checkAccessibility({} as any, testInfo as any, {
+      await checkAccessibility(makePage() as any, testInfo as any, {
         bestPracticeMode: 'off',
       })
 
@@ -225,7 +232,7 @@ describe('accessibility baseline', () => {
       mockAnalyze.mockResolvedValue(wcagResults)
 
       const testInfo = makeTestInfo()
-      await checkAccessibility({} as any, testInfo as any, {
+      await checkAccessibility(makePage() as any, testInfo as any, {
         bestPracticeMode: 'off',
         baseline: [],
       })
@@ -254,7 +261,7 @@ describe('accessibility baseline', () => {
         { rule: 'color-contrast', targets: ['#sidebar .tag'], reason: 'Known issue', willBeFixedIn: 'PROJ-123' },
       ]
 
-      await checkAccessibility({} as any, testInfo as any, {
+      await checkAccessibility(makePage() as any, testInfo as any, {
         bestPracticeMode: 'off',
         baseline,
       })
@@ -273,7 +280,7 @@ describe('accessibility baseline', () => {
         { rule: 'old-rule', targets: ['.gone'], reason: 'Was broken', willBeFixedIn: 'PROJ-999' },
       ]
 
-      await checkAccessibility({} as any, testInfo as any, {
+      await checkAccessibility(makePage() as any, testInfo as any, {
         bestPracticeMode: 'off',
         baseline,
       })
@@ -299,7 +306,7 @@ describe('accessibility baseline', () => {
         { rule: 'color-contrast', targets: ['#sidebar .tag'], reason: 'Known', willBeFixedIn: 'PROJ-1' },
       ]
 
-      await checkAccessibility({} as any, testInfo as any, {
+      await checkAccessibility(makePage() as any, testInfo as any, {
         bestPracticeMode: 'off',
         baseline,
       })
@@ -320,7 +327,7 @@ describe('accessibility baseline', () => {
       mockAnalyze.mockResolvedValue(wcagResults)
 
       const testInfo = makeTestInfo()
-      await checkAccessibility({} as any, testInfo as any, {
+      await checkAccessibility(makePage() as any, testInfo as any, {
         bestPracticeMode: 'off',
       })
 
@@ -354,7 +361,7 @@ describe('accessibility baseline', () => {
       mockAnalyze.mockResolvedValue(wcagResults)
 
       const testInfo = makeTestInfo()
-      await checkAccessibility({} as any, testInfo as any, {
+      await checkAccessibility(makePage() as any, testInfo as any, {
         bestPracticeMode: 'off',
       })
 

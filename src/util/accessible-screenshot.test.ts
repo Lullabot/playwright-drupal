@@ -210,4 +210,108 @@ describe('checkAccessibility', () => {
     expect(accessibilityAnnotations).toHaveLength(1)
     expect(accessibilityAnnotations[0].description).toContain('WCAG scan')
   })
+
+  it('attaches a violation screenshot when screenshotViolations is true and violations exist', async () => {
+    const wcagResults = makeAxeResults({
+      violations: [{
+        id: 'color-contrast',
+        description: 'test',
+        impact: 'serious',
+        helpUrl: 'https://example.com',
+        nodes: [{ target: ['.bad-element'] }],
+      }],
+    })
+
+    mockAnalyze
+      .mockResolvedValueOnce(makeAxeResults()) // best-practice
+      .mockResolvedValueOnce(wcagResults)       // WCAG
+
+    const mockPage = {
+      evaluate: vi.fn().mockResolvedValue(undefined),
+      screenshot: vi.fn().mockResolvedValue(Buffer.from('fake-png')),
+    }
+    const testInfo = makeTestInfo()
+
+    await checkAccessibility(mockPage as any, testInfo as any, {
+      screenshotViolations: true,
+    })
+
+    // Should have injected highlight styles and then removed them.
+    expect(mockPage.evaluate).toHaveBeenCalledTimes(2)
+    // Should have taken a full-page screenshot.
+    expect(mockPage.screenshot).toHaveBeenCalledWith({ fullPage: true })
+    // Should have attached the screenshot.
+    expect(testInfo.attach).toHaveBeenCalledWith('a11y-violation-screenshot', {
+      body: Buffer.from('fake-png'),
+      contentType: 'image/png',
+    })
+  })
+
+  it('does not take a screenshot when screenshotViolations is true but no violations', async () => {
+    const mockPage = {
+      evaluate: vi.fn(),
+      screenshot: vi.fn(),
+    }
+    const testInfo = makeTestInfo()
+
+    await checkAccessibility(mockPage as any, testInfo as any, {
+      screenshotViolations: true,
+    })
+
+    expect(mockPage.screenshot).not.toHaveBeenCalled()
+  })
+
+  it('takes a screenshot by default when violations exist', async () => {
+    const wcagResults = makeAxeResults({
+      violations: [{
+        id: 'color-contrast',
+        description: 'test',
+        impact: 'serious',
+        helpUrl: 'https://example.com',
+        nodes: [{ target: ['.bad-element'] }],
+      }],
+    })
+
+    mockAnalyze
+      .mockResolvedValueOnce(makeAxeResults()) // best-practice
+      .mockResolvedValueOnce(wcagResults)       // WCAG
+
+    const mockPage = {
+      evaluate: vi.fn().mockResolvedValue(undefined),
+      screenshot: vi.fn().mockResolvedValue(Buffer.from('fake-png')),
+    }
+    const testInfo = makeTestInfo()
+
+    await checkAccessibility(mockPage as any, testInfo as any)
+
+    expect(mockPage.screenshot).toHaveBeenCalledWith({ fullPage: true })
+  })
+
+  it('does not take a screenshot when screenshotViolations is explicitly false', async () => {
+    const wcagResults = makeAxeResults({
+      violations: [{
+        id: 'color-contrast',
+        description: 'test',
+        impact: 'serious',
+        helpUrl: 'https://example.com',
+        nodes: [{ target: ['.bad-element'] }],
+      }],
+    })
+
+    mockAnalyze
+      .mockResolvedValueOnce(makeAxeResults()) // best-practice
+      .mockResolvedValueOnce(wcagResults)       // WCAG
+
+    const mockPage = {
+      evaluate: vi.fn(),
+      screenshot: vi.fn(),
+    }
+    const testInfo = makeTestInfo()
+
+    await checkAccessibility(mockPage as any, testInfo as any, {
+      screenshotViolations: false,
+    })
+
+    expect(mockPage.screenshot).not.toHaveBeenCalled()
+  })
 })
