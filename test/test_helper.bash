@@ -336,6 +336,45 @@ run_playwright_tests() {
   set -e
 }
 
+write_a11y_check_test() {
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+
+  cd "$PROJECT_DIR"
+
+  cat > test/playwright/tests/a11y-check.spec.ts << 'TESTEOF'
+import { test, expect, checkAccessibility } from '@packages/playwright-drupal';
+
+test('standalone accessibility check works', async ({ page }, testInfo) => {
+  await page.goto('/');
+  await checkAccessibility(page, testInfo, { bestPracticeMode: 'off' });
+});
+TESTEOF
+}
+
+run_a11y_update_snapshots() {
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+
+  cd "$PROJECT_DIR"
+
+  set +e
+  ddev exec -d /var/www/html/test/playwright npx playwright test tests/a11y-check.spec.ts --update-snapshots \
+    2>&1 | tee "$BATS_FILE_TMPDIR/a11y_update_output.txt" >&3
+  echo "${PIPESTATUS[0]}" > "$BATS_FILE_TMPDIR/a11y_update_exit_code"
+  set -e
+}
+
+run_a11y_tests() {
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+
+  cd "$PROJECT_DIR"
+
+  set +e
+  ddev exec -d /var/www/html/test/playwright npx playwright test tests/a11y-check.spec.ts --repeat-each 2 \
+    2>&1 | tee "$BATS_FILE_TMPDIR/a11y_output.txt" >&3
+  echo "${PIPESTATUS[0]}" > "$BATS_FILE_TMPDIR/a11y_exit_code"
+  set -e
+}
+
 write_recipe_test() {
   PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
 

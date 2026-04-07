@@ -72,6 +72,54 @@ setup() {
   fi
 }
 
+@test "setup: write a11y check test" {
+  write_a11y_check_test
+}
+
+@test "a11y: update snapshots" {
+  run_a11y_update_snapshots
+}
+
+@test "a11y: update snapshots exits with code 0" {
+  local exit_code
+  exit_code="$(cat "$BATS_FILE_TMPDIR/a11y_update_exit_code")"
+  if [ "$exit_code" -ne 0 ]; then
+    echo "a11y update snapshots exited with code $exit_code. Output:" >&2
+    cat "$BATS_FILE_TMPDIR/a11y_update_output.txt" >&2
+    return 1
+  fi
+}
+
+@test "a11y: run tests" {
+  run_a11y_tests
+}
+
+@test "a11y: tests exit with code 0" {
+  local exit_code
+  exit_code="$(cat "$BATS_FILE_TMPDIR/a11y_exit_code")"
+  if [ "$exit_code" -ne 0 ]; then
+    echo "a11y tests exited with code $exit_code. Output:" >&2
+    cat "$BATS_FILE_TMPDIR/a11y_output.txt" >&2
+    return 1
+  fi
+}
+
+@test "a11y: output shows passed tests" {
+  if ! grep -q "passed" "$BATS_FILE_TMPDIR/a11y_output.txt"; then
+    echo "Expected 'passed' in a11y output. Actual output:" >&2
+    cat "$BATS_FILE_TMPDIR/a11y_output.txt" >&2
+    return 1
+  fi
+}
+
+@test "a11y: output shows no failures" {
+  if grep -q "failed" "$BATS_FILE_TMPDIR/a11y_output.txt"; then
+    echo "Found 'failed' in a11y output:" >&2
+    cat "$BATS_FILE_TMPDIR/a11y_output.txt" >&2
+    return 1
+  fi
+}
+
 @test "setup: write recipe test" {
   write_recipe_test
 }

@@ -4,7 +4,7 @@ import {waitForAllImages} from "./images";
 import {waitForFrames} from "./frames"
 import axe from 'axe-core';
 
-interface ScreenshotOptions {
+export interface ScreenshotOptions {
   /**
    * When set to `"disabled"`, stops CSS animations, CSS transitions and Web Animations. Animations get different
    * treatment depending on their duration:
@@ -77,6 +77,137 @@ interface ScreenshotOptions {
    * Time to retry the assertion for in milliseconds. Defaults to `timeout` in `TestConfig.expect`.
    */
   timeout?: number;
+
+  /**
+   * Accessibility options passed through to checkAccessibility().
+   */
+  accessibility?: AccessibilityOptions;
+}
+
+export interface AccessibilityOptions {
+  /** axe tags for WCAG scan. Default: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] */
+  wcagTags?: string[]
+
+  /** Additional CSS selectors to exclude from both scans. */
+  exclude?: string[]
+
+  /**
+   * Best-practice scan mode.
+   * - 'soft': uses expect.soft() (default, current behaviour)
+   * - 'hard': uses expect() — test fails immediately on violations
+   * - 'off': skips best-practice scan entirely
+   */
+  bestPracticeMode?: 'soft' | 'hard' | 'off'
+
+  /** Additional axe rules to enable/disable. */
+  rules?: Record<string, { enabled: boolean }>
+
+  /** Reserved for future baseline comparison (PR #2). Currently unused. */
+  baseline?: unknown
+
+  /** When true, removes hardcoded Drupal exclusions from scans. Default: false. */
+  disableDefaultExclusions?: boolean
+}
+
+/**
+ * Run accessibility checks on the current page using axe-core.
+ *
+ * Runs a best-practice scan (unless bestPracticeMode is 'off') and a WCAG scan,
+ * attaching JSON results and asserting on violations via snapshots.
+ *
+ * @param page The Page fixture from the test.
+ * @param testInfo The testInfo object from the test.
+ * @param options Accessibility options to customise the scan.
+ */
+export async function checkAccessibility(page: Page, testInfo: TestInfo, options?: AccessibilityOptions) {
+  const {
+    wcagTags = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
+    exclude = [],
+    bestPracticeMode = 'soft',
+    rules,
+    disableDefaultExclusions = false,
+  } = options ?? {}
+
+  // Add @a11y annotation (deduplicated).
+  if (!testInfo.annotations.some(a => a.type === '@a11y')) {
+    testInfo.annotations.push({ type: '@a11y' })
+  }
+
+  // Best-practice scan.
+  if (bestPracticeMode !== 'off') {
+    const bestPracticeBuilder = new AxeBuilder({ page })
+      .withTags(['best-practice'])
+
+    // Default Drupal exclusions for best-practice scan.
+    if (!disableDefaultExclusions) {
+      bestPracticeBuilder
+        .exclude('.focusable.skip-link')
+        .exclude('[role="article"]')
+        .exclude('[role="region"]')
+        .exclude('.footer__inner-3')
+    }
+
+    // User-provided exclusions.
+    for (const selector of exclude) {
+      bestPracticeBuilder.exclude(selector)
+    }
+
+    // User-provided rules.
+    if (rules) {
+      bestPracticeBuilder.options({ rules })
+    }
+
+    const accessibilityScanResults = await bestPracticeBuilder.analyze()
+
+    await testInfo.attach('a11y-best-practice-scan-results', {
+      body: JSON.stringify(accessibilityScanResults, null, 2),
+      contentType: 'application/json'
+    })
+
+    testInfo.annotations.push({
+      type: 'Accessibility',
+      description: `Best-practice scan: ${accessibilityScanResults.violations.length} violations (${accessibilityScanResults.passes.length} rules passed)`
+    })
+
+    if (bestPracticeMode === 'hard') {
+      expect(violationFingerprints(accessibilityScanResults)).toMatchSnapshot()
+    } else {
+      expect.soft(violationFingerprints(accessibilityScanResults)).toMatchSnapshot()
+    }
+  }
+
+  // WCAG scan.
+  const wcagBuilder = new AxeBuilder({ page })
+    .withTags(wcagTags)
+
+  // Default Drupal exclusions for WCAG scan.
+  if (!disableDefaultExclusions) {
+    wcagBuilder.exclude('[data-drupal-media-preview="ready"]')
+  }
+
+  // User-provided exclusions.
+  for (const selector of exclude) {
+    wcagBuilder.exclude(selector)
+  }
+
+  // User-provided rules.
+  if (rules) {
+    wcagBuilder.options({ rules })
+  }
+
+  const wcagScanResults = await wcagBuilder.analyze()
+
+  await testInfo.attach('a11y-wcag-scan-results', {
+    body: JSON.stringify(wcagScanResults, null, 2),
+    contentType: 'application/json'
+  })
+
+  testInfo.annotations.push({
+    type: 'Accessibility',
+    description: `WCAG scan: ${wcagScanResults.violations.length} violations (${wcagScanResults.passes.length} rules passed)`
+  })
+
+  return expect(violationFingerprints(wcagScanResults)).toMatchSnapshot()
 }
 
 /**
@@ -123,34 +254,7 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
   // Soft failure here so we can get accessibility violations too.
   await expect.soft(locatorToScreenshot).toHaveScreenshot(options);
 
-  const accessibilityScanResults = await new AxeBuilder({ page })
-    .withTags(['best-practice'])
-    // Exclude "Skip to main content" anchor. See https://dequeuniversity.com/rules/axe/4.7/region?application=playwright
-    .exclude('.focusable.skip-link')
-    // Exclude duplicated landmarks. See https://dequeuniversity.com/rules/axe/4.7/landmark-unique?application=playwright
-    .exclude('[role="article"]')
-    .exclude('[role="region"]')
-    .exclude('.footer__inner-3')
-    .analyze();
-
-  await testInfo.attach('a11y-best-practice-scan-results', {
-    body: JSON.stringify(accessibilityScanResults, null, 2),
-    contentType: 'application/json'
-  });
-
-  expect.soft(violationFingerprints(accessibilityScanResults)).toMatchSnapshot();
-
-  const wcagScanResults = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .exclude('[data-drupal-media-preview="ready"]')
-    .analyze();
-
-  await testInfo.attach('a11y-wcag-scan-results', {
-    body: JSON.stringify(wcagScanResults, null, 2),
-    contentType: 'application/json'
-  });
-
-  return expect(violationFingerprints(wcagScanResults)).toMatchSnapshot();
+  return checkAccessibility(page, testInfo, options.accessibility)
 }
 
 /**
