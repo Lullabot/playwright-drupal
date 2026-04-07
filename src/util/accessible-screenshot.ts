@@ -133,81 +133,113 @@ export async function checkAccessibility(page: Page, testInfo: TestInfo, options
     testInfo.annotations.push({ type: '@a11y' })
   }
 
-  // Best-practice scan.
   if (bestPracticeMode !== 'off') {
-    const bestPracticeBuilder = new AxeBuilder({ page })
-      .withTags(['best-practice'])
-
-    // Default Drupal exclusions for best-practice scan.
-    if (!disableDefaultExclusions) {
-      bestPracticeBuilder
-        .exclude('.focusable.skip-link')
-        .exclude('[role="article"]')
-        .exclude('[role="region"]')
-        .exclude('.footer__inner-3')
-    }
-
-    // User-provided exclusions.
-    for (const selector of exclude) {
-      bestPracticeBuilder.exclude(selector)
-    }
-
-    // User-provided rules.
-    if (rules) {
-      bestPracticeBuilder.options({ rules })
-    }
-
-    const accessibilityScanResults = await bestPracticeBuilder.analyze()
-
-    await testInfo.attach('a11y-best-practice-scan-results', {
-      body: JSON.stringify(accessibilityScanResults, null, 2),
-      contentType: 'application/json'
-    })
-
-    testInfo.annotations.push({
-      type: 'Accessibility',
-      description: `Best-practice scan: ${accessibilityScanResults.violations.length} violations (${accessibilityScanResults.passes.length} rules passed)`
-    })
-
-    if (bestPracticeMode === 'hard') {
-      expect(violationFingerprints(accessibilityScanResults)).toMatchSnapshot()
-    } else {
-      expect.soft(violationFingerprints(accessibilityScanResults)).toMatchSnapshot()
-    }
+    await runBestPracticeScan(page, testInfo, { exclude, rules, disableDefaultExclusions, bestPracticeMode })
   }
 
-  // WCAG scan.
-  const wcagBuilder = new AxeBuilder({ page })
-    .withTags(wcagTags)
+  await runWcagScan(page, testInfo, { wcagTags, exclude, rules, disableDefaultExclusions })
+}
 
-  // Default Drupal exclusions for WCAG scan.
-  if (!disableDefaultExclusions) {
-    wcagBuilder.exclude('[data-drupal-media-preview="ready"]')
+/**
+ * Run the best-practice axe scan and assert on violations via snapshot.
+ *
+ * Always uses expect.soft() so the WCAG scan runs regardless of failures.
+ * When bestPracticeMode is 'hard', failures still mark the test as failed
+ * (that's what expect.soft() does) but execution continues.
+ */
+async function runBestPracticeScan(
+  page: Page,
+  testInfo: TestInfo,
+  opts: {
+    exclude: string[]
+    rules?: Record<string, { enabled: boolean }>
+    disableDefaultExclusions: boolean
+    bestPracticeMode: 'soft' | 'hard'
+  },
+) {
+  const builder = new AxeBuilder({ page })
+    .withTags(['best-practice'])
+
+  // Default Drupal exclusions for best-practice scan.
+  if (!opts.disableDefaultExclusions) {
+    builder
+      // Exclude "Skip to main content" anchor.
+      // See https://dequeuniversity.com/rules/axe/4.7/region?application=playwright
+      .exclude('.focusable.skip-link')
+      // Exclude duplicated landmarks.
+      // See https://dequeuniversity.com/rules/axe/4.7/landmark-unique?application=playwright
+      .exclude('[role="article"]')
+      .exclude('[role="region"]')
+      .exclude('.footer__inner-3')
   }
 
-  // User-provided exclusions.
-  for (const selector of exclude) {
-    wcagBuilder.exclude(selector)
+  for (const selector of opts.exclude) {
+    builder.exclude(selector)
   }
 
-  // User-provided rules.
-  if (rules) {
-    wcagBuilder.options({ rules })
+  if (opts.rules) {
+    builder.options({ rules: opts.rules })
   }
 
-  const wcagScanResults = await wcagBuilder.analyze()
+  const results = await builder.analyze()
 
-  await testInfo.attach('a11y-wcag-scan-results', {
-    body: JSON.stringify(wcagScanResults, null, 2),
+  await testInfo.attach('a11y-best-practice-scan-results', {
+    body: JSON.stringify(results, null, 2),
     contentType: 'application/json'
   })
 
   testInfo.annotations.push({
     type: 'Accessibility',
-    description: `WCAG scan: ${wcagScanResults.violations.length} violations (${wcagScanResults.passes.length} rules passed)`
+    description: `Best-practice scan: ${results.violations.length} violations (${results.passes.length} rules passed)`
   })
 
-  return expect(violationFingerprints(wcagScanResults)).toMatchSnapshot()
+  // Always use expect.soft() so the WCAG scan below runs even if
+  // best-practice violations are found.
+  expect.soft(violationFingerprints(results)).toMatchSnapshot()
+}
+
+/**
+ * Run the WCAG axe scan and assert on violations via snapshot.
+ */
+async function runWcagScan(
+  page: Page,
+  testInfo: TestInfo,
+  opts: {
+    wcagTags: string[]
+    exclude: string[]
+    rules?: Record<string, { enabled: boolean }>
+    disableDefaultExclusions: boolean
+  },
+) {
+  const builder = new AxeBuilder({ page })
+    .withTags(opts.wcagTags)
+
+  // Default Drupal exclusion for WCAG scan.
+  if (!opts.disableDefaultExclusions) {
+    builder.exclude('[data-drupal-media-preview="ready"]')
+  }
+
+  for (const selector of opts.exclude) {
+    builder.exclude(selector)
+  }
+
+  if (opts.rules) {
+    builder.options({ rules: opts.rules })
+  }
+
+  const results = await builder.analyze()
+
+  await testInfo.attach('a11y-wcag-scan-results', {
+    body: JSON.stringify(results, null, 2),
+    contentType: 'application/json'
+  })
+
+  testInfo.annotations.push({
+    type: 'Accessibility',
+    description: `WCAG scan: ${results.violations.length} violations (${results.passes.length} rules passed)`
+  })
+
+  return expect(violationFingerprints(results)).toMatchSnapshot()
 }
 
 /**

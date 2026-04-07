@@ -110,16 +110,16 @@ describe('checkAccessibility', () => {
     expect(mockWithTags).toHaveBeenCalledWith(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
   })
 
-  it('uses expect() instead of expect.soft() when bestPracticeMode is hard', async () => {
+  it('always uses expect.soft() for best-practice so WCAG scan runs even in hard mode', async () => {
     const testInfo = makeTestInfo()
     await checkAccessibility({} as any, testInfo as any, {
       bestPracticeMode: 'hard',
     })
 
-    // Both best-practice and WCAG use expect() (hard), so soft should not be called
-    expect(mockExpectSoft).not.toHaveBeenCalled()
-    // expect() (hard) should be called twice: once for best-practice, once for WCAG
-    expect(mockExpectHard).toHaveBeenCalledTimes(2)
+    // Best-practice always uses expect.soft() so the WCAG scan is never blocked
+    expect(mockExpectSoft).toHaveBeenCalled()
+    // WCAG uses expect() (hard)
+    expect(mockExpectHard).toHaveBeenCalled()
   })
 
   it('uses expect.soft() when bestPracticeMode is soft (default)', async () => {
