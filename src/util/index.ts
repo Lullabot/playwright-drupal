@@ -1,3 +1,4 @@
+export * from './accessibility-baseline'
 export * from './accessible-screenshot'
 export * from './docroot'
 export * from './frames'

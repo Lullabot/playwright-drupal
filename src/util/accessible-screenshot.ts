@@ -3,6 +3,7 @@ import {expect, Locator, Page, TestInfo} from "@playwright/test";
 import {waitForAllImages} from "./images";
 import {waitForFrames} from "./frames"
 import axe from 'axe-core';
+import {AccessibilityBaseline} from './accessibility-baseline'
 
 export interface ScreenshotOptions {
   /**
@@ -102,8 +103,8 @@ export interface AccessibilityOptions {
   /** Additional axe rules to enable/disable. */
   rules?: Record<string, { enabled: boolean }>
 
-  /** Reserved for future baseline comparison (PR #2). Currently unused. */
-  baseline?: unknown
+  /** Baseline of known violations. When provided, violations matching the baseline are suppressed and toMatchSnapshot() is skipped. */
+  baseline?: AccessibilityBaseline
 
   /** When true, removes hardcoded Drupal exclusions from scans. Default: false. */
   disableDefaultExclusions?: boolean
@@ -125,6 +126,7 @@ export async function checkAccessibility(page: Page, testInfo: TestInfo, options
     exclude = [],
     bestPracticeMode = 'soft',
     rules,
+    baseline,
     disableDefaultExclusions = false,
   } = options ?? {}
 
@@ -137,7 +139,15 @@ export async function checkAccessibility(page: Page, testInfo: TestInfo, options
     await runBestPracticeScan(page, testInfo, { exclude, rules, disableDefaultExclusions, bestPracticeMode })
   }
 
-  await runWcagScan(page, testInfo, { wcagTags, exclude, rules, disableDefaultExclusions })
+  const wcagScanResults = await runWcagScan(page, testInfo, { wcagTags, exclude, rules, disableDefaultExclusions })
+
+  // Baseline mode: match violations against the baseline instead of using snapshots.
+  if (baseline) {
+    return assertBaseline(testInfo, wcagScanResults, baseline)
+  }
+
+  // Snapshot mode (no baseline).
+  return assertSnapshot(testInfo, wcagScanResults)
 }
 
 /**
@@ -199,7 +209,7 @@ async function runBestPracticeScan(
 }
 
 /**
- * Run the WCAG axe scan and assert on violations via snapshot.
+ * Run the WCAG axe scan, attach results, and return them for assertion.
  */
 async function runWcagScan(
   page: Page,
@@ -210,7 +220,7 @@ async function runWcagScan(
     rules?: Record<string, { enabled: boolean }>
     disableDefaultExclusions: boolean
   },
-) {
+): Promise<axe.AxeResults> {
   const builder = new AxeBuilder({ page })
     .withTags(opts.wcagTags)
 
@@ -234,12 +244,86 @@ async function runWcagScan(
     contentType: 'application/json'
   })
 
-  testInfo.annotations.push({
-    type: 'Accessibility',
-    description: `WCAG scan: ${results.violations.length} violations (${results.passes.length} rules passed)`
+  return results
+}
+
+/**
+ * Assert WCAG violations against a baseline allowlist.
+ */
+function assertBaseline(testInfo: TestInfo, wcagScanResults: axe.AxeResults, baseline: AccessibilityBaseline) {
+  const allViolations = extractNormalizedViolations(wcagScanResults)
+  const matchedBaselineIndices = new Set<number>()
+  const unmatchedViolations: typeof allViolations = []
+
+  for (const violation of allViolations) {
+    const baselineIndex = baseline.findIndex((entry) => {
+      if (entry.rule !== violation.rule) return false
+      // Check for at least one overlapping normalized target.
+      return entry.targets.some(baselineTarget =>
+        violation.targets.some(violationTarget => violationTarget === baselineTarget)
+      )
+    })
+
+    if (baselineIndex >= 0) {
+      matchedBaselineIndices.add(baselineIndex)
+      const entry = baseline[baselineIndex]
+      testInfo.annotations.push({
+        type: 'Baselined a11y violation',
+        description: `${entry.rule}: ${entry.reason} — ${entry.willBeFixedIn}`,
+      })
+    } else {
+      unmatchedViolations.push(violation)
+    }
+  }
+
+  // Report stale baseline entries.
+  baseline.forEach((entry, idx) => {
+    if (!matchedBaselineIndices.has(idx)) {
+      testInfo.annotations.push({
+        type: 'Stale a11y baseline entry',
+        description: `${entry.rule} on ${entry.targets.join(', ')} — no longer detected`,
+      })
+    }
   })
 
-  return expect(violationFingerprints(results)).toMatchSnapshot()
+  // Summary annotation for baseline mode.
+  const baselinedCount = matchedBaselineIndices.size
+  testInfo.annotations.push({
+    type: 'Accessibility',
+    description: `WCAG scan: ${unmatchedViolations.length} new violations (${baselinedCount} baselined)`,
+  })
+
+  // Fail on unmatched violations with detailed output.
+  if (unmatchedViolations.length > 0) {
+    const details = formatViolationDetails(wcagScanResults, unmatchedViolations)
+    expect(null, details).toBe('no accessibility violations')
+  }
+}
+
+/**
+ * Assert WCAG violations via snapshot comparison (default mode).
+ */
+async function assertSnapshot(testInfo: TestInfo, wcagScanResults: axe.AxeResults) {
+  testInfo.annotations.push({
+    type: 'Accessibility',
+    description: `WCAG scan: ${wcagScanResults.violations.length} violations (${wcagScanResults.passes.length} rules passed)`
+  })
+
+  // If there are violations, attach baseline suggestions and push annotation.
+  if (wcagScanResults.violations.length > 0) {
+    const allViolations = extractNormalizedViolations(wcagScanResults)
+    const suggestions = allViolations.map(v => formatBaselineSuggestion(v)).join('\n')
+    await testInfo.attach('a11y-baseline-suggestions', {
+      body: suggestions,
+      contentType: 'text/plain',
+    })
+    testInfo.annotations.push({
+      type: 'Accessibility',
+      description: 'To manage violations explicitly, switch to baseline mode. See a11y-baseline-suggestions attachment.',
+    })
+  }
+
+  return expect(violationFingerprints(wcagScanResults)).toMatchSnapshot()
 }
 
 /**
@@ -290,6 +374,91 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
 }
 
 /**
+ * Normalize a single CSS selector target for stable comparison.
+ *
+ * Replaces unique numeric HTML IDs and aria-labelledby suffixes with
+ * a stable placeholder so that snapshots and baseline matching are
+ * deterministic across runs.
+ */
+export function normalizeTarget(target: string | string[]): string | string[] {
+  const uniqueHtmlID = /(#.*)--\d+/
+  const ariaLabelledById = /(aria-labelledby="[^"]+)--\d+"/
+  if (typeof target === 'string') {
+    return target
+      .replace(uniqueHtmlID, '$1--UNIQUE-ID')
+      .replace(ariaLabelledById, '$1--UNIQUE-ID"')
+  }
+  return target
+}
+
+interface NormalizedViolation {
+  rule: string
+  targets: string[]
+  description: string
+  impact: string
+  helpUrl: string
+}
+
+/**
+ * Extract violations from axe results and normalize their targets into
+ * flat, deduplicated CSS selector strings.
+ */
+function extractNormalizedViolations(results: axe.AxeResults): NormalizedViolation[] {
+  return results.violations.map(violation => {
+    const flatTargets: string[] = []
+    for (const node of violation.nodes) {
+      for (const target of node.target) {
+        const normalized = normalizeTarget(target)
+        const str = typeof normalized === 'string' ? normalized : normalized.join(' ')
+        if (!flatTargets.includes(str)) {
+          flatTargets.push(str)
+        }
+      }
+    }
+    return {
+      rule: violation.id,
+      targets: flatTargets,
+      description: violation.description,
+      impact: violation.impact ?? 'unknown',
+      helpUrl: violation.helpUrl,
+    }
+  })
+}
+
+/**
+ * Format a single violation as a copy-pasteable baseline entry.
+ */
+function formatBaselineSuggestion(violation: NormalizedViolation): string {
+  const targetsStr = violation.targets.map(t => `'${t}'`).join(', ')
+  return `{
+  rule: '${violation.rule}',
+  targets: [${targetsStr}],
+  reason: '',  // TODO: explain why this is accepted
+  willBeFixedIn: '',  // TODO: link to tracking ticket
+},`
+}
+
+/**
+ * Format detailed failure output for unmatched violations, including
+ * copy-pasteable baseline entries.
+ */
+function formatViolationDetails(results: axe.AxeResults, violations: NormalizedViolation[]): string {
+  const lines: string[] = []
+  for (const v of violations) {
+    const targetsStr = JSON.stringify(v.targets)
+    lines.push(`Accessibility violation (${v.impact}): ${v.rule}`)
+    lines.push(`  ${v.description}`)
+    lines.push(`  Help: ${v.helpUrl}`)
+    lines.push(`  Targets: ${targetsStr}`)
+    lines.push('')
+    lines.push('  Add to your baseline to accept this violation:')
+    lines.push('  ' + formatBaselineSuggestion(v).split('\n').join('\n  '))
+    lines.push('')
+  }
+  return lines.join('\n')
+}
+
+/**
  * Filter violations down to stable elements.
  *
  * If we try to create a snapshot of the entire report, it will fail on random
@@ -298,22 +467,15 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
  * @param accessibilityScanResults
  */
 function violationFingerprints(accessibilityScanResults: axe.AxeResults) {
-  const uniqueHtmlID = /(#.*)--\d+/
-  const ariaLabelledById = /(aria-labelledby="[^"]+)--\d+"/
-  const violationFingerprints = accessibilityScanResults.violations.map(violation => ({
+  const violationFps = accessibilityScanResults.violations.map(violation => ({
     rule: violation.id,
     // These are CSS selectors which uniquely identify each element with
     // a violation of the rule in question.
     targets: violation.nodes.map(node => node.target.map((target) => {
-      // If the violation is within an iframe, the target may be an array.
-      if (typeof target == "string") {
-        return target.replace(uniqueHtmlID, "$1--UNIQUE-ID")
-          .replace(ariaLabelledById, '$1--UNIQUE-ID"');
-      }
-      return target;
+      return normalizeTarget(target)
     })),
   }));
 
-  return JSON.stringify(violationFingerprints, null, 2);
+  return JSON.stringify(violationFps, null, 2);
 
 }

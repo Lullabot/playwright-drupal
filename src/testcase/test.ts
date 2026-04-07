@@ -1,6 +1,7 @@
-import {expect, test as base_test, TestFixture, WebError} from '@playwright/test';
+import {expect, Locator, Page, test as base_test, TestFixture, WebError} from '@playwright/test';
 import {task, taskSync} from "../cli/task";
 import {getDocroot} from "../util/docroot";
+import {checkAccessibility, takeAccessibleScreenshot, AccessibilityOptions, ScreenshotOptions} from "../util";
 import {collector, isVerbose} from "../cli/output-collector";
 import * as fs from "fs";
 import * as util from "util";
@@ -12,10 +13,15 @@ import child_process from "child_process";
 let drupal_test_id: number;
 const docroot = getDocroot('../../composer.json');
 
+export interface A11yFixture {
+  check(options?: AccessibilityOptions): Promise<void>
+  screenshot(options?: ScreenshotOptions, scrollLocator?: Locator, locator?: Locator | Page): Promise<void>
+}
+
 /**
  * Set a simpletest cookie for routing the tests to a separate database.
  */
-const test = base_test.extend<TestFixture<any, any>>( {
+const testBase = base_test.extend<TestFixture<any, any>>( {
   async context( { context, request }, use, testInfo ) {
     // Test against a single database in the default (typically mariadb) site.
     if (process.env.PLAYWRIGHT_NO_TEST_ISOLATION) {
@@ -109,6 +115,19 @@ const test = base_test.extend<TestFixture<any, any>>( {
         });
       }
     }
+  },
+});
+
+const test = testBase.extend<{ a11y: A11yFixture }>({
+  a11y: async ({ page }, use, testInfo) => {
+    await use({
+      async check(options?) {
+        await checkAccessibility(page, testInfo, options)
+      },
+      async screenshot(options?, scrollLocator?, locator?) {
+        await takeAccessibleScreenshot(page, testInfo, options, scrollLocator, locator)
+      },
+    })
   },
 });
 

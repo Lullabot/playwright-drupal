@@ -375,6 +375,90 @@ run_a11y_tests() {
   set -e
 }
 
+write_a11y_fixture_test() {
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+
+  cd "$PROJECT_DIR"
+
+  cat > test/playwright/tests/a11y-fixture.spec.ts << 'TESTEOF'
+import { test, expect } from '@packages/playwright-drupal';
+
+test('a11y fixture check works', async ({ page, a11y }) => {
+  await page.goto('/');
+  await a11y.check({ bestPracticeMode: 'off' });
+});
+TESTEOF
+}
+
+run_a11y_fixture_update_snapshots() {
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+
+  cd "$PROJECT_DIR"
+
+  set +e
+  ddev exec -d /var/www/html/test/playwright npx playwright test tests/a11y-fixture.spec.ts --update-snapshots \
+    2>&1 | tee "$BATS_FILE_TMPDIR/a11y_fixture_update_output.txt" >&3
+  echo "${PIPESTATUS[0]}" > "$BATS_FILE_TMPDIR/a11y_fixture_update_exit_code"
+  set -e
+}
+
+run_a11y_fixture_tests() {
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+
+  cd "$PROJECT_DIR"
+
+  set +e
+  ddev exec -d /var/www/html/test/playwright npx playwright test tests/a11y-fixture.spec.ts --repeat-each 2 \
+    2>&1 | tee "$BATS_FILE_TMPDIR/a11y_fixture_output.txt" >&3
+  echo "${PIPESTATUS[0]}" > "$BATS_FILE_TMPDIR/a11y_fixture_exit_code"
+  set -e
+}
+
+write_a11y_baseline_test() {
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+
+  cd "$PROJECT_DIR"
+
+  cat > test/playwright/tests/a11y-baseline.spec.ts << 'TESTEOF'
+import { test, expect, checkAccessibility, defineAccessibilityBaseline } from '@packages/playwright-drupal';
+
+const baseline = defineAccessibilityBaseline([
+  {
+    rule: 'list',
+    targets: ['.footer__top ul'],
+    reason: 'Umami footer list structure is a known violation',
+    willBeFixedIn: 'https://www.drupal.org/project/drupal/issues/0000000',
+  },
+  {
+    rule: 'color-contrast',
+    targets: ['.footer a'],
+    reason: 'Umami footer link contrast is a known violation',
+    willBeFixedIn: 'https://www.drupal.org/project/drupal/issues/0000001',
+  },
+]);
+
+test('baseline suppresses known Umami violations', async ({ page }, testInfo) => {
+  await page.goto('/');
+  await checkAccessibility(page, testInfo, {
+    bestPracticeMode: 'off',
+    baseline,
+  });
+});
+TESTEOF
+}
+
+run_a11y_baseline_tests() {
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+
+  cd "$PROJECT_DIR"
+
+  set +e
+  ddev exec -d /var/www/html/test/playwright npx playwright test tests/a11y-baseline.spec.ts \
+    2>&1 | tee "$BATS_FILE_TMPDIR/a11y_baseline_output.txt" >&3
+  echo "${PIPESTATUS[0]}" > "$BATS_FILE_TMPDIR/a11y_baseline_exit_code"
+  set -e
+}
+
 write_recipe_test() {
   PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
 
