@@ -505,6 +505,9 @@ Accessibility results integrate into the Playwright HTML test report in several 
 - **Summary annotations** — Each scan adds an `Accessibility` annotation summarizing pass/fail counts (e.g., "WCAG scan: 0 new violations (2 baselined)").
 - **Baseline annotations** — When using baselines, matched violations appear as `Baselined a11y violation` annotations with the reason and ticket link. Stale entries appear as `Stale a11y baseline entry` annotations.
 - **JSON attachments** — Full axe-core results are attached as `a11y-best-practice-scan-results` and `a11y-wcag-scan-results` JSON files for detailed inspection.
+- **Violation screenshot** — When violations are detected, a full-page screenshot is attached with all violating elements highlighted in red. Enabled by default; disable with `screenshotViolations: false`.
+
+![Full-page screenshot of a Drupal recipe site with accessibility violations highlighted by red outlines around links](images/a11y-violation-screenshot.webp)
 
 A passing test shows the `@a11y` tag and scan summary:
 
