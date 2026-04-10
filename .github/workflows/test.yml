@@ -104,3 +104,18 @@ jobs:
           path: /tmp/pwtest-*/test/playwright/playwright-report/
           retention-days: 7
           if-no-files-found: ignore
+
+      - name: Accessibility summary
+        if: always()
+        run: |
+          npm install && npm run build
+          # Prefer the a11y-specific report preserved outside test-results/.
+          REPORT=$(find tmp/ -path "*/test/playwright/a11y-results.json" 2>/dev/null | head -1)
+          # Fall back to the generic report.
+          REPORT=${REPORT:-$(find tmp/ -path "*/test/playwright/test-results/results.json" 2>/dev/null | head -1)}
+          if [ -n "$REPORT" ]; then
+            node lib/github/a11y-summary.js --mode=summary --report-path="$REPORT"
+            node lib/github/a11y-summary.js --mode=annotations --report-path="$REPORT"
+          else
+            echo "No JSON report found — skipping a11y summary."
+          fi
