@@ -643,7 +643,7 @@ The `definePlaywrightDrupalConfig()` function returns a complete Playwright conf
 | `use.baseURL` | `process.env.DDEV_PRIMARY_URL` |
 | `fullyParallel` | `true` |
 | `workers` | `Math.max(2, os.cpus().length - 2)` |
-| `reporter` | CI: `[['line'], ['html']]`; Local: `[['html', { host: '0.0.0.0', port: 9323 }], ['list']]` |
+| `reporter` | CI: `[['line'], ['html'], ['json', ...]]`; Local: `[['html', ...], ['list'], ['json', ...]]` |
 | `globalSetup` | Auto-resolved path to this package's `global-setup` module |
 
 ### Usage
@@ -768,6 +768,63 @@ export PLAYWRIGHT_DRUPAL_VERBOSE=1
 ```
 
 This is useful when debugging a single test or running with `--workers=1`, where interleaved output is not a concern. The attached output files are available in the HTML test report regardless of this setting.
+
+## GitHub Accessibility Annotations
+
+When running accessibility tests in CI, you can surface violations directly in GitHub workflow summaries and inline file annotations using the included composite action or CLI tool.
+
+![GitHub workflow job summary showing accessibility violations, a violation table, and the highlighted screenshot](images/github-a11y-summary.webp)
+
+### Prerequisites
+
+The JSON reporter must be enabled for the annotation tools to parse test results. This is included automatically when using `definePlaywrightDrupalConfig()` — no extra configuration needed.
+
+### Using the Reusable Action (Recommended)
+
+Add the following to your GitHub Actions workflow:
+
+```yaml
+- name: Run Playwright tests
+  run: ddev exec npx playwright test
+
+- name: Accessibility annotations
+  if: always()
+  uses: Lullabot/playwright-drupal/.github/actions/a11y-annotations@main
+```
+
+The `if: always()` ensures the annotations step runs even when the test step fails, so violations appear in the job summary regardless of overall job status.
+
+This step will:
+1. Write an accessibility summary to the workflow job summary
+2. Create inline `::error` / `::warning` annotations on test files
+
+#### Action Inputs
+
+| Input | Default | Description |
+|-------|---------|-------------|
+| `report-path` | `test-results/results.json` | Path to the Playwright JSON report |
+| `mode` | `all` | Output mode: `all`, `summary`, or `annotations` |
+
+### Using the CLI Directly
+
+For more control, use the `playwright-drupal-a11y-summary` CLI:
+
+```yaml
+- name: Accessibility summary
+  if: always()
+  run: ddev exec npx playwright-drupal-a11y-summary --mode=summary
+
+- name: Accessibility annotations
+  if: always()
+  run: ddev exec npx playwright-drupal-a11y-summary --mode=annotations
+```
+
+#### CLI Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--mode=<mode>` | `summary` | Output mode: `summary` or `annotations` |
+| `--report-path=<path>` | `test-results/results.json` | Path to the Playwright JSON report |
 
 ## Pull Request Commands
 

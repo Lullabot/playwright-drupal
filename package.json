@@ -26,6 +26,9 @@
   },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "bin": {
+    "playwright-drupal-a11y-summary": "./bin/github-a11y-summary"
+  },
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
@@ -34,6 +37,10 @@
     "./config": {
       "types": "./lib/config.d.ts",
       "default": "./lib/config.js"
+    },
+    "./github/a11y-summary": {
+      "types": "./lib/github/a11y-summary.d.ts",
+      "default": "./lib/github/a11y-summary.js"
     }
   },
   "dependencies": {
@@ -47,6 +54,7 @@
     "@commitlint/config-conventional": "^20.4.3",
     "@types/shell-quote": "^1.7.5",
     "husky": "^9.1.7",
+    "tsx": "^4.21.0",
     "typescript": "^5.2.2 || ^6.0.0",
     "vitest": "^4.0.18"
   }

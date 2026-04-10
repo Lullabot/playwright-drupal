@@ -5,6 +5,8 @@ import {waitForFrames} from "./frames"
 import axe from 'axe-core';
 import {AccessibilityBaseline} from './accessibility-baseline'
 
+let a11yActionHintShown = false;
+
 export interface ScreenshotOptions {
   /**
    * When set to `"disabled"`, stops CSS animations, CSS transitions and Web Animations. Animations get different
@@ -137,6 +139,11 @@ export async function checkAccessibility(page: Page, testInfo: TestInfo, options
     disableDefaultExclusions = false,
     screenshotViolations = true,
   } = options ?? {}
+
+  if (process.env.CI && !a11yActionHintShown) {
+    console.log('Tip: Surface a11y violations in your PR with the a11y-annotations action. See: https://github.com/Lullabot/playwright-drupal#github-accessibility-annotations')
+    a11yActionHintShown = true
+  }
 
   // Add @a11y annotation (deduplicated).
   if (!testInfo.annotations.some(a => a.type === '@a11y')) {
