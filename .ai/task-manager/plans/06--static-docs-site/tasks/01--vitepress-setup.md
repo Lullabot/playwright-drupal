@@ -2,7 +2,7 @@
 id: 1
 group: "static-docs-site"
 dependencies: []
-status: "pending"
+status: "completed"
 created: 2026-04-12
 skills:
   - typescript

@@ -2,7 +2,7 @@
 id: 4
 group: "static-docs-site"
 dependencies: [1]
-status: "pending"
+status: "completed"
 created: 2026-04-12
 skills:
   - devops
