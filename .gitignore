@@ -138,3 +138,7 @@ tmp/
 
 # Build output
 lib/
+
+# VitePress
+docs/.vitepress/cache/
+docs/.vitepress/dist/

@@ -16,7 +16,10 @@
     "prepare": "husky || true",
     "test": "npm run test:unit && npm run test:bats",
     "test:unit": "vitest run",
-    "test:bats": "bats test/"
+    "test:bats": "bats test/",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "author": "Andrew Berry <andrew.berry@lullabot.com>",
   "license": "Apache-2.0",
@@ -56,6 +59,7 @@
     "husky": "^9.1.7",
     "tsx": "^4.21.0",
     "typescript": "^5.2.2 || ^6.0.0",
+    "vitepress": "^1.6.4",
     "vitest": "^4.0.18"
   }
 }
