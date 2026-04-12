@@ -6,11 +6,11 @@ services:
 
     init:
       - npm install -g serve
-
-    build:
-      - npm ci
-      - npm run docs:build
       - mkdir -p /etc/service/node
       - echo "#!/bin/sh" > /etc/service/node/run
       - echo "exec serve -s ${TUGBOAT_ROOT}/docs/.vitepress/dist -l 3000" >> /etc/service/node/run
       - chmod +x /etc/service/node/run
+
+    build:
+      - npm ci
+      - npm run docs:build
