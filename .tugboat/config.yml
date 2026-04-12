@@ -10,5 +10,7 @@ services:
       - npm ci
       - npm run docs:build
 
+    expose: 3000
+
     online:
       - serve -s /var/lib/tugboat/docs/.vitepress/dist -l 3000
