@@ -1,0 +1,14 @@
+services:
+  node:
+    image: tugboatqa/node:24
+    default: true
+
+    init:
+      - npm install -g serve
+
+    build:
+      - npm ci
+      - npm run docs:build
+
+    online:
+      - serve -s /var/lib/tugboat/docs/.vitepress/dist -l 3000
