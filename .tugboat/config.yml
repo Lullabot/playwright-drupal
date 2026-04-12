@@ -4,10 +4,11 @@ services:
     default: true
     expose: 3000
 
-    build:
-      - npm ci
-      - npm run docs:build
-      - mkdir -p /etc/service/node
-      - echo "#!/bin/sh" > /etc/service/node/run
-      - echo "cd ${TUGBOAT_ROOT} && exec npm run docs:preview -- --port 3000 --host" >> /etc/service/node/run
-      - chmod +x /etc/service/node/run
+    commands:
+      build:
+        - npm ci
+        - npm run docs:build
+        - mkdir -p /etc/service/node
+        - echo "#!/bin/sh" > /etc/service/node/run
+        - echo "cd ${TUGBOAT_ROOT} && exec npm run docs:preview -- --port 3000 --host" >> /etc/service/node/run
+        - chmod +x /etc/service/node/run
