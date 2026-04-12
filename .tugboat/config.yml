@@ -6,7 +6,7 @@ services:
 
     commands:
       build:
-        - npm install
+        - npm ci
         - npm run docs:build
         - mkdir -p /etc/service/node
         - echo "#!/bin/sh" > /etc/service/node/run
