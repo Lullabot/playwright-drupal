@@ -2,6 +2,7 @@ services:
   node:
     image: tugboatqa/node:24
     default: true
+    expose: 3000
 
     init:
       - npm install -g serve
@@ -9,8 +10,7 @@ services:
     build:
       - npm ci
       - npm run docs:build
-
-    expose: 3000
-
-    online:
-      - serve -s /var/lib/tugboat/docs/.vitepress/dist -l 3000
+      - mkdir -p /etc/service/node
+      - echo "#!/bin/sh" > /etc/service/node/run
+      - echo "exec serve -s ${TUGBOAT_ROOT}/docs/.vitepress/dist -l 3000" >> /etc/service/node/run
+      - chmod +x /etc/service/node/run
