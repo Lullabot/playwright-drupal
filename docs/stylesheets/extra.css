@@ -92,6 +92,11 @@
 
 .mdx-features {
   margin: 2rem 0;
+  padding: 0 .8rem;
+}
+
+.mdx-features .md-grid {
+  padding: 0;
 }
 
 .md-typeset ul.mdx-features__list:not([hidden]) {
@@ -123,12 +128,22 @@
   border: .05rem solid var(--md-default-fg-color--lightest);
   border-radius: .4rem;
   box-shadow: var(--md-shadow-z1);
-  padding: 1.2rem 1.4rem;
   transition: box-shadow 125ms;
 }
 
 .mdx-features__item:hover {
   box-shadow: var(--md-shadow-z2);
+}
+
+.md-typeset .mdx-features__link {
+  color: inherit;
+  display: block;
+  padding: 1.2rem 1.4rem;
+  text-decoration: none;
+}
+
+.md-typeset .mdx-features__link:hover .mdx-features__title {
+  color: var(--md-accent-fg-color);
 }
 
 .md-typeset .mdx-features__title {
