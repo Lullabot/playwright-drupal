@@ -14,4 +14,4 @@ This project, building on [lullabot/ddev-playwright](https://github.com/lullabot
 3. Shows browser console errors during the test.
 4. Attaches PHP's error log to the Playwright test results.
 
-For full documentation, visit the [playwright-drupal documentation](https://lullabot.github.io/playwright-drupal/).
+For full documentation, visit the [playwright-drupal documentation](https://lullabot.github.io/playwright-drupal/latest/).
