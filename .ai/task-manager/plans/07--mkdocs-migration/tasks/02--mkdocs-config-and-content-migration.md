@@ -2,7 +2,7 @@
 id: 2
 group: "mkdocs-setup"
 dependencies: [1]
-status: "pending"
+status: "completed"
 created: 2026-04-12
 skills:
   - mkdocs

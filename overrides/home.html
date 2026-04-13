@@ -1,0 +1,50 @@
+{% extends "main.html" %}
+
+{% block tabs %}
+{{ super() }}
+
+<section class="mdx-container">
+  <div class="md-grid md-typeset">
+    <div class="mdx-hero">
+      <div class="mdx-hero__image">
+        <img src="{{ base_url }}/images/demo.webp" alt="Demo showing running isolated Drupal tests in parallel" draggable="false">
+      </div>
+      <div class="mdx-hero__content">
+        <h1>playwright-drupal</h1>
+        <p>Playwright / Drupal integration, supporting fast parallel tests and visual comparisons</p>
+        <a href="getting-started/" class="md-button md-button--primary">
+          Get Started
+        </a>
+        <a href="https://github.com/Lullabot/playwright-drupal" class="md-button">
+          View on GitHub
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mdx-features">
+  <div class="md-grid md-typeset">
+    <div class="mdx-features__grid">
+      <div class="mdx-features__item">
+        <h2>Fast Parallel Tests</h2>
+        <p>Supports fast parallel tests by installing or importing sites into sqlite databases.</p>
+      </div>
+      <div class="mdx-features__item">
+        <h2>Drush in Tests</h2>
+        <p>Enables Playwright tests to run Drush commands against a test site.</p>
+      </div>
+      <div class="mdx-features__item">
+        <h2>Browser Console Errors</h2>
+        <p>Shows browser console errors during the test.</p>
+      </div>
+      <div class="mdx-features__item">
+        <h2>PHP Error Log</h2>
+        <p>Attaches PHP's error log to the Playwright test results.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}{% endblock %}

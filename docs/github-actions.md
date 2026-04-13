@@ -2,7 +2,7 @@
 
 When running accessibility tests in CI, you can surface violations directly in GitHub workflow summaries and inline file annotations using the included composite action or CLI tool.
 
-![GitHub workflow job summary showing accessibility violations, a violation table, and the highlighted screenshot](/images/github-a11y-summary.webp)
+![GitHub workflow job summary showing accessibility violations, a violation table, and the highlighted screenshot](images/github-a11y-summary.webp)
 
 ## Prerequisites
 

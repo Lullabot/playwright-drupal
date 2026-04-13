@@ -1,14 +1,12 @@
 services:
-  node:
-    image: tugboatqa/node:24
+  httpd:
+    image: tugboatqa/httpd:2
     default: true
-    expose: 3000
 
     commands:
+      init:
+        - curl -LsSf https://astral.sh/uv/install.sh | sh
+
       build:
-        - npm ci
-        - npm run docs:build
-        - mkdir -p /etc/service/node
-        - echo "#!/bin/sh" > /etc/service/node/run
-        - echo "cd ${TUGBOAT_ROOT} && exec npm run docs:preview -- --port 3000 --host" >> /etc/service/node/run
-        - chmod +x /etc/service/node/run
+        - export PATH="$HOME/.local/bin:$PATH" && uvx --with-requirements ${TUGBOAT_ROOT}/docs/requirements.txt mkdocs build --strict --config-file ${TUGBOAT_ROOT}/mkdocs.yml
+        - ln -snf ${TUGBOAT_ROOT}/site ${DOCROOT}
