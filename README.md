@@ -785,7 +785,7 @@ Add the following to your GitHub Actions workflow:
 
 ```yaml
 - name: Run Playwright tests
-  run: ddev exec npx playwright test
+  run: ddev exec -d /var/www/html/test/playwright npx playwright test
 
 - name: Accessibility annotations
   if: always()
@@ -802,8 +802,9 @@ This step will:
 
 | Input | Default | Description |
 |-------|---------|-------------|
-| `report-path` | `test-results/results.json` | Path to the Playwright JSON report |
+| `report-path` | `test-results/results.json` | Path to the Playwright JSON report, relative to `playwright-dir` |
 | `mode` | `all` | Output mode: `all`, `summary`, or `annotations` |
+| `playwright-dir` | `/var/www/html/test/playwright` | Absolute path inside the DDEV container where Playwright is installed |
 
 ### Using the CLI Directly
 
@@ -812,11 +813,11 @@ For more control, use the `playwright-drupal-a11y-summary` CLI:
 ```yaml
 - name: Accessibility summary
   if: always()
-  run: ddev exec npx playwright-drupal-a11y-summary --mode=summary
+  run: ddev exec -d /var/www/html/test/playwright npx playwright-drupal-a11y-summary --mode=summary
 
 - name: Accessibility annotations
   if: always()
-  run: ddev exec npx playwright-drupal-a11y-summary --mode=annotations
+  run: ddev exec -d /var/www/html/test/playwright npx playwright-drupal-a11y-summary --mode=annotations
 ```
 
 #### CLI Options

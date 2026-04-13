@@ -3,13 +3,17 @@ description: 'Surface accessibility violations in GitHub workflow summaries and 
 
 inputs:
   report-path:
-    description: 'Path to Playwright JSON report'
+    description: 'Path to Playwright JSON report, relative to playwright-dir'
     required: false
     default: 'test-results/results.json'
   mode:
     description: 'Output mode: all, summary, or annotations'
     required: false
     default: 'all'
+  playwright-dir:
+    description: 'Absolute path inside the DDEV container where Playwright is installed'
+    required: false
+    default: '/var/www/html/test/playwright'
 
 runs:
   using: 'composite'
@@ -21,11 +25,15 @@ runs:
       shell: bash
       env:
         REPORT_PATH: ${{ inputs.report-path }}
-      run: ddev exec npx playwright-drupal-a11y-summary --mode=summary --report-path="$REPORT_PATH"
+        PLAYWRIGHT_DIR: ${{ inputs.playwright-dir }}
+      # Run inside the Playwright install directory so npx resolves the local
+      # binary rather than fetching it from the registry.
+      run: ddev exec -d "$PLAYWRIGHT_DIR" npx playwright-drupal-a11y-summary --mode=summary --report-path="$REPORT_PATH"
 
     - name: Accessibility annotations
       if: ${{ inputs.mode == 'all' || inputs.mode == 'annotations' }}
       shell: bash
       env:
         REPORT_PATH: ${{ inputs.report-path }}
-      run: ddev exec npx playwright-drupal-a11y-summary --mode=annotations --report-path="$REPORT_PATH"
+        PLAYWRIGHT_DIR: ${{ inputs.playwright-dir }}
+      run: ddev exec -d "$PLAYWRIGHT_DIR" npx playwright-drupal-a11y-summary --mode=annotations --report-path="$REPORT_PATH"
