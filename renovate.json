@@ -13,6 +13,33 @@
       ],
       "depNameTemplate": "mysql-to-sqlite3",
       "datasourceTemplate": "pypi"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["^\\.tugboat/config\\.yml$"],
+      "matchStrings": [
+        "astral\\.sh/uv/(?<currentValue>[^/]+)/install\\.sh"
+      ],
+      "depNameTemplate": "astral-sh/uv",
+      "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["^package\\.json$", "^\\.github/workflows/.*\\.yml$"],
+      "matchStrings": [
+        "mkdocs@(?<currentValue>[^\\s\"']+)"
+      ],
+      "depNameTemplate": "mkdocs",
+      "datasourceTemplate": "pypi"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["^\\.github/workflows/.*\\.yml$"],
+      "matchStrings": [
+        "mike@(?<currentValue>[^\\s\"']+)"
+      ],
+      "depNameTemplate": "mike",
+      "datasourceTemplate": "pypi"
     }
   ]
 }

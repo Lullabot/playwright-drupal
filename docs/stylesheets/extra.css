@@ -1,0 +1,140 @@
+/* ============================================================
+   Home page hero
+   ============================================================ */
+
+.mdx-container {
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1123 258'><path d='M1124,2c0,0 0,256 0,256l-1125,0l0,-48c0,0 16,5 55,5c116,0 197,-92 325,-92c121,0 114,46 254,46c140,0 214,-167 572,-166Z' style='fill: white' /></svg>")
+    no-repeat bottom,
+    linear-gradient(to bottom, var(--md-primary-fg-color), hsla(280, 60%, 40%, 1) 99%, var(--md-default-bg-color) 99%);
+  padding-top: 1rem;
+}
+
+[data-md-color-scheme=slate] .mdx-container {
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1123 258'><path d='M1124,2c0,0 0,256 0,256l-1125,0l0,-48c0,0 16,5 55,5c116,0 197,-92 325,-92c121,0 114,46 254,46c140,0 214,-167 572,-166Z' style='fill: hsla(230, 15%, 14%, 1)' /></svg>")
+    no-repeat bottom,
+    linear-gradient(to bottom, var(--md-primary-fg-color), hsla(280, 60%, 25%, 1) 99%, var(--md-default-bg-color) 99%);
+}
+
+.mdx-hero {
+  color: var(--md-primary-bg-color);
+  margin: 0 .8rem;
+}
+
+.mdx-hero h1 {
+  color: currentcolor;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+@media screen and (max-width: 29.984375em) {
+  .mdx-hero h1 { font-size: 1.4rem }
+}
+
+.mdx-hero__content {
+  padding-bottom: 6rem;
+}
+
+.mdx-hero .md-button {
+  color: var(--md-primary-bg-color);
+  margin-right: .5rem;
+  margin-top: .5rem;
+}
+
+.mdx-hero .md-button:focus,
+.mdx-hero .md-button:hover {
+  background-color: var(--md-accent-fg-color);
+  border-color: var(--md-accent-fg-color);
+  color: var(--md-accent-bg-color);
+}
+
+.mdx-hero .md-button--primary {
+  background-color: var(--md-primary-bg-color);
+  border-color: var(--md-primary-bg-color);
+  color: var(--md-primary-fg-color);
+}
+
+@media screen and (min-width: 60em) {
+  .mdx-hero {
+    align-items: stretch;
+    display: flex;
+  }
+
+  .mdx-hero__content {
+    margin-top: 3.5rem;
+    max-width: 22rem;
+    padding-bottom: 14vw;
+  }
+
+  .mdx-hero__image {
+    order: 1;
+    transform: translateX(4rem);
+    width: 38rem;
+  }
+}
+
+@media screen and (min-width: 76.25em) {
+  .mdx-hero__image {
+    transform: translateX(8rem);
+  }
+}
+
+.mdx-hero__image img {
+  border-radius: .4rem;
+  box-shadow: 0 .4rem 1rem rgba(0, 0, 0, .3);
+  width: 100%;
+}
+
+/* ============================================================
+   Feature cards
+   ============================================================ */
+
+.mdx-features {
+  margin: 2rem 0;
+}
+
+.mdx-features__list {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media screen and (max-width: 59.984375em) {
+  .mdx-features__list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mdx-features__item {
+  background: var(--md-default-bg-color);
+  border: .05rem solid var(--md-default-fg-color--lightest);
+  border-radius: .4rem;
+  box-shadow: var(--md-shadow-z1);
+  padding: 1.2rem 1.4rem;
+  transition: box-shadow 125ms;
+}
+
+.mdx-features__item:hover {
+  box-shadow: var(--md-shadow-z2);
+}
+
+.mdx-features__icon {
+  font-size: 1.6rem;
+  margin-bottom: .4rem;
+}
+
+.mdx-features__title {
+  font-size: .85rem;
+  font-weight: 700;
+  margin: .4rem 0 .4rem;
+}
+
+.mdx-features__item p {
+  color: var(--md-default-fg-color--light);
+  font-size: .75rem;
+  margin: 0;
+}
