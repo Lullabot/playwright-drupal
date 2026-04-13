@@ -131,11 +131,6 @@
   box-shadow: var(--md-shadow-z2);
 }
 
-.mdx-features__icon {
-  font-size: 1.6rem;
-  margin-bottom: .4rem;
-}
-
 .mdx-features__title {
   font-size: .85rem;
   font-weight: 700;
