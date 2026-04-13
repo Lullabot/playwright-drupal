@@ -9,7 +9,7 @@
     "noImplicitAny": true,
     "esModuleInterop": true,
     "types": ["node"],
-    "lib": ["es2022", "dom"],
+    "lib": ["es2022", "dom", "dom.iterable"],
     "skipLibCheck": true
   },
   "include": ["src"],
