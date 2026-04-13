@@ -8,6 +8,8 @@ theme:
   custom_dir: overrides
   palette:
     scheme: default
+    primary: custom
+    accent: custom
   features:
     - navigation.tabs
     - navigation.top

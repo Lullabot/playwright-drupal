@@ -1,4 +1,30 @@
 /* ============================================================
+   Lullabot brand palette
+   https://www.lullabot.com/
+   ============================================================ */
+
+:root {
+  --lb-ink:        #01070b;  /* near-black, primary */
+  --lb-ink-soft:   #12212b;  /* dark navy, hero base */
+  --lb-text:       #171d21;  /* body text */
+  --lb-surface:    #f4f5f6;  /* light grey surface */
+  --lb-red:        #f81e00;  /* brand accent */
+  --lb-red-dark:   #c41800;  /* accent hover/active */
+}
+
+[data-md-color-scheme=default] {
+  --md-primary-fg-color:        var(--lb-ink);
+  --md-primary-fg-color--light: var(--lb-ink-soft);
+  --md-primary-fg-color--dark:  var(--lb-ink);
+  --md-primary-bg-color:        #ffffff;
+  --md-primary-bg-color--light: rgba(255, 255, 255, .7);
+  --md-accent-fg-color:         var(--lb-red);
+  --md-accent-fg-color--transparent: rgba(248, 30, 0, .1);
+  --md-accent-bg-color:         #ffffff;
+  --md-typeset-a-color:         var(--lb-red);
+}
+
+/* ============================================================
    Home page hero
    ============================================================ */
 
@@ -6,7 +32,7 @@
   background:
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1123 258'><path d='M1124,2c0,0 0,256 0,256l-1125,0l0,-48c0,0 16,5 55,5c116,0 197,-92 325,-92c121,0 114,46 254,46c140,0 214,-167 572,-166Z' style='fill: white' /></svg>")
     no-repeat bottom,
-    linear-gradient(to bottom, var(--md-primary-fg-color), hsla(280, 60%, 40%, 1) 99%, var(--md-default-bg-color) 99%);
+    linear-gradient(to bottom, var(--lb-ink-soft), var(--lb-ink) 99%, var(--md-default-bg-color) 99%);
   padding-top: 1rem;
 }
 
@@ -14,7 +40,7 @@
   background:
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1123 258'><path d='M1124,2c0,0 0,256 0,256l-1125,0l0,-48c0,0 16,5 55,5c116,0 197,-92 325,-92c121,0 114,46 254,46c140,0 214,-167 572,-166Z' style='fill: hsla(230, 15%, 14%, 1)' /></svg>")
     no-repeat bottom,
-    linear-gradient(to bottom, var(--md-primary-fg-color), hsla(280, 60%, 25%, 1) 99%, var(--md-default-bg-color) 99%);
+    linear-gradient(to bottom, var(--lb-ink-soft), var(--lb-ink) 99%, var(--md-default-bg-color) 99%);
 }
 
 .mdx-hero {
