@@ -813,7 +813,7 @@ For more control, use the `playwright-drupal-a11y-summary` CLI:
 ```yaml
 - name: Accessibility summary
   if: always()
-  run: ddev exec -d /var/www/html/test/playwright npx playwright-drupal-a11y-summary --mode=summary
+  run: ddev exec -d /var/www/html/test/playwright npx playwright-drupal-a11y-summary --mode=summary >> "$GITHUB_STEP_SUMMARY"
 
 - name: Accessibility annotations
   if: always()
