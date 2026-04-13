@@ -131,13 +131,13 @@
   box-shadow: var(--md-shadow-z2);
 }
 
-.mdx-features__title {
+.md-typeset .mdx-features__title {
   font-size: .85rem;
   font-weight: 700;
-  margin: .4rem 0 .4rem;
+  margin: 0 0 .4rem;
 }
 
-.mdx-features__item p {
+.md-typeset .mdx-features__item p {
   color: var(--md-default-fg-color--light);
   font-size: .75rem;
   margin: 0;
