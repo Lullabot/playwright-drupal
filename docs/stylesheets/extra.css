@@ -94,7 +94,7 @@
   margin: 2rem 0;
 }
 
-.mdx-features__list {
+.md-typeset ul.mdx-features__list:not([hidden]) {
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(2, 1fr);
@@ -104,9 +104,18 @@
 }
 
 @media screen and (max-width: 59.984375em) {
-  .mdx-features__list {
+  .md-typeset ul.mdx-features__list:not([hidden]) {
     grid-template-columns: 1fr;
   }
+}
+
+.md-typeset .mdx-features__list > li.mdx-features__item {
+  list-style: none;
+  margin: 0;
+}
+
+.md-typeset .mdx-features__list > li.mdx-features__item::before {
+  content: none;
 }
 
 .mdx-features__item {
