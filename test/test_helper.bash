@@ -372,6 +372,12 @@ run_a11y_tests() {
   ddev exec -d /var/www/html/test/playwright npx playwright test tests/a11y-check.spec.ts --repeat-each 2 \
     2>&1 | tee "$BATS_FILE_TMPDIR/a11y_output.txt" >&3
   echo "${PIPESTATUS[0]}" > "$BATS_FILE_TMPDIR/a11y_exit_code"
+
+  # Preserve the JSON report outside test-results/ since Playwright cleans
+  # that directory at the start of each run.
+  if [ -f test/playwright/test-results/results.json ]; then
+    cp test/playwright/test-results/results.json test/playwright/a11y-results.json
+  fi
   set -e
 }
 

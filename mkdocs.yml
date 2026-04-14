@@ -1,0 +1,61 @@
+site_name: playwright-drupal
+site_url: https://lullabot.github.io/playwright-drupal/
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  custom_dir: overrides
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.top
+    - content.code.copy
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/palette-sync.js
+
+markdown_extensions:
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.snippets
+  - admonition
+  - attr_list
+  - md_in_html
+
+extra:
+  version:
+    provider: mike
+
+nav:
+  - Getting Started: getting-started.md
+  - Writing Tests: writing-tests.md
+  - Visual Comparisons: visual-comparisons.md
+  - Accessibility: accessibility.md
+  - Configuration: configuration.md
+  - GitHub Actions & Accessibility: github-actions.md
+  - Development: development.md

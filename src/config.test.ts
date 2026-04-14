@@ -38,13 +38,13 @@ describe('definePlaywrightDrupalConfig', () => {
   it('sets CI reporter when process.env.CI is set', async () => {
     process.env.CI = 'true'
     const config = await loadConfig()
-    expect(config.reporter).toEqual([['line'], ['html']])
+    expect(config.reporter).toEqual([['line'], ['html'], ['json', { outputFile: 'test-results/results.json' }]])
   })
 
   it('sets local reporter when CI is not set', async () => {
     delete process.env.CI
     const config = await loadConfig()
-    expect(config.reporter).toEqual([['html', { host: '0.0.0.0', port: 9323 }], ['list']])
+    expect(config.reporter).toEqual([['html', { host: '0.0.0.0', port: 9323 }], ['list'], ['json', { outputFile: 'test-results/results.json' }]])
   })
 
   it('defaults use.baseURL to process.env.DDEV_PRIMARY_URL', async () => {

@@ -5,6 +5,8 @@ import {waitForFrames} from "./frames"
 import axe from 'axe-core';
 import {AccessibilityBaseline} from './accessibility-baseline'
 
+let a11yActionHintShown = false;
+
 export interface ScreenshotOptions {
   /**
    * When set to `"disabled"`, stops CSS animations, CSS transitions and Web Animations. Animations get different
@@ -138,6 +140,11 @@ export async function checkAccessibility(page: Page, testInfo: TestInfo, options
     screenshotViolations = true,
   } = options ?? {}
 
+  if (process.env.CI && !a11yActionHintShown) {
+    console.log('Tip: Surface a11y violations in your PR with the a11y-annotations action. See: https://github.com/Lullabot/playwright-drupal#github-accessibility-annotations')
+    a11yActionHintShown = true
+  }
+
   // Add @a11y annotation (deduplicated).
   if (!testInfo.annotations.some(a => a.type === '@a11y')) {
     testInfo.annotations.push({ type: '@a11y' })
@@ -259,9 +266,20 @@ async function runWcagScan(
   return results
 }
 
+/** Padding in CSS pixels around the violation bounding rect when cropping. */
+const CROP_PADDING = 100
+
 /**
- * Take a full-page screenshot with violating elements highlighted and
- * attach it to the test report.
+ * Maximum crop height in CSS pixels. Caps the screenshot when violations are
+ * spread far apart on a long page so the embedded image stays manageable.
+ */
+const MAX_CROP_HEIGHT = 2000
+
+/**
+ * Take a screenshot with violating elements highlighted and attach it to the
+ * test report. The screenshot is cropped to the bounding rect of all violating
+ * elements (plus padding) rather than capturing the full page, keeping the
+ * image small enough to embed in the GitHub step summary.
  */
 async function screenshotViolatingElements(page: Page, testInfo: TestInfo, results: axe.AxeResults) {
   // Collect all raw CSS selectors from violation nodes.
@@ -272,8 +290,10 @@ async function screenshotViolatingElements(page: Page, testInfo: TestInfo, resul
 
   if (selectors.length === 0) return
 
-  // Inject highlight outlines on all violating elements.
-  await page.evaluate((sels) => {
+  // Inject highlight outlines on all violating elements and, in the same
+  // evaluate call, compute the union bounding rect in document coordinates
+  // (viewport rect + scroll offset) so we know where to crop.
+  const violationBounds = await page.evaluate((sels) => {
     const style = document.createElement('style')
     style.setAttribute('data-a11y-highlight', 'true')
     // Use a CSS rule for each selector so the outline persists even if
@@ -281,9 +301,51 @@ async function screenshotViolatingElements(page: Page, testInfo: TestInfo, resul
     const rules = sels.map(s => `${s} { outline: 3px solid #e53e3e !important; outline-offset: 2px !important; }`).join('\n')
     style.textContent = rules
     document.head.appendChild(style)
+
+    // Compute the union bounding rect of all violating elements in document
+    // coordinates. getBoundingClientRect() returns viewport-relative coords;
+    // adding scrollX/scrollY converts to page-absolute coordinates that
+    // Playwright's clip option expects.
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+    for (const sel of sels) {
+      try {
+        const elements = document.querySelectorAll(sel)
+        for (const el of elements) {
+          const rect = el.getBoundingClientRect()
+          // Skip zero-size elements (hidden or collapsed).
+          if (rect.width === 0 && rect.height === 0) continue
+          minX = Math.min(minX, rect.left + window.scrollX)
+          minY = Math.min(minY, rect.top + window.scrollY)
+          maxX = Math.max(maxX, rect.right + window.scrollX)
+          maxY = Math.max(maxY, rect.bottom + window.scrollY)
+        }
+      } catch {
+        // Invalid selector — skip.
+      }
+    }
+
+    return minX === Infinity
+      ? null
+      : { x: minX, y: minY, width: maxX - minX, height: maxY - minY }
   }, selectors)
 
-  const screenshot = await page.screenshot({ fullPage: true })
+  // Crop to the violation area with padding. Fall back to full-page when no
+  // bounding rect could be computed (e.g. all elements are hidden).
+  let screenshotOptions: Parameters<typeof page.screenshot>[0]
+
+  if (violationBounds) {
+    const x = Math.max(0, violationBounds.x - CROP_PADDING)
+    const y = Math.max(0, violationBounds.y - CROP_PADDING)
+    const width = violationBounds.width + 2 * CROP_PADDING
+    // Cap height so violations spread across a very long page don't produce a
+    // huge image. The GitHub summary embeds this as inline base64.
+    const height = Math.min(violationBounds.height + 2 * CROP_PADDING, MAX_CROP_HEIGHT)
+    screenshotOptions = { clip: { x, y, width, height } }
+  } else {
+    screenshotOptions = { fullPage: true }
+  }
+
+  const screenshot = await page.screenshot(screenshotOptions)
 
   await testInfo.attach('a11y-violation-screenshot', {
     body: screenshot,

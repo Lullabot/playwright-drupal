@@ -48,8 +48,8 @@ export function definePlaywrightDrupalConfig(overrides: PlaywrightTestConfig = {
     fullyParallel: true,
     workers: Math.max(2, os.cpus().length - 2),
     reporter: isCI
-      ? [['line'], ['html']]
-      : [['html', { host: '0.0.0.0', port: 9323 }], ['list']],
+      ? [['line'], ['html'], ['json', { outputFile: 'test-results/results.json' }]]
+      : [['html', { host: '0.0.0.0', port: 9323 }], ['list'], ['json', { outputFile: 'test-results/results.json' }]],
     globalSetup: path.resolve(__dirname, 'setup', 'global-setup.js'),
     use: {
       baseURL: process.env.DDEV_PRIMARY_URL,
