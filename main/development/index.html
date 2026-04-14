@@ -577,7 +577,18 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Documentation">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pull-request-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pull Request Commands
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pull Request Commands">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -608,10 +619,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#pull-request-commands" class="md-nav__link">
+  <a href="#publishing-a-one-off-alpha-release" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pull Request Commands
+        Publishing a One-Off Alpha Release
       
     </span>
   </a>
@@ -672,7 +683,18 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Documentation">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pull-request-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pull Request Commands
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pull Request Commands">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -703,10 +725,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#pull-request-commands" class="md-nav__link">
+  <a href="#publishing-a-one-off-alpha-release" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pull Request Commands
+        Publishing a One-Off Alpha Release
       
     </span>
   </a>
@@ -751,6 +773,12 @@
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="go">npm run docs:build    # Builds static site to site/</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="go">npm run docs:preview  # Previews the built site</span>
 </span></code></pre></div>
+<h2 id="pull-request-commands">Pull Request Commands</h2>
+<p>Maintainers can use the following commands by posting a comment on a pull request:</p>
+<ul>
+<li><strong><code>/fast-forward</code></strong> — Performs a true fast-forward merge (<code>git merge --ff-only</code>) that preserves the original commit SHAs. This avoids the SHA-rewriting that GitHub's built-in rebase merge does. The PR branch must be up to date with the base branch for this to succeed.</li>
+<li><strong><code>/rebase</code></strong> — Rebases the PR branch onto the base branch, stripping any empty commits created during the rebase. Only repository owners, members, and collaborators can trigger this command.</li>
+</ul>
 <h3 id="versioned-deployment">Versioned Deployment</h3>
 <p>Docs are deployed automatically when a release tag matching <code>playwright-drupal-*</code> is pushed (e.g. <code>playwright-drupal-1.5.1</code>). The GitHub Actions workflow strips the <code>playwright-drupal-</code> prefix and runs <code>mike deploy --push --update-aliases 1.5.1 latest</code>, committing versioned docs to the <code>gh-pages</code> branch. Deployed docs are available at <code>https://lullabot.github.io/playwright-drupal/1.5.1/</code> and <code>https://lullabot.github.io/playwright-drupal/latest/</code>.</p>
 <h3 id="one-time-github-pages-setup">One-Time GitHub Pages Setup</h3>
@@ -762,12 +790,34 @@
 <li>Save</li>
 </ol>
 <p>The <code>gh-pages</code> branch is created automatically by <code>mike</code> on first deployment.</p>
-<h2 id="pull-request-commands">Pull Request Commands</h2>
-<p>Maintainers can use the following commands by posting a comment on a pull request:</p>
+<h2 id="publishing-a-one-off-alpha-release">Publishing a One-Off Alpha Release</h2>
+<p>Stable releases are handled automatically by <a href="https://github.com/googleapis/release-please">release-please</a> from <code>main</code>. To publish a one-off prerelease (e.g. to let someone test an unreleased change) without disturbing the <code>latest</code> dist-tag, publish manually from your workstation.</p>
+<p><strong>Prerequisites:</strong></p>
 <ul>
-<li><strong><code>/fast-forward</code></strong> — Performs a true fast-forward merge (<code>git merge --ff-only</code>) that preserves the original commit SHAs. This avoids the SHA-rewriting that GitHub's built-in rebase merge does. The PR branch must be up to date with the base branch for this to succeed.</li>
-<li><strong><code>/rebase</code></strong> — Rebases the PR branch onto the base branch, stripping any empty commits created during the rebase. Only repository owners, members, and collaborators can trigger this command.</li>
+<li>Push access to the <code>@lullabot/playwright-drupal</code> npm package.</li>
+<li>A granular access token from <a href="https://www.npmjs.com/">npmjs.com</a> with publish permission on the package.</li>
 </ul>
+<p><strong>1. Authenticate npm with your token:</strong></p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="go">npm config set //registry.npmjs.org/:_authToken &lt;your-token&gt;</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="go">npm whoami</span>
+</span></code></pre></div>
+<p>This writes the token to <code>~/.npmrc</code>. <code>npm login</code> is now interactive/browser-based and won't accept a token directly, so setting <code>_authToken</code> is the standard path for automation-style tokens.</p>
+<p><strong>2. Check out a clean <code>main</code> and bump the version locally:</strong></p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="go">git checkout main</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="go">git pull</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="go">npm version 1.6.0-alpha.0 --no-git-tag-version</span>
+</span></code></pre></div>
+<p>Do <strong>not</strong> commit or push the version bump — release-please manages versions in the repo. The bump only needs to exist in the working copy for <code>npm publish</code> to read.</p>
+<p><strong>3. Publish under the <code>alpha</code> dist-tag:</strong></p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="go">ddev exec npm ci</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="go">ddev exec npm publish --tag alpha --access public</span>
+</span></code></pre></div>
+<p><code>prepack</code> runs <code>npm run build</code> automatically, so no separate build step is required. The <code>--tag alpha</code> flag is critical: without it, the prerelease would replace <code>latest</code> and become the default install.</p>
+<p><strong>4. Verify and clean up:</strong></p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="go">npm dist-tag ls @lullabot/playwright-drupal</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="go">git checkout -- package.json package-lock.json</span>
+</span></code></pre></div>
+<p>Consumers install the prerelease with <code>npm install @lullabot/playwright-drupal@alpha</code>.</p>
 
 
 
