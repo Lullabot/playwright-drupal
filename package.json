@@ -16,7 +16,10 @@
     "prepare": "husky || true",
     "test": "npm run test:unit && npm run test:bats",
     "test:unit": "vitest run",
-    "test:bats": "bats test/"
+    "test:bats": "bats test/",
+    "docs:dev": "uvx --with-requirements docs/requirements.txt mkdocs@1.6.1 serve",
+    "docs:build": "uvx --with-requirements docs/requirements.txt mkdocs@1.6.1 build --strict",
+    "docs:preview": "uvx --with-requirements docs/requirements.txt mkdocs@1.6.1 serve site/"
   },
   "author": "Andrew Berry <andrew.berry@lullabot.com>",
   "license": "Apache-2.0",

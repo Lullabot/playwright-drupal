@@ -130,7 +130,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-package-lock.json
 .idea
 tmp/
 
@@ -138,3 +137,6 @@ tmp/
 
 # Build output
 lib/
+
+# MkDocs
+site/

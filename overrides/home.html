@@ -1,0 +1,72 @@
+{% extends "main.html" %}
+
+{% block tabs %}
+  {{ super() }}
+  <style>
+    .md-header { position: initial }
+    .md-main__inner { margin: 0 }
+    .md-content { display: none }
+    @media screen and (min-width: 60em) {
+      .md-sidebar--secondary { display: none }
+    }
+    @media screen and (min-width: 76.25em) {
+      .md-sidebar--primary { display: none }
+    }
+  </style>
+
+  <section class="mdx-container">
+    <div class="md-grid md-typeset">
+      <div class="mdx-hero">
+        <div class="mdx-hero__image">
+          <img src="{{ base_url }}/images/demo.webp"
+               alt="Demo showing running isolated Drupal tests in parallel"
+               draggable="false">
+        </div>
+        <div class="mdx-hero__content">
+          <h1>playwright-drupal</h1>
+          <p>Playwright / Drupal integration in DDEV, supporting fast parallel tests and visual comparisons</p>
+          <a href="{{ 'getting-started/' | url }}" class="md-button md-button--primary">
+            Get Started
+          </a>
+          <a href="https://github.com/Lullabot/playwright-drupal" class="md-button">
+            View on GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mdx-features">
+    <div class="md-grid md-typeset">
+      <ul class="mdx-features__list">
+        <li class="mdx-features__item">
+          <a class="mdx-features__link" href="{{ 'getting-started/' | url }}">
+            <h2 class="mdx-features__title">Fast Parallel Tests</h2>
+            <p>Each test gets its own environment.</p>
+          </a>
+        </li>
+        <li class="mdx-features__item">
+          <a class="mdx-features__link" href="{{ 'visual-comparisons/' | url }}">
+            <h2 class="mdx-features__title">Visual Comparisons</h2>
+            <p>Catch unintended UI changes with screenshot diffs.</p>
+          </a>
+        </li>
+        <li class="mdx-features__item">
+          <a class="mdx-features__link" href="{{ 'visual-comparisons/' | url }}">
+            <h2 class="mdx-features__title">Accessibility Checks</h2>
+            <p>Generate an accessibility report at every visual comparison.</p>
+          </a>
+        </li>
+        <li class="mdx-features__item">
+          <a class="mdx-features__link" href="{{ 'getting-started/#testing-with-an-existing-database' | url }}">
+            <h2 class="mdx-features__title">Support for Fresh Drupal Installs or an Existing Database</h2>
+            <p>Install a fresh site or convert an existing MySQL/MariaDB database to SQLite.</p>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+{% endblock %}
+
+{% block content %}{% endblock %}
+{% block footer %}{{ super() }}{% endblock %}
