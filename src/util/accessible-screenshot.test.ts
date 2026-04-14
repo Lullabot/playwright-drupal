@@ -61,8 +61,13 @@ function makeAxeResults(overrides?: Partial<{ violations: any[], passes: any[] }
 
 function makeTestInfo() {
   return {
+    testId: `mocked-${Math.random()}`,
+    title: 'mocked test',
+    titlePath: ['file.spec.ts', 'mocked test'],
     annotations: [] as Array<{ type: string, description?: string }>,
     attach: vi.fn().mockResolvedValue(undefined),
+    snapshotPath: (...segs: string[]) => `/tmp/__a11y_test_snapshots__/${segs.join('/')}.txt`,
+    config: { updateSnapshots: 'all' as const },
   }
 }
 

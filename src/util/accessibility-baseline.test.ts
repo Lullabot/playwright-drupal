@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // Mock AxeBuilder — must be hoisted since vi.mock is hoisted
 const { mockWithTags, mockExclude, mockOptions, mockAnalyze, MockAxeBuilder } = vi.hoisted(() => {
@@ -62,10 +62,21 @@ function makeAxeResults(overrides?: Partial<{ violations: any[], passes: any[] }
   }
 }
 
-function makeTestInfo() {
+function makeTestInfo(opts?: { updateSnapshots?: 'all' | 'changed' | 'missing' | 'none', snapshotsDir?: string, title?: string }) {
+  // Default to `updateSnapshots: 'all'` so that, in the absence of an
+  // explicit `baseline` option, the dispatch routes to snapshot mode (the
+  // legacy behavior these tests were originally written against). Tests
+  // that want to exercise on-disk baseline mode override this.
+  const dir = opts?.snapshotsDir ?? '/tmp/__a11y_test_snapshots__'
+  const title = opts?.title ?? 'mocked test'
   return {
+    testId: `mocked-${Math.random()}`,
+    title,
+    titlePath: ['file.spec.ts', title],
     annotations: [] as Array<{ type: string, description?: string }>,
     attach: vi.fn().mockResolvedValue(undefined),
+    snapshotPath: (...segs: string[]) => `${dir}/${segs.join('/')}.txt`,
+    config: { updateSnapshots: opts?.updateSnapshots ?? 'all' },
   }
 }
 
@@ -369,6 +380,153 @@ describe('accessibility baseline', () => {
         'a11y-baseline-suggestions',
         expect.anything()
       )
+    })
+  })
+
+  describe('on-disk baseline (new default for snapshotless tests)', () => {
+    let tmpDir: string
+    let originalCI: string | undefined
+
+    beforeEach(async () => {
+      const fs = await import('fs')
+      const os = await import('os')
+      const path = await import('path')
+      tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'a11y-disp-'))
+      originalCI = process.env.CI
+      delete process.env.CI
+    })
+
+    afterEach(async () => {
+      const fs = await import('fs')
+      await fs.promises.rm(tmpDir, { recursive: true, force: true })
+      if (originalCI === undefined) delete process.env.CI
+      else process.env.CI = originalCI
+    })
+
+    it('seeds an empty baseline file when no violations and no snapshot exist (local)', async () => {
+      mockAnalyze.mockResolvedValue(makeAxeResults({ violations: [] }))
+
+      const testInfo = makeTestInfo({ updateSnapshots: 'none', snapshotsDir: tmpDir, title: 'clean test' })
+      await checkAccessibility(makePage() as any, testInfo as any, {
+        bestPracticeMode: 'off',
+      })
+
+      const fs = await import('fs')
+      const path = await import('path')
+      const file = path.join(tmpDir, 'clean-test-1.a11y-baseline.json')
+      const written = JSON.parse(await fs.promises.readFile(file, 'utf8'))
+      expect(written.note).toBe('No accessibility violations found')
+      expect(written.violations).toEqual([])
+
+      // Snapshot mode is NOT used; on-disk baseline mode used assertBaseline.
+      expect(mockToMatchSnapshot).not.toHaveBeenCalled()
+      // Test does not fail (no toBe call against a "baseline file present" sentinel).
+      expect(mockToBe).not.toHaveBeenCalled()
+    })
+
+    it('seeds a TODO-prompted baseline file when violations exist and no snapshot (local)', async () => {
+      mockAnalyze.mockResolvedValue(makeAxeResults({
+        violations: [makeViolation('color-contrast', [['#footer .legal']])],
+      }))
+
+      const testInfo = makeTestInfo({ updateSnapshots: 'none', snapshotsDir: tmpDir, title: 'with violations' })
+      await checkAccessibility(makePage() as any, testInfo as any, {
+        bestPracticeMode: 'off',
+      })
+
+      const fs = await import('fs')
+      const path = await import('path')
+      const file = path.join(tmpDir, 'with-violations-1.a11y-baseline.json')
+      const written = JSON.parse(await fs.promises.readFile(file, 'utf8'))
+      expect(written.note).toMatch(/TODO/)
+      expect(written.violations).toEqual([
+        { rule: 'color-contrast', targets: ['#footer .legal'], reason: 'TODO', willBeFixedIn: 'TODO' },
+      ])
+      expect(mockToBe).not.toHaveBeenCalled()
+    })
+
+    it('fails the test on CI when seeding (mirrors Playwright missing-snapshot behaviour)', async () => {
+      process.env.CI = '1'
+      mockAnalyze.mockResolvedValue(makeAxeResults({
+        violations: [makeViolation('color-contrast', [['#x']])],
+      }))
+
+      const testInfo = makeTestInfo({ updateSnapshots: 'none', snapshotsDir: tmpDir, title: 'on ci' })
+      await checkAccessibility(makePage() as any, testInfo as any, {
+        bestPracticeMode: 'off',
+      })
+
+      // File is still seeded.
+      const fs = await import('fs')
+      const path = await import('path')
+      const file = path.join(tmpDir, 'on-ci-1.a11y-baseline.json')
+      expect(fs.existsSync(file)).toBe(true)
+
+      // Test fails with the seed-and-commit directive.
+      expect(mockToBe).toHaveBeenCalled()
+      const failureMessage = mockExpectHard.mock.calls.find(
+        (call: any[]) => call.length >= 2 && typeof call[1] === 'string' && call[1].includes('a11y baseline file was missing')
+      )?.[1] as string
+      expect(failureMessage).toContain(file)
+      expect(failureMessage).toMatch(/commit it/i)
+    })
+
+    it('loads an existing on-disk baseline JSON and matches violations against it', async () => {
+      mockAnalyze.mockResolvedValue(makeAxeResults({
+        violations: [makeViolation('color-contrast', [['#known']])],
+      }))
+
+      // Pre-write a baseline.
+      const fs = await import('fs')
+      const path = await import('path')
+      const file = path.join(tmpDir, 'known-test-1.a11y-baseline.json')
+      await fs.promises.writeFile(file, JSON.stringify({
+        note: 'Known issue tracked in PROJ-1.',
+        violations: [{ rule: 'color-contrast', targets: ['#known'], reason: 'Known', willBeFixedIn: 'PROJ-1' }],
+      }))
+
+      const testInfo = makeTestInfo({ updateSnapshots: 'none', snapshotsDir: tmpDir, title: 'known test' })
+      await checkAccessibility(makePage() as any, testInfo as any, {
+        bestPracticeMode: 'off',
+      })
+
+      // Violation matched -> no failure.
+      expect(mockToBe).not.toHaveBeenCalled()
+      const baselined = testInfo.annotations.filter(a => a.type === 'Baselined a11y violation')
+      expect(baselined).toHaveLength(1)
+    })
+
+    it('produces per-call counter files for multi-call tests', async () => {
+      mockAnalyze.mockResolvedValue(makeAxeResults({ violations: [] }))
+
+      const testInfo = makeTestInfo({ updateSnapshots: 'none', snapshotsDir: tmpDir, title: 'multi call' })
+      await checkAccessibility(makePage() as any, testInfo as any, { bestPracticeMode: 'off' })
+      await checkAccessibility(makePage() as any, testInfo as any, { bestPracticeMode: 'off' })
+
+      const fs = await import('fs')
+      const path = await import('path')
+      const f1 = path.join(tmpDir, 'multi-call-1.a11y-baseline.json')
+      const f2 = path.join(tmpDir, 'multi-call-2.a11y-baseline.json')
+      expect(fs.existsSync(f1)).toBe(true)
+      expect(fs.existsSync(f2)).toBe(true)
+    })
+
+    it('still uses snapshot mode when a legacy snapshot file exists for the test', async () => {
+      mockAnalyze.mockResolvedValue(makeAxeResults({ violations: [] }))
+
+      // Pre-create a Playwright-style snapshot file in the snapshots dir.
+      const fs = await import('fs')
+      const path = await import('path')
+      await fs.promises.writeFile(
+        path.join(tmpDir, 'legacy-test-1-chromium-linux.txt'),
+        '[]\n',
+      )
+
+      const testInfo = makeTestInfo({ updateSnapshots: 'none', snapshotsDir: tmpDir, title: 'legacy test' })
+      await checkAccessibility(makePage() as any, testInfo as any, { bestPracticeMode: 'off' })
+
+      // Snapshot mode -> toMatchSnapshot was invoked.
+      expect(mockToMatchSnapshot).toHaveBeenCalled()
     })
   })
 })
