@@ -1,7 +1,5 @@
 import * as fs from 'fs'
-import * as os from 'os'
 import * as path from 'path'
-import { spawnSync } from 'child_process'
 
 /**
  * GitHub's limit for `$GITHUB_STEP_SUMMARY` content is 1 MiB — above that the
@@ -11,10 +9,10 @@ import { spawnSync } from 'child_process'
 const MAX_SUMMARY_BYTES = 900_000
 
 /**
- * Per-screenshot byte cap (checked after imagemagick optimisation). Base64
- * inflates size by ~33%, so at 150 KiB we keep each embedded image around
- * 200 KiB on the wire. Screenshots that still exceed this after optimisation
- * are dropped with a note — they are still visible in the Playwright HTML report.
+ * Per-screenshot byte cap. Base64 inflates size by ~33%, so at 150 KiB we
+ * keep each embedded image around 200 KiB on the wire. Larger screenshots
+ * are dropped with a note — we can't resize PNGs without pulling in an
+ * image library.
  */
 const MAX_SCREENSHOT_BYTES = 150_000
 
@@ -346,58 +344,16 @@ function detectImageMime(bytes: Buffer): string {
 }
 
 /**
- * Attempt to shrink a screenshot with ImageMagick: resize to at most 1 200 px
- * wide and re-encode as JPEG at quality 75. This is intentionally best-effort
- * — if `convert` is unavailable or fails the original bytes are returned
- * unchanged so callers always get usable output.
- *
- * The optimised JPEG is only returned when it is smaller than the input;
- * otherwise the original bytes are returned.
- */
-function optimizeScreenshot(bytes: Buffer): Buffer {
-  let tmpDir: string | undefined
-  try {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'a11y-screenshot-'))
-    const inputPath = path.join(tmpDir, 'input.png')
-    const outputPath = path.join(tmpDir, 'output.jpg')
-    fs.writeFileSync(inputPath, bytes)
-
-    const result = spawnSync('convert', [
-      inputPath,
-      '-resize', '1200x>',  // Shrink to max 1 200 px wide; never upscale.
-      '-strip',              // Strip metadata (EXIF, ICC profiles, comments).
-      '-quality', '75',
-      outputPath,
-    ], { timeout: 15_000 })
-
-    if (result.status === 0 && fs.existsSync(outputPath)) {
-      const optimized = fs.readFileSync(outputPath)
-      // Prefer the optimised version only when it is genuinely smaller.
-      return optimized.length < bytes.length ? optimized : bytes
-    }
-  } catch {
-    // ImageMagick not installed or conversion failed — use original bytes.
-  } finally {
-    if (tmpDir) {
-      try { fs.rmSync(tmpDir, { recursive: true }) } catch { /* best-effort */ }
-    }
-  }
-  return bytes
-}
-
-/**
  * Render a violation screenshot as an inline base64 image.
  *
- * Attempts to optimise the image with ImageMagick before embedding. Returns
- * null if the buffer is still larger than MAX_SCREENSHOT_BYTES after
- * optimisation — users can still see the screenshot in the Playwright HTML
- * report.
+ * Returns null if the buffer is larger than MAX_SCREENSHOT_BYTES. Oversized
+ * images are dropped rather than resized — users can still see the full
+ * screenshot in the Playwright HTML report.
  */
 function renderScreenshot(screenshot: Buffer): string[] | null {
-  const optimized = optimizeScreenshot(screenshot)
-  if (optimized.length > MAX_SCREENSHOT_BYTES) return null
-  const mime = detectImageMime(optimized)
-  const b64 = optimized.toString('base64')
+  if (screenshot.length > MAX_SCREENSHOT_BYTES) return null
+  const mime = detectImageMime(screenshot)
+  const b64 = screenshot.toString('base64')
   return [
     '<details>',
     '<summary>Violation screenshot</summary>\n',
