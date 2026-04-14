@@ -34,6 +34,13 @@ npm run docs:build    # Builds static site to site/
 npm run docs:preview  # Previews the built site
 ```
 
+## Pull Request Commands
+
+Maintainers can use the following commands by posting a comment on a pull request:
+
+- **`/fast-forward`** — Performs a true fast-forward merge (`git merge --ff-only`) that preserves the original commit SHAs. This avoids the SHA-rewriting that GitHub's built-in rebase merge does. The PR branch must be up to date with the base branch for this to succeed.
+- **`/rebase`** — Rebases the PR branch onto the base branch, stripping any empty commits created during the rebase. Only repository owners, members, and collaborators can trigger this command.
+
 ### Versioned Deployment
 
 Docs are deployed automatically when a release tag matching `playwright-drupal-*` is pushed (e.g. `playwright-drupal-1.5.1`). The GitHub Actions workflow strips the `playwright-drupal-` prefix and runs `mike deploy --push --update-aliases 1.5.1 latest`, committing versioned docs to the `gh-pages` branch. Deployed docs are available at `https://lullabot.github.io/playwright-drupal/1.5.1/` and `https://lullabot.github.io/playwright-drupal/latest/`.
@@ -94,10 +101,3 @@ git checkout -- package.json package-lock.json
 ```
 
 Consumers install the prerelease with `npm install @lullabot/playwright-drupal@alpha`.
-
-## Pull Request Commands
-
-Maintainers can use the following commands by posting a comment on a pull request:
-
-- **`/fast-forward`** — Performs a true fast-forward merge (`git merge --ff-only`) that preserves the original commit SHAs. This avoids the SHA-rewriting that GitHub's built-in rebase merge does. The PR branch must be up to date with the base branch for this to succeed.
-- **`/rebase`** — Rebases the PR branch onto the base branch, stripping any empty commits created during the rebase. Only repository owners, members, and collaborators can trigger this command.
