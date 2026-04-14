@@ -38,6 +38,11 @@
   --md-typeset-a-color:         #ff6a54;
 }
 
+.md-header__home-link {
+  color: inherit;
+  text-decoration: none;
+}
+
 /* ============================================================
    Home page hero
    ============================================================ */
