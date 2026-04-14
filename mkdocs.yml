@@ -31,7 +31,6 @@ extra_css:
 
 extra_javascript:
   - javascripts/palette-sync.js
-  - javascripts/header-home-link.js
 
 markdown_extensions:
   - pymdownx.emoji:
