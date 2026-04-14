@@ -31,7 +31,31 @@ export function resetCallCounts(testInfo: object): void {
 function slugifyTitle(testInfo: Pick<TestInfo, 'titlePath' | 'title'>): string {
   const segments = testInfo.titlePath?.slice(1) ?? []
   const raw = segments.length > 0 ? segments.join(' ') : testInfo.title
-  return raw.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+  // Manual slugify — replaces runs of non-alphanumerics with a single '-' and
+  // trims leading/trailing hyphens. Implemented as a single pass over the
+  // string to avoid regex-based polynomial backtracking on library-supplied
+  // input (CodeQL js/polynomial-redos).
+  let out = ''
+  let lastWasHyphen = true // suppresses leading hyphen
+  for (let i = 0; i < raw.length; i++) {
+    const code = raw.charCodeAt(i)
+    const isLowerAlpha = code >= 97 && code <= 122 // a-z
+    const isUpperAlpha = code >= 65 && code <= 90 // A-Z
+    const isDigit = code >= 48 && code <= 57 // 0-9
+    if (isLowerAlpha || isDigit) {
+      out += raw[i]
+      lastWasHyphen = false
+    } else if (isUpperAlpha) {
+      out += String.fromCharCode(code + 32)
+      lastWasHyphen = false
+    } else if (!lastWasHyphen) {
+      out += '-'
+      lastWasHyphen = true
+    }
+  }
+  // Trim trailing hyphen.
+  if (out.endsWith('-')) out = out.slice(0, -1)
+  return out
 }
 
 function snapshotsDir(testInfo: Pick<TestInfo, 'snapshotPath'>): string {
