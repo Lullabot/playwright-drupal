@@ -5,9 +5,9 @@ import path from 'path'
 import {
   baselineFilePath,
   buildSeed,
-  nextCallCount,
+  nextAccessibilityScanCount,
   readBaselineFile,
-  resetCallCounts,
+  resetAccessibilityScanCounts,
   snapshotExists,
   writeBaselineFile,
 } from './accessibility-baseline-file'
@@ -19,7 +19,7 @@ function makeTestInfo(opts: { dir: string; title?: string; titlePath?: string[] 
     testId: `${title}-${Math.random()}`,
     title,
     titlePath,
-    snapshotPath: (name: string) => path.join(opts.dir, name + '.txt'),
+    snapshotPath: (...segs: string[]) => path.join(opts.dir, ...segs),
   }
 }
 
@@ -50,16 +50,16 @@ describe('accessibility-baseline-file', () => {
     })
   })
 
-  describe('nextCallCount', () => {
+  describe('nextAccessibilityScanCount', () => {
     it('returns sequential numbers per (testInfo, scan)', () => {
       const ti = {} as any
       try {
-        expect(nextCallCount(ti, 'wcag')).toBe(1)
-        expect(nextCallCount(ti, 'wcag')).toBe(2)
-        expect(nextCallCount(ti, 'best-practice')).toBe(1)
-        expect(nextCallCount(ti, 'wcag')).toBe(3)
+        expect(nextAccessibilityScanCount(ti, 'wcag')).toBe(1)
+        expect(nextAccessibilityScanCount(ti, 'wcag')).toBe(2)
+        expect(nextAccessibilityScanCount(ti, 'best-practice')).toBe(1)
+        expect(nextAccessibilityScanCount(ti, 'wcag')).toBe(3)
       } finally {
-        resetCallCounts(ti)
+        resetAccessibilityScanCounts(ti)
       }
     })
   })

@@ -7,7 +7,7 @@ import {AccessibilityBaseline, AccessibilityBaselineEntry} from './accessibility
 import {
   baselineFilePath,
   buildSeed,
-  nextCallCount,
+  nextAccessibilityScanCount,
   readBaselineFile,
   ScanKind,
   snapshotExists,
@@ -223,7 +223,7 @@ async function dispatchAssertion(ctx: ScanContext, inCodeBaseline?: Accessibilit
     return assertSnapshot(ctx)
   }
 
-  const callCount = nextCallCount(ctx.testInfo, ctx.scan)
+  const callCount = nextAccessibilityScanCount(ctx.testInfo, ctx.scan)
   const filePath = baselineFilePath(ctx.testInfo, ctx.scan, callCount)
 
   const existing = await readBaselineFile(filePath)

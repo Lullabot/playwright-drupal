@@ -75,7 +75,7 @@ function makeTestInfo(opts?: { updateSnapshots?: 'all' | 'changed' | 'missing' |
     titlePath: ['file.spec.ts', title],
     annotations: [] as Array<{ type: string, description?: string }>,
     attach: vi.fn().mockResolvedValue(undefined),
-    snapshotPath: (...segs: string[]) => `${dir}/${segs.join('/')}.txt`,
+    snapshotPath: (...segs: string[]) => `${dir}/${segs.join('/')}`,
     config: { updateSnapshots: opts?.updateSnapshots ?? 'all' },
   }
 }

@@ -66,7 +66,7 @@ function makeTestInfo() {
     titlePath: ['file.spec.ts', 'mocked test'],
     annotations: [] as Array<{ type: string, description?: string }>,
     attach: vi.fn().mockResolvedValue(undefined),
-    snapshotPath: (...segs: string[]) => `/tmp/__a11y_test_snapshots__/${segs.join('/')}.txt`,
+    snapshotPath: (...segs: string[]) => `/tmp/__a11y_test_snapshots__/${segs.join('/')}`,
     config: { updateSnapshots: 'all' as const },
   }
 }
