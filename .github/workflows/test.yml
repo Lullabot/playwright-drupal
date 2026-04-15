@@ -120,23 +120,3 @@ jobs:
             echo "No JSON report found — skipping a11y summary."
           fi
 
-  a11y-summary-demo:
-    # Renders the summary for a synthetic failing a11y report so reviewers
-    # can see what checkAccessibility() output looks like in GitHub without
-    # running a full integration suite.
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
-        with:
-          node-version: '24'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Render synthetic a11y summary to job summary
-        run: npx tsx demo/a11y-summary-demo.ts

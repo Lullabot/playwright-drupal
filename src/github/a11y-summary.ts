@@ -1,24 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
 
-/**
- * GitHub's limit for `$GITHUB_STEP_SUMMARY` content is 1 MiB — above that the
- * summary is dropped. Stay comfortably under the cap so there's headroom for
- * any content written by other steps in the same job.
- */
-const MAX_SUMMARY_BYTES = 900_000
-
-/**
- * Per-screenshot byte cap. Base64 inflates size by ~33%, so at 150 KiB we
- * keep each embedded image around 200 KiB on the wire. Larger screenshots
- * are dropped with a note — we can't resize PNGs without pulling in an
- * image library.
- */
-const MAX_SCREENSHOT_BYTES = 150_000
-
-/** Maximum number of screenshots to embed regardless of size. */
-const MAX_SCREENSHOTS = 5
-
 /** Annotation types that identify accessibility-relevant test data. */
 const A11Y_ANNOTATION_TYPES = new Set([
   '@a11y',
@@ -87,8 +69,6 @@ export interface A11yTestResult {
   annotations: Array<{ type: string; description?: string }>
   /** Parsed WCAG scan violations (from a11y-wcag-scan-results attachment). */
   violations: NormalizedViolation[]
-  /** Raw bytes of the violation screenshot, if any. */
-  screenshot?: Buffer
 }
 
 interface NormalizedViolation {
@@ -177,26 +157,6 @@ function parseWcagViolations(attachment: any): NormalizedViolation[] {
   }
 }
 
-/**
- * Read the bytes of an attachment, whether stored inline as a base64 `body`
- * (the typical shape for `testInfo.attach({ body })`) or as a `path` pointing
- * to a file on disk. Returns undefined if neither form is usable.
- */
-function readAttachmentBytes(attachment: any): Buffer | undefined {
-  if (!attachment) return undefined
-  try {
-    if (attachment.body) {
-      return Buffer.from(attachment.body, 'base64')
-    }
-    if (attachment.path) {
-      return fs.readFileSync(attachment.path)
-    }
-  } catch {
-    // Fall through — missing file or decoding error means no screenshot.
-  }
-  return undefined
-}
-
 /** Extract an A11yTestResult from a Playwright test, or null if not a11y-related. */
 function extractTestResult(spec: any, test: any, file: string): A11yTestResult | null {
   const lastResult = test.results?.[test.results.length - 1]
@@ -211,17 +171,12 @@ function extractTestResult(spec: any, test: any, file: string): A11yTestResult |
     attachments.find((a: any) => a.name === 'a11y-wcag-scan-results'),
   )
 
-  const screenshot = readAttachmentBytes(
-    attachments.find((a: any) => a.name === 'a11y-violation-screenshot'),
-  )
-
   return {
     title: spec.title,
     file,
     line: spec.line ?? 1,
     annotations: a11yAnnotations,
     violations,
-    screenshot,
   }
 }
 
@@ -322,56 +277,6 @@ function renderViolationTable(violations: NormalizedViolation[]): string[] {
 }
 
 /**
- * Detect the MIME type of an image from its first few bytes so the data URL
- * is tagged correctly. Defaults to `image/png` — the format
- * checkAccessibility() produces — when the signature isn't recognized.
- */
-function detectImageMime(bytes: Buffer): string {
-  if (bytes.length >= 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) {
-    return 'image/png'
-  }
-  if (
-    bytes.length >= 12 &&
-    bytes.toString('ascii', 0, 4) === 'RIFF' &&
-    bytes.toString('ascii', 8, 12) === 'WEBP'
-  ) {
-    return 'image/webp'
-  }
-  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
-    return 'image/jpeg'
-  }
-  return 'image/png'
-}
-
-/**
- * Render a violation screenshot as an inline base64 image.
- *
- * Returns null if the buffer is larger than MAX_SCREENSHOT_BYTES. Oversized
- * images are dropped rather than resized — users can still see the full
- * screenshot in the Playwright HTML report.
- */
-function renderScreenshot(screenshot: Buffer): string[] | null {
-  if (screenshot.length > MAX_SCREENSHOT_BYTES) return null
-  const mime = detectImageMime(screenshot)
-  const b64 = screenshot.toString('base64')
-  return [
-    '<details>',
-    '<summary>Violation screenshot</summary>\n',
-    `<img src="data:${mime};base64,${b64}" alt="Accessibility violations highlighted on page" />\n`,
-    '</details>\n',
-  ]
-}
-
-/** Sum the byte length of lines joined with newlines. */
-function byteSize(lines: string[]): number {
-  let total = 0
-  for (const line of lines) {
-    total += Buffer.byteLength(line, 'utf8') + 1 // +1 for the newline separator
-  }
-  return total
-}
-
-/**
  * Generate Markdown for $GITHUB_STEP_SUMMARY.
  */
 export function generateSummary(report: A11yReport): string {
@@ -380,9 +285,6 @@ export function generateSummary(report: A11yReport): string {
   }
 
   const lines: string[] = ['## Accessibility Results\n', renderHeadline(report)]
-
-  let screenshotCount = 0
-  let omittedScreenshots = 0
   const seenTitles = new Set<string>()
 
   for (const test of report.tests) {
@@ -398,32 +300,7 @@ export function generateSummary(report: A11yReport): string {
     testLines.push(...renderAnnotations(testAnnotations))
     testLines.push(...renderViolationTable(test.violations))
 
-    // Embed the violation screenshot if it fits within per-shot, per-count,
-    // and total-summary budgets.
-    if (test.screenshot) {
-      if (screenshotCount >= MAX_SCREENSHOTS) {
-        omittedScreenshots++
-      } else {
-        const shot = renderScreenshot(test.screenshot)
-        if (!shot) {
-          omittedScreenshots++
-        } else if (byteSize(lines) + byteSize(testLines) + byteSize(shot) > MAX_SUMMARY_BYTES) {
-          omittedScreenshots++
-        } else {
-          testLines.push(...shot)
-          screenshotCount++
-        }
-      }
-    }
-
     lines.push(...testLines)
-  }
-
-  if (omittedScreenshots > 0) {
-    lines.push(
-      `> ${omittedScreenshots} violation screenshot(s) omitted (exceed size or count limits). ` +
-      `See the Playwright HTML report for full details.\n`,
-    )
   }
 
   return lines.join('\n')

@@ -119,44 +119,6 @@ describe('parseA11yResults', () => {
     expect(result.totalStale).toBe(1)
   })
 
-  it('extracts inline (body) screenshot attachments', () => {
-    const pngBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
-    const report = makeReport({
-      attachments: [
-        makeWcagAttachment([{ rule: 'color-contrast' }]),
-        {
-          name: 'a11y-violation-screenshot',
-          contentType: 'image/png',
-          body: pngBytes.toString('base64'),
-        },
-      ],
-    })
-    fs.writeFileSync(reportPath, JSON.stringify(report))
-    const result = parseA11yResults(reportPath)
-    expect(result.tests).toHaveLength(1)
-    expect(result.tests[0].screenshot).toBeDefined()
-    expect(result.tests[0].screenshot?.equals(pngBytes)).toBe(true)
-  })
-
-  it('extracts path-based screenshot attachments', () => {
-    const pngBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x99, 0xaa])
-    const pngPath = path.join(tmpDir, 'shot.png')
-    fs.writeFileSync(pngPath, pngBytes)
-    const report = makeReport({
-      attachments: [
-        makeWcagAttachment([{ rule: 'color-contrast' }]),
-        {
-          name: 'a11y-violation-screenshot',
-          contentType: 'image/png',
-          path: pngPath,
-        },
-      ],
-    })
-    fs.writeFileSync(reportPath, JSON.stringify(report))
-    const result = parseA11yResults(reportPath)
-    expect(result.tests[0].screenshot?.equals(pngBytes)).toBe(true)
-  })
-
   it('handles nested suites', () => {
     const report = {
       suites: [{
@@ -251,83 +213,6 @@ describe('generateSummary', () => {
     expect(md).toContain('**1** stale baseline entries')
   })
 
-  describe('screenshot handling', () => {
-    it('embeds small screenshots inline', () => {
-      const md = generateSummary({
-        tests: [{
-          title: 'has screenshot',
-          file: 'test.ts',
-          line: 1,
-          annotations: [{ type: 'Accessibility', description: 'WCAG scan: 1 violations' }],
-          violations: [{
-            rule: 'color-contrast',
-            impact: 'serious',
-            description: 'bad contrast',
-            helpUrl: 'https://example.com',
-            targets: ['#main'],
-          }],
-          screenshot: Buffer.alloc(1024, 0),
-        }],
-        totalViolations: 1,
-        totalBaselined: 0,
-        totalStale: 0,
-      })
-      expect(md).toContain('data:image/png;base64,')
-      expect(md).toContain('<summary>Violation screenshot</summary>')
-    })
-
-    it('omits oversized screenshots with a note', () => {
-      const md = generateSummary({
-        tests: [{
-          title: 'huge screenshot',
-          file: 'test.ts',
-          line: 1,
-          annotations: [{ type: 'Accessibility', description: 'WCAG scan: 1 violations' }],
-          violations: [{
-            rule: 'color-contrast',
-            impact: 'serious',
-            description: 'bad contrast',
-            helpUrl: 'https://example.com',
-            targets: ['#main'],
-          }],
-          // Larger than the 150 KiB per-screenshot cap.
-          screenshot: Buffer.alloc(200_000, 0),
-        }],
-        totalViolations: 1,
-        totalBaselined: 0,
-        totalStale: 0,
-      })
-      expect(md).not.toContain('data:image/png;base64,')
-      expect(md).toContain('screenshot(s) omitted')
-    })
-
-    it('omits screenshots beyond the per-summary count limit', () => {
-      // Build 6 tests, each with a small screenshot. Only 5 should be embedded.
-      const tests = Array.from({ length: 6 }, (_, i) => ({
-        title: `test ${i}`,
-        file: 'test.ts',
-        line: 1,
-        annotations: [{ type: 'Accessibility', description: 'WCAG scan: 1 violations' }],
-        violations: [{
-          rule: 'color-contrast',
-          impact: 'serious',
-          description: 'bad contrast',
-          helpUrl: 'https://example.com',
-          targets: ['#main'],
-        }],
-        screenshot: Buffer.alloc(1024, i),
-      }))
-      const md = generateSummary({
-        tests,
-        totalViolations: 6,
-        totalBaselined: 0,
-        totalStale: 0,
-      })
-      const embeds = md.match(/data:image\/png;base64,/g) ?? []
-      expect(embeds).toHaveLength(5)
-      expect(md).toContain('1 violation screenshot(s) omitted')
-    })
-  })
 })
 
 describe('generateAnnotations', () => {
