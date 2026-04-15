@@ -227,9 +227,7 @@ describe('checkAccessibility', () => {
       .mockResolvedValueOnce(wcagResults)       // WCAG
 
     const mockPage = {
-      // First evaluate: inject styles + return bounding rect (null = no elements found).
-      // Second evaluate: remove styles.
-      evaluate: vi.fn().mockResolvedValue(null),
+      evaluate: vi.fn().mockResolvedValue(undefined),
       screenshot: vi.fn().mockResolvedValue(Buffer.from('fake-png')),
     }
     const testInfo = makeTestInfo()
@@ -238,64 +236,15 @@ describe('checkAccessibility', () => {
       screenshotViolations: true,
     })
 
-    // Should have injected highlight styles (combined with bounds) and then removed them.
+    // Should have injected highlight styles and then removed them.
     expect(mockPage.evaluate).toHaveBeenCalledTimes(2)
-    // When no bounding rect is found, falls back to full-page screenshot.
+    // Should have taken a full-page screenshot.
     expect(mockPage.screenshot).toHaveBeenCalledWith({ fullPage: true })
     // Should have attached the screenshot.
     expect(testInfo.attach).toHaveBeenCalledWith('a11y-violation-screenshot', {
       body: Buffer.from('fake-png'),
       contentType: 'image/png',
     })
-  })
-
-  it('crops screenshot to violation bounding rect when elements are found', async () => {
-    const wcagResults = makeAxeResults({
-      violations: [{
-        id: 'color-contrast',
-        description: 'test',
-        impact: 'serious',
-        helpUrl: 'https://example.com',
-        nodes: [{ target: ['.bad-element'] }],
-      }],
-    })
-
-    mockAnalyze
-      .mockResolvedValueOnce(makeAxeResults()) // best-practice
-      .mockResolvedValueOnce(wcagResults)       // WCAG
-
-    const mockPage = {
-      // First evaluate: inject styles + return bounding rect of violation elements.
-      // Second evaluate: remove styles.
-      evaluate: vi.fn()
-        .mockResolvedValueOnce({ x: 50, y: 200, width: 400, height: 80 })
-        .mockResolvedValue(null),
-      screenshot: vi.fn().mockResolvedValue(Buffer.from('fake-png')),
-    }
-    const testInfo = makeTestInfo()
-
-    await checkAccessibility(mockPage as any, testInfo as any, {
-      screenshotViolations: true,
-    })
-
-    // Should have taken a cropped screenshot with padding applied.
-    expect(mockPage.screenshot).toHaveBeenCalledWith({
-      clip: {
-        x: expect.any(Number),
-        y: expect.any(Number),
-        width: expect.any(Number),
-        height: expect.any(Number),
-      },
-    })
-    const callArgs = mockPage.screenshot.mock.calls[0][0]
-    // x should be clamped to 0 (50 - 100 padding = -50 → 0).
-    expect(callArgs.clip.x).toBe(0)
-    // y should be 200 - 100 padding = 100.
-    expect(callArgs.clip.y).toBe(100)
-    // width should be 400 + 200 (2× padding).
-    expect(callArgs.clip.width).toBe(600)
-    // height should be 80 + 200 (2× padding).
-    expect(callArgs.clip.height).toBe(280)
   })
 
   it('does not take a screenshot when screenshotViolations is true but no violations', async () => {
@@ -328,14 +277,13 @@ describe('checkAccessibility', () => {
       .mockResolvedValueOnce(wcagResults)       // WCAG
 
     const mockPage = {
-      evaluate: vi.fn().mockResolvedValue(null),
+      evaluate: vi.fn().mockResolvedValue(undefined),
       screenshot: vi.fn().mockResolvedValue(Buffer.from('fake-png')),
     }
     const testInfo = makeTestInfo()
 
     await checkAccessibility(mockPage as any, testInfo as any)
 
-    // No bounding rect found → falls back to full-page screenshot.
     expect(mockPage.screenshot).toHaveBeenCalledWith({ fullPage: true })
   })
 
