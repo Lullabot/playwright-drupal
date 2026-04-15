@@ -3,7 +3,16 @@ import {expect, Locator, Page, TestInfo} from "@playwright/test";
 import {waitForAllImages} from "./images";
 import {waitForFrames} from "./frames"
 import axe from 'axe-core';
-import {AccessibilityBaseline} from './accessibility-baseline'
+import {AccessibilityBaseline, AccessibilityBaselineEntry} from './accessibility-baseline'
+import {
+  baselineFilePath,
+  buildSeed,
+  nextAccessibilityScanCount,
+  readBaselineFile,
+  ScanKind,
+  snapshotExists,
+  writeBaselineFile,
+} from './accessibility-baseline-file'
 
 let a11yActionHintShown = false;
 
@@ -151,7 +160,17 @@ export async function checkAccessibility(page: Page, testInfo: TestInfo, options
   }
 
   if (bestPracticeMode !== 'off') {
-    await runBestPracticeScan(page, testInfo, { exclude, rules, disableDefaultExclusions, bestPracticeMode })
+    const bpResults = await runBestPracticeScan(page, testInfo, { exclude, rules, disableDefaultExclusions })
+    // Best-practice always uses expect.soft() so the WCAG scan below runs
+    // even when best-practice violations exist. `bestPracticeMode === 'hard'`
+    // is preserved as a marker but does not change soft-vs-hard here.
+    await dispatchAssertion({
+      testInfo,
+      results: bpResults,
+      scan: 'best-practice',
+      expectFn: expect.soft,
+      scanLabel: 'Best-practice scan',
+    }, baseline)
   }
 
   const wcagScanResults = await runWcagScan(page, testInfo, { wcagTags, exclude, rules, disableDefaultExclusions })
@@ -160,21 +179,93 @@ export async function checkAccessibility(page: Page, testInfo: TestInfo, options
     await screenshotViolatingElements(page, testInfo, wcagScanResults)
   }
 
-  // Baseline mode: match violations against the baseline instead of using snapshots.
-  if (baseline) {
-    return assertBaseline(testInfo, wcagScanResults, baseline)
-  }
+  await dispatchAssertion({
+    testInfo,
+    results: wcagScanResults,
+    scan: 'wcag',
+    expectFn: expect,
+    scanLabel: 'WCAG scan',
+  }, baseline)
+}
 
-  // Snapshot mode (no baseline).
-  return assertSnapshot(testInfo, wcagScanResults)
+interface ScanContext {
+  testInfo: TestInfo
+  results: axe.AxeResults
+  scan: ScanKind
+  expectFn: typeof expect | typeof expect.soft
+  scanLabel: string
 }
 
 /**
- * Run the best-practice axe scan and assert on violations via snapshot.
+ * Dispatch the assertion for one scan to the correct mode:
  *
- * Always uses expect.soft() so the WCAG scan runs regardless of failures.
- * When bestPracticeMode is 'hard', failures still mark the test as failed
- * (that's what expect.soft() does) but execution continues.
+ * 1. Explicit in-code `baseline` option -> baseline mode (existing behaviour).
+ * 2. A snapshot file already exists on disk for this test -> snapshot mode
+ *    (existing behaviour, preserves all previously committed snapshots).
+ * 3. Playwright is in snapshot-update mode (`all`/`changed`/`missing`) ->
+ *    snapshot mode (Playwright will create the snapshot).
+ * 4. Otherwise -> on-disk baseline mode. If the JSON file exists, load and
+ *    match against it. If it does not, seed it. On CI seeding fails the
+ *    test (matching Playwright's missing-snapshot behaviour); locally,
+ *    seeding passes so the first run is green.
+ */
+async function dispatchAssertion(ctx: ScanContext, inCodeBaseline?: AccessibilityBaseline): Promise<void> {
+  if (inCodeBaseline) {
+    return assertBaseline(ctx, inCodeBaseline)
+  }
+
+  if (await snapshotExists(ctx.testInfo)) {
+    return assertSnapshot(ctx)
+  }
+
+  const update = ctx.testInfo.config?.updateSnapshots
+  if (update === 'all' || update === 'changed' || update === 'missing') {
+    return assertSnapshot(ctx)
+  }
+
+  const callCount = nextAccessibilityScanCount(ctx.testInfo, ctx.scan)
+  const filePath = baselineFilePath(ctx.testInfo, ctx.scan, callCount)
+
+  const existing = await readBaselineFile(filePath)
+  if (existing) {
+    return assertBaseline(ctx, existing.violations)
+  }
+
+  // Seed and either pass (local) or fail (CI).
+  const normalized = extractNormalizedViolations(ctx.results)
+  const seedViolations: AccessibilityBaselineEntry[] = normalized.map(v => ({
+    rule: v.rule,
+    targets: v.targets,
+    reason: 'TODO',
+    willBeFixedIn: 'TODO',
+  }))
+  const seed = buildSeed(seedViolations)
+  await writeBaselineFile(filePath, seed)
+  await ctx.testInfo.attach(`a11y-${ctx.scan}-baseline-seed`, {
+    path: filePath,
+    contentType: 'application/json',
+  })
+
+  if (process.env.CI) {
+    const message = `${ctx.scanLabel}: a11y baseline file was missing for this test. Seeded to ${filePath} — download the attached file from CI artifacts (or re-run locally) and commit it before merging.`
+    ctx.expectFn(null, message).toBe('a11y baseline file present')
+    return
+  }
+
+  ctx.testInfo.annotations.push({
+    type: 'Accessibility',
+    description: seed.violations.length === 0
+      ? `${ctx.scanLabel}: a11y baseline seeded at ${filePath} (no violations).`
+      : `${ctx.scanLabel}: a11y baseline seeded at ${filePath} with ${seed.violations.length} entries — fill in reason/willBeFixedIn before committing.`,
+  })
+  return assertBaseline(ctx, seed.violations)
+}
+
+/**
+ * Run the best-practice axe scan, attach results, and return them for
+ * dispatch. The assertion (snapshot vs baseline) is decided by the
+ * dispatcher based on what's already on disk and the `bestPracticeMode`
+ * option drives soft- vs hard-failure behaviour.
  */
 async function runBestPracticeScan(
   page: Page,
@@ -183,9 +274,8 @@ async function runBestPracticeScan(
     exclude: string[]
     rules?: Record<string, { enabled: boolean }>
     disableDefaultExclusions: boolean
-    bestPracticeMode: 'soft' | 'hard'
   },
-) {
+): Promise<axe.AxeResults> {
   const builder = new AxeBuilder({ page })
     .withTags(['best-practice'])
 
@@ -222,9 +312,7 @@ async function runBestPracticeScan(
     description: `Best-practice scan: ${results.violations.length} violations (${results.passes.length} rules passed)`
   })
 
-  // Always use expect.soft() so the WCAG scan below runs even if
-  // best-practice violations are found.
-  expect.soft(violationFingerprints(results)).toMatchSnapshot()
+  return results
 }
 
 /**
@@ -304,10 +392,11 @@ async function screenshotViolatingElements(page: Page, testInfo: TestInfo, resul
 }
 
 /**
- * Assert WCAG violations against a baseline allowlist.
+ * Assert violations against a baseline allowlist (in-code or on-disk).
  */
-function assertBaseline(testInfo: TestInfo, wcagScanResults: axe.AxeResults, baseline: AccessibilityBaseline) {
-  const allViolations = extractNormalizedViolations(wcagScanResults)
+function assertBaseline(ctx: ScanContext, baseline: AccessibilityBaseline) {
+  const { testInfo, results, scanLabel, expectFn } = ctx
+  const allViolations = extractNormalizedViolations(results)
   const matchedBaselineIndices = new Set<number>()
   const unmatchedViolations: typeof allViolations = []
 
@@ -346,40 +435,46 @@ function assertBaseline(testInfo: TestInfo, wcagScanResults: axe.AxeResults, bas
   const baselinedCount = matchedBaselineIndices.size
   testInfo.annotations.push({
     type: 'Accessibility',
-    description: `WCAG scan: ${unmatchedViolations.length} new violations (${baselinedCount} baselined)`,
+    description: `${scanLabel}: ${unmatchedViolations.length} new violations (${baselinedCount} baselined)`,
   })
 
   // Fail on unmatched violations with detailed output.
   if (unmatchedViolations.length > 0) {
-    const details = formatViolationDetails(wcagScanResults, unmatchedViolations)
-    expect(null, details).toBe('no accessibility violations')
+    const details = formatViolationDetails(results, unmatchedViolations)
+    expectFn(null, details).toBe('no accessibility violations')
   }
 }
 
 /**
- * Assert WCAG violations via snapshot comparison (default mode).
+ * Assert via snapshot comparison (legacy mode for tests with committed snapshots).
  */
-async function assertSnapshot(testInfo: TestInfo, wcagScanResults: axe.AxeResults) {
-  testInfo.annotations.push({
-    type: 'Accessibility',
-    description: `WCAG scan: ${wcagScanResults.violations.length} violations (${wcagScanResults.passes.length} rules passed)`
-  })
+async function assertSnapshot(ctx: ScanContext) {
+  const { testInfo, results, scan, expectFn } = ctx
 
-  // If there are violations, attach baseline suggestions and push annotation.
-  if (wcagScanResults.violations.length > 0) {
-    const allViolations = extractNormalizedViolations(wcagScanResults)
-    const suggestions = allViolations.map(v => formatBaselineSuggestion(v)).join('\n')
-    await testInfo.attach('a11y-baseline-suggestions', {
-      body: suggestions,
-      contentType: 'text/plain',
-    })
+  // Match the legacy summary annotation phrasing for WCAG; best-practice's
+  // pre-existing summary annotation is emitted in runBestPracticeScan.
+  if (scan === 'wcag') {
     testInfo.annotations.push({
       type: 'Accessibility',
-      description: 'To manage violations explicitly, switch to baseline mode. See a11y-baseline-suggestions attachment.',
+      description: `WCAG scan: ${results.violations.length} violations (${results.passes.length} rules passed)`
     })
+
+    // If there are violations, attach baseline suggestions and push annotation.
+    if (results.violations.length > 0) {
+      const allViolations = extractNormalizedViolations(results)
+      const suggestions = allViolations.map(v => formatBaselineSuggestion(v)).join('\n')
+      await testInfo.attach('a11y-baseline-suggestions', {
+        body: suggestions,
+        contentType: 'text/plain',
+      })
+      testInfo.annotations.push({
+        type: 'Accessibility',
+        description: 'To manage violations explicitly, switch to baseline mode. See a11y-baseline-suggestions attachment.',
+      })
+    }
   }
 
-  return expect(violationFingerprints(wcagScanResults)).toMatchSnapshot()
+  return expectFn(violationFingerprints(results)).toMatchSnapshot()
 }
 
 /**
