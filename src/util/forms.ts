@@ -12,27 +12,43 @@ import { clickSubmit } from './gin';
  */
 
 /**
- * Wait for all in-flight Drupal AJAX requests to settle.
+ * Options accepted by `waitForAjax`.
+ */
+export interface WaitForAjaxOptions {
+  /**
+   * Maximum time to wait for AJAX and animations to settle, in milliseconds.
+   * Defaults to 5 seconds — longer than any well-behaved Drupal AJAX round
+   * trip, short enough that a stuck test fails fast.
+   */
+  timeout?: number;
+}
+
+/**
+ * Wait for all in-flight Drupal AJAX requests and jQuery animations to settle.
  *
- * Polls `Drupal.ajax.instances[i].ajaxing` together with `jQuery.active` so
- * the wait covers core AJAX, throbber-driven uploads, and contrib modules
- * (e.g. `autosave_form`) that piggyback on the same plumbing. Resolves
- * immediately on pages that don't load Drupal's AJAX framework.
+ * Mirrors the predicate used by Drupal core's functional JS test assertion:
+ * no `jQuery.active`, no `jQuery(':animated')`, and no
+ * `Drupal.ajax.instances[i].ajaxing`. Resolves immediately on pages that
+ * don't load jQuery or Drupal's AJAX framework.
  *
  * Call this *after* the action that triggers AJAX — calling it before will
  * short-circuit when the framework has nothing in flight yet.
+ *
+ * @see \Drupal\FunctionalJavascriptTests\JSWebAssert::assertWaitOnAjaxRequest()
  */
-export async function waitForAjax(page: Page): Promise<void> {
+export async function waitForAjax(page: Page, opts: WaitForAjaxOptions = {}): Promise<void> {
+  const timeout = opts.timeout ?? 5_000;
   await page.waitForFunction(() => {
     const w = window as unknown as {
       Drupal?: { ajax?: { instances?: Array<{ ajaxing?: boolean } | null> } };
-      jQuery?: { active?: number };
+      jQuery?: ((selector: string) => { length: number }) & { active?: number };
     };
     const drupalIdle = !w.Drupal?.ajax?.instances ||
       w.Drupal.ajax.instances.every((i) => !i || !i.ajaxing);
-    const jqIdle = !w.jQuery || (w.jQuery.active ?? 0) === 0;
+    const jq = w.jQuery;
+    const jqIdle = !jq || ((jq.active ?? 0) === 0 && jq(':animated').length === 0);
     return drupalIdle && jqIdle;
-  });
+  }, undefined, { timeout });
 }
 
 /**

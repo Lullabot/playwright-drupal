@@ -129,9 +129,14 @@ test('creates an article', async ({ page }) => {
 });
 ```
 
-**API:** `waitForAjax(page: Page): Promise<void>`
+**API:** `waitForAjax(page: Page, opts?: { timeout?: number }): Promise<void>`
 
-Polls `Drupal.ajax.instances[i].ajaxing` and `jQuery.active` until both are idle. Call *after* the action that triggers AJAX — the wait resolves immediately if nothing is in flight.
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+| `opts.timeout` | `5000` | Maximum time to wait, in milliseconds. |
+
+Waits for `Drupal.ajax.instances[i].ajaxing`, `jQuery.active`, and `jQuery(':animated')` to all be clear. Mirrors the predicate used by Drupal core's `JSWebAssert::assertWaitOnAjaxRequest()`. Call *after* the action that triggers AJAX — the wait resolves immediately if nothing is in flight. The animation check catches post-AJAX transitions (throbbers, vertical tabs) that can otherwise race with assertions.
 
 **API:** `openAllDetails(page: Page): Promise<void>`
 
