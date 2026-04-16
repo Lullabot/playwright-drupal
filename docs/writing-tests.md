@@ -77,7 +77,8 @@ There may be times you want to run Drush once, globally before all tests. In tha
      10. Database log (dblog)
      11. Status report
      12. Page readiness
-     13. Docroot resolution -->
+     13. Docroot resolution
+     14. Gin theme workarounds -->
 
 This package ships a set of Drupal-aware Playwright utilities. Each utility targets a specific piece of Drupal behaviour that would otherwise have to be reimplemented in every test suite. Import from the package root:
 
@@ -110,6 +111,75 @@ test('can log in as a specific user', async ({ page }) => {
 |---|---|---|
 | `page` | *(required)* | The Playwright page object |
 | `user` | `'admin'` | The Drupal username to log in as |
+
+### Forms
+
+Utilities for driving Drupal's form system: waiting on AJAX, expanding collapsed `<details>`, clicking Save buttons on distributions with `autosave_form`, and waiting for a submit to resolve one way or another. For Gin-sticky-header-safe clicks, see [Gin theme workarounds](#gin-theme-workarounds).
+
+```typescript
+import { test, openAllDetails, waitForAjax, clickSaveButton, waitForSaveOutcome } from '@packages/playwright-drupal';
+
+test('creates an article', async ({ page }) => {
+  await page.goto('/node/add/article');
+  await openAllDetails(page);
+  await page.getByLabel('Title').fill('Hello');
+  await clickSaveButton(page, 'input[type=submit][value^="Save"]');
+  const outcome = await waitForSaveOutcome(page, { addFormPathPattern: /\/node\/add\// });
+  expect(outcome).toBe('ok');
+});
+```
+
+**API:** `waitForAjax(page: Page, opts?: { timeout?: number }): Promise<void>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+| `opts.timeout` | `5000` | Maximum time to wait, in milliseconds. |
+
+Waits for `Drupal.ajax.instances[i].ajaxing`, `jQuery.active`, and `jQuery(':animated')` to all be clear. Mirrors the predicate used by Drupal core's `JSWebAssert::assertWaitOnAjaxRequest()`. Call *after* the action that triggers AJAX — the wait resolves immediately if nothing is in flight. The animation check catches post-AJAX transitions (throbbers, vertical tabs) that can otherwise race with assertions.
+
+**API:** `openAllDetails(page: Page): Promise<void>`
+
+Expands every `<details>` element on the page (vertical tabs, field groups, collapsible regions) so nested fields become interactable.
+
+**API:** `clickSaveButton(page: Page, fallback: string): Promise<void>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+| `fallback` | *(required)* | CSS selector to click when no `Save*` submit is found. |
+
+Clicks the first submit button whose `value` starts with `Save` and which is not hijacked by `autosave_form`'s once-marker. Falls back to the supplied selector if no candidate matches. Handles Thunder's moderation "Save as" automatically. Uses `clickSubmit` from the [Gin theme workarounds](#gin-theme-workarounds) so the click survives a pinned admin header.
+
+**API:** `waitForSaveOutcome(page: Page, opts: { addFormPathPattern: RegExp; timeout?: number }): Promise<'ok' | 'error'>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+| `opts.addFormPathPattern` | *(required)* | Regex matching the add-form URL; success is detected by the URL moving away from it. |
+| `opts.timeout` | `30000` | Maximum time to wait for either outcome, in milliseconds. |
+
+Races two signals: URL change away from `addFormPathPattern` (returns `'ok'`), or a visible `.messages--error` (returns `'error'`). Throws a descriptive error when neither signal appears within the timeout.
+
+!!! note
+    `waitForSaveOutcome` throws on timeout. If your test needs a soft "neither happened" branch, wrap the call in `try/catch`.
+
+### Gin theme workarounds
+
+Helpers scoped to quirks introduced by the [Gin](https://www.drupal.org/project/gin) admin theme. Today the only helper is a click wrapper that survives Gin's pinned page header, which routinely overlaps submit buttons near the bottom of a form.
+
+```typescript
+import { test, clickSubmit } from '@packages/playwright-drupal';
+
+test('deletes a node', async ({ page }) => {
+  await page.goto('/node/1/delete');
+  await clickSubmit(page.locator('input[type=submit][value="Delete"]'));
+});
+```
+
+**API:** `clickSubmit(locator: Locator): Promise<void>`
+
+Scrolls `locator` into view and clicks it with `force: true`. Two steps are needed because Playwright's default actionability check passes once the button is in the viewport, but Gin's sticky header can still cover it; `force: true` bypasses the overlap check, and the scroll ensures the button actually lands at a free position. Use for delete buttons, moderation actions, and any other submit-style click you don't want the pinned header to intercept. `clickSaveButton` already delegates here internally.
 
 ### Page readiness
 
