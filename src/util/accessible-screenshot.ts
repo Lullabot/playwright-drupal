@@ -202,8 +202,10 @@ interface ScanContext {
  * 1. Explicit in-code `baseline` option -> baseline mode (existing behaviour).
  * 2. A snapshot file already exists on disk for this test -> snapshot mode
  *    (existing behaviour, preserves all previously committed snapshots).
- * 3. Playwright is in snapshot-update mode (`all`/`changed`/`missing`) ->
- *    snapshot mode (Playwright will create the snapshot).
+ * 3. Playwright is in explicit snapshot-update mode (`all`/`changed`, set via
+ *    `--update-snapshots`) -> snapshot mode (Playwright will create the
+ *    snapshot). `'missing'` is Playwright's default config value and does NOT
+ *    indicate explicit user intent, so it falls through to baseline mode.
  * 4. Otherwise -> on-disk baseline mode. If the JSON file exists, load and
  *    match against it. If it does not, seed it. On CI seeding fails the
  *    test (matching Playwright's missing-snapshot behaviour); locally,
@@ -219,7 +221,7 @@ async function dispatchAssertion(ctx: ScanContext, inCodeBaseline?: Accessibilit
   }
 
   const update = ctx.testInfo.config?.updateSnapshots
-  if (update === 'all' || update === 'changed' || update === 'missing') {
+  if (update === 'all' || update === 'changed') {
     return assertSnapshot(ctx)
   }
 
