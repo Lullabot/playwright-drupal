@@ -164,6 +164,27 @@ Races two signals: URL change away from `addFormPathPattern` (returns `'ok'`), o
 !!! note
     `waitForSaveOutcome` throws on timeout. If your test needs a soft "neither happened" branch, wrap the call in `try/catch`.
 
+### Entities
+
+Some Drupal distributions (notably Drupal CMS) add path aliases to freshly created entities, so the post-save redirect lands on `/my-article` rather than `/node/42`. `extractEntityIdFromPage` recovers the numeric ID by falling back to the first canonical edit link on the page.
+
+```typescript
+import { extractEntityIdFromPage } from '@packages/playwright-drupal';
+
+// after saving a node form …
+const nodeId = await extractEntityIdFromPage(page, 'node');
+expect(nodeId).toBeDefined();
+```
+
+**API:** `extractEntityIdFromPage(page: Page, entityType: 'node' | 'media'): Promise<string | undefined>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+| `entityType` | *(required)* | `'node'` or `'media'`. |
+
+Returns the numeric ID as a string, or `undefined` when neither the URL nor any rendered edit link matches `/\<entityType\>/(\\d+)`.
+
 ### Gin theme workarounds
 
 Helpers scoped to quirks introduced by the [Gin](https://www.drupal.org/project/gin) admin theme. Today the only helper is a click wrapper that survives Gin's pinned page header, which routinely overlaps submit buttons near the bottom of a form.
