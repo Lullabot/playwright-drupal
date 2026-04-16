@@ -528,5 +528,39 @@ describe('accessibility baseline', () => {
       // Snapshot mode -> toMatchSnapshot was invoked.
       expect(mockToMatchSnapshot).toHaveBeenCalled()
     })
+
+    it("uses on-disk baseline mode when updateSnapshots is 'missing' (Playwright's default)", async () => {
+      mockAnalyze.mockResolvedValue(makeAxeResults({ violations: [] }))
+
+      const testInfo = makeTestInfo({ updateSnapshots: 'missing', snapshotsDir: tmpDir, title: 'default config' })
+      await checkAccessibility(makePage() as any, testInfo as any, { bestPracticeMode: 'off' })
+
+      // Playwright's default config value is 'missing' — not an explicit user
+      // opt-in via --update-snapshots. It must route to baseline mode so new
+      // a11y tests default to baseline mode as documented.
+      const fs = await import('fs')
+      const path = await import('path')
+      const file = path.join(tmpDir, 'default-config-1.a11y-baseline.json')
+      expect(fs.existsSync(file)).toBe(true)
+      expect(mockToMatchSnapshot).not.toHaveBeenCalled()
+    })
+
+    it("uses snapshot mode when updateSnapshots is 'changed' (explicit --update-snapshots)", async () => {
+      mockAnalyze.mockResolvedValue(makeAxeResults({ violations: [] }))
+
+      const testInfo = makeTestInfo({ updateSnapshots: 'changed', snapshotsDir: tmpDir, title: 'changed mode' })
+      await checkAccessibility(makePage() as any, testInfo as any, { bestPracticeMode: 'off' })
+
+      expect(mockToMatchSnapshot).toHaveBeenCalled()
+    })
+
+    it("uses snapshot mode when updateSnapshots is 'all' (explicit --update-snapshots=all)", async () => {
+      mockAnalyze.mockResolvedValue(makeAxeResults({ violations: [] }))
+
+      const testInfo = makeTestInfo({ updateSnapshots: 'all', snapshotsDir: tmpDir, title: 'all mode' })
+      await checkAccessibility(makePage() as any, testInfo as any, { bestPracticeMode: 'off' })
+
+      expect(mockToMatchSnapshot).toHaveBeenCalled()
+    })
   })
 })
