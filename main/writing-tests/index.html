@@ -519,6 +519,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#forms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Forms
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gin-theme-workarounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gin theme workarounds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#page-readiness" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -755,6 +777,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#forms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Forms
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gin-theme-workarounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gin theme workarounds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#page-readiness" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -857,7 +901,8 @@
      10. Database log (dblog)
      11. Status report
      12. Page readiness
-     13. Docroot resolution -->
+     13. Docroot resolution
+     14. Gin theme workarounds -->
 
 <p>This package ships a set of Drupal-aware Playwright utilities. Each utility targets a specific piece of Drupal behaviour that would otherwise have to be reimplemented in every test suite. Import from the package root:</p>
 <div class="language-typescript highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">login</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">,</span><span class="w"> </span><span class="nx">getDocroot</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
@@ -899,16 +944,120 @@
 </tr>
 </tbody>
 </table>
+<h3 id="forms">Forms</h3>
+<p>Utilities for driving Drupal's form system: waiting on AJAX, expanding collapsed <code>&lt;details&gt;</code>, clicking Save buttons on distributions with <code>autosave_form</code>, and waiting for a submit to resolve one way or another. For Gin-sticky-header-safe clicks, see <a href="#gin-theme-workarounds">Gin theme workarounds</a>.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">openAllDetails</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForAjax</span><span class="p">,</span><span class="w"> </span><span class="nx">clickSaveButton</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForSaveOutcome</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;creates an article&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/node/add/article&#39;</span><span class="p">);</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">openAllDetails</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="nx">getByLabel</span><span class="p">(</span><span class="s1">&#39;Title&#39;</span><span class="p">).</span><span class="nx">fill</span><span class="p">(</span><span class="s1">&#39;Hello&#39;</span><span class="p">);</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">clickSaveButton</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;input[type=submit][value^=&quot;Save&quot;]&#39;</span><span class="p">);</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">outcome</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForSaveOutcome</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">addFormPathPattern</span><span class="o">:</span><span class="w"> </span><span class="sr">/\/node\/add\//</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="nx">expect</span><span class="p">(</span><span class="nx">outcome</span><span class="p">).</span><span class="nx">toBe</span><span class="p">(</span><span class="s1">&#39;ok&#39;</span><span class="p">);</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">});</span>
+</span></code></pre></div>
+<p><strong>API:</strong> <code>waitForAjax(page: Page, opts?: { timeout?: number }): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>opts.timeout</code></td>
+<td><code>5000</code></td>
+<td>Maximum time to wait, in milliseconds.</td>
+</tr>
+</tbody>
+</table>
+<p>Waits for <code>Drupal.ajax.instances[i].ajaxing</code>, <code>jQuery.active</code>, and <code>jQuery(':animated')</code> to all be clear. Mirrors the predicate used by Drupal core's <code>JSWebAssert::assertWaitOnAjaxRequest()</code>. Call <em>after</em> the action that triggers AJAX — the wait resolves immediately if nothing is in flight. The animation check catches post-AJAX transitions (throbbers, vertical tabs) that can otherwise race with assertions.</p>
+<p><strong>API:</strong> <code>openAllDetails(page: Page): Promise&lt;void&gt;</code></p>
+<p>Expands every <code>&lt;details&gt;</code> element on the page (vertical tabs, field groups, collapsible regions) so nested fields become interactable.</p>
+<p><strong>API:</strong> <code>clickSaveButton(page: Page, fallback: string): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>fallback</code></td>
+<td><em>(required)</em></td>
+<td>CSS selector to click when no <code>Save*</code> submit is found.</td>
+</tr>
+</tbody>
+</table>
+<p>Clicks the first submit button whose <code>value</code> starts with <code>Save</code> and which is not hijacked by <code>autosave_form</code>'s once-marker. Falls back to the supplied selector if no candidate matches. Handles Thunder's moderation "Save as" automatically. Uses <code>clickSubmit</code> from the <a href="#gin-theme-workarounds">Gin theme workarounds</a> so the click survives a pinned admin header.</p>
+<p><strong>API:</strong> <code>waitForSaveOutcome(page: Page, opts: { addFormPathPattern: RegExp; timeout?: number }): Promise&lt;'ok' | 'error'&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>opts.addFormPathPattern</code></td>
+<td><em>(required)</em></td>
+<td>Regex matching the add-form URL; success is detected by the URL moving away from it.</td>
+</tr>
+<tr>
+<td><code>opts.timeout</code></td>
+<td><code>30000</code></td>
+<td>Maximum time to wait for either outcome, in milliseconds.</td>
+</tr>
+</tbody>
+</table>
+<p>Races two signals: URL change away from <code>addFormPathPattern</code> (returns <code>'ok'</code>), or a visible <code>.messages--error</code> (returns <code>'error'</code>). Throws a descriptive error when neither signal appears within the timeout.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>waitForSaveOutcome</code> throws on timeout. If your test needs a soft "neither happened" branch, wrap the call in <code>try/catch</code>.</p>
+</div>
+<h3 id="gin-theme-workarounds">Gin theme workarounds</h3>
+<p>Helpers scoped to quirks introduced by the <a href="https://www.drupal.org/project/gin">Gin</a> admin theme. Today the only helper is a click wrapper that survives Gin's pinned page header, which routinely overlaps submit buttons near the bottom of a form.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">clickSubmit</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;deletes a node&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/node/1/delete&#39;</span><span class="p">);</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">clickSubmit</span><span class="p">(</span><span class="nx">page</span><span class="p">.</span><span class="nx">locator</span><span class="p">(</span><span class="s1">&#39;input[type=submit][value=&quot;Delete&quot;]&#39;</span><span class="p">));</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">});</span>
+</span></code></pre></div>
+<p><strong>API:</strong> <code>clickSubmit(locator: Locator): Promise&lt;void&gt;</code></p>
+<p>Scrolls <code>locator</code> into view and clicks it with <code>force: true</code>. Two steps are needed because Playwright's default actionability check passes once the button is in the viewport, but Gin's sticky header can still cover it; <code>force: true</code> bypasses the overlap check, and the scroll ensures the button actually lands at a free position. Use for delete buttons, moderation actions, and any other submit-style click you don't want the pinned header to intercept. <code>clickSaveButton</code> already delegates here internally.</p>
 <h3 id="page-readiness">Page readiness</h3>
 <p>Lazy-loaded images and iframes are often not present when Playwright first queries the DOM. These utilities scroll hidden regions into view and wait for network-backed resources to settle, so assertions run against a stable page. They are especially important before visual comparisons.</p>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForFrames</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;hero renders with images and embedded video&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">);</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForFrames</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">).</span><span class="nx">toHaveScreenshot</span><span class="p">();</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">});</span>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForFrames</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;hero renders with images and embedded video&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">);</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForFrames</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">).</span><span class="nx">toHaveScreenshot</span><span class="p">();</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="p">});</span>
 </span></code></pre></div>
 <p><strong>API:</strong> <code>waitForImages(page: Page, selector: string): Promise&lt;void&gt;</code></p>
 <table>
@@ -955,9 +1104,9 @@
 <p>Scrolls every <code>&lt;iframe&gt;</code> into view and waits for each one to have loaded a URL. Operates serially to avoid concurrency bugs; fast enough that parallelism is not worth the complexity.</p>
 <h3 id="docroot-resolution">Docroot resolution</h3>
 <p>Tests sometimes need to resolve files relative to the Drupal docroot — for example when generating fixtures or computing paths inside the Drupal site. <code>getDocroot()</code> reads <code>composer.json#extra.drupal-scaffold.locations.web-root</code> so tests don't hard-code <code>'web'</code> (or <code>'docroot'</code>) and work across Drupal scaffold configurations.</p>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getDocroot</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">docroot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getDocroot</span><span class="p">();</span><span class="w"> </span><span class="c1">// &#39;web&#39; on drupal/recommended-project, &#39;docroot&#39; on other setups</span>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getDocroot</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">docroot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getDocroot</span><span class="p">();</span><span class="w"> </span><span class="c1">// &#39;web&#39; on drupal/recommended-project, &#39;docroot&#39; on other setups</span>
 </span></code></pre></div>
 <p><strong>API:</strong> <code>getDocroot(composerJsonPath?: string): string</code></p>
 <table>
