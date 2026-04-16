@@ -111,6 +111,57 @@ test('can log in as a specific user', async ({ page }) => {
 | `page` | *(required)* | The Playwright page object |
 | `user` | `'admin'` | The Drupal username to log in as |
 
+### Forms
+
+Utilities for driving Drupal's form system: waiting on AJAX, expanding collapsed `<details>`, clicking Save buttons on distributions with `autosave_form` or the Gin admin theme, and waiting for a submit to resolve one way or another.
+
+```typescript
+import { test, openAllDetails, waitForAjax, clickSaveButton, waitForSaveOutcome } from '@packages/playwright-drupal';
+
+test('creates an article', async ({ page }) => {
+  await page.goto('/node/add/article');
+  await openAllDetails(page);
+  await page.getByLabel('Title').fill('Hello');
+  await clickSaveButton(page, 'input[type=submit][value^="Save"]');
+  const outcome = await waitForSaveOutcome(page, { addFormPathPattern: /\/node\/add\// });
+  expect(outcome).toBe('ok');
+});
+```
+
+**API:** `waitForAjax(page: Page): Promise<void>`
+
+Polls `Drupal.ajax.instances[i].ajaxing` and `jQuery.active` until both are idle. Call *after* the action that triggers AJAX — the wait resolves immediately if nothing is in flight.
+
+**API:** `openAllDetails(page: Page): Promise<void>`
+
+Expands every `<details>` element on the page (vertical tabs, field groups, collapsible regions) so nested fields become interactable.
+
+**API:** `clickSubmit(locator: Locator): Promise<void>`
+
+Convenience wrapper for the Gin-sticky-header-safe idiom: `scrollIntoViewIfNeeded()` then `click({ force: true })`. Use for delete buttons, moderation actions, and any other submit-style click.
+
+**API:** `clickSaveButton(page: Page, fallback: string): Promise<void>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+| `fallback` | *(required)* | CSS selector to click when no `Save*` submit is found. |
+
+Clicks the first submit button whose `value` starts with `Save` and which is not hijacked by `autosave_form`'s once-marker. Falls back to the supplied selector if no candidate matches. Handles Thunder's moderation "Save as" automatically.
+
+**API:** `waitForSaveOutcome(page: Page, opts: { addFormPathPattern: RegExp; timeout?: number }): Promise<'ok' | 'error'>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+| `opts.addFormPathPattern` | *(required)* | Regex matching the add-form URL; success is detected by the URL moving away from it. |
+| `opts.timeout` | `30000` | Maximum time to wait for either outcome, in milliseconds. |
+
+Races two signals: URL change away from `addFormPathPattern` (returns `'ok'`), or a visible `.messages--error` (returns `'error'`). Throws a descriptive error when neither signal appears within the timeout.
+
+!!! note
+    `waitForSaveOutcome` throws on timeout. If your test needs a soft "neither happened" branch, wrap the call in `try/catch`.
+
 ### Page readiness
 
 Lazy-loaded images and iframes are often not present when Playwright first queries the DOM. These utilities scroll hidden regions into view and wait for network-backed resources to settle, so assertions run against a stable page. They are especially important before visual comparisons.

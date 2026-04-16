@@ -1,6 +1,7 @@
 export * from './accessibility-baseline'
 export * from './accessible-screenshot'
 export * from './docroot'
+export * from './forms'
 export * from './frames'
 export * from './images'
 export * from './login'
