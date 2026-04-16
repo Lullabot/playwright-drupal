@@ -1,13 +1,14 @@
-import { Locator, Page } from '@playwright/test';
+import { Page } from '@playwright/test';
+import { clickSubmit } from './gin';
 
 /**
  * Drupal form-interaction primitives.
  *
  * Covers the cross-distribution quirks tests run into when driving Drupal
- * forms: in-flight AJAX, collapsed <details>, submit-button overlap from
- * the Gin admin theme's sticky header, autosave_form hijacking the primary
- * Save button, Thunder's moderation "Save as", and the typical save-outcome
- * race between URL change and visible error messages.
+ * forms: in-flight AJAX, collapsed <details>, autosave_form hijacking the
+ * primary Save button, Thunder's moderation "Save as", and the typical
+ * save-outcome race between URL change and visible error messages. The
+ * Gin sticky-header click workaround lives in `./gin`.
  */
 
 /**
@@ -51,18 +52,6 @@ export async function openAllDetails(page: Page): Promise<void> {
 }
 
 /**
- * Click a locator with the two-line idiom that survives Gin's sticky header.
- *
- * Gin's admin theme pins the page header and can overlap otherwise-visible
- * submit buttons. Scrolling the target into view then forcing the click
- * defeats that overlap without changing the theme.
- */
-export async function clickSubmit(locator: Locator): Promise<void> {
-  await locator.scrollIntoViewIfNeeded();
-  await locator.click({ force: true });
-}
-
-/**
  * Click a form's Save button in a distribution-agnostic way.
  *
  * Iterates the submit buttons in order and clicks the first one that:
@@ -71,8 +60,9 @@ export async function clickSubmit(locator: Locator): Promise<void> {
  *     (otherwise we'd click the button autosave_form hijacks, which fires an
  *     AJAX autosave rather than a real submit).
  *
- * If no candidate matches, clicks the `fallback` CSS selector instead. The
- * final click uses `force: true` to survive Gin's sticky-header overlap.
+ * If no candidate matches, clicks the `fallback` CSS selector instead.
+ * Delegates to `clickSubmit` from `./gin` so every submit-style click in
+ * this package funnels through the same sticky-header-safe idiom.
  */
 export async function clickSaveButton(page: Page, fallback: string): Promise<void> {
   const candidates = page.locator('input[type=submit][name="op"]');
@@ -84,13 +74,10 @@ export async function clickSaveButton(page: Page, fallback: string): Promise<voi
     if (!value.startsWith('Save')) continue;
     const once = (await btn.getAttribute('data-once')) || '';
     if (once.includes('autosave-form-input-monitor')) continue;
-    await btn.scrollIntoViewIfNeeded();
-    await btn.click({ force: true });
+    await clickSubmit(btn);
     return;
   }
-  const fb = page.locator(fallback);
-  await fb.scrollIntoViewIfNeeded();
-  await fb.click({ force: true });
+  await clickSubmit(page.locator(fallback));
 }
 
 /**
