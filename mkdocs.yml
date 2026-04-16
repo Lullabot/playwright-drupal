@@ -22,6 +22,7 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
   features:
+    - navigation.tabs
     - navigation.top
     - content.code.copy
 
@@ -51,9 +52,16 @@ extra:
     provider: mike
 
 nav:
-  - Getting Started: getting-started.md
-  - Writing Tests: writing-tests.md
-  - Visual Comparisons: visual-comparisons.md
-  - Configuration: configuration.md
-  - GitHub Actions & Accessibility: github-actions.md
-  - Development: development.md
+  - Home: index.md
+  - Getting Started:
+    - Overview: getting-started/index.md
+    - Installation: getting-started/installation.md
+    - Configuration: getting-started/configuration.md
+  - Guides:
+    - Writing Tests: guides/writing-tests.md
+    - Drupal Utilities: guides/utilities.md
+    - Visual Comparisons: guides/visual-comparisons.md
+    - GitHub Actions: guides/github-actions.md
+  - Development:
+    - Contributing: development/contributing.md
+    - Releases: development/releases.md
