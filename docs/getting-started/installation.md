@@ -94,7 +94,7 @@ export default definePlaywrightDrupalConfig({
 });
 ```
 
-`definePlaywrightDrupalConfig()` automatically provides sensible defaults (see [Configuration Helper](../getting-started/configuration.md)), so you only need to specify project-specific settings. Import from `@lullabot/playwright-drupal/config` (the subpath export) to avoid loading the test fixture module, which would conflict with the source copy used by test files.
+`definePlaywrightDrupalConfig()` automatically provides sensible defaults (see [Configuration Helper](configuration.md)), so you only need to specify project-specific settings. Import from `@lullabot/playwright-drupal/config` (the subpath export) to avoid loading the test fixture module, which would conflict with the source copy used by test files.
 
 ## Ignore playwright-drupal from Git
 
