@@ -496,13 +496,52 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#logging-in" class="md-nav__link">
+  <a href="#drupal-testing-utilities" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Logging In
+        Drupal Testing Utilities
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Drupal Testing Utilities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#page-readiness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page readiness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docroot-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docroot resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -693,13 +732,52 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#logging-in" class="md-nav__link">
+  <a href="#drupal-testing-utilities" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Logging In
+        Drupal Testing Utilities
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Drupal Testing Utilities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#page-readiness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page readiness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docroot-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docroot resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -765,20 +843,39 @@
 <p>There's many good reasons to want to run Drush in a test. The above example sets a known password for an account so the test can log in. Other good reasons are to scaffold out test data, or turn on testing-related modules.</p>
 <p>To run Drush during a test, use <code>execDrushInTestSite</code> as shown in the example test. This ensures that Drush bootstraps against the test site, and not the default site.</p>
 <p>There may be times you want to run Drush once, globally before all tests. In that case, add a <code>playwright:install:hook</code> task to your Taskfile, and from there you can call Drush or anything else you may need to do during setup.</p>
-<h2 id="logging-in">Logging In</h2>
-<p>The <code>login()</code> helper authenticates a Drupal user during a test. It uses <code>drush user:login</code> to generate a one-time login link, navigates to it, and asserts that login succeeded by checking for the admin toolbar.</p>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">expect</span><span class="p">,</span><span class="w"> </span><span class="nx">login</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;can access the admin dashboard&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">login</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/admin&#39;</span><span class="p">);</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">).</span><span class="nx">toHaveTitle</span><span class="p">(</span><span class="sr">/Administration/</span><span class="p">);</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">});</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;can log in as a specific user&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">login</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;editor&#39;</span><span class="p">);</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="c1">// ...</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="p">});</span>
+<h2 id="drupal-testing-utilities">Drupal Testing Utilities</h2>
+<!-- Subsection order for Drupal Testing Utilities — insert new subsections in this order:
+     1. Authentication
+     2. Forms
+     3. Entities
+     4. Media Library
+     5. Managed Files
+     6. oEmbed
+     7. CKEditor 5
+     8. autosave_form workarounds
+     9. Modules
+     10. Database log (dblog)
+     11. Status report
+     12. Page readiness
+     13. Docroot resolution -->
+
+<p>This package ships a set of Drupal-aware Playwright utilities. Each utility targets a specific piece of Drupal behaviour that would otherwise have to be reimplemented in every test suite. Import from the package root:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">login</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">,</span><span class="w"> </span><span class="nx">getDocroot</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span></code></pre></div>
+<h3 id="authentication">Authentication</h3>
+<p>The <code>login()</code> helper authenticates a Drupal user during a test. It uses <code>drush user:login</code> to generate a one-time login link, navigates to it, and asserts that login succeeded by checking for a Drupal session cookie (<code>SESS*</code>/<code>SSESS*</code>), which works with any theme and any login redirect configuration.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">expect</span><span class="p">,</span><span class="w"> </span><span class="nx">login</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;can access the admin dashboard&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">login</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/admin&#39;</span><span class="p">);</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">).</span><span class="nx">toHaveTitle</span><span class="p">(</span><span class="sr">/Administration/</span><span class="p">);</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">});</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;can log in as a specific user&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">login</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;editor&#39;</span><span class="p">);</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="c1">// ...</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">});</span>
 </span></code></pre></div>
 <p><strong>API:</strong> <code>login(page: Page, user?: string): Promise&lt;void&gt;</code></p>
 <table>
@@ -802,7 +899,84 @@
 </tr>
 </tbody>
 </table>
-<p>The helper supports both the legacy Admin Toolbar (<code>#toolbar-administration</code>) and the Navigation module (<code>#admin-toolbar</code>, available since Drupal 10.3).</p>
+<h3 id="page-readiness">Page readiness</h3>
+<p>Lazy-loaded images and iframes are often not present when Playwright first queries the DOM. These utilities scroll hidden regions into view and wait for network-backed resources to settle, so assertions run against a stable page. They are especially important before visual comparisons.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForFrames</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;hero renders with images and embedded video&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">);</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForFrames</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">).</span><span class="nx">toHaveScreenshot</span><span class="p">();</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">});</span>
+</span></code></pre></div>
+<p><strong>API:</strong> <code>waitForImages(page: Page, selector: string): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>selector</code></td>
+<td><em>(required)</em></td>
+<td>CSS selector for the <code>&lt;img&gt;</code> elements to wait for.</td>
+</tr>
+</tbody>
+</table>
+<p>Scrolls each matching image into view (to trigger lazy loading) and waits for them to finish loading. After all images have loaded, the page is scrolled back to the top so screenshots are stable.</p>
+<p><strong>API:</strong> <code>waitForAllImages(page: Page): Promise&lt;void&gt;</code></p>
+<p>Shorthand for <code>waitForImages(page, 'img:visible')</code>.</p>
+<p><strong>API:</strong> <code>waitForFrames(page: Page): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+</tbody>
+</table>
+<p>Scrolls every <code>&lt;iframe&gt;</code> into view and waits for each one to have loaded a URL. Operates serially to avoid concurrency bugs; fast enough that parallelism is not worth the complexity.</p>
+<h3 id="docroot-resolution">Docroot resolution</h3>
+<p>Tests sometimes need to resolve files relative to the Drupal docroot — for example when generating fixtures or computing paths inside the Drupal site. <code>getDocroot()</code> reads <code>composer.json#extra.drupal-scaffold.locations.web-root</code> so tests don't hard-code <code>'web'</code> (or <code>'docroot'</code>) and work across Drupal scaffold configurations.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getDocroot</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">docroot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getDocroot</span><span class="p">();</span><span class="w"> </span><span class="c1">// &#39;web&#39; on drupal/recommended-project, &#39;docroot&#39; on other setups</span>
+</span></code></pre></div>
+<p><strong>API:</strong> <code>getDocroot(composerJsonPath?: string): string</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>composerJsonPath</code></td>
+<td><code>'../../composer.json'</code></td>
+<td>Path to the repo's <code>composer.json</code>, relative to the Playwright working directory.</td>
+</tr>
+</tbody>
+</table>
+<p>Returns the docroot directory name without a trailing slash. Falls back to <code>'web'</code> if the file is missing, the scaffold key is absent, or parsing fails.</p>
 
 
 
