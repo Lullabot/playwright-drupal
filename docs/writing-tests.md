@@ -185,6 +185,32 @@ expect(nodeId).toBeDefined();
 
 Returns the numeric ID as a string, or `undefined` when neither the URL nor any rendered edit link matches `/\<entityType\>/(\\d+)`. Works for any entity whose edit route follows `/<entityType>/<id>/edit`. Entity types routed under `/admin/...` (some config entities) are not handled — that is a separate helper for another day.
 
+### CKEditor 5
+
+CKEditor 5 renders inside a contenteditable `<div role="textbox">`, so Playwright's native `fill()` doesn't overwrite existing content the way you'd expect. The `Ckeditor5` class wraps the clear-and-fill idiom: select-all (`Meta+A` on macOS, `Control+A` elsewhere), Backspace, then `fill()`.
+
+```typescript
+import { test, Ckeditor5 } from '@packages/playwright-drupal';
+
+test('edits the body copy', async ({ page }) => {
+  await page.goto('/node/1/edit');
+  const body = new Ckeditor5(page, '#edit-body-wrapper .ck-editor div[role="textbox"]');
+  await body.fill('New body text');
+});
+```
+
+**Constructor:** `new Ckeditor5(page: Page, selector: string, root?: Page | FrameLocator)`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The owning `Page`. Keyboard events target this page. |
+| `selector` | *(required)* | Selector for the editor's contenteditable element (e.g. `.ck-editor div[role="textbox"]`). |
+| `root` | `page` | Optional `FrameLocator` if the editor renders inside an iframe. |
+
+**API:** `async fill(text: string): Promise<void>`
+
+Waits for the editor to become visible, focuses it, clears existing content, and fills the new text.
+
 ### Gin theme workarounds
 
 Helpers scoped to quirks introduced by the [Gin](https://www.drupal.org/project/gin) admin theme. Today the only helper is a click wrapper that survives Gin's pinned page header, which routinely overlaps submit buttons near the bottom of a form.

@@ -1,5 +1,6 @@
 export * from './accessibility-baseline'
 export * from './accessible-screenshot'
+export * from './ckeditor5'
 export * from './docroot'
 export * from './entities'
 export * from './forms'
