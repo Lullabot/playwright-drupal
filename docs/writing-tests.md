@@ -248,6 +248,46 @@ UI-only fallback. Returns `true` when the path responds 200 and no access-denied
 
 Throws with a Drush remediation hint if any of the listed modules are not enabled.
 
+### Database log (dblog)
+
+Treat Drupal's watchdog log as an assertion target: truncate at the start of a test, drive the system under test, then fail if any `error` or `critical` entries accumulate.
+
+```typescript
+import { test, login, truncateDblog, checkDblogForErrors, formatLogErrors } from '@packages/playwright-drupal';
+
+test('content creation logs no errors', async ({ page }) => {
+  await login(page);
+  await truncateDblog(page);
+
+  // … drive the flow under test …
+
+  const errors = await checkDblogForErrors(page);
+  expect(errors, formatLogErrors(errors)).toEqual([]);
+});
+```
+
+**Types:** `DblogSeverity` (enum), `DblogEntry`, `DblogMonitorConfig`
+
+**API:** `isDblogEnabled(page: Page): Promise<boolean>`
+
+Visits `/admin/reports/dblog` and returns `true` when the page responds 200 and a log table is present.
+
+**API:** `truncateDblog(page: Page): Promise<void>`
+
+Navigates to `/admin/reports/dblog/confirm` and submits the "Clear log messages" confirmation.
+
+**API:** `fetchDblogEntries(page: Page, config?: DblogMonitorConfig): Promise<DblogEntry[]>`
+
+Returns every entry from the log. Handles pagination unless `config.checkAllPages` is `false`.
+
+**API:** `checkDblogForErrors(page: Page, config?: DblogMonitorConfig): Promise<DblogEntry[]>`
+
+Returns only entries whose severity matches `config.failOnSeverities` (default: `CRITICAL` + `ERROR`).
+
+**API:** `formatLogErrors(entries: DblogEntry[]): string`
+
+Human-readable formatter for use in assertion messages.
+
 ### Gin theme workarounds
 
 Helpers scoped to quirks introduced by the [Gin](https://www.drupal.org/project/gin) admin theme. Today the only helper is a click wrapper that survives Gin's pinned page header, which routinely overlaps submit buttons near the bottom of a form.
