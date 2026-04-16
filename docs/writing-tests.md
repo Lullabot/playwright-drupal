@@ -185,6 +185,29 @@ expect(nodeId).toBeDefined();
 
 Returns the numeric ID as a string, or `undefined` when neither the URL nor any rendered edit link matches `/\<entityType\>/(\\d+)`. Works for any entity whose edit route follows `/<entityType>/<id>/edit`. Entity types routed under `/admin/...` (some config entities) are not handled — that is a separate helper for another day.
 
+### oEmbed
+
+Fill a Drupal oEmbed URL field, blur to trigger validation, and warn (don't throw) if Drupal rejects the URL.
+
+```typescript
+import { test, fillOembedUrl } from '@packages/playwright-drupal';
+
+test('embeds a YouTube video', async ({ page }) => {
+  await page.goto('/media/add/video');
+  await fillOembedUrl(page, '[name="field_media_oembed_video[0][value]"]', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+});
+```
+
+**API:** `fillOembedUrl(page: Page, selector: string, url: string): Promise<void>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+| `selector` | *(required)* | Selector for the oEmbed input. |
+| `url` | *(required)* | URL to fill. |
+
+Fills, blurs (Tab), waits for AJAX, then warns via `console.warn` if a `.messages--error` is visible. Invalid URLs are common during fixture setup; callers who need hard-fail behaviour should inspect the error message themselves or use `waitForSaveOutcome`.
+
 ### CKEditor 5
 
 The `Ckeditor5` class drives **CKEditor 5** fields — the editor Drupal core has shipped by default since Drupal 10. It clears any existing content, then types the new value through `page.keyboard` so CKEditor's event pipeline processes the edits correctly (Playwright's `locator.fill()` can be silently dropped because the editor re-renders from its internal model).
