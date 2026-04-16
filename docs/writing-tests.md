@@ -62,9 +62,32 @@ To run Drush during a test, use `execDrushInTestSite` as shown in the example te
 
 There may be times you want to run Drush once, globally before all tests. In that case, add a `playwright:install:hook` task to your Taskfile, and from there you can call Drush or anything else you may need to do during setup.
 
-## Logging In
+## Drupal Testing Utilities
 
-The `login()` helper authenticates a Drupal user during a test. It uses `drush user:login` to generate a one-time login link, navigates to it, and asserts that login succeeded by checking for the admin toolbar.
+<!-- Subsection order for Drupal Testing Utilities — insert new subsections in this order:
+     1. Authentication
+     2. Forms
+     3. Entities
+     4. Media Library
+     5. Managed Files
+     6. oEmbed
+     7. CKEditor 5
+     8. autosave_form workarounds
+     9. Modules
+     10. Database log (dblog)
+     11. Status report
+     12. Page readiness
+     13. Docroot resolution -->
+
+This package ships a set of Drupal-aware Playwright utilities. Each utility targets a specific piece of Drupal behaviour that would otherwise have to be reimplemented in every test suite. Import from the package root:
+
+```typescript
+import { login, waitForAllImages, getDocroot } from '@packages/playwright-drupal';
+```
+
+### Authentication
+
+The `login()` helper authenticates a Drupal user during a test. It uses `drush user:login` to generate a one-time login link, navigates to it, and asserts that login succeeded by checking for a Drupal session cookie (`SESS*`/`SSESS*`), which works with any theme and any login redirect configuration.
 
 ```typescript
 import { test, expect, login } from '@packages/playwright-drupal';
@@ -88,4 +111,56 @@ test('can log in as a specific user', async ({ page }) => {
 | `page` | *(required)* | The Playwright page object |
 | `user` | `'admin'` | The Drupal username to log in as |
 
-The helper supports both the legacy Admin Toolbar (`#toolbar-administration`) and the Navigation module (`#admin-toolbar`, available since Drupal 10.3).
+### Page readiness
+
+Lazy-loaded images and iframes are often not present when Playwright first queries the DOM. These utilities scroll hidden regions into view and wait for network-backed resources to settle, so assertions run against a stable page. They are especially important before visual comparisons.
+
+```typescript
+import { test, waitForAllImages, waitForFrames } from '@packages/playwright-drupal';
+
+test('hero renders with images and embedded video', async ({ page }) => {
+  await page.goto('/');
+  await waitForAllImages(page);
+  await waitForFrames(page);
+  await expect(page).toHaveScreenshot();
+});
+```
+
+**API:** `waitForImages(page: Page, selector: string): Promise<void>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+| `selector` | *(required)* | CSS selector for the `<img>` elements to wait for. |
+
+Scrolls each matching image into view (to trigger lazy loading) and waits for them to finish loading. After all images have loaded, the page is scrolled back to the top so screenshots are stable.
+
+**API:** `waitForAllImages(page: Page): Promise<void>`
+
+Shorthand for `waitForImages(page, 'img:visible')`.
+
+**API:** `waitForFrames(page: Page): Promise<void>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+
+Scrolls every `<iframe>` into view and waits for each one to have loaded a URL. Operates serially to avoid concurrency bugs; fast enough that parallelism is not worth the complexity.
+
+### Docroot resolution
+
+Tests sometimes need to resolve files relative to the Drupal docroot — for example when generating fixtures or computing paths inside the Drupal site. `getDocroot()` reads `composer.json#extra.drupal-scaffold.locations.web-root` so tests don't hard-code `'web'` (or `'docroot'`) and work across Drupal scaffold configurations.
+
+```typescript
+import { getDocroot } from '@packages/playwright-drupal';
+
+const docroot = getDocroot(); // 'web' on drupal/recommended-project, 'docroot' on other setups
+```
+
+**API:** `getDocroot(composerJsonPath?: string): string`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `composerJsonPath` | `'../../composer.json'` | Path to the repo's `composer.json`, relative to the Playwright working directory. |
+
+Returns the docroot directory name without a trailing slash. Falls back to `'web'` if the file is missing, the scaffold key is absent, or parsing fails.
