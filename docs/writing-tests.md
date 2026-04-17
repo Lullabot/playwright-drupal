@@ -248,6 +248,45 @@ UI-only fallback. Returns `true` when the path responds 200 and no access-denied
 
 Throws with a Drush remediation hint if any of the listed modules are not enabled.
 
+### Database log (dblog)
+
+Treat Drupal's watchdog log as an assertion target: truncate at the start of a test, drive the system under test, then fail if any `error` or `critical` entries accumulate. All functions go through `drush watchdog:*` via `execDrushInTestSite`, so they must run inside the bootstrapped test site this package manages.
+
+```typescript
+import { test, truncateDblog, checkDblogForErrors, formatLogErrors } from '@packages/playwright-drupal';
+
+test('content creation logs no errors', async ({ page }) => {
+  await truncateDblog();
+
+  // … drive the flow under test …
+
+  const errors = await checkDblogForErrors();
+  expect(errors, formatLogErrors(errors)).toEqual([]);
+});
+```
+
+**Types:** `DblogSeverity` (enum, lowercase values matching Drupal's RfcLogLevel names), `DblogEntry`, `DblogMonitorConfig`
+
+**API:** `isDblogEnabled(): Promise<boolean>`
+
+Thin wrapper around `isModuleEnabled('dblog')`.
+
+**API:** `truncateDblog(): Promise<void>`
+
+Runs `drush watchdog:delete all -y`.
+
+**API:** `fetchDblogEntries(config?: DblogMonitorConfig): Promise<DblogEntry[]>`
+
+Runs `drush watchdog:show --format=json --extended --count=…` and returns the entries with severities normalised to lowercase. `config.moduleFilter` maps to `--type=`. The count cap is deliberately high so tests don't silently drop entries.
+
+**API:** `checkDblogForErrors(config?: DblogMonitorConfig): Promise<DblogEntry[]>`
+
+Returns only entries whose severity is in `config.failOnSeverities` (default: `CRITICAL` + `ERROR`).
+
+**API:** `formatLogErrors(entries: DblogEntry[]): string`
+
+Human-readable formatter for use in assertion messages.
+
 ### Gin theme workarounds
 
 Helpers scoped to quirks introduced by the [Gin](https://www.drupal.org/project/gin) admin theme. Today the only helper is a click wrapper that survives Gin's pinned page header, which routinely overlaps submit buttons near the bottom of a form.
