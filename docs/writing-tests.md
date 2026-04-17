@@ -218,6 +218,39 @@ test('selects a media item for a required widget', async ({ page }) => {
 
 Looks up a media entity by name on `/admin/content/media` and extracts the ID from the first matching link. Useful when a post-save redirect skipped `/media/N` (e.g. on distributions with path aliases).
 
+### Managed Files
+
+Reliable file upload into a Drupal `managed_file` element, resilient to the races that plague the default flow — `autosave_form` posting the partial form on change, widgets like `image_focal_point` overriding the automatic JS click on the upload button, and the rare case where the file-ID hidden input never lands server-side.
+
+```typescript
+import path from 'node:path';
+import { test, uploadManagedFile } from '@packages/playwright-drupal';
+
+test('uploads an image into a managed_file field', async ({ page }) => {
+  await page.goto('/media/add/image');
+  await uploadManagedFile(
+    page,
+    '[data-drupal-selector="edit-field-media-image-0"]',
+    path.join(__dirname, 'fixtures', 'test.png'),
+  );
+});
+```
+
+**API:** `uploadManagedFile(page: Page, fieldSelector: string, fixturePath: string, opts?: { retry?: boolean; maxPollMs?: number }): Promise<void>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+| `fieldSelector` | *(required)* | Selector for the field wrapper (not the `<input type=file>` itself). |
+| `fixturePath` | *(required)* | Absolute path to the file to upload. |
+| `opts.retry` | `true` | Retry the upload once if the file-ID hidden input never populates. |
+| `opts.maxPollMs` | `15000` | Maximum time to wait for the file-ID hidden input, in milliseconds. |
+
+Throws when the file ID still isn't present after the retry.
+
+!!! note
+    Works especially well with `autosave_form`-enabled distributions (e.g. Drupal CMS) because the internal `waitForAjax` covers both core AJAX and the autosave post.
+
 ### oEmbed
 
 Fill a Drupal oEmbed URL field, blur to trigger validation, and warn (don't throw) if Drupal rejects the URL.
