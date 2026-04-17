@@ -250,39 +250,38 @@ Throws with a Drush remediation hint if any of the listed modules are not enable
 
 ### Database log (dblog)
 
-Treat Drupal's watchdog log as an assertion target: truncate at the start of a test, drive the system under test, then fail if any `error` or `critical` entries accumulate.
+Treat Drupal's watchdog log as an assertion target: truncate at the start of a test, drive the system under test, then fail if any `error` or `critical` entries accumulate. All functions go through `drush watchdog:*` via `execDrushInTestSite`, so they must run inside the bootstrapped test site this package manages.
 
 ```typescript
-import { test, login, truncateDblog, checkDblogForErrors, formatLogErrors } from '@packages/playwright-drupal';
+import { test, truncateDblog, checkDblogForErrors, formatLogErrors } from '@packages/playwright-drupal';
 
 test('content creation logs no errors', async ({ page }) => {
-  await login(page);
-  await truncateDblog(page);
+  await truncateDblog();
 
   // … drive the flow under test …
 
-  const errors = await checkDblogForErrors(page);
+  const errors = await checkDblogForErrors();
   expect(errors, formatLogErrors(errors)).toEqual([]);
 });
 ```
 
-**Types:** `DblogSeverity` (enum), `DblogEntry`, `DblogMonitorConfig`
+**Types:** `DblogSeverity` (enum, lowercase values matching Drupal's RfcLogLevel names), `DblogEntry`, `DblogMonitorConfig`
 
-**API:** `isDblogEnabled(page: Page): Promise<boolean>`
+**API:** `isDblogEnabled(): Promise<boolean>`
 
-Visits `/admin/reports/dblog` and returns `true` when the page responds 200 and a log table is present.
+Thin wrapper around `isModuleEnabled('dblog')`.
 
-**API:** `truncateDblog(page: Page): Promise<void>`
+**API:** `truncateDblog(): Promise<void>`
 
-Navigates to `/admin/reports/dblog/confirm` and submits the "Clear log messages" confirmation.
+Runs `drush watchdog:delete all -y`.
 
-**API:** `fetchDblogEntries(page: Page, config?: DblogMonitorConfig): Promise<DblogEntry[]>`
+**API:** `fetchDblogEntries(config?: DblogMonitorConfig): Promise<DblogEntry[]>`
 
-Returns every entry from the log. Handles pagination unless `config.checkAllPages` is `false`.
+Runs `drush watchdog:show --format=json --extended --count=…` and returns the entries with severities normalised to lowercase. `config.moduleFilter` maps to `--type=`. The count cap is deliberately high so tests don't silently drop entries.
 
-**API:** `checkDblogForErrors(page: Page, config?: DblogMonitorConfig): Promise<DblogEntry[]>`
+**API:** `checkDblogForErrors(config?: DblogMonitorConfig): Promise<DblogEntry[]>`
 
-Returns only entries whose severity matches `config.failOnSeverities` (default: `CRITICAL` + `ERROR`).
+Returns only entries whose severity is in `config.failOnSeverities` (default: `CRITICAL` + `ERROR`).
 
 **API:** `formatLogErrors(entries: DblogEntry[]): string`
 

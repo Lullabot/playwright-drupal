@@ -1,15 +1,22 @@
-import { Page } from '@playwright/test';
+import { quote as shellQuote } from 'shell-quote';
+import { execDrushInTestSite } from '../testcase/test';
+import { isModuleEnabled } from './modules';
 
 /**
- * Drupal `dblog` (database log) utilities.
+ * Drupal `dblog` (database log) utilities, driven via Drush.
  *
  * Provides a small surface for test suites that want to treat Drupal log
  * entries as assertions: truncate the log at the start of a test, drive the
  * system under test, then fail if any `error` / `critical` entries landed.
+ *
+ * Everything here goes through `execDrushInTestSite` (`watchdog:show`,
+ * `watchdog:delete`) so the functions must run inside the bootstrapped test
+ * site this package manages. That's the same constraint as the `modules`
+ * probes.
  */
 
 /**
- * Severity levels that can be monitored in Drupal's dblog.
+ * Severity levels, matching Drupal's RfcLogLevel names (lowercase).
  */
 export enum DblogSeverity {
   EMERGENCY = 'emergency',
@@ -23,26 +30,29 @@ export enum DblogSeverity {
 }
 
 /**
- * Configuration for dblog monitoring.
+ * Configuration for dblog fetching / assertion.
  */
 export interface DblogMonitorConfig {
   /** Severity levels that should cause test failure. Default: [CRITICAL, ERROR]. */
   failOnSeverities?: DblogSeverity[];
-  /** Whether to check all pages if logs are paginated. Default: true. */
-  checkAllPages?: boolean;
-  /** Module-specific filter (optional). */
+  /** Limit results to a single Drupal log type (e.g. `'php'`, `'cron'`). */
   moduleFilter?: string;
 }
 
 /**
- * Structure of a log entry extracted from the dblog admin page.
+ * A single watchdog entry as returned by `drush watchdog:show --format=json
+ * --extended`. `severity` is lowercased to match `DblogSeverity`.
  */
 export interface DblogEntry {
-  severity: string;
+  wid: string;
   type: string;
   message: string;
-  timestamp: string;
-  user?: string;
+  severity: string;
+  location: string;
+  hostname: string;
+  date: string;
+  username: string;
+  uid: string;
 }
 
 /**
@@ -50,152 +60,71 @@ export interface DblogEntry {
  */
 export const DEFAULT_DBLOG_CONFIG: DblogMonitorConfig = {
   failOnSeverities: [DblogSeverity.CRITICAL, DblogSeverity.ERROR],
-  checkAllPages: true,
 };
 
 /**
- * Check whether the `dblog` module is enabled by visiting its admin page.
+ * High count cap passed to `drush watchdog:show --count=…`. Drush's own
+ * default is 10 — way too low for test assertions. This cap is high enough
+ * that any reasonable test flow stays below it while avoiding unbounded
+ * output in pathological scenarios.
  */
-export async function isDblogEnabled(page: Page): Promise<boolean> {
-  try {
-    const response = await page.goto('/admin/reports/dblog');
-    if (response?.ok()) {
-      const hasLogTable = await page
-        .locator('table.dblog-event-list, div.view-dblog, table')
-        .count();
-      return hasLogTable > 0;
-    }
-    return false;
-  } catch {
-    return false;
-  }
+const DRUSH_FETCH_COUNT_CAP = 10_000;
+
+/**
+ * Check whether the `dblog` module is enabled on the test site.
+ */
+export async function isDblogEnabled(): Promise<boolean> {
+  return isModuleEnabled('dblog');
 }
 
 /**
- * Truncate all log messages in the database log.
+ * Delete all watchdog messages on the test site.
  */
-export async function truncateDblog(page: Page): Promise<void> {
-  await page.goto('/admin/reports/dblog/confirm');
-  await page.waitForSelector('form', { timeout: 5000 });
-  const confirmButton = page.locator(
-    'input[type="submit"][value*="Clear"], input[type="submit"][value*="Confirm"], input[type="submit"].button--primary',
-  );
-  if ((await confirmButton.count()) === 0) {
-    throw new Error('truncateDblog: could not find a confirmation button');
-  }
-  await confirmButton.first().click();
-}
-
-async function extractLogEntriesFromPage(page: Page): Promise<DblogEntry[]> {
-  const entries: DblogEntry[] = [];
-  const tableLocator = page.locator('table');
-  await tableLocator.first().waitFor({ timeout: 5000 });
-
-  const rows = page.locator('table tbody tr, table tr:not(:first-child)');
-  const rowCount = await rows.count();
-
-  for (let i = 0; i < rowCount; i++) {
-    const row = rows.nth(i);
-
-    let severity = '';
-    const severityCell = row.locator('td').first();
-    const severityImg = severityCell.locator('img');
-    if ((await severityImg.count()) > 0) {
-      const alt = await severityImg.getAttribute('alt');
-      severity = alt?.toLowerCase() || '';
-    }
-    if (!severity) {
-      const severityText = await severityCell.textContent();
-      severity = severityText?.trim().toLowerCase() || '';
-    }
-
-    const cells = row.locator('td');
-    const cellCount = await cells.count();
-
-    let type = '';
-    let message = '';
-    let timestamp = '';
-
-    if (cellCount >= 3) {
-      type = (await cells.nth(1).textContent())?.trim() || '';
-      message = (await cells.nth(2).textContent())?.trim() || '';
-    }
-    if (cellCount >= 4) {
-      timestamp = (await cells.nth(cellCount - 2).textContent())?.trim() || '';
-    }
-
-    entries.push({ severity, type, message, timestamp });
-  }
-
-  return entries;
-}
-
-async function hasNextPage(page: Page): Promise<boolean> {
-  const nextLink = page.locator(
-    'nav.pager a[title*="next" i], nav.pager a.pager__item--next, li.pager__item--next a, a[rel="next"]',
-  );
-  return (await nextLink.count()) > 0;
-}
-
-async function goToNextPage(page: Page): Promise<void> {
-  const nextLink = page.locator(
-    'nav.pager a[title*="next" i], nav.pager a.pager__item--next, li.pager__item--next a, a[rel="next"]',
-  );
-  if ((await nextLink.count()) > 0) {
-    await nextLink.first().click();
-    await page.waitForLoadState('domcontentloaded');
-  }
+export async function truncateDblog(): Promise<void> {
+  await execDrushInTestSite('watchdog:delete all -y');
 }
 
 /**
- * Fetch all log entries from dblog, handling pagination when configured.
+ * Fetch watchdog entries via `drush watchdog:show`. Returns the full set
+ * (up to the internal count cap), with severities normalised to lowercase
+ * so they line up with the `DblogSeverity` enum.
  */
 export async function fetchDblogEntries(
-  page: Page,
   config: DblogMonitorConfig = DEFAULT_DBLOG_CONFIG,
 ): Promise<DblogEntry[]> {
-  const allEntries: DblogEntry[] = [];
-
-  await page.goto('/admin/reports/dblog');
-
-  const noLogsMessage = page
-    .getByText(/no log messages available/i)
-    .or(page.locator('.empty-text'))
-    .or(page.locator('.view-empty'));
-  if ((await noLogsMessage.count()) > 0) {
-    return allEntries;
+  let command = `watchdog:show --format=json --extended --count=${DRUSH_FETCH_COUNT_CAP}`;
+  if (config.moduleFilter) {
+    command += ` --type=${shellQuote([config.moduleFilter])}`;
   }
+  const result = await execDrushInTestSite(command);
+  const stdout = result.stdout.trim();
+  if (!stdout) return [];
 
-  let entries = await extractLogEntriesFromPage(page);
-  allEntries.push(...entries);
-
-  if (config.checkAllPages !== false) {
-    while (await hasNextPage(page)) {
-      await goToNextPage(page);
-      entries = await extractLogEntriesFromPage(page);
-      allEntries.push(...entries);
-    }
-  }
-
-  return allEntries;
+  const parsed = JSON.parse(stdout) as Record<string, Record<string, string>>;
+  return Object.values(parsed).map((entry) => ({
+    wid: entry.wid ?? '',
+    type: entry.type ?? '',
+    message: entry.message ?? '',
+    severity: (entry.severity ?? '').toLowerCase(),
+    location: entry.location ?? '',
+    hostname: entry.hostname ?? '',
+    date: entry.date ?? '',
+    username: entry.username ?? '',
+    uid: entry.uid ?? '',
+  }));
 }
 
 /**
- * Fetch dblog entries and return only those matching the configured severity
- * levels. Defaults to `ERROR` and `CRITICAL`.
+ * Fetch dblog entries and return only those whose severity is in
+ * `config.failOnSeverities`. Defaults to `CRITICAL` + `ERROR`.
  */
 export async function checkDblogForErrors(
-  page: Page,
   config: DblogMonitorConfig = DEFAULT_DBLOG_CONFIG,
 ): Promise<DblogEntry[]> {
-  const mergedConfig = { ...DEFAULT_DBLOG_CONFIG, ...config };
-  const allEntries = await fetchDblogEntries(page, mergedConfig);
-
-  const failureSeverities = mergedConfig.failOnSeverities || [];
-  return allEntries.filter((entry) => {
-    const entrySeverity = entry.severity.toLowerCase();
-    return failureSeverities.some((sev) => entrySeverity.includes(sev));
-  });
+  const merged = { ...DEFAULT_DBLOG_CONFIG, ...config };
+  const entries = await fetchDblogEntries(merged);
+  const failOn = new Set<string>(merged.failOnSeverities ?? []);
+  return entries.filter((e) => failOn.has(e.severity));
 }
 
 /**
@@ -207,7 +136,7 @@ export function formatLogErrors(entries: DblogEntry[]): string {
   }
 
   const lines = entries.map((entry, index) => {
-    return `${index + 1}. [${entry.severity.toUpperCase()}] ${entry.type}\n   Message: ${entry.message}\n   Time: ${entry.timestamp || 'N/A'}`;
+    return `${index + 1}. [${entry.severity.toUpperCase()}] ${entry.type}\n   Message: ${entry.message}\n   Time: ${entry.date || 'N/A'}`;
   });
 
   return `Found ${entries.length} critical/error log entries:\n\n${lines.join('\n\n')}`;
