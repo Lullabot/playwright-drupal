@@ -185,6 +185,39 @@ expect(nodeId).toBeDefined();
 
 Returns the numeric ID as a string, or `undefined` when neither the URL nor any rendered edit link matches `/\<entityType\>/(\\d+)`. Works for any entity whose edit route follows `/<entityType>/<id>/edit`. Entity types routed under `/admin/...` (some config entities) are not handled — that is a separate helper for another day.
 
+### Media Library
+
+Drive Drupal's `media_library` widget end-to-end: open the modal, optionally upload a fixture when the library is empty, select the first available item, and click "Insert selected". `findMediaIdFromListing` covers the post-save fallback for distributions where the redirect doesn't land on `/media/N`.
+
+```typescript
+import path from 'node:path';
+import { test, selectFirstMediaFromLibrary } from '@packages/playwright-drupal';
+
+test('selects a media item for a required widget', async ({ page }) => {
+  await page.goto('/node/add/article');
+  await selectFirstMediaFromLibrary(
+    page,
+    '[data-drupal-selector="edit-field-media-image"]',
+    { uploadFixturePath: path.join(__dirname, 'fixtures', 'test.png') },
+  );
+});
+```
+
+!!! warning
+    Empty-library auto-upload **only runs when you supply `uploadFixturePath`**. When the library is empty and no fixture path is provided, the function throws.
+
+**API:** `selectFirstMediaFromLibrary(page: Page, wrapperSelector: string, opts?: { uploadFixturePath?: string }): Promise<void>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+| `wrapperSelector` | *(required)* | Selector for the fieldset wrapping the widget (e.g. `[data-drupal-selector="edit-field-media-image"]`). |
+| `opts.uploadFixturePath` | `undefined` | Path to a file to upload when the media library is empty. |
+
+**API:** `findMediaIdFromListing(page: Page, baseUrl: string, name: string): Promise<string | undefined>`
+
+Looks up a media entity by name on `/admin/content/media` and extracts the ID from the first matching link. Useful when a post-save redirect skipped `/media/N` (e.g. on distributions with path aliases).
+
 ### oEmbed
 
 Fill a Drupal oEmbed URL field, blur to trigger validation, and warn (don't throw) if Drupal rejects the URL.
