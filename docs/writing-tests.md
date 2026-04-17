@@ -244,10 +244,6 @@ Queries `drush pm:list --status=enabled --field=name` and checks for the module'
 
 UI-only fallback. Returns `true` when the path responds 200 and no access-denied text is visible; `false` on 403/404 or when access-denied markers are present.
 
-**API:** `isFieldUiEnabled(page: Page): Promise<boolean>`
-
-Convenience wrapper: tries Drush first, falls through to a UI probe against `/admin/structure/types`.
-
 **API:** `validateRequiredModules(page: Page, names: string[]): Promise<void>`
 
 Throws with a Drush remediation hint if any of the listed modules are not enabled.

@@ -39,52 +39,33 @@ export async function isModuleEnabledByPath(
   _moduleName: string,
   testPath: string,
 ): Promise<boolean> {
-  try {
-    const response = await page.goto(testPath, { waitUntil: 'networkidle' });
-    if (!response?.ok()) return false;
+  const response = await page.goto(testPath, { waitUntil: 'networkidle' });
+  if (!response?.ok()) return false;
 
-    const accessDenied = await page
-      .locator('text=/access denied/i, text=/you are not authorized/i')
-      .count();
-    if (accessDenied > 0) return false;
+  const accessDenied = await page
+    .locator('text=/access denied/i, text=/you are not authorized/i')
+    .count();
+  if (accessDenied > 0) return false;
 
-    const alertBox = page.locator('div[role="alert"]').first();
-    if ((await alertBox.count()) > 0) {
-      const alertText = (await alertBox.textContent()) || '';
-      if (alertText.toLowerCase().includes('access') || alertText.toLowerCase().includes('denied')) {
-        return false;
-      }
+  const alertBox = page.locator('div[role="alert"]').first();
+  if ((await alertBox.count()) > 0) {
+    const alertText = (await alertBox.textContent()) || '';
+    if (alertText.toLowerCase().includes('access') || alertText.toLowerCase().includes('denied')) {
+      return false;
     }
-
-    return true;
-  } catch {
-    return false;
   }
-}
 
-/**
- * Check whether Drupal's `field_ui` module is enabled.
- *
- * Tries Drush first; falls back to a UI probe against `/admin/structure/types`
- * when Drush is unavailable.
- */
-export async function isFieldUiEnabled(page: Page): Promise<boolean> {
-  try {
-    return await isModuleEnabled('field_ui');
-  } catch {
-    return isModuleEnabledByPath(page, 'field_ui', '/admin/structure/types');
-  }
+  return true;
 }
 
 /**
  * Throw with a Drush remediation hint if any of the required modules are
- * not enabled. The generalised signature accepts an arbitrary module list.
+ * not enabled.
  */
 export async function validateRequiredModules(_page: Page, names: string[]): Promise<void> {
   const missing: string[] = [];
   for (const name of names) {
-    const enabled = await isModuleEnabled(name).catch(() => false);
-    if (!enabled) missing.push(name);
+    if (!(await isModuleEnabled(name))) missing.push(name);
   }
   if (missing.length > 0) {
     throw new Error(
