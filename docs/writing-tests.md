@@ -185,6 +185,35 @@ expect(nodeId).toBeDefined();
 
 Returns the numeric ID as a string, or `undefined` when neither the URL nor any rendered edit link matches `/\<entityType\>/(\\d+)`. Works for any entity whose edit route follows `/<entityType>/<id>/edit`. Entity types routed under `/admin/...` (some config entities) are not handled — that is a separate helper for another day.
 
+### CKEditor 5
+
+The `Ckeditor5` class drives **CKEditor 5** fields — the editor Drupal core has shipped by default since Drupal 10. It clears any existing content, then types the new value through `page.keyboard` so CKEditor's event pipeline processes the edits correctly (Playwright's `locator.fill()` can be silently dropped because the editor re-renders from its internal model).
+
+!!! warning
+    This class is for CKEditor **5** only. It does not work with CKEditor 4, which Drupal 10 still ships via the `ckeditor` module for sites that opted in. For CKEditor 4 use a plain `page.frameLocator(...)` + `fill()`.
+
+```typescript
+import { test, Ckeditor5 } from '@packages/playwright-drupal';
+
+test('edits the body copy', async ({ page }) => {
+  await page.goto('/node/1/edit');
+  const body = new Ckeditor5(page, '#edit-body-wrapper');
+  await body.fill('New body text');
+});
+```
+
+**Constructor:** `new Ckeditor5(page: Page, selector: string, root?: Page | FrameLocator)`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The owning `Page`. Keyboard events target this page. |
+| `selector` | *(required)* | Selector for the widget **wrapper** containing the editor (e.g. `#edit-body-wrapper`, `[data-drupal-selector="edit-field-body-wrapper"]`). The class drills into `.ck-editor__editable` internally. |
+| `root` | `page` | Optional `FrameLocator` if the editor renders inside an iframe. |
+
+**API:** `async fill(text: string): Promise<void>`
+
+Waits for the editor to become visible, clicks to place the caret, clears existing content via select-all + Backspace (platform-aware), and types the new text. Final value is exactly `text`, regardless of whether the field was empty — matching Playwright's `fill()` semantics.
+
 ### Gin theme workarounds
 
 Helpers scoped to quirks introduced by the [Gin](https://www.drupal.org/project/gin) admin theme. Today the only helper is a click wrapper that survives Gin's pinned page header, which routinely overlaps submit buttons near the bottom of a form.
