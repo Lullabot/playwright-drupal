@@ -214,6 +214,40 @@ test('edits the body copy', async ({ page }) => {
 
 Waits for the editor to become visible, clicks to place the caret, clears existing content via select-all + Backspace (platform-aware), and types the new text. Final value is exactly `text`, regardless of whether the field was empty — matching Playwright's `fill()` semantics.
 
+### Modules
+
+Check whether a Drupal module is enabled, or assert that a list of modules is enabled before a test runs. Drush-first: tests running inside this package's lifecycle get a fast, reliable check via `drush pm:list`. A UI fallback is available for contexts without Drush.
+
+!!! warning
+    `isModuleEnabled` requires a bootstrapped test site because it uses `execDrushInTestSite`. For probes against a long-lived local site, use `isModuleEnabledByPath` directly.
+
+```typescript
+import { test, validateRequiredModules } from '@packages/playwright-drupal';
+
+test.beforeAll(async ({ browser }) => {
+  const page = await browser.newPage();
+  await validateRequiredModules(page, ['field_ui', 'dblog']);
+});
+```
+
+**API:** `isModuleEnabled(name: string): Promise<boolean>`
+
+Queries `drush pm:list --status=enabled --field=name` and checks for the module's machine name on its own line.
+
+**API:** `isModuleEnabledByPath(page: Page, moduleName: string, testPath: string): Promise<boolean>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+| `moduleName` | *(required)* | Informational — used in error messages. |
+| `testPath` | *(required)* | An admin path that is accessible only when the module is enabled. |
+
+UI-only fallback. Returns `true` when the path responds 200 and no access-denied text is visible; `false` on 403/404 or when access-denied markers are present.
+
+**API:** `validateRequiredModules(page: Page, names: string[]): Promise<void>`
+
+Throws with a Drush remediation hint if any of the listed modules are not enabled.
+
 ### Gin theme workarounds
 
 Helpers scoped to quirks introduced by the [Gin](https://www.drupal.org/project/gin) admin theme. Today the only helper is a click wrapper that survives Gin's pinned page header, which routinely overlaps submit buttons near the bottom of a form.
