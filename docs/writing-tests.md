@@ -287,6 +287,34 @@ Returns only entries whose severity is in `config.failOnSeverities` (default: `C
 
 Human-readable formatter for use in assertion messages.
 
+### Status report
+
+Grab the contents of `/admin/reports/status` as typed arrays grouped by severity. Useful as a post-install smoke check. Runs `drush core:requirements --format=json` under the hood, so this shares the `execDrushInTestSite` lifecycle — must run inside the bootstrapped test site this package manages.
+
+```typescript
+import { test, getStatusReport, filterStatusItems, formatStatusItems } from '@packages/playwright-drupal';
+
+test('site has no unexpected status-report errors', async () => {
+  const report = await getStatusReport();
+  const errors = filterStatusItems(report.errors, { ignoreItems: ['Trusted Host Settings'] });
+  expect(errors, formatStatusItems(errors)).toEqual([]);
+});
+```
+
+**Types:** `StatusReportItem` (with `id`, `title`, `severity`, `description`, `value`), `StatusReportResult`, `StatusReportConfig`
+
+**API:** `getStatusReport(): Promise<StatusReportResult>`
+
+Returns `{ errors, warnings, info, ok }`, each a `StatusReportItem[]`. `severity` is lowercased to `'error' | 'warning' | 'info' | 'ok'`; entries without a title are skipped; unknown severity values fall into `ok`.
+
+**API:** `filterStatusItems(items: StatusReportItem[], config?: StatusReportConfig): StatusReportItem[]`
+
+Removes items whose title contains any of `config.ignoreItems` (case-insensitive substring match).
+
+**API:** `formatStatusItems(items: StatusReportItem[]): string`
+
+Formats items as a bulleted list with optional truncated-details lines, suitable for use in assertion messages.
+
 ### Gin theme workarounds
 
 Helpers scoped to quirks introduced by the [Gin](https://www.drupal.org/project/gin) admin theme. Today the only helper is a click wrapper that survives Gin's pinned page header, which routinely overlaps submit buttons near the bottom of a form.
