@@ -34,6 +34,11 @@ describe('extractEntityIdFromPage', () => {
     expect(id).toBe('7');
   });
 
+  it('accepts arbitrary entity types (e.g. user)', async () => {
+    const id = await extractEntityIdFromPage(makePage({ url: 'http://example.test/user/3' }), 'user');
+    expect(id).toBe('3');
+  });
+
   it('returns undefined when neither the URL nor an edit link matches', async () => {
     const id = await extractEntityIdFromPage(
       makePage({ url: 'http://example.test/unrelated', editHref: null }),

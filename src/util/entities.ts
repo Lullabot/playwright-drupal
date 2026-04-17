@@ -8,10 +8,16 @@ import { Page } from '@playwright/test';
  * than `/node/42`. `extractEntityIdFromPage` extracts the numeric ID either
  * from the current URL or, failing that, from the first canonical edit link
  * rendered on the page.
+ *
+ * `entityType` is the path segment used by the entity's canonical route —
+ * typically the machine name (`'node'`, `'media'`, `'user'`, etc.). Works
+ * for any entity whose edit route follows `/<entityType>/<id>/edit`. Entity
+ * types routed under `/admin/...` (for example some config entities) are
+ * not handled here.
  */
 export async function extractEntityIdFromPage(
   page: Page,
-  entityType: 'node' | 'media',
+  entityType: string,
 ): Promise<string | undefined> {
   const pattern = new RegExp(`/${entityType}/(\\d+)`);
   const directMatch = page.url().match(pattern)?.[1];

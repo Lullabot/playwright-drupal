@@ -176,14 +176,14 @@ const nodeId = await extractEntityIdFromPage(page, 'node');
 expect(nodeId).toBeDefined();
 ```
 
-**API:** `extractEntityIdFromPage(page: Page, entityType: 'node' | 'media'): Promise<string | undefined>`
+**API:** `extractEntityIdFromPage(page: Page, entityType: string): Promise<string | undefined>`
 
 | Parameter | Default | Description |
 |---|---|---|
 | `page` | *(required)* | The Playwright page object. |
-| `entityType` | *(required)* | `'node'` or `'media'`. |
+| `entityType` | *(required)* | The entity type's canonical-route path segment (typically the machine name) — e.g. `'node'`, `'media'`, `'user'`. |
 
-Returns the numeric ID as a string, or `undefined` when neither the URL nor any rendered edit link matches `/\<entityType\>/(\\d+)`.
+Returns the numeric ID as a string, or `undefined` when neither the URL nor any rendered edit link matches `/\<entityType\>/(\\d+)`. Works for any entity whose edit route follows `/<entityType>/<id>/edit`. Entity types routed under `/admin/...` (some config entities) are not handled — that is a separate helper for another day.
 
 ### Gin theme workarounds
 
