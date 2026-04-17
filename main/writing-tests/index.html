@@ -563,6 +563,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#database-log-dblog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database log (dblog)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#gin-theme-workarounds" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -847,6 +858,17 @@
     <span class="md-ellipsis">
       
         Modules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-log-dblog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database log (dblog)
       
     </span>
   </a>
@@ -1222,27 +1244,51 @@
 <p>UI-only fallback. Returns <code>true</code> when the path responds 200 and no access-denied text is visible; <code>false</code> on 403/404 or when access-denied markers are present.</p>
 <p><strong>API:</strong> <code>validateRequiredModules(page: Page, names: string[]): Promise&lt;void&gt;</code></p>
 <p>Throws with a Drush remediation hint if any of the listed modules are not enabled.</p>
+<h3 id="database-log-dblog">Database log (dblog)</h3>
+<p>Treat Drupal's watchdog log as an assertion target: truncate at the start of a test, drive the system under test, then fail if any <code>error</code> or <code>critical</code> entries accumulate. All functions go through <code>drush watchdog:*</code> via <code>execDrushInTestSite</code>, so they must run inside the bootstrapped test site this package manages.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">truncateDblog</span><span class="p">,</span><span class="w"> </span><span class="nx">checkDblogForErrors</span><span class="p">,</span><span class="w"> </span><span class="nx">formatLogErrors</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;content creation logs no errors&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">truncateDblog</span><span class="p">();</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">  </span><span class="c1">// … drive the flow under test …</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">checkDblogForErrors</span><span class="p">();</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">  </span><span class="nx">expect</span><span class="p">(</span><span class="nx">errors</span><span class="p">,</span><span class="w"> </span><span class="nx">formatLogErrors</span><span class="p">(</span><span class="nx">errors</span><span class="p">)).</span><span class="nx">toEqual</span><span class="p">([]);</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="p">});</span>
+</span></code></pre></div>
+<p><strong>Types:</strong> <code>DblogSeverity</code> (enum, lowercase values matching Drupal's RfcLogLevel names), <code>DblogEntry</code>, <code>DblogMonitorConfig</code></p>
+<p><strong>API:</strong> <code>isDblogEnabled(): Promise&lt;boolean&gt;</code></p>
+<p>Thin wrapper around <code>isModuleEnabled('dblog')</code>.</p>
+<p><strong>API:</strong> <code>truncateDblog(): Promise&lt;void&gt;</code></p>
+<p>Runs <code>drush watchdog:delete all -y</code>.</p>
+<p><strong>API:</strong> <code>fetchDblogEntries(config?: DblogMonitorConfig): Promise&lt;DblogEntry[]&gt;</code></p>
+<p>Runs <code>drush watchdog:show --format=json --extended --count=…</code> and returns the entries with severities normalised to lowercase. <code>config.moduleFilter</code> maps to <code>--type=</code>. The count cap is deliberately high so tests don't silently drop entries.</p>
+<p><strong>API:</strong> <code>checkDblogForErrors(config?: DblogMonitorConfig): Promise&lt;DblogEntry[]&gt;</code></p>
+<p>Returns only entries whose severity is in <code>config.failOnSeverities</code> (default: <code>CRITICAL</code> + <code>ERROR</code>).</p>
+<p><strong>API:</strong> <code>formatLogErrors(entries: DblogEntry[]): string</code></p>
+<p>Human-readable formatter for use in assertion messages.</p>
 <h3 id="gin-theme-workarounds">Gin theme workarounds</h3>
 <p>Helpers scoped to quirks introduced by the <a href="https://www.drupal.org/project/gin">Gin</a> admin theme. Today the only helper is a click wrapper that survives Gin's pinned page header, which routinely overlaps submit buttons near the bottom of a form.</p>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">clickSubmit</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;deletes a node&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/node/1/delete&#39;</span><span class="p">);</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">clickSubmit</span><span class="p">(</span><span class="nx">page</span><span class="p">.</span><span class="nx">locator</span><span class="p">(</span><span class="s1">&#39;input[type=submit][value=&quot;Delete&quot;]&#39;</span><span class="p">));</span>
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="p">});</span>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">clickSubmit</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;deletes a node&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/node/1/delete&#39;</span><span class="p">);</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">clickSubmit</span><span class="p">(</span><span class="nx">page</span><span class="p">.</span><span class="nx">locator</span><span class="p">(</span><span class="s1">&#39;input[type=submit][value=&quot;Delete&quot;]&#39;</span><span class="p">));</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">});</span>
 </span></code></pre></div>
 <p><strong>API:</strong> <code>clickSubmit(locator: Locator): Promise&lt;void&gt;</code></p>
 <p>Scrolls <code>locator</code> into view and clicks it with <code>force: true</code>. Two steps are needed because Playwright's default actionability check passes once the button is in the viewport, but Gin's sticky header can still cover it; <code>force: true</code> bypasses the overlap check, and the scroll ensures the button actually lands at a free position. Use for delete buttons, moderation actions, and any other submit-style click you don't want the pinned header to intercept. <code>clickSaveButton</code> already delegates here internally.</p>
 <h3 id="page-readiness">Page readiness</h3>
 <p>Lazy-loaded images and iframes are often not present when Playwright first queries the DOM. These utilities scroll hidden regions into view and wait for network-backed resources to settle, so assertions run against a stable page. They are especially important before visual comparisons.</p>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForFrames</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;hero renders with images and embedded video&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">);</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForFrames</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">).</span><span class="nx">toHaveScreenshot</span><span class="p">();</span>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="p">});</span>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForFrames</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;hero renders with images and embedded video&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">);</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForFrames</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">).</span><span class="nx">toHaveScreenshot</span><span class="p">();</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="p">});</span>
 </span></code></pre></div>
 <p><strong>API:</strong> <code>waitForImages(page: Page, selector: string): Promise&lt;void&gt;</code></p>
 <table>
@@ -1289,9 +1335,9 @@
 <p>Scrolls every <code>&lt;iframe&gt;</code> into view and waits for each one to have loaded a URL. Operates serially to avoid concurrency bugs; fast enough that parallelism is not worth the complexity.</p>
 <h3 id="docroot-resolution">Docroot resolution</h3>
 <p>Tests sometimes need to resolve files relative to the Drupal docroot — for example when generating fixtures or computing paths inside the Drupal site. <code>getDocroot()</code> reads <code>composer.json#extra.drupal-scaffold.locations.web-root</code> so tests don't hard-code <code>'web'</code> (or <code>'docroot'</code>) and work across Drupal scaffold configurations.</p>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getDocroot</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">docroot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getDocroot</span><span class="p">();</span><span class="w"> </span><span class="c1">// &#39;web&#39; on drupal/recommended-project, &#39;docroot&#39; on other setups</span>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getDocroot</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">docroot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getDocroot</span><span class="p">();</span><span class="w"> </span><span class="c1">// &#39;web&#39; on drupal/recommended-project, &#39;docroot&#39; on other setups</span>
 </span></code></pre></div>
 <p><strong>API:</strong> <code>getDocroot(composerJsonPath?: string): string</code></p>
 <table>
