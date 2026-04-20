@@ -59,9 +59,9 @@ nav:
     - Playwright Configuration: getting-started/playwright-configuration.md
   - Working with Tests:
     - Writing Tests: guides/writing-tests.md
+    - Visual Comparisons (Diffs): guides/visual-comparisons.md
     - Debugging Tests: guides/debugging-tests.md
     - Drupal Testing Utilities: guides/drupal-testing-utilities.md
-    - Visual Comparisons: guides/visual-comparisons.md
     - GitHub Actions: guides/github-actions.md
   - Contributing:
     - Development: contributing/development.md
