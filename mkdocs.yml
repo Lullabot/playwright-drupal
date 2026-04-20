@@ -59,6 +59,7 @@ nav:
     - Playwright Configuration: getting-started/playwright-configuration.md
   - Guides:
     - Writing Tests: guides/writing-tests.md
+    - Debugging Tests: guides/debugging-tests.md
     - Drupal Utilities: guides/utilities.md
     - Visual Comparisons: guides/visual-comparisons.md
     - GitHub Actions: guides/github-actions.md
