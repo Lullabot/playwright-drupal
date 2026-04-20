@@ -5,11 +5,11 @@
          <lastmod>2026-04-20</lastmod>
     </url>
     <url>
-         <loc>https://lullabot.github.io/playwright-drupal/main/configuration/</loc>
+         <loc>https://lullabot.github.io/playwright-drupal/main/development/contributing/</loc>
          <lastmod>2026-04-20</lastmod>
     </url>
     <url>
-         <loc>https://lullabot.github.io/playwright-drupal/main/development/</loc>
+         <loc>https://lullabot.github.io/playwright-drupal/main/development/releases/</loc>
          <lastmod>2026-04-20</lastmod>
     </url>
     <url>
@@ -17,15 +17,27 @@
          <lastmod>2026-04-20</lastmod>
     </url>
     <url>
-         <loc>https://lullabot.github.io/playwright-drupal/main/github-actions/</loc>
+         <loc>https://lullabot.github.io/playwright-drupal/main/getting-started/configuration/</loc>
          <lastmod>2026-04-20</lastmod>
     </url>
     <url>
-         <loc>https://lullabot.github.io/playwright-drupal/main/visual-comparisons/</loc>
+         <loc>https://lullabot.github.io/playwright-drupal/main/getting-started/installation/</loc>
          <lastmod>2026-04-20</lastmod>
     </url>
     <url>
-         <loc>https://lullabot.github.io/playwright-drupal/main/writing-tests/</loc>
+         <loc>https://lullabot.github.io/playwright-drupal/main/guides/github-actions/</loc>
+         <lastmod>2026-04-20</lastmod>
+    </url>
+    <url>
+         <loc>https://lullabot.github.io/playwright-drupal/main/guides/utilities/</loc>
+         <lastmod>2026-04-20</lastmod>
+    </url>
+    <url>
+         <loc>https://lullabot.github.io/playwright-drupal/main/guides/visual-comparisons/</loc>
+         <lastmod>2026-04-20</lastmod>
+    </url>
+    <url>
+         <loc>https://lullabot.github.io/playwright-drupal/main/guides/writing-tests/</loc>
          <lastmod>2026-04-20</lastmod>
     </url>
 </urlset>
