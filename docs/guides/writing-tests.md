@@ -8,14 +8,13 @@ import { test, expect } from '@packages/playwright-drupal';
 
 This will trigger the setup and teardown of the separate Drupal site.
 
-If you have a test that you don't want to run this way, import test and expect from `@playwright/test` as normal.
+If you have a test that you don't want to run this way, import `test` and `expect` from `@playwright/test` as normal.
 
 ## Recording Tests in VS Code
 
 The VS Code "Record new" command generates absolute URLs and default imports. To keep URLs relative and use `@lullabot/playwright-drupal` helpers, record **at cursor** into a test file.
 
 1. Create a test from the following template:
-
    ```ts
    // test/playwright/tests/test1.spec.ts
    import { test, expect, execDrushInTestSite } from '@packages/playwright-drupal';
@@ -29,30 +28,11 @@ The VS Code "Record new" command generates absolute URLs and default imports. To
    ```
 
 2. In the VS Code Testing sidebar, under Playwright:
+     * Scroll to and toggle the correct configs (gear icon) pointing to your project's `test/playwright/playwright.config.ts`.
+     * Use **Record at cursor** to append steps into the template.
+       (If the recorder adds an extra absolute `page.goto('http://…')`, change it to keep them relative `/`.)
 
-   * Scroll to and toggle the correct configs (gear icon) pointing to your project's `test/playwright/playwright.config.ts`.
-   * Use **Record at cursor** to append steps into the template.
-     (If the recorder adds an extra absolute `page.goto('http://…')`, change it to keep them relative `/`.)
-
-This keeps tests portable across DDEV/CI, leverages `use.baseURL`, and ensures Lullabot helpers are available.
-
-## Running Tests Without Isolation
-
-There are times you may want to run Playwright without isolating test runs. Perhaps you're manually scaffolding test content by hand, before writing code to create it. Or perhaps you would like to be absolutely sure that a test passes or fails when running against mariadb.
-
-To do this, run `export PLAYWRIGHT_NO_TEST_ISOLATION=1`. This **must** be done inside a ddev shell (via ddev ssh) and not `ddev playwright` or `ddev exec`. Consider running Playwright with `--workers=1` and with a single browser, since any changes to the database will persist.
-
-## Verbose CLI Output
-
-By default, output from CLI commands (drush, task) and browser web errors is captured and attached to each test result as text files. This keeps the terminal clean when running tests in parallel, since output from different workers would otherwise be interleaved.
-
-To print CLI output inline instead (the original behavior), set in your DDEV shell:
-
-```bash
-export PLAYWRIGHT_DRUPAL_VERBOSE=1
-```
-
-This is useful when debugging a single test or running with `--workers=1`, where interleaved output is not a concern. The attached output files are available in the HTML test report regardless of this setting.
+This keeps tests portable across DDEV and CI, leverages `use.baseURL`, and ensures Lullabot helpers are available.
 
 ## Running Drush in Tests
 
@@ -61,3 +41,27 @@ There's many good reasons to want to run Drush in a test. The above example sets
 To run Drush during a test, use `execDrushInTestSite` as shown in the example test. This ensures that Drush bootstraps against the test site, and not the default site.
 
 There may be times you want to run Drush once, globally before all tests. In that case, add a `playwright:install:hook` task to your Taskfile, and from there you can call Drush or anything else you may need to do during setup.
+
+## Verbose CLI Output
+
+By default, output from CLI commands (like drush or task) and browser web errors is captured and attached to each test result as text files. This keeps the terminal clean when running tests in parallel, since output from different workers would otherwise be interleaved.
+
+To print CLI output inline instead, set in your DDEV shell:
+
+```bash
+export PLAYWRIGHT_DRUPAL_VERBOSE=1
+```
+
+This is useful when debugging a single test or running with `--workers=1`, where interleaved output is not a concern. The attached output files are available in the HTML test report regardless of this setting.
+
+## Running Tests Without Isolation
+
+There are times you may want to run Playwright without isolating test runs. Perhaps you're manually scaffolding test content by hand, before writing code to create it. Or perhaps you would like to be absolutely sure that a test passes or fails when running against mariadb.
+
+To do this, set in your DDEV shell:
+
+```bash
+export PLAYWRIGHT_NO_TEST_ISOLATION=1
+```
+
+Consider running Playwright with `--workers=1` and with a single browser, since any changes to the database will persist.
