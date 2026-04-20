@@ -10,7 +10,13 @@ The `definePlaywrightDrupalConfig()` function returns a complete Playwright conf
 | `reporter` | CI: `[['line'], ['html'], ['json', ...]]`; Local: `[['html', ...], ['list'], ['json', ...]]` |
 | `globalSetup` | Auto-resolved path to this package's `global-setup` module |
 
-## Usage
+## Overriding Defaults
+
+Plain-object properties are deep-merged with their defaults at every nesting level. For example, providing `use.ignoreHTTPSErrors` keeps the default `use.baseURL` while adding your setting. Non-object properties (including arrays like `reporter`) replace the default entirely.
+
+If you need full control, you can always use Playwright's `defineConfig()` directly with the `globalSetup` path from this package.
+
+This example imports the default configuration and shows overriding some common settings.
 
 ```typescript
 import { definePlaywrightDrupalConfig } from '@lullabot/playwright-drupal/config';
@@ -32,9 +38,3 @@ export default definePlaywrightDrupalConfig({
   ],
 });
 ```
-
-## Overriding Defaults
-
-Plain-object properties are deep-merged with their defaults at every nesting level, so providing `use.ignoreHTTPSErrors` keeps the default `use.baseURL` while adding your setting. Non-object properties (including arrays like `reporter`) replace the default entirely.
-
-If you need full control, you can always use Playwright's `defineConfig()` directly with the `globalSetup` path from this package, as described in prior versions of this README.
