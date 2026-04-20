@@ -57,7 +57,7 @@ nav:
     - About playwright-drupal: getting-started/index.md
     - Installation: getting-started/installation.md
     - Playwright Configuration: getting-started/playwright-configuration.md
-  - Guides:
+  - Working with Tests:
     - Writing Tests: guides/writing-tests.md
     - Debugging Tests: guides/debugging-tests.md
     - Drupal Testing Utilities: guides/drupal-testing-utilities.md
