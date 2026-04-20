@@ -54,7 +54,7 @@ extra:
 nav:
   - Home: index.md
   - Getting Started:
-    - Overview: getting-started/index.md
+    - About playwright-drupal: getting-started/index.md
     - Installation: getting-started/installation.md
     - Playwright Configuration: getting-started/playwright-configuration.md
   - Guides:
