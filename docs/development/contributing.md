@@ -6,7 +6,6 @@ This project uses [bats-core](https://github.com/bats-core/bats-core) for integr
 
 **Prerequisites:**
 - [DDEV](https://ddev.readthedocs.io/en/stable/) (v1.25+)
-- [Docker](https://docs.docker.com/get-docker/)
 - [bats-core](https://bats-core.readthedocs.io/en/stable/installation.html)
 
 **Run the tests:**
@@ -20,11 +19,7 @@ Tests take approximately 10-15 minutes as they set up a complete Drupal environm
 
 The documentation site uses [MkDocs](https://www.mkdocs.org/) with the [Material theme](https://squidfunk.github.io/mkdocs-material/) and [`mike`](https://github.com/jimporter/mike) for versioned deployments.
 
-**Prerequisites:** Install [`uv`](https://docs.astral.sh/uv/) (no manual Python virtualenv setup required):
-
-```console
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
+**Prerequisites:** Install [`uv`](https://docs.astral.sh/uv/) (no manual Python virtualenv setup required).
 
 **Local development:**
 
