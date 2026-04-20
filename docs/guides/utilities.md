@@ -1,68 +1,4 @@
-# Writing Tests
-
-The important part of writing a test is to use the Test class shipped with this library (that extends Playwright's normal Test class):
-
-```typescript
-import { test, expect } from '@packages/playwright-drupal';
-```
-
-This will trigger the setup and teardown of the separate Drupal site.
-
-If you have a test that you don't want to run this way, import test and expect from `@playwright/test` as normal.
-
-## Recording Tests in VS Code
-
-The VS Code "Record new" command generates absolute URLs and default imports. To keep URLs relative and use `@lullabot/playwright-drupal` helpers, record **at cursor** into a test file.
-
-1. Create a test from the following template:
-
-   ```ts
-   // test/playwright/tests/test1.spec.ts
-   import { test, expect, execDrushInTestSite } from '@packages/playwright-drupal';
-
-   // 1. Update the test name.
-   test('new test', async ({ page }) => {
-     // 2. Keep paths relative; "Record new" would supply the absolute URL.
-     await page.goto('/');
-     // 3. Place cursor here, then use "Record at cursor"
-   });
-   ```
-
-2. In the VS Code Testing sidebar, under Playwright:
-
-   * Scroll to and toggle the correct configs (gear icon) pointing to your project's `test/playwright/playwright.config.ts`.
-   * Use **Record at cursor** to append steps into the template.
-     (If the recorder adds an extra absolute `page.goto('http://…')`, change it to keep them relative `/`.)
-
-This keeps tests portable across DDEV/CI, leverages `use.baseURL`, and ensures Lullabot helpers are available.
-
-## Running Tests Without Isolation
-
-There are times you may want to run Playwright without isolating test runs. Perhaps you're manually scaffolding test content by hand, before writing code to create it. Or perhaps you would like to be absolutely sure that a test passes or fails when running against mariadb.
-
-To do this, run `export PLAYWRIGHT_NO_TEST_ISOLATION=1`. This **must** be done inside a ddev shell (via ddev ssh) and not `ddev playwright` or `ddev exec`. Consider running Playwright with `--workers=1` and with a single browser, since any changes to the database will persist.
-
-## Verbose CLI Output
-
-By default, output from CLI commands (drush, task) and browser web errors is captured and attached to each test result as text files. This keeps the terminal clean when running tests in parallel, since output from different workers would otherwise be interleaved.
-
-To print CLI output inline instead (the original behavior), set in your DDEV shell:
-
-```bash
-export PLAYWRIGHT_DRUPAL_VERBOSE=1
-```
-
-This is useful when debugging a single test or running with `--workers=1`, where interleaved output is not a concern. The attached output files are available in the HTML test report regardless of this setting.
-
-## Running Drush in Tests
-
-There's many good reasons to want to run Drush in a test. The above example sets a known password for an account so the test can log in. Other good reasons are to scaffold out test data, or turn on testing-related modules.
-
-To run Drush during a test, use `execDrushInTestSite` as shown in the example test. This ensures that Drush bootstraps against the test site, and not the default site.
-
-There may be times you want to run Drush once, globally before all tests. In that case, add a `playwright:install:hook` task to your Taskfile, and from there you can call Drush or anything else you may need to do during setup.
-
-## Drupal Testing Utilities
+# Drupal Testing Utilities
 
 <!-- Subsection order for Drupal Testing Utilities — insert new subsections in this order:
      1. Authentication
@@ -72,13 +8,14 @@ There may be times you want to run Drush once, globally before all tests. In tha
      5. Managed Files
      6. oEmbed
      7. CKEditor 5
-     8. autosave_form workarounds
-     9. Modules
-     10. Database log (dblog)
-     11. Status report
-     12. Page readiness
-     13. Docroot resolution
-     14. Gin theme workarounds -->
+     8. Modules
+     9. Database log (dblog)
+     10. Status report
+     11. autosave_form workarounds
+     12. Fallback selectors
+     13. Gin theme workarounds
+     14. Page readiness
+     15. Docroot resolution -->
 
 This package ships a set of Drupal-aware Playwright utilities. Each utility targets a specific piece of Drupal behaviour that would otherwise have to be reimplemented in every test suite. Import from the package root:
 
@@ -86,7 +23,7 @@ This package ships a set of Drupal-aware Playwright utilities. Each utility targ
 import { login, waitForAllImages, getDocroot } from '@packages/playwright-drupal';
 ```
 
-### Authentication
+## Authentication
 
 The `login()` helper authenticates a Drupal user during a test. It uses `drush user:login` to generate a one-time login link, navigates to it, and asserts that login succeeded by checking for a Drupal session cookie (`SESS*`/`SSESS*`), which works with any theme and any login redirect configuration.
 
@@ -112,7 +49,7 @@ test('can log in as a specific user', async ({ page }) => {
 | `page` | *(required)* | The Playwright page object |
 | `user` | `'admin'` | The Drupal username to log in as |
 
-### Forms
+## Forms
 
 Utilities for driving Drupal's form system: waiting on AJAX, expanding collapsed `<details>`, clicking Save buttons on distributions with `autosave_form`, and waiting for a submit to resolve one way or another. For Gin-sticky-header-safe clicks, see [Gin theme workarounds](#gin-theme-workarounds).
 
@@ -164,7 +101,7 @@ Races two signals: URL change away from `addFormPathPattern` (returns `'ok'`), o
 !!! note
     `waitForSaveOutcome` throws on timeout. If your test needs a soft "neither happened" branch, wrap the call in `try/catch`.
 
-### Entities
+## Entities
 
 Some Drupal distributions (notably Drupal CMS) add path aliases to freshly created entities, so the post-save redirect lands on `/my-article` rather than `/node/42`. `extractEntityIdFromPage` recovers the numeric ID by falling back to the first canonical edit link on the page.
 
@@ -185,7 +122,7 @@ expect(nodeId).toBeDefined();
 
 Returns the numeric ID as a string, or `undefined` when neither the URL nor any rendered edit link matches `/\<entityType\>/(\\d+)`. Works for any entity whose edit route follows `/<entityType>/<id>/edit`. Entity types routed under `/admin/...` (some config entities) are not handled — that is a separate helper for another day.
 
-### Media Library
+## Media Library
 
 Drive Drupal's `media_library` widget end-to-end: open the modal, optionally upload a fixture when the library is empty, select the first available item, and click "Insert selected". `findMediaIdFromListing` covers the post-save fallback for distributions where the redirect doesn't land on `/media/N`.
 
@@ -218,7 +155,7 @@ test('selects a media item for a required widget', async ({ page }) => {
 
 Looks up a media entity by name on `/admin/content/media` and extracts the ID from the first matching link. Useful when a post-save redirect skipped `/media/N` (e.g. on distributions with path aliases).
 
-### Managed Files
+## Managed Files
 
 Reliable file upload into a Drupal `managed_file` element, resilient to the races that plague the default flow — `autosave_form` posting the partial form on change, widgets like `image_focal_point` overriding the automatic JS click on the upload button, and the rare case where the file-ID hidden input never lands server-side.
 
@@ -251,7 +188,7 @@ Throws when the file ID still isn't present after the retry.
 !!! note
     Works especially well with `autosave_form`-enabled distributions (e.g. Drupal CMS) because the internal `waitForAjax` covers both core AJAX and the autosave post.
 
-### oEmbed
+## oEmbed
 
 Fill a Drupal oEmbed URL field, blur to trigger validation, and warn (don't throw) if Drupal rejects the URL.
 
@@ -274,7 +211,7 @@ test('embeds a YouTube video', async ({ page }) => {
 
 Fills, blurs (Tab), waits for AJAX, then warns via `console.warn` if a `.messages--error` is visible. Invalid URLs are common during fixture setup; callers who need hard-fail behaviour should inspect the error message themselves or use `waitForSaveOutcome`.
 
-### CKEditor 5
+## CKEditor 5
 
 The `Ckeditor5` class drives **CKEditor 5** fields — the editor Drupal core has shipped by default since Drupal 10. It clears any existing content, then types the new value through `page.keyboard` so CKEditor's event pipeline processes the edits correctly (Playwright's `locator.fill()` can be silently dropped because the editor re-renders from its internal model).
 
@@ -303,7 +240,7 @@ test('edits the body copy', async ({ page }) => {
 
 Waits for the editor to become visible, clicks to place the caret, clears existing content via select-all + Backspace (platform-aware), and types the new text. Final value is exactly `text`, regardless of whether the field was empty — matching Playwright's `fill()` semantics.
 
-### Modules
+## Modules
 
 Check whether a Drupal module is enabled, or assert that a list of modules is enabled before a test runs. Drush-first: tests running inside this package's lifecycle get a fast, reliable check via `drush pm:list`. A UI fallback is available for contexts without Drush.
 
@@ -337,7 +274,7 @@ UI-only fallback. Returns `true` when the path responds 200 and no access-denied
 
 Throws with a Drush remediation hint if any of the listed modules are not enabled.
 
-### Database log (dblog)
+## Database log (dblog)
 
 Treat Drupal's watchdog log as an assertion target: truncate at the start of a test, drive the system under test, then fail if any `error` or `critical` entries accumulate. All functions go through `drush watchdog:*` via `execDrushInTestSite`, so they must run inside the bootstrapped test site this package manages.
 
@@ -376,7 +313,7 @@ Returns only entries whose severity is in `config.failOnSeverities` (default: `C
 
 Human-readable formatter for use in assertion messages.
 
-### Status report
+## Status report
 
 Grab the contents of `/admin/reports/status` as typed arrays grouped by severity. Useful as a post-install smoke check. Runs `drush core:requirements --format=json` under the hood, so this shares the `execDrushInTestSite` lifecycle — must run inside the bootstrapped test site this package manages.
 
@@ -404,7 +341,7 @@ Removes items whose title contains any of `config.ignoreItems` (case-insensitive
 
 Formats items as a bulleted list with optional truncated-details lines, suitable for use in assertion messages.
 
-### autosave_form workarounds
+## autosave_form workarounds
 
 Workarounds for sites that install the [autosave_form](https://www.drupal.org/project/autosave_form) contrib module (Drupal CMS ships it). Without these, forms lock up behind the "Resume editing / Discard" modal and file uploads race the module's autosave AJAX. Each function is a no-op on sites that don't install the module.
 
@@ -427,7 +364,7 @@ Clicks `.autosave-form-reject-button` if the "Resume editing / Discard" dialog i
 
 Waits for `input[name="autosave_form_last_autosave_timestamp"]` to have a non-empty value. Resolves immediately on forms without the module.
 
-### Fallback selectors
+## Fallback selectors
 
 Use these only when Playwright's human-focused locators (`getByRole`, `getByLabel`, `getByText`, etc.) cannot target the element. CSS/ID selectors are brittle and harder to maintain; prefer semantic locators wherever possible.
 
@@ -442,7 +379,7 @@ const wrapper = page.locator(idPrefixSelector('#edit-body-wrapper'));
 
 Pure string transform that rewrites every `#id` chunk in `selector` to `[id="<id>"], [id^="<id>--"]`. Lets consumers target Drupal IDs even after form rebuilds add the `--HASHSUFFIX`. Safe on non-ID selectors (they pass through unchanged).
 
-### Gin theme workarounds
+## Gin theme workarounds
 
 Helpers scoped to quirks introduced by the [Gin](https://www.drupal.org/project/gin) admin theme. Today the only helper is a click wrapper that survives Gin's pinned page header, which routinely overlaps submit buttons near the bottom of a form.
 
@@ -459,7 +396,7 @@ test('deletes a node', async ({ page }) => {
 
 Scrolls `locator` into view and clicks it with `force: true`. Two steps are needed because Playwright's default actionability check passes once the button is in the viewport, but Gin's sticky header can still cover it; `force: true` bypasses the overlap check, and the scroll ensures the button actually lands at a free position. Use for delete buttons, moderation actions, and any other submit-style click you don't want the pinned header to intercept. `clickSaveButton` already delegates here internally.
 
-### Page readiness
+## Page readiness
 
 Lazy-loaded images and iframes are often not present when Playwright first queries the DOM. These utilities scroll hidden regions into view and wait for network-backed resources to settle, so assertions run against a stable page. They are especially important before visual comparisons.
 
@@ -495,7 +432,7 @@ Shorthand for `waitForImages(page, 'img:visible')`.
 
 Scrolls every `<iframe>` into view and waits for each one to have loaded a URL. Operates serially to avoid concurrency bugs; fast enough that parallelism is not worth the complexity.
 
-### Docroot resolution
+## Docroot resolution
 
 Tests sometimes need to resolve files relative to the Drupal docroot — for example when generating fixtures or computing paths inside the Drupal site. `getDocroot()` reads `composer.json#extra.drupal-scaffold.locations.web-root` so tests don't hard-code `'web'` (or `'docroot'`) and work across Drupal scaffold configurations.
 

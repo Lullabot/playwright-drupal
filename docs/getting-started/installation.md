@@ -1,30 +1,8 @@
-# Getting Started
-
-## Requirements
-
-- The Drupal site must be using DDEV for development environments.
-- The Drupal site is meant to be tested after a site install or database import, like how Drupal core tests work.
-- The Playwright tests must be using `npm` as their package manager, or creating an npm-like node_modules directory. It's unclear at this moment how we could integrate yarn packages into the separate directory Playwright requires for test libraries. PRs welcome!
-- Playwright tests will be written in TypeScript.
-
-## How This Works
-
-- This library includes an extended version of Playwright's `test` function that sets up and tears down isolated Drupal sites. Each test gets its own copy of a base SQLite database, whether that database was created by a fresh site install or converted from an existing MySQL/MariaDB database.
-- We use Playwright's concept of "packages" to allow for a npm dependency to export a test function.
-- Test requests from the web browser are directed to the right database though `settings.php` additions.
-- `drush-playwright` does its own bootstrap to route drush commands to the right site.
-- We use [Task](https://taskfile.dev) as a task runner to install Drupal and set up the tests. This allows developers to easily run individual components of the test setup and teardown without having to step through JavaScript, or reuse them in other non-testing scenarios.
-- While as of this writing (March 2024) this is new code, a nearly identical version of this has been running on a real-world project for over a year.
-
-## Docroot Auto-Detection
-
-This library automatically detects your Drupal docroot by reading the `extra.drupal-scaffold.locations.web-root` key from your project's `composer.json`. This means it works out of the box with `web/`, `docroot/`, or any custom directory name — no manual configuration is needed. If the key is not present in `composer.json`, it defaults to `web`.
-
-## Getting Started
+# Installation
 
 Integrating this library into a site takes several steps. For the sake of completeness, these steps start as if you are starting a brand-new Drupal site.
 
-### Create the Drupal Site and Initialize DDEV
+## Create the Drupal Site and Initialize DDEV
 
 ```console
 mkdir pwtest && cd pwtest
@@ -35,14 +13,14 @@ ddev add-on get Lullabot/ddev-playwright
 ddev start
 ```
 
-### Initialize Playwright Tests
+## Initialize Playwright Tests
 
 ```console
 mkdir -p test/playwright
 ddev exec -- npx create-playwright@latest --lang=TypeScript --quiet test/playwright --no-browsers
 ```
 
-### Install Playwright Dependencies
+## Install Playwright Dependencies
 
 This command will build a web image that contains the browsers we omitted above. Building this way allows for much faster startup times for environments that don't need Playwright, and also allows for caching of large downloads.
 
@@ -50,7 +28,7 @@ This command will build a web image that contains the browsers we omitted above.
 ddev install-playwright
 ```
 
-### Check Playwright Works
+## Check Playwright Works
 
 Before going further, make sure Playwright can run a sample test against https://playwright.dev.
 
@@ -58,7 +36,7 @@ Before going further, make sure Playwright can run a sample test against https:/
 ddev exec -d /var/www/html/test/playwright npx playwright test
 ```
 
-### Add the playwright-drupal Integration
+## Add the playwright-drupal Integration
 
 ```console
 ddev exec -d /var/www/html/test/playwright npm i lullabot/playwright-drupal
@@ -69,7 +47,7 @@ ddev exec -d /var/www/html/test/playwright npm i lullabot/playwright-drupal
 ddev exec -d /var/www/html/test/playwright npm i lullabot/playwright-drupal@github:Lullabot/playwright-drupal
 ```
 
-### Configure Playwright
+## Configure Playwright
 
 Set the following in `test/playwright/tsconfig.json`, merging with any existing configuration:
 
@@ -116,9 +94,9 @@ export default definePlaywrightDrupalConfig({
 });
 ```
 
-`definePlaywrightDrupalConfig()` automatically provides sensible defaults (see [Configuration Helper](./configuration) below), so you only need to specify project-specific settings. Import from `@lullabot/playwright-drupal/config` (the subpath export) to avoid loading the test fixture module, which would conflict with the source copy used by test files.
+`definePlaywrightDrupalConfig()` automatically provides sensible defaults (see [Configuration Helper](configuration.md)), so you only need to specify project-specific settings. Import from `@lullabot/playwright-drupal/config` (the subpath export) to avoid loading the test fixture module, which would conflict with the source copy used by test files.
 
-### Ignore playwright-drupal from Git
+## Ignore playwright-drupal from Git
 
 We have to copy the library outside the `node_modules` directory for Playwright to work correctly. Ignore this directory from git, since it's effectively a npm package:
 
@@ -126,7 +104,7 @@ We have to copy the library outside the `node_modules` directory for Playwright 
 echo '/packages/playwright-drupal' >> test/playwright/.gitignore
 ```
 
-### Create Taskfile.yml
+## Create Taskfile.yml
 
 In the root of your project, create `Taskfile.yml`:
 
@@ -139,7 +117,7 @@ includes:
     optional: true
 ```
 
-### Add Playwright to Drupal's Settings
+## Add Playwright to Drupal's Settings
 
 Add the following to your Drupal `sites/default/settings.php` (e.g. `web/sites/default/settings.php` or `docroot/sites/default/settings.php`, depending on your project). A `file_exists()` guard is used so that Drupal can still boot normally when the package is not installed:
 
@@ -153,7 +131,7 @@ The relative path `../test/playwright/...` resolves from Drupal's docroot direct
 
 This addon assumes that DDEV's built in settings.php management is used. If you have set `disable_settings_management` in your `.ddev/config.yml` file, or are testing with a multisite where bootstrapping is not in `sites/default`, edit your custom files manually to make sure tests can bootstrap properly.
 
-### Create and Run an Example Drupal Test
+## Create and Run an Example Drupal Test
 
 Copy the following to `test/playwright/tests/example.drupal.spec.ts`.
 
