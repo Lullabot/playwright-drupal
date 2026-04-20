@@ -249,11 +249,18 @@ You're now ready for the hard part - writing tests for your own application!
 
 Out of the box, we can't know what setup steps your site needs to work correctly. To use your own steps, add a `playwright:install:hook` task to your Taskfile. This will be called with the right environment set so that the site is installed into sqlite (and not your normal ddev database). From here, run Drush commands or call other tasks as needed to install your site. To test this when developing, feel free to call `task playwright:install` without actually running tests.
 
-If your site is too complex for a fresh install, consider using `playwright:mysql-to-sqlite` to convert an existing database instead. See [Testing With an Existing Database](#testing-with-an-existing-database) for details.
+```yaml
+  playwright:install:hook:
+    desc: "Run our installer for Playwright tests. Call playwright:install instead."
+    cmds:
+      - ./vendor/bin/drush site:install --existing-config --yes
+      # Or, call another task (or series of tasks) to set up your site.
+      # - task: build:dev:install
+```
 
 ## Testing With an Existing Database
 
-Instead of installing a fresh site, you can convert your existing MySQL/MariaDB database to SQLite. This is useful when your site has complex configuration, content, or setup that is difficult to reproduce with `drush site:install`.
+Instead of installing a fresh site, you can convert your existing MySQL/MariaDB database to SQLite using [mysql-to-sqlite3](https://github.com/techouse/mysql-to-sqlite3). This is useful when your site has complex configuration, content, or setup that is difficult to reproduce with `drush site:install`.
 
 The `playwright:mysql-to-sqlite` task converts the active DDEV database to SQLite:
 
@@ -263,6 +270,7 @@ ddev exec task playwright:mysql-to-sqlite
 
 This creates the base SQLite database at `/tmp/sqlite/.ht.sqlite`, which is the same location used by `playwright:install`. From there, tests run identically — each test gets its own copy of the database.
 
+The conversion uses  and requires `uv` (which is pre-installed in DDEV).
 To integrate this into your workflow, create a `playwright:install:hook` task in your `Taskfile.yml` that calls `mysql-to-sqlite` instead of (or after) a site install:
 
 ```yaml
@@ -277,10 +285,10 @@ tasks:
   playwright:install:hook:
     cmds:
       # Import your database first (e.g. from a dump file).
-      # - drush sql:cli < path/to/dump.sql
+      - drush sql:cli < path/to/dump.sql
+      # And call whatever your normal deployment steps are.
+      - drush deploy -y
 
       # Then convert it to SQLite for parallel test isolation.
       - task playwright:mysql-to-sqlite
 ```
-
-The conversion uses [mysql-to-sqlite3](https://github.com/techouse/mysql-to-sqlite3) and requires `uv` (which is pre-installed in DDEV). No additional dependencies need to be installed.
