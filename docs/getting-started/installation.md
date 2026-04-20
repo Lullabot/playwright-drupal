@@ -30,7 +30,7 @@ ddev install-playwright
 
 ## Check Playwright Works
 
-Before going further, make sure Playwright can run a sample test against https://playwright.dev.
+Before going further, make sure Playwright can run a sample test against [playwright.dev](https://playwright.dev).
 
 ```console
 ddev exec -d /var/www/html/test/playwright npx playwright test
