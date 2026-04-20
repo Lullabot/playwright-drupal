@@ -12,34 +12,32 @@ The `takeAccessibleScreenshot()` method will:
 4. Automatically trigger loading of all lazy-loaded iframes.
 5. Generate an accessibility report of the element being tested.
 
-## Accessibility violations: snapshot vs. baseline
+## Accessibility violation baselines
 
-Each WCAG and best-practice scan is asserted in one of two modes:
+Each WCAG and best-practice scan is asserted against an on-disk JSON baseline file colocated with snapshots. The file uses an object schema with a human-readable note plus a `violations` array of accepted entries:
 
-- **Snapshot mode** (legacy): violations are pinned via Playwright's `toMatchSnapshot()` against a `.txt` snapshot in the test's `-snapshots/` directory. Used automatically whenever the test already has a committed snapshot.
-- **Baseline mode** (new default for snapshotless tests): violations are matched against an on-disk JSON baseline file colocated with snapshots. The file uses an object schema with a human-readable note plus a `violations` array of accepted entries:
+```json
+{
+  "note": "TODO: fill in reason and willBeFixedIn for each entry before committing.",
+  "violations": [
+    {
+      "rule": "color-contrast",
+      "targets": ["#footer .legal"],
+      "reason": "TODO",
+      "willBeFixedIn": "TODO"
+    }
+  ]
+}
+```
 
-  ```json
-  {
-    "note": "TODO: fill in reason and willBeFixedIn for each entry before committing.",
-    "violations": [
-      {
-        "rule": "color-contrast",
-        "targets": ["#footer .legal"],
-        "reason": "TODO",
-        "willBeFixedIn": "TODO"
-      }
-    ]
-  }
-  ```
+When you run a new test for the first time **locally**, the baseline file is auto-seeded next to where its snapshot would have been (e.g. `my-test-1.a11y-baseline.json` for WCAG, `my-test-1.a11y-baseline-best-practice.json` for best-practice). The first run passes; subsequent runs match against the file. Replace the `TODO` placeholders with a real reason and tracking ticket before committing.
 
-  When you run a new test for the first time **locally**, the baseline file is auto-seeded next to where its snapshot would have been (e.g. `my-test-1.a11y-baseline.json` for WCAG, `my-test-1.a11y-baseline-best-practice.json` for best-practice). The first run passes; subsequent runs match against the file. Replace the `TODO` placeholders with a real reason and tracking ticket before committing.
+When a test runs on **CI** (`process.env.CI` set) and would auto-seed a baseline file, the file is written and attached to the test report, but the test **fails** with a directive to download/commit it. This mirrors Playwright's default behaviour for missing visual snapshots and prevents new accessibility violations from silently slipping through CI.
 
-  When a test runs on **CI** (`process.env.CI` set) and would auto-seed a baseline file, the file is written and attached to the test report, but the test **fails** with a directive to download/commit it. This mirrors Playwright's default behaviour for missing visual snapshots and prevents new accessibility violations from silently slipping through CI.
+Tests that pass `baseline:` to `checkAccessibility()` (or `a11y.check()`) using `defineAccessibilityBaseline()` take precedence over the on-disk JSON file — use this when you need to share a baseline across multiple tests or compute it from test data.
 
-To force snapshot mode on a brand-new test, run it once with `--update-snapshots`; Playwright will create the snapshot file and from then on the test stays in snapshot mode.
-
-Existing tests that pass `baseline:` to `checkAccessibility()` (or `a11y.check()`) using `defineAccessibilityBaseline()` continue to work unchanged — explicit in-code baselines always take precedence over both snapshots and on-disk JSON files.
+!!! warning "Snapshot mode (deprecated)"
+    Earlier versions of this package pinned violations via Playwright's `toMatchSnapshot()` against a `.txt` snapshot in the test's `-snapshots/` directory. Tests with a committed `.txt` snapshot continue to assert against it for backwards compatibility, but snapshot mode is deprecated — new tests should use baselines, and existing tests should migrate. To migrate a test, delete its `.txt` snapshot and let the next local run seed a `.a11y-baseline.json` in its place.
 
 ## Visual Comparisons for Static Content
 
