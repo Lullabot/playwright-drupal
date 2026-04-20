@@ -1,4 +1,4 @@
-# Configuration Helper
+# Playwright Configuration
 
 The `definePlaywrightDrupalConfig()` function returns a complete Playwright configuration with sensible defaults for Drupal testing. It wraps Playwright's `defineConfig()` and applies the following defaults:
 

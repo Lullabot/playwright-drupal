@@ -56,7 +56,7 @@ nav:
   - Getting Started:
     - Overview: getting-started/index.md
     - Installation: getting-started/installation.md
-    - Configuration: getting-started/configuration.md
+    - Playwright Configuration: getting-started/playwright-configuration.md
   - Guides:
     - Writing Tests: guides/writing-tests.md
     - Drupal Utilities: guides/utilities.md
