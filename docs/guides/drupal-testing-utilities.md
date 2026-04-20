@@ -42,7 +42,9 @@ test('can log in as a specific user', async ({ page }) => {
 });
 ```
 
-**API:** `login(page: Page, user?: string): Promise<void>`
+### login()
+
+`login(page: Page, user?: string): Promise<void>`
 
 | Parameter | Default | Description |
 |---|---|---|
@@ -66,7 +68,9 @@ test('creates an article', async ({ page }) => {
 });
 ```
 
-**API:** `waitForAjax(page: Page, opts?: { timeout?: number }): Promise<void>`
+### waitForAjax()
+
+`waitForAjax(page: Page, opts?: { timeout?: number }): Promise<void>`
 
 | Parameter | Default | Description |
 |---|---|---|
@@ -75,11 +79,15 @@ test('creates an article', async ({ page }) => {
 
 Waits for `Drupal.ajax.instances[i].ajaxing`, `jQuery.active`, and `jQuery(':animated')` to all be clear. Mirrors the predicate used by Drupal core's `JSWebAssert::assertWaitOnAjaxRequest()`. Call *after* the action that triggers AJAX — the wait resolves immediately if nothing is in flight. The animation check catches post-AJAX transitions (throbbers, vertical tabs) that can otherwise race with assertions.
 
-**API:** `openAllDetails(page: Page): Promise<void>`
+### openAllDetails()
+
+`openAllDetails(page: Page): Promise<void>`
 
 Expands every `<details>` element on the page (vertical tabs, field groups, collapsible regions) so nested fields become interactable.
 
-**API:** `clickSaveButton(page: Page, fallback: string): Promise<void>`
+### clickSaveButton()
+
+`clickSaveButton(page: Page, fallback: string): Promise<void>`
 
 | Parameter | Default | Description |
 |---|---|---|
@@ -88,7 +96,9 @@ Expands every `<details>` element on the page (vertical tabs, field groups, coll
 
 Clicks the first submit button whose `value` starts with `Save` and which is not hijacked by `autosave_form`'s once-marker. Falls back to the supplied selector if no candidate matches. Handles Thunder's moderation "Save as" automatically. Uses `clickSubmit` from the [Gin theme workarounds](#gin-theme-workarounds) so the click survives a pinned admin header.
 
-**API:** `waitForSaveOutcome(page: Page, opts: { addFormPathPattern: RegExp; timeout?: number }): Promise<'ok' | 'error'>`
+### waitForSaveOutcome()
+
+`waitForSaveOutcome(page: Page, opts: { addFormPathPattern: RegExp; timeout?: number }): Promise<'ok' | 'error'>`
 
 | Parameter | Default | Description |
 |---|---|---|
@@ -113,7 +123,9 @@ const nodeId = await extractEntityIdFromPage(page, 'node');
 expect(nodeId).toBeDefined();
 ```
 
-**API:** `extractEntityIdFromPage(page: Page, entityType: string): Promise<string | undefined>`
+### extractEntityIdFromPage()
+
+`extractEntityIdFromPage(page: Page, entityType: string): Promise<string | undefined>`
 
 | Parameter | Default | Description |
 |---|---|---|
@@ -143,7 +155,9 @@ test('selects a media item for a required widget', async ({ page }) => {
 !!! warning
     Empty-library auto-upload **only runs when you supply `uploadFixturePath`**. When the library is empty and no fixture path is provided, the function throws.
 
-**API:** `selectFirstMediaFromLibrary(page: Page, wrapperSelector: string, opts?: { uploadFixturePath?: string }): Promise<void>`
+### selectFirstMediaFromLibrary()
+
+`selectFirstMediaFromLibrary(page: Page, wrapperSelector: string, opts?: { uploadFixturePath?: string }): Promise<void>`
 
 | Parameter | Default | Description |
 |---|---|---|
@@ -151,7 +165,9 @@ test('selects a media item for a required widget', async ({ page }) => {
 | `wrapperSelector` | *(required)* | Selector for the fieldset wrapping the widget (e.g. `[data-drupal-selector="edit-field-media-image"]`). |
 | `opts.uploadFixturePath` | `undefined` | Path to a file to upload when the media library is empty. |
 
-**API:** `findMediaIdFromListing(page: Page, baseUrl: string, name: string): Promise<string | undefined>`
+### findMediaIdFromListing()
+
+`findMediaIdFromListing(page: Page, baseUrl: string, name: string): Promise<string | undefined>`
 
 Looks up a media entity by name on `/admin/content/media` and extracts the ID from the first matching link. Useful when a post-save redirect skipped `/media/N` (e.g. on distributions with path aliases).
 
@@ -173,7 +189,9 @@ test('uploads an image into a managed_file field', async ({ page }) => {
 });
 ```
 
-**API:** `uploadManagedFile(page: Page, fieldSelector: string, fixturePath: string, opts?: { retry?: boolean; maxPollMs?: number }): Promise<void>`
+### uploadManagedFile()
+
+`uploadManagedFile(page: Page, fieldSelector: string, fixturePath: string, opts?: { retry?: boolean; maxPollMs?: number }): Promise<void>`
 
 | Parameter | Default | Description |
 |---|---|---|
@@ -201,7 +219,9 @@ test('embeds a YouTube video', async ({ page }) => {
 });
 ```
 
-**API:** `fillOembedUrl(page: Page, selector: string, url: string): Promise<void>`
+### fillOembedUrl()
+
+`fillOembedUrl(page: Page, selector: string, url: string): Promise<void>`
 
 | Parameter | Default | Description |
 |---|---|---|
@@ -236,7 +256,9 @@ test('edits the body copy', async ({ page }) => {
 | `selector` | *(required)* | Selector for the widget **wrapper** containing the editor (e.g. `#edit-body-wrapper`, `[data-drupal-selector="edit-field-body-wrapper"]`). The class drills into `.ck-editor__editable` internally. |
 | `root` | `page` | Optional `FrameLocator` if the editor renders inside an iframe. |
 
-**API:** `async fill(text: string): Promise<void>`
+### fill()
+
+`async fill(text: string): Promise<void>`
 
 Waits for the editor to become visible, clicks to place the caret, clears existing content via select-all + Backspace (platform-aware), and types the new text. Final value is exactly `text`, regardless of whether the field was empty — matching Playwright's `fill()` semantics.
 
@@ -256,11 +278,15 @@ test.beforeAll(async ({ browser }) => {
 });
 ```
 
-**API:** `isModuleEnabled(name: string): Promise<boolean>`
+### isModuleEnabled()
+
+`isModuleEnabled(name: string): Promise<boolean>`
 
 Queries `drush pm:list --status=enabled --field=name` and checks for the module's machine name on its own line.
 
-**API:** `isModuleEnabledByPath(page: Page, moduleName: string, testPath: string): Promise<boolean>`
+### isModuleEnabledByPath()
+
+`isModuleEnabledByPath(page: Page, moduleName: string, testPath: string): Promise<boolean>`
 
 | Parameter | Default | Description |
 |---|---|---|
@@ -270,7 +296,9 @@ Queries `drush pm:list --status=enabled --field=name` and checks for the module'
 
 UI-only fallback. Returns `true` when the path responds 200 and no access-denied text is visible; `false` on 403/404 or when access-denied markers are present.
 
-**API:** `validateRequiredModules(page: Page, names: string[]): Promise<void>`
+### validateRequiredModules()
+
+`validateRequiredModules(page: Page, names: string[]): Promise<void>`
 
 Throws with a Drush remediation hint if any of the listed modules are not enabled.
 
@@ -293,23 +321,33 @@ test('content creation logs no errors', async ({ page }) => {
 
 **Types:** `DblogSeverity` (enum, lowercase values matching Drupal's RfcLogLevel names), `DblogEntry`, `DblogMonitorConfig`
 
-**API:** `isDblogEnabled(): Promise<boolean>`
+### isDblogEnabled()
+
+`isDblogEnabled(): Promise<boolean>`
 
 Thin wrapper around `isModuleEnabled('dblog')`.
 
-**API:** `truncateDblog(): Promise<void>`
+### truncateDblog()
+
+`truncateDblog(): Promise<void>`
 
 Runs `drush watchdog:delete all -y`.
 
-**API:** `fetchDblogEntries(config?: DblogMonitorConfig): Promise<DblogEntry[]>`
+### fetchDblogEntries()
+
+`fetchDblogEntries(config?: DblogMonitorConfig): Promise<DblogEntry[]>`
 
 Runs `drush watchdog:show --format=json --extended --count=…` and returns the entries with severities normalised to lowercase. `config.moduleFilter` maps to `--type=`. The count cap is deliberately high so tests don't silently drop entries.
 
-**API:** `checkDblogForErrors(config?: DblogMonitorConfig): Promise<DblogEntry[]>`
+### checkDblogForErrors()
+
+`checkDblogForErrors(config?: DblogMonitorConfig): Promise<DblogEntry[]>`
 
 Returns only entries whose severity is in `config.failOnSeverities` (default: `CRITICAL` + `ERROR`).
 
-**API:** `formatLogErrors(entries: DblogEntry[]): string`
+### formatLogErrors()
+
+`formatLogErrors(entries: DblogEntry[]): string`
 
 Human-readable formatter for use in assertion messages.
 
@@ -329,15 +367,21 @@ test('site has no unexpected status-report errors', async () => {
 
 **Types:** `StatusReportItem` (with `id`, `title`, `severity`, `description`, `value`), `StatusReportResult`, `StatusReportConfig`
 
-**API:** `getStatusReport(): Promise<StatusReportResult>`
+### getStatusReport()
+
+`getStatusReport(): Promise<StatusReportResult>`
 
 Returns `{ errors, warnings, info, ok }`, each a `StatusReportItem[]`. `severity` is lowercased to `'error' | 'warning' | 'info' | 'ok'`; entries without a title are skipped; unknown severity values fall into `ok`.
 
-**API:** `filterStatusItems(items: StatusReportItem[], config?: StatusReportConfig): StatusReportItem[]`
+### filterStatusItems()
+
+`filterStatusItems(items: StatusReportItem[], config?: StatusReportConfig): StatusReportItem[]`
 
 Removes items whose title contains any of `config.ignoreItems` (case-insensitive substring match).
 
-**API:** `formatStatusItems(items: StatusReportItem[]): string`
+### formatStatusItems()
+
+`formatStatusItems(items: StatusReportItem[]): string`
 
 Formats items as a bulleted list with optional truncated-details lines, suitable for use in assertion messages.
 
@@ -356,11 +400,15 @@ test('fills a Drupal CMS form', async ({ page }) => {
 });
 ```
 
-**API:** `dismissAutosaveDraft(page: Page): Promise<void>`
+### dismissAutosaveDraft()
+
+`dismissAutosaveDraft(page: Page): Promise<void>`
 
 Clicks `.autosave-form-reject-button` if the "Resume editing / Discard" dialog is open. No-op otherwise.
 
-**API:** `waitForAutosaveReady(page: Page): Promise<void>`
+### waitForAutosaveReady()
+
+`waitForAutosaveReady(page: Page): Promise<void>`
 
 Waits for `input[name="autosave_form_last_autosave_timestamp"]` to have a non-empty value. Resolves immediately on forms without the module.
 
@@ -375,7 +423,9 @@ import { idPrefixSelector } from '@packages/playwright-drupal';
 const wrapper = page.locator(idPrefixSelector('#edit-body-wrapper'));
 ```
 
-**API:** `idPrefixSelector(selector: string): string`
+### idPrefixSelector()
+
+`idPrefixSelector(selector: string): string`
 
 Pure string transform that rewrites every `#id` chunk in `selector` to `[id="<id>"], [id^="<id>--"]`. Lets consumers target Drupal IDs even after form rebuilds add the `--HASHSUFFIX`. Safe on non-ID selectors (they pass through unchanged).
 
@@ -392,7 +442,9 @@ test('deletes a node', async ({ page }) => {
 });
 ```
 
-**API:** `clickSubmit(locator: Locator): Promise<void>`
+### clickSubmit()
+
+`clickSubmit(locator: Locator): Promise<void>`
 
 Scrolls `locator` into view and clicks it with `force: true`. Two steps are needed because Playwright's default actionability check passes once the button is in the viewport, but Gin's sticky header can still cover it; `force: true` bypasses the overlap check, and the scroll ensures the button actually lands at a free position. Use for delete buttons, moderation actions, and any other submit-style click you don't want the pinned header to intercept. `clickSaveButton` already delegates here internally.
 
@@ -411,7 +463,9 @@ test('hero renders with images and embedded video', async ({ page }) => {
 });
 ```
 
-**API:** `waitForImages(page: Page, selector: string): Promise<void>`
+### waitForImages()
+
+`waitForImages(page: Page, selector: string): Promise<void>`
 
 | Parameter | Default | Description |
 |---|---|---|
@@ -420,11 +474,15 @@ test('hero renders with images and embedded video', async ({ page }) => {
 
 Scrolls each matching image into view (to trigger lazy loading) and waits for them to finish loading. After all images have loaded, the page is scrolled back to the top so screenshots are stable.
 
-**API:** `waitForAllImages(page: Page): Promise<void>`
+### waitForAllImages()
+
+`waitForAllImages(page: Page): Promise<void>`
 
 Shorthand for `waitForImages(page, 'img:visible')`.
 
-**API:** `waitForFrames(page: Page): Promise<void>`
+### waitForFrames()
+
+`waitForFrames(page: Page): Promise<void>`
 
 | Parameter | Default | Description |
 |---|---|---|
@@ -442,7 +500,9 @@ import { getDocroot } from '@packages/playwright-drupal';
 const docroot = getDocroot(); // 'web' on drupal/recommended-project, 'docroot' on other setups
 ```
 
-**API:** `getDocroot(composerJsonPath?: string): string`
+### getDocroot()
+
+`getDocroot(composerJsonPath?: string): string`
 
 | Parameter | Default | Description |
 |---|---|---|
