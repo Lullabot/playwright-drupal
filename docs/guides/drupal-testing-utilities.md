@@ -94,7 +94,7 @@ Expands every `<details>` element on the page (vertical tabs, field groups, coll
 | `page` | *(required)* | The Playwright page object. |
 | `fallback` | *(required)* | CSS selector to click when no `Save*` submit is found. |
 
-Clicks the first submit button whose `value` starts with `Save` and which is not hijacked by `autosave_form`'s once-marker. Falls back to the supplied selector if no candidate matches. Handles Thunder's moderation "Save as" automatically. Uses `clickSubmit` from the [Gin theme workarounds](#gin-theme-workarounds) so the click survives a pinned admin header.
+Clicks the first submit button whose `value` starts with `Save` and which is not hijacked by `autosave_form`'s once-marker. Falls back to the supplied selector if no candidate matches. Handles Thunder's moderation "Save as" automatically. Uses [`clickSubmit`](#clicksubmit) from the Gin theme workarounds so the click survives a pinned admin header.
 
 ### waitForSaveOutcome()
 
@@ -155,7 +155,7 @@ test('deletes a node', async ({ page }) => {
 
 `clickSubmit(locator: Locator): Promise<void>`
 
-Scrolls `locator` into view and clicks it with `force: true`. Two steps are needed because Playwright's default actionability check passes once the button is in the viewport, but Gin's sticky header can still cover it; `force: true` bypasses the overlap check, and the scroll ensures the button actually lands at a free position. Use for delete buttons, moderation actions, and any other submit-style click you don't want the pinned header to intercept. `clickSaveButton` already delegates here internally.
+Scrolls `locator` into view and clicks it with `force: true`. Two steps are needed because Playwright's default actionability check passes once the button is in the viewport, but Gin's sticky header can still cover it; `force: true` bypasses the overlap check, and the scroll ensures the button actually lands at a free position. Use for delete buttons, moderation actions, and any other submit-style click you don't want the pinned header to intercept. [`clickSaveButton`](#clicksavebutton) already delegates here internally.
 
 ## CKEditor 5
 
@@ -190,7 +190,7 @@ Waits for the editor to become visible, clicks to place the caret, clears existi
 
 ## Media Library
 
-Drive Drupal's `media_library` widget end-to-end: open the modal, optionally upload a fixture when the library is empty, select the first available item, and click "Insert selected". `findMediaIdFromListing` covers the post-save fallback for distributions where the redirect doesn't land on `/media/N`.
+Drive Drupal's `media_library` widget end-to-end: open the modal, optionally upload a fixture when the library is empty, select the first available item, and click "Insert selected". [`findMediaIdFromListing`](#findmediaidfromlisting) covers the post-save fallback for distributions where the redirect doesn't land on `/media/N`.
 
 ```typescript
 import path from 'node:path';
@@ -258,7 +258,7 @@ test('uploads an image into a managed_file field', async ({ page }) => {
 Throws when the file ID still isn't present after the retry.
 
 !!! note
-    Works especially well with `autosave_form`-enabled distributions (e.g. Drupal CMS) because the internal `waitForAjax` covers both core AJAX and the autosave post.
+    Works especially well with `autosave_form`-enabled distributions (e.g. Drupal CMS) because the internal [`waitForAjax`](#waitforajax) covers both core AJAX and the autosave post.
 
 ## oEmbed
 
@@ -283,7 +283,7 @@ test('embeds a YouTube video', async ({ page }) => {
 | `selector` | *(required)* | Selector for the oEmbed input. |
 | `url` | *(required)* | URL to fill. |
 
-Fills, blurs (Tab), waits for AJAX, then warns via `console.warn` if a `.messages--error` is visible. Invalid URLs are common during fixture setup; callers who need hard-fail behaviour should inspect the error message themselves or use `waitForSaveOutcome`.
+Fills, blurs (Tab), waits for AJAX, then warns via `console.warn` if a `.messages--error` is visible. Invalid URLs are common during fixture setup; callers who need hard-fail behaviour should inspect the error message themselves or use [`waitForSaveOutcome`](#waitforsaveoutcome).
 
 ## Entities
 
@@ -338,7 +338,7 @@ Scrolls each matching image into view (to trigger lazy loading) and waits for th
 
 `waitForAllImages(page: Page): Promise<void>`
 
-Shorthand for `waitForImages(page, 'img:visible')`.
+Shorthand for [`waitForImages(page, 'img:visible')`](#waitforimages).
 
 ### waitForFrames()
 
@@ -372,7 +372,7 @@ Pure string transform that rewrites every `#id` chunk in `selector` to `[id="<id
 Check whether a Drupal module is enabled, or assert that a list of modules is enabled before a test runs. Drush-first: tests running inside this package's lifecycle get a fast, reliable check via `drush pm:list`. A UI fallback is available for contexts without Drush.
 
 !!! warning
-    `isModuleEnabled` requires a bootstrapped test site because it uses `execDrushInTestSite`. For probes against a long-lived local site, use `isModuleEnabledByPath` directly.
+    [`isModuleEnabled`](#ismoduleenabled) requires a bootstrapped test site because it uses `execDrushInTestSite`. For probes against a long-lived local site, use [`isModuleEnabledByPath`](#ismoduleenabledbypath) directly.
 
 ```typescript
 import { test, validateRequiredModules } from '@packages/playwright-drupal';
@@ -430,7 +430,7 @@ test('content creation logs no errors', async ({ page }) => {
 
 `isDblogEnabled(): Promise<boolean>`
 
-Thin wrapper around `isModuleEnabled('dblog')`.
+Thin wrapper around [`isModuleEnabled('dblog')`](#ismoduleenabled).
 
 ### truncateDblog()
 
