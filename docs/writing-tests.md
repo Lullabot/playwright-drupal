@@ -404,6 +404,44 @@ Removes items whose title contains any of `config.ignoreItems` (case-insensitive
 
 Formats items as a bulleted list with optional truncated-details lines, suitable for use in assertion messages.
 
+### autosave_form workarounds
+
+Workarounds for sites that install the [autosave_form](https://www.drupal.org/project/autosave_form) contrib module (Drupal CMS ships it). Without these, forms lock up behind the "Resume editing / Discard" modal and file uploads race the module's autosave AJAX. Each function is a no-op on sites that don't install the module.
+
+```typescript
+import { test, dismissAutosaveDraft, waitForAutosaveReady } from '@packages/playwright-drupal';
+
+test('fills a Drupal CMS form', async ({ page }) => {
+  await page.goto('/node/add/article');
+  await dismissAutosaveDraft(page);
+  await waitForAutosaveReady(page);
+  await page.getByLabel('Title').fill('Hello');
+});
+```
+
+**API:** `dismissAutosaveDraft(page: Page): Promise<void>`
+
+Clicks `.autosave-form-reject-button` if the "Resume editing / Discard" dialog is open. No-op otherwise.
+
+**API:** `waitForAutosaveReady(page: Page): Promise<void>`
+
+Waits for `input[name="autosave_form_last_autosave_timestamp"]` to have a non-empty value. Resolves immediately on forms without the module.
+
+### Fallback selectors
+
+Use these only when Playwright's human-focused locators (`getByRole`, `getByLabel`, `getByText`, etc.) cannot target the element. CSS/ID selectors are brittle and harder to maintain; prefer semantic locators wherever possible.
+
+```typescript
+import { idPrefixSelector } from '@packages/playwright-drupal';
+
+// Only when getByRole / getByLabel cannot reach the element.
+const wrapper = page.locator(idPrefixSelector('#edit-body-wrapper'));
+```
+
+**API:** `idPrefixSelector(selector: string): string`
+
+Pure string transform that rewrites every `#id` chunk in `selector` to `[id="<id>"], [id^="<id>--"]`. Lets consumers target Drupal IDs even after form rebuilds add the `--HASHSUFFIX`. Safe on non-ID selectors (they pass through unchanged).
+
 ### Gin theme workarounds
 
 Helpers scoped to quirks introduced by the [Gin](https://www.drupal.org/project/gin) admin theme. Today the only helper is a click wrapper that survives Gin's pinned page header, which routinely overlaps submit buttons near the bottom of a form.
