@@ -36,7 +36,7 @@ This keeps tests portable across DDEV and CI, leverages `use.baseURL`, and ensur
 
 ## Running Drush in Tests
 
-There's many good reasons to want to run Drush in a test. The above example sets a known password for an account so the test can log in. Other good reasons are to scaffold out test data, or turn on testing-related modules.
+There's many good reasons to want to run Drush in a test. For example, to scaffold out test data, or to turn on testing-related modules.
 
 To run Drush during a test, use `execDrushInTestSite` as shown in the example test. This ensures that Drush bootstraps against the test site, and not the default site.
 
