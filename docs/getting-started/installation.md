@@ -148,6 +148,8 @@ test('has title', async ({ page }) => {
 // This tests proves parallel databases work by setting a random title for the
 // first node created in the site.
 test('proves parallel tests work', async ({ page }) => {
+  // This test logs in with the UI to show it working, but in general use the login()
+  // function in your tests.
   await execDrushInTestSite('user:password admin "correct horse battery staple"');
   await page.goto('/user/login');
   const username = page.getByLabel('Username');
