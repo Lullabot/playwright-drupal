@@ -60,7 +60,7 @@ nav:
   - Guides:
     - Writing Tests: guides/writing-tests.md
     - Debugging Tests: guides/debugging-tests.md
-    - Drupal Utilities: guides/utilities.md
+    - Drupal Testing Utilities: guides/drupal-testing-utilities.md
     - Visual Comparisons: guides/visual-comparisons.md
     - GitHub Actions: guides/github-actions.md
   - Development:
