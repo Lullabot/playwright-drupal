@@ -47,7 +47,7 @@ tasks:
       - mkdir -p /tmp/sqlite
       - >-
         uv tool run
-        --from 'mysql-to-sqlite3==2.5.7'
+        --from 'mysql-to-sqlite3==2.6.0'
         mysql2sqlite
         --mysql-host db
         --mysql-port 3306
