@@ -62,7 +62,7 @@ nav:
     - Visual Comparisons (Diffs): guides/visual-comparisons.md
     - Debugging Tests: guides/debugging-tests.md
     - Drupal Testing Utilities: guides/drupal-testing-utilities.md
-    - GitHub Actions: guides/github-actions.md
+    - GitHub Accessibility Annotations: guides/github-actions.md
   - Contributing:
     - Development: contributing/development.md
     - Releases: contributing/releases.md
