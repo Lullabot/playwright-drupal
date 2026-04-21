@@ -4,6 +4,8 @@ Playwright Visual Comparisons are a great way to add additional assertions to yo
 
 We've found that taking a screenshot for a visual comparison is a great point to check for accessibility issues. Unlike other steps in a test, a visual comparison is specifically declaring that the page is ready for human consumption.
 
+![Playwright HTML report showing a failed visual comparison with the Diff/Actual/Expected/Side by side/Slider pane selector at the top, image dimensions, and red diff highlighting over the rendered page below](../images/visual-diff-failure.webp)
+
 The `takeAccessibleScreenshot()` method will:
 
 1. Ensure that complex pages like node forms have time to stabilize before taking screenshots.
