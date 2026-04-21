@@ -36,6 +36,8 @@ https://<PROJECT>.ddev.site:8444
 
 Log in with your local username and the password `secret`.
 
+![KasmVNC remote desktop in a host browser, with a Playwright-driven headed Chromium window visible inside the remote desktop showing the Umami home page](../images/kasmvnc-headed-browser.webp)
+
 Once connected, run tests with a visible browser:
 
 ```console
