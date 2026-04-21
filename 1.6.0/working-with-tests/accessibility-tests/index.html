@@ -1,0 +1,1776 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://lullabot.github.io/playwright-drupal/1.6.0/working-with-tests/accessibility-tests/">
+      
+      
+        <link rel="prev" href="../visual-comparisons/">
+      
+      
+        <link rel="next" href="../debugging-tests/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Accessibility Tests - playwright-drupal</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#accessibility-tests" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="playwright-drupal" class="md-header__button md-logo" aria-label="playwright-drupal" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <a href="../.." class="md-header__home-link" aria-label="playwright-drupal">
+            <span class="md-ellipsis">
+              playwright-drupal
+            </span>
+          </a>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Accessibility Tests
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../writing-tests/" class="md-tabs__link">
+          
+  
+  
+  Working with Tests
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/development/" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="playwright-drupal" class="md-nav__button md-logo" aria-label="playwright-drupal" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    playwright-drupal
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About playwright-drupal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/playwright-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playwright Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Working with Tests
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Working with Tests
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../writing-tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../visual-comparisons/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visual Comparisons (Diffs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accessibility Tests
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accessibility Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#accessibility-baselines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accessibility baselines
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-report-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test report integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#accessibility-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accessibility functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Accessibility functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#checkaccessibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        checkAccessibility()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#takeaccessiblescreenshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        takeAccessibleScreenshot()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a11y-fixture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        a11y fixture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessibilityoptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AccessibilityOptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#screenshotoptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ScreenshotOptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#in-code-baselines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        In-code baselines
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="In-code baselines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defineaccessibilitybaseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        defineAccessibilityBaseline()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessibilitybaselineentry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AccessibilityBaselineEntry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sharing-a-baseline-with-visual-diffs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sharing a baseline with visual diffs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#github-accessibility-annotations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitHub Accessibility Annotations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GitHub Accessibility Annotations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-the-reusable-action-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the Reusable Action (Recommended)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Using the Reusable Action (Recommended)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#action-inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action Inputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-the-cli-directly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the CLI Directly
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Using the CLI Directly">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cli-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../debugging-tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debugging Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../drupal-testing-utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drupal Testing Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Releases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#accessibility-baselines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accessibility baselines
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-report-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test report integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#accessibility-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accessibility functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Accessibility functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#checkaccessibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        checkAccessibility()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#takeaccessiblescreenshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        takeAccessibleScreenshot()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a11y-fixture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        a11y fixture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessibilityoptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AccessibilityOptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#screenshotoptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ScreenshotOptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#in-code-baselines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        In-code baselines
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="In-code baselines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defineaccessibilitybaseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        defineAccessibilityBaseline()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessibilitybaselineentry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AccessibilityBaselineEntry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sharing-a-baseline-with-visual-diffs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sharing a baseline with visual diffs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#github-accessibility-annotations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitHub Accessibility Annotations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GitHub Accessibility Annotations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-the-reusable-action-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the Reusable Action (Recommended)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Using the Reusable Action (Recommended)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#action-inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action Inputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-the-cli-directly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the CLI Directly
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Using the CLI Directly">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cli-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="accessibility-tests">Accessibility Tests</h1>
+<p>Two top-level helpers drive accessibility assertions: <a href="#checkaccessibility"><code>checkAccessibility()</code></a> runs axe-core scans against the current page; <a href="#takeaccessiblescreenshot"><code>takeAccessibleScreenshot()</code></a> takes a visual-diff screenshot first and then runs the same scans. Both attach axe results, a highlighted screenshot of violating elements, and annotations to the test report, and both dispatch to baseline mode by default. The <a href="#a11y-fixture"><code>a11y</code> fixture</a> wraps them so tests can call <code>a11y.check()</code> / <code>a11y.screenshot()</code> without threading <code>testInfo</code> through.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">checkAccessibility</span><span class="p">,</span><span class="w"> </span><span class="nx">takeAccessibleScreenshot</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;homepage has no a11y violations&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="nx">testInfo</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">);</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">checkAccessibility</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="nx">testInfo</span><span class="p">);</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">});</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;homepage screenshot + a11y&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="nx">testInfo</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">);</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">takeAccessibleScreenshot</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="nx">testInfo</span><span class="p">);</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">});</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;homepage via the fixture&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="nx">a11y</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">);</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">a11y</span><span class="p">.</span><span class="nx">check</span><span class="p">();</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="p">});</span>
+</span></code></pre></div>
+<h2 id="accessibility-baselines">Accessibility baselines</h2>
+<p>Each WCAG and best-practice scan is asserted against an on-disk JSON baseline file colocated with snapshots. The file uses an object schema with a human-readable note plus a <code>violations</code> array of accepted entries:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;note&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TODO: fill in reason and willBeFixedIn for each entry before committing.&quot;</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">&quot;violations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">      </span><span class="nt">&quot;rule&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;color-contrast&quot;</span><span class="p">,</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;#footer .legal&quot;</span><span class="p">],</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">      </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TODO&quot;</span><span class="p">,</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">      </span><span class="nt">&quot;willBeFixedIn&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TODO&quot;</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>When you run a new test for the first time <strong>locally</strong>, the baseline file is auto-seeded next to where its snapshot would have been (e.g. <code>my-test-1.a11y-baseline.json</code> for WCAG, <code>my-test-1.a11y-baseline-best-practice.json</code> for best-practice). The first run passes; subsequent runs match against the file. Replace the <code>TODO</code> placeholders with a real reason and tracking ticket before committing.</p>
+<p>When a test runs on <strong>CI</strong> (<code>process.env.CI</code> set) and would auto-seed a baseline file, the file is written and attached to the test report, but the test <strong>fails</strong> with a directive to download/commit it. This mirrors Playwright's default behaviour for missing visual snapshots and prevents new accessibility violations from silently slipping through CI.</p>
+<p>Tests that pass <code>baseline:</code> to <a href="#checkaccessibility"><code>checkAccessibility()</code></a> (or <a href="#a11y-fixture"><code>a11y.check()</code></a>) using <a href="#defineaccessibilitybaseline"><code>defineAccessibilityBaseline()</code></a> take precedence over the on-disk JSON file — use this when you need to share a baseline across multiple tests or compute it from test data.</p>
+<div class="admonition warning">
+<p class="admonition-title">Snapshot mode (deprecated)</p>
+<p>Earlier versions of this package pinned violations via Playwright's <code>toMatchSnapshot()</code> against a <code>.txt</code> snapshot in the test's <code>-snapshots/</code> directory. Tests with a committed <code>.txt</code> snapshot continue to assert against it for backwards compatibility, but snapshot mode is deprecated — new tests should use baselines, and existing tests should migrate. To migrate a test, delete its <code>.txt</code> snapshot and let the next local run seed a <code>.a11y-baseline.json</code> in its place.</p>
+</div>
+<h2 id="test-report-integration">Test report integration</h2>
+<p>Accessibility results surface in the Playwright HTML report through tags, annotations, and attachments:</p>
+<ul>
+<li><strong><code>@a11y</code> tag</strong> — every test that runs an accessibility check is tagged so runs can be filtered to just a11y tests.</li>
+<li><strong>Scan summary annotations</strong> — each scan adds an <code>Accessibility</code> annotation summarising counts (e.g. <code>WCAG scan: 0 new violations (2 baselined)</code>).</li>
+<li><strong>Baselined violation annotations</strong> — each suppressed violation appears as a <code>Baselined a11y violation</code> annotation with its <code>reason</code> and <code>willBeFixedIn</code> link, so reviewers can see what is being waived and where the fix is tracked.</li>
+<li><strong>Stale baseline annotations</strong> — baseline entries that no longer match any detected violation appear as <code>Stale a11y baseline entry</code> annotations so they can be cleaned up.</li>
+<li><strong>Scan result attachments</strong> — full axe-core JSON is attached as <code>a11y-best-practice-scan-results</code> and <code>a11y-wcag-scan-results</code> for detailed inspection.</li>
+<li><strong>Violation screenshot</strong> — when WCAG violations are detected, a full-page screenshot is attached with every violating element outlined in red. Disable via <code>screenshotViolations: false</code> in <a href="#accessibilityoptions">AccessibilityOptions</a>.</li>
+</ul>
+<p>A passing test shows the <code>@a11y</code> tag and a scan summary:</p>
+<p><img alt="Annotations section showing the @a11y tag and a WCAG scan summary" src="../../images/a11y-report-annotations.webp" /></p>
+<p>When a baseline is in use, the report also lists baselined violations and any stale entries:</p>
+<p><img alt="Report annotations listing baselined violations alongside a stale baseline entry" src="../../images/a11y-report-baseline-annotations.webp" /></p>
+<p>Unmatched violations fail the test with a detailed error — rule, impact, help URL, affected targets, and a copy-pasteable baseline entry you can drop straight into <code>.a11y-baseline.json</code>:</p>
+<p><img alt="Playwright error output showing violation details, help URL, and a ready-to-paste baseline entry" src="../../images/a11y-report-baseline-errors.webp" /></p>
+<h2 id="accessibility-functions">Accessibility functions</h2>
+<h3 id="checkaccessibility">checkAccessibility()</h3>
+<p><code>checkAccessibility(page: Page, testInfo: TestInfo, options?: AccessibilityOptions): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>testInfo</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright <code>TestInfo</code> for the current test — required for baseline-file derivation, attachments, and annotations.</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>{}</code></td>
+<td>See <a href="#accessibilityoptions">AccessibilityOptions</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>Runs a best-practice axe scan (unless <code>bestPracticeMode</code> is <code>'off'</code>) followed by a WCAG scan. Attaches JSON results for each scan, a highlighted screenshot of any WCAG violations, and an <code>@a11y</code> annotation to the test. Each scan dispatches independently to the right assertion mode: explicit in-code <code>baseline</code> → baseline mode; committed <code>.txt</code> snapshot on disk → snapshot mode; otherwise on-disk <code>.a11y-baseline.json</code> (seeded on first run).</p>
+<h3 id="takeaccessiblescreenshot">takeAccessibleScreenshot()</h3>
+<p><code>takeAccessibleScreenshot(page: Page, testInfo: TestInfo, options?: ScreenshotOptions, scrollLocator?: Locator, locator?: Locator | Page): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>testInfo</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright <code>TestInfo</code> for the current test.</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>{}</code></td>
+<td>Playwright screenshot options plus an <code>accessibility</code> field — see <a href="#screenshotoptions">ScreenshotOptions</a>.</td>
+</tr>
+<tr>
+<td><code>scrollLocator</code></td>
+<td><code>undefined</code></td>
+<td>Optional locator to scroll into view before the screenshot.</td>
+</tr>
+<tr>
+<td><code>locator</code></td>
+<td><code>page</code></td>
+<td>Optional element to screenshot. Axe still scans the whole page.</td>
+</tr>
+</tbody>
+</table>
+<p>Waits for all images and iframes to load, applies project-specific thresholds for Firefox/Safari's non-deterministic image rendering, then calls Playwright's <code>toHaveScreenshot()</code> (soft) and finally invokes <a href="#checkaccessibility"><code>checkAccessibility</code></a> with <code>options.accessibility</code>. The timeout is clamped to at least 10 seconds so slow admin forms have time to stabilise.</p>
+<h3 id="a11y-fixture">a11y fixture</h3>
+<p>The <code>a11y</code> fixture exposes the two helpers above via the test context so you don't have to pass <code>testInfo</code> explicitly.</p>
+<p><code>a11y.check(options?: AccessibilityOptions): Promise&lt;void&gt;</code></p>
+<p>Shorthand for <a href="#checkaccessibility"><code>checkAccessibility(page, testInfo, options)</code></a>.</p>
+<p><code>a11y.screenshot(options?: ScreenshotOptions, scrollLocator?: Locator, locator?: Locator | Page): Promise&lt;void&gt;</code></p>
+<p>Shorthand for <a href="#takeaccessiblescreenshot"><code>takeAccessibleScreenshot(page, testInfo, options, scrollLocator, locator)</code></a>.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;uses the a11y fixture&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="nx">a11y</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/about&#39;</span><span class="p">);</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">a11y</span><span class="p">.</span><span class="nx">screenshot</span><span class="p">({</span><span class="w"> </span><span class="nx">fullPage</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="accessibilityoptions">AccessibilityOptions</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wcagTags</code></td>
+<td><code>['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']</code></td>
+<td>Axe tags for the WCAG scan.</td>
+</tr>
+<tr>
+<td><code>exclude</code></td>
+<td><code>[]</code></td>
+<td>Additional CSS selectors to exclude from both scans.</td>
+</tr>
+<tr>
+<td><code>bestPracticeMode</code></td>
+<td><code>'soft'</code></td>
+<td><code>'soft'</code> uses <code>expect.soft()</code> so the WCAG scan still runs on failure; <code>'hard'</code> is preserved as a marker but does not change soft/hard today; <code>'off'</code> skips the best-practice scan entirely.</td>
+</tr>
+<tr>
+<td><code>rules</code></td>
+<td><code>undefined</code></td>
+<td>Axe rule overrides, e.g. <code>{ 'color-contrast': { enabled: false } }</code>.</td>
+</tr>
+<tr>
+<td><code>baseline</code></td>
+<td><code>undefined</code></td>
+<td>In-code baseline allowlist. When set, matching violations are suppressed and the on-disk JSON file is bypassed. Pair with <a href="#defineaccessibilitybaseline"><code>defineAccessibilityBaseline()</code></a>.</td>
+</tr>
+<tr>
+<td><code>disableDefaultExclusions</code></td>
+<td><code>false</code></td>
+<td>When <code>true</code>, removes the hard-coded Drupal exclusions (skip-link and duplicate landmarks on the best-practice scan; the <code>[data-drupal-media-preview="ready"]</code> element on the WCAG scan).</td>
+</tr>
+<tr>
+<td><code>screenshotViolations</code></td>
+<td><code>true</code></td>
+<td>When <code>true</code>, attaches a full-page screenshot with violating elements outlined in red.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="screenshotoptions">ScreenshotOptions</h3>
+<p>A superset of Playwright's <a href="https://playwright.dev/docs/api/class-pageassertions#page-assertions-to-have-screenshot-1"><code>toHaveScreenshot()</code> options</a> (<code>animations</code>, <code>caret</code>, <code>fullPage</code>, <code>mask</code>, <code>maskColor</code>, <code>maxDiffPixelRatio</code>, <code>maxDiffPixels</code>, <code>omitBackground</code>, <code>scale</code>, <code>threshold</code>, <code>timeout</code>) plus:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>accessibility</code></td>
+<td><code>undefined</code></td>
+<td><a href="#accessibilityoptions">AccessibilityOptions</a> passed through to <a href="#checkaccessibility"><code>checkAccessibility</code></a>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="in-code-baselines">In-code baselines</h2>
+<p>Use <a href="#defineaccessibilitybaseline"><code>defineAccessibilityBaseline()</code></a> when a baseline needs to be shared across multiple tests or computed from test data. An in-code baseline takes precedence over the on-disk <code>.a11y-baseline.json</code> file.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">defineAccessibilityBaseline</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">sharedBaseline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">defineAccessibilityBaseline</span><span class="p">([</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="p">{</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nx">rule</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;color-contrast&#39;</span><span class="p">,</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nx">targets</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;#footer .legal&#39;</span><span class="p">],</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nx">reason</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Brand-mandated gray; waiting on design refresh.&#39;</span><span class="p">,</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="nx">willBeFixedIn</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://example.com/issues/123&#39;</span><span class="p">,</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="p">]);</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;about page&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="nx">a11y</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/about&#39;</span><span class="p">);</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">a11y</span><span class="p">.</span><span class="nx">check</span><span class="p">({</span><span class="w"> </span><span class="nx">baseline</span><span class="o">:</span><span class="w"> </span><span class="kt">sharedBaseline</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="defineaccessibilitybaseline">defineAccessibilityBaseline()</h3>
+<p><code>defineAccessibilityBaseline(entries: AccessibilityBaseline): AccessibilityBaseline</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>entries</code></td>
+<td><em>(required)</em></td>
+<td>Array of <a href="#accessibilitybaselineentry">AccessibilityBaselineEntry</a> — accepted violations.</td>
+</tr>
+</tbody>
+</table>
+<p>Pass-through identity function that exists for type inference. Returns the input unchanged; its only purpose is to make TypeScript infer the array as <code>AccessibilityBaseline</code> so mis-typed entries are caught at compile time.</p>
+<h3 id="accessibilitybaselineentry">AccessibilityBaselineEntry</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rule</code></td>
+<td>Axe rule ID (e.g. <code>'color-contrast'</code>).</td>
+</tr>
+<tr>
+<td><code>targets</code></td>
+<td>CSS selectors for the elements with this violation. A violation is matched when its rule is identical and at least one normalised target selector overlaps.</td>
+</tr>
+<tr>
+<td><code>reason</code></td>
+<td>Why this violation is accepted.</td>
+</tr>
+<tr>
+<td><code>willBeFixedIn</code></td>
+<td>Link to a tracking ticket.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Type alias:</strong> <code>AccessibilityBaseline = AccessibilityBaselineEntry[]</code></p>
+<h3 id="sharing-a-baseline-with-visual-diffs">Sharing a baseline with visual diffs</h3>
+<p>The <a href="../visual-comparisons/">visual-diff config</a> passed to <code>defineVisualDiffConfig()</code> accepts an <code>a11yBaseline</code> so every generated test inherits the same in-code baseline without having to thread it through each test case:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">defineVisualDiffConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">baseline</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;~/a11y-baseline&#39;</span><span class="p">;</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">defineVisualDiffConfig</span><span class="p">({</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Umami Visual Diffs&#39;</span><span class="p">,</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="nx">a11yBaseline</span><span class="o">:</span><span class="w"> </span><span class="kt">baseline</span><span class="p">,</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="nx">groups</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Landing Pages&#39;</span><span class="p">,</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">      </span><span class="nx">testCases</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Home Page&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">      </span><span class="p">],</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="p">});</span>
+</span></code></pre></div>
+<h2 id="github-accessibility-annotations">GitHub Accessibility Annotations</h2>
+<p>When running accessibility tests in CI, you can surface violations directly in GitHub workflow summaries and inline file annotations using the included composite action or CLI tool.</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>The JSON reporter must be enabled for the annotation tools to parse test results. This is included automatically when using <code>definePlaywrightDrupalConfig()</code> — no extra configuration needed.</p>
+<h3 id="using-the-reusable-action-recommended">Using the Reusable Action (Recommended)</h3>
+<p>Add the following to your GitHub Actions workflow:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run Playwright tests</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ddev exec npx playwright test</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Accessibility annotations</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always()</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Lullabot/playwright-drupal/.github/actions/a11y-annotations@main</span>
+</span></code></pre></div>
+<p>The <code>if: always()</code> ensures the annotations step runs even when the test step fails, so violations appear in the job summary regardless of overall job status.</p>
+<p>This step will:
+1. Write an accessibility summary to the workflow job summary
+2. Create inline <code>::error</code> / <code>::warning</code> annotations on test files</p>
+<h4 id="action-inputs">Action Inputs</h4>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>report-path</code></td>
+<td><code>test-results/results.json</code></td>
+<td>Path to the Playwright JSON report</td>
+</tr>
+<tr>
+<td><code>mode</code></td>
+<td><code>all</code></td>
+<td>Output mode: <code>all</code>, <code>summary</code>, or <code>annotations</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="using-the-cli-directly">Using the CLI Directly</h3>
+<p>For more control, use the <code>playwright-drupal-a11y-summary</code> CLI:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Accessibility summary</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always()</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ddev exec npx playwright-drupal-a11y-summary --mode=summary</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Accessibility annotations</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always()</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ddev exec npx playwright-drupal-a11y-summary --mode=annotations</span>
+</span></code></pre></div>
+<h4 id="cli-options">CLI Options</h4>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--mode=&lt;mode&gt;</code></td>
+<td><code>summary</code></td>
+<td>Output mode: <code>summary</code> or <code>annotations</code></td>
+</tr>
+<tr>
+<td><code>--report-path=&lt;path&gt;</code></td>
+<td><code>test-results/results.json</code></td>
+<td>Path to the Playwright JSON report</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.top", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/palette-sync.js"></script>
+      
+    
+  </body>
+</html>
