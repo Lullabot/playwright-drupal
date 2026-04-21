@@ -5,7 +5,7 @@
 [![Test](https://github.com/Lullabot/playwright-drupal/actions/workflows/test.yml/badge.svg)](https://github.com/Lullabot/playwright-drupal/actions/workflows/test.yml)
 [![License](https://img.shields.io/npm/l/@lullabot/playwright-drupal)](https://github.com/Lullabot/playwright-drupal/blob/main/LICENSE)
 
-![Demo showing running isolated Drupal tests in parallel](images/demo.webp)
+![Demo showing running isolated Drupal tests in parallel](docs/images/demo.webp)
 
 This project, building on [lullabot/ddev-playwright](https://github.com/lullabot/ddev-playwright), enables full support for Playwright testing of Drupal websites.
 
