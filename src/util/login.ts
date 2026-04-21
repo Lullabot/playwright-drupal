@@ -10,12 +10,19 @@ import { quote as shellQuote } from 'shell-quote';
  * cookie, which works with any theme and any login redirect configuration.
  *
  * @param page - The Playwright page object.
- * @param user - The Drupal username to log in as (defaults to "admin").
+ * @param user - The Drupal user to log in as. A string is treated as a
+ *   username (`--name=`); a number is treated as a user ID (`--uid=`).
+ *   Defaults to the "admin" username.
  */
-export async function login(page: Page, user: string = 'admin') {
-  // Generate a one-time login link for the user.
-  const safeUser = shellQuote([user]);
-  const result = await execDrushInTestSite(`user:login --name=${safeUser}`);
+export async function login(page: Page, user: string | number = 'admin') {
+  // Generate a one-time login link for the user. Numbers map to --uid so
+  // callers that already have a uid from a prior Drush call can pass it
+  // directly instead of round-tripping through a name lookup.
+  const flag =
+    typeof user === 'number'
+      ? `--uid=${shellQuote([String(user)])}`
+      : `--name=${shellQuote([user])}`;
+  const result = await execDrushInTestSite(`user:login ${flag}`);
   const loginUrl = result.stdout.trim();
 
   // drush user:login returns an absolute URL (e.g. http://...). Extract the
