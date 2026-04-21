@@ -8,11 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://lullabot.github.io/playwright-drupal/main/development/releases/">
+        <link rel="canonical" href="https://lullabot.github.io/playwright-drupal/main/contributing/development/">
       
       
-        <link rel="prev" href="../contributing/">
+        <link rel="prev" href="../../guides/github-actions/">
       
+      
+        <link rel="next" href="../releases/">
       
       
         
@@ -23,7 +25,7 @@
     
     
       
-        <title>Releases - playwright-drupal</title>
+        <title>Development - playwright-drupal</title>
       
     
     
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#releases" class="md-skip">
+        <a href="#development" class="md-skip">
           Skip to content
         </a>
       
@@ -117,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Releases
+              Development
             
           </span>
         </div>
@@ -258,7 +260,7 @@
           
   
   
-  Guides
+  Working with Tests
 
         </a>
       </li>
@@ -276,11 +278,11 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../contributing/" class="md-tabs__link">
+        <a href="./" class="md-tabs__link">
           
   
   
-  Development
+  Contributing
 
         </a>
       </li>
@@ -412,7 +414,7 @@
   <span class="md-ellipsis">
     
   
-    Overview
+    About playwright-drupal
   
 
     
@@ -461,14 +463,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/configuration/" class="md-nav__link">
+      <a href="../../getting-started/playwright-configuration/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Configuration
+    Playwright Configuration
   
 
     
@@ -517,7 +519,7 @@
   <span class="md-ellipsis">
     
   
-    Guides
+    Working with Tests
   
 
     
@@ -533,7 +535,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Guides
+    Working with Tests
   
 
           </label>
@@ -574,14 +576,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/utilities/" class="md-nav__link">
+      <a href="../../guides/visual-comparisons/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Drupal Utilities
+    Visual Comparisons (Diffs)
   
 
     
@@ -602,14 +604,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/visual-comparisons/" class="md-nav__link">
+      <a href="../../guides/debugging-tests/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Visual Comparisons
+    Debugging Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/drupal-testing-utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drupal Testing Utilities
   
 
     
@@ -637,7 +667,7 @@
   <span class="md-ellipsis">
     
   
-    GitHub Actions
+    GitHub Accessibility Annotations
   
 
     
@@ -691,7 +721,7 @@
   <span class="md-ellipsis">
     
   
-    Development
+    Contributing
   
 
     
@@ -707,39 +737,11 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Development
+    Contributing
   
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../contributing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Contributing
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
             
               
                 
@@ -764,7 +766,7 @@
   <span class="md-ellipsis">
     
   
-    Releases
+    Development
   
 
     
@@ -782,7 +784,7 @@
   <span class="md-ellipsis">
     
   
-    Releases
+    Development
   
 
     
@@ -808,10 +810,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#versioned-deployment" class="md-nav__link">
+  <a href="#running-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Versioned Deployment
+        Running Tests
       
     </span>
   </a>
@@ -819,10 +821,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#one-time-github-pages-setup" class="md-nav__link">
+  <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        One-Time GitHub Pages Setup
+        Documentation
       
     </span>
   </a>
@@ -830,10 +832,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#publishing-a-one-off-alpha-release" class="md-nav__link">
+  <a href="#pull-request-commands" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Publishing a One-Off Alpha Release
+        Pull Request Commands
       
     </span>
   </a>
@@ -844,6 +846,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Releases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -883,10 +913,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#versioned-deployment" class="md-nav__link">
+  <a href="#running-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Versioned Deployment
+        Running Tests
       
     </span>
   </a>
@@ -894,10 +924,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#one-time-github-pages-setup" class="md-nav__link">
+  <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        One-Time GitHub Pages Setup
+        Documentation
       
     </span>
   </a>
@@ -905,10 +935,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#publishing-a-one-off-alpha-release" class="md-nav__link">
+  <a href="#pull-request-commands" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Publishing a One-Off Alpha Release
+        Pull Request Commands
       
     </span>
   </a>
@@ -932,46 +962,30 @@
 
 
 
-<h1 id="releases">Releases</h1>
-<h2 id="versioned-deployment">Versioned Deployment</h2>
-<p>Docs are deployed automatically when a release tag matching <code>playwright-drupal-*</code> is pushed (e.g. <code>playwright-drupal-1.5.1</code>). The GitHub Actions workflow strips the <code>playwright-drupal-</code> prefix and runs <code>mike deploy --push --update-aliases 1.5.1 latest</code>, committing versioned docs to the <code>gh-pages</code> branch. Deployed docs are available at <code>https://lullabot.github.io/playwright-drupal/1.5.1/</code> and <code>https://lullabot.github.io/playwright-drupal/latest/</code>.</p>
-<h2 id="one-time-github-pages-setup">One-Time GitHub Pages Setup</h2>
-<p>Before the first versioned deployment, change the GitHub Pages source from "GitHub Actions" to "Deploy from a branch":</p>
-<ol>
-<li>Go to <strong>Settings → Pages</strong></li>
-<li>Under <strong>Source</strong>, select <strong>Deploy from a branch</strong></li>
-<li>Set branch to <strong><code>gh-pages</code></strong> and folder to <strong><code>/ (root)</code></strong></li>
-<li>Save</li>
-</ol>
-<p>The <code>gh-pages</code> branch is created automatically by <code>mike</code> on first deployment.</p>
-<h2 id="publishing-a-one-off-alpha-release">Publishing a One-Off Alpha Release</h2>
-<p>Stable releases are handled automatically by <a href="https://github.com/googleapis/release-please">release-please</a> from <code>main</code>. To publish a one-off prerelease (e.g. to let someone test an unreleased change) without disturbing the <code>latest</code> dist-tag, publish manually from your workstation.</p>
-<p><strong>Prerequisites:</strong></p>
+<h1 id="development">Development</h1>
+<h2 id="running-tests">Running Tests</h2>
+<p>This project uses <a href="https://github.com/bats-core/bats-core">bats-core</a> for integration testing. The tests create a fresh DDEV Drupal project, install this library, and run the example Playwright tests to verify everything works end-to-end.</p>
+<p><strong>Prerequisites:</strong>
+- <a href="https://ddev.readthedocs.io/en/stable/">DDEV</a> (v1.25+)
+- <a href="https://bats-core.readthedocs.io/en/stable/installation.html">bats-core</a></p>
+<p><strong>Run the tests:</strong>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="go">bats test/</span>
+</span></code></pre></div></p>
+<p>Tests take approximately 10-15 minutes as they set up a complete Drupal environment.</p>
+<h2 id="documentation">Documentation</h2>
+<p>The documentation site uses <a href="https://www.mkdocs.org/">MkDocs</a> with the <a href="https://squidfunk.github.io/mkdocs-material/">Material theme</a> and <a href="https://github.com/jimporter/mike"><code>mike</code></a> for versioned deployments.</p>
+<p><strong>Prerequisites:</strong> Install <a href="https://docs.astral.sh/uv/"><code>uv</code></a> (no manual Python virtualenv setup required).</p>
+<p><strong>Local development:</strong></p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="go">npm run docs:dev      # Starts live-reload server at http://localhost:8000</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="go">npm run docs:build    # Builds static site to site/</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="go">npm run docs:preview  # Previews the built site</span>
+</span></code></pre></div>
+<h2 id="pull-request-commands">Pull Request Commands</h2>
+<p>Maintainers can use the following commands by posting a comment on a pull request:</p>
 <ul>
-<li>Push access to the <code>@lullabot/playwright-drupal</code> npm package.</li>
-<li>A granular access token from <a href="https://www.npmjs.com/">npmjs.com</a> with publish permission on the package.</li>
+<li><strong><code>/fast-forward</code></strong> — Performs a true fast-forward merge (<code>git merge --ff-only</code>) that preserves the original commit SHAs. This avoids the SHA-rewriting that GitHub's built-in rebase merge does. The PR branch must be up to date with the base branch for this to succeed.</li>
+<li><strong><code>/rebase</code></strong> — Rebases the PR branch onto the base branch, stripping any empty commits created during the rebase. Only repository owners, members, and collaborators can trigger this command.</li>
 </ul>
-<p><strong>1. Authenticate npm with your token:</strong></p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="go">npm config set //registry.npmjs.org/:_authToken &lt;your-token&gt;</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="go">npm whoami</span>
-</span></code></pre></div>
-<p>This writes the token to <code>~/.npmrc</code>. <code>npm login</code> is now interactive/browser-based and won't accept a token directly, so setting <code>_authToken</code> is the standard path for automation-style tokens.</p>
-<p><strong>2. Check out a clean <code>main</code> and bump the version locally:</strong></p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="go">git checkout main</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="go">git pull</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="go">npm version 1.6.0-alpha.0 --no-git-tag-version</span>
-</span></code></pre></div>
-<p>Do <strong>not</strong> commit or push the version bump — release-please manages versions in the repo. The bump only needs to exist in the working copy for <code>npm publish</code> to read.</p>
-<p><strong>3. Publish under the <code>alpha</code> dist-tag:</strong></p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="go">ddev exec npm ci</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="go">ddev exec npm publish --tag alpha --access public</span>
-</span></code></pre></div>
-<p><code>prepack</code> runs <code>npm run build</code> automatically, so no separate build step is required. The <code>--tag alpha</code> flag is critical: without it, the prerelease would replace <code>latest</code> and become the default install.</p>
-<p><strong>4. Verify and clean up:</strong></p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="go">npm dist-tag ls @lullabot/playwright-drupal</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="go">git checkout -- package.json package-lock.json</span>
-</span></code></pre></div>
-<p>Consumers install the prerelease with <code>npm install @lullabot/playwright-drupal@alpha</code>.</p>
 
 
 

@@ -11,10 +11,10 @@
         <link rel="canonical" href="https://lullabot.github.io/playwright-drupal/main/guides/visual-comparisons/">
       
       
-        <link rel="prev" href="../utilities/">
+        <link rel="prev" href="../writing-tests/">
       
       
-        <link rel="next" href="../github-actions/">
+        <link rel="next" href="../debugging-tests/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Visual Comparisons - playwright-drupal</title>
+        <title>Visual Comparisons (Diffs) - playwright-drupal</title>
       
     
     
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Visual Comparisons
+              Visual Comparisons (Diffs)
             
           </span>
         </div>
@@ -262,7 +262,7 @@
           
   
   
-  Guides
+  Working with Tests
 
         </a>
       </li>
@@ -278,11 +278,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../development/contributing/" class="md-tabs__link">
+        <a href="../../contributing/development/" class="md-tabs__link">
           
   
   
-  Development
+  Contributing
 
         </a>
       </li>
@@ -414,7 +414,7 @@
   <span class="md-ellipsis">
     
   
-    Overview
+    About playwright-drupal
   
 
     
@@ -463,14 +463,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/configuration/" class="md-nav__link">
+      <a href="../../getting-started/playwright-configuration/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Configuration
+    Playwright Configuration
   
 
     
@@ -524,7 +524,7 @@
   <span class="md-ellipsis">
     
   
-    Guides
+    Working with Tests
   
 
     
@@ -540,7 +540,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Guides
+    Working with Tests
   
 
           </label>
@@ -578,34 +578,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../utilities/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Drupal Utilities
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -625,7 +597,7 @@
   <span class="md-ellipsis">
     
   
-    Visual Comparisons
+    Visual Comparisons (Diffs)
   
 
     
@@ -643,7 +615,7 @@
   <span class="md-ellipsis">
     
   
-    Visual Comparisons
+    Visual Comparisons (Diffs)
   
 
     
@@ -669,10 +641,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#accessibility-violations-snapshot-vs-baseline" class="md-nav__link">
+  <a href="#accessibility-violation-baselines" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Accessibility violations: snapshot vs. baseline
+        Accessibility violation baselines
       
     </span>
   </a>
@@ -789,6 +761,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../debugging-tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debugging Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../drupal-testing-utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drupal Testing Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../github-actions/" class="md-nav__link">
         
   
@@ -796,7 +824,7 @@
   <span class="md-ellipsis">
     
   
-    GitHub Actions
+    GitHub Accessibility Annotations
   
 
     
@@ -845,7 +873,7 @@
   <span class="md-ellipsis">
     
   
-    Development
+    Contributing
   
 
     
@@ -861,7 +889,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Development
+    Contributing
   
 
           </label>
@@ -874,14 +902,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/contributing/" class="md-nav__link">
+      <a href="../../contributing/development/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Contributing
+    Development
   
 
     
@@ -902,7 +930,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/releases/" class="md-nav__link">
+      <a href="../../contributing/releases/" class="md-nav__link">
         
   
   
@@ -957,10 +985,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#accessibility-violations-snapshot-vs-baseline" class="md-nav__link">
+  <a href="#accessibility-violation-baselines" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Accessibility violations: snapshot vs. baseline
+        Accessibility violation baselines
       
     </span>
   </a>
@@ -1089,12 +1117,8 @@
 <li>Automatically trigger loading of all lazy-loaded iframes.</li>
 <li>Generate an accessibility report of the element being tested.</li>
 </ol>
-<h2 id="accessibility-violations-snapshot-vs-baseline">Accessibility violations: snapshot vs. baseline</h2>
-<p>Each WCAG and best-practice scan is asserted in one of two modes:</p>
-<ul>
-<li><strong>Snapshot mode</strong> (legacy): violations are pinned via Playwright's <code>toMatchSnapshot()</code> against a <code>.txt</code> snapshot in the test's <code>-snapshots/</code> directory. Used automatically whenever the test already has a committed snapshot.</li>
-<li><strong>Baseline mode</strong> (new default for snapshotless tests): violations are matched against an on-disk JSON baseline file colocated with snapshots. The file uses an object schema with a human-readable note plus a <code>violations</code> array of accepted entries:</li>
-</ul>
+<h2 id="accessibility-violation-baselines">Accessibility violation baselines</h2>
+<p>Each WCAG and best-practice scan is asserted against an on-disk JSON baseline file colocated with snapshots. The file uses an object schema with a human-readable note plus a <code>violations</code> array of accepted entries:</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;note&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TODO: fill in reason and willBeFixedIn for each entry before committing.&quot;</span><span class="p">,</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">&quot;violations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
@@ -1109,8 +1133,11 @@
 </span></code></pre></div>
 <p>When you run a new test for the first time <strong>locally</strong>, the baseline file is auto-seeded next to where its snapshot would have been (e.g. <code>my-test-1.a11y-baseline.json</code> for WCAG, <code>my-test-1.a11y-baseline-best-practice.json</code> for best-practice). The first run passes; subsequent runs match against the file. Replace the <code>TODO</code> placeholders with a real reason and tracking ticket before committing.</p>
 <p>When a test runs on <strong>CI</strong> (<code>process.env.CI</code> set) and would auto-seed a baseline file, the file is written and attached to the test report, but the test <strong>fails</strong> with a directive to download/commit it. This mirrors Playwright's default behaviour for missing visual snapshots and prevents new accessibility violations from silently slipping through CI.</p>
-<p>To force snapshot mode on a brand-new test, run it once with <code>--update-snapshots</code>; Playwright will create the snapshot file and from then on the test stays in snapshot mode.</p>
-<p>Existing tests that pass <code>baseline:</code> to <code>checkAccessibility()</code> (or <code>a11y.check()</code>) using <code>defineAccessibilityBaseline()</code> continue to work unchanged — explicit in-code baselines always take precedence over both snapshots and on-disk JSON files.</p>
+<p>Tests that pass <code>baseline:</code> to <code>checkAccessibility()</code> (or <code>a11y.check()</code>) using <code>defineAccessibilityBaseline()</code> take precedence over the on-disk JSON file — use this when you need to share a baseline across multiple tests or compute it from test data.</p>
+<div class="admonition warning">
+<p class="admonition-title">Snapshot mode (deprecated)</p>
+<p>Earlier versions of this package pinned violations via Playwright's <code>toMatchSnapshot()</code> against a <code>.txt</code> snapshot in the test's <code>-snapshots/</code> directory. Tests with a committed <code>.txt</code> snapshot continue to assert against it for backwards compatibility, but snapshot mode is deprecated — new tests should use baselines, and existing tests should migrate. To migrate a test, delete its <code>.txt</code> snapshot and let the next local run seed a <code>.a11y-baseline.json</code> in its place.</p>
+</div>
 <h2 id="visual-comparisons-for-static-content">Visual Comparisons for Static Content</h2>
 <p>The above workflow is great for testing after creating or editing content. However, teams may also want visual comparisons purely of the front-end. In that case, there's no concurrency issues (every request can use the same Drupal database), and often the content itself comes from a test website whose database has been copied down.</p>
 <p>The <code>VisualDiffTestCases</code> class scaffolds out support for this use case, including:</p>

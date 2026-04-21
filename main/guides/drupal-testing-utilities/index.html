@@ -1,0 +1,2727 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://lullabot.github.io/playwright-drupal/main/guides/drupal-testing-utilities/">
+      
+      
+        <link rel="prev" href="../debugging-tests/">
+      
+      
+        <link rel="next" href="../github-actions/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Drupal Testing Utilities - playwright-drupal</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#drupal-testing-utilities" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="playwright-drupal" class="md-header__button md-logo" aria-label="playwright-drupal" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <a href="../.." class="md-header__home-link" aria-label="playwright-drupal">
+            <span class="md-ellipsis">
+              playwright-drupal
+            </span>
+          </a>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Drupal Testing Utilities
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../writing-tests/" class="md-tabs__link">
+          
+  
+  
+  Working with Tests
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/development/" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="playwright-drupal" class="md-nav__button md-logo" aria-label="playwright-drupal" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    playwright-drupal
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About playwright-drupal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/playwright-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playwright Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Working with Tests
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Working with Tests
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../writing-tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../visual-comparisons/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visual Comparisons (Diffs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../debugging-tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debugging Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drupal Testing Utilities
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drupal Testing Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#login" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        login()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#forms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Forms
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Forms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#waitforajax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForAjax()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openalldetails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        openAllDetails()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clicksavebutton" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clickSaveButton()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#waitforsaveoutcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForSaveOutcome()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#autosave_form-workarounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        autosave_form workarounds
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="autosave_form workarounds">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dismissautosavedraft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dismissAutosaveDraft()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#waitforautosaveready" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForAutosaveReady()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gin-theme-workarounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gin theme workarounds
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Gin theme workarounds">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#clicksubmit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clickSubmit()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ckeditor-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CKEditor 5
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CKEditor 5">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fill()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#media-library" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Media Library
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Media Library">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#selectfirstmediafromlibrary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        selectFirstMediaFromLibrary()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#findmediaidfromlisting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        findMediaIdFromListing()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managed-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managed Files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Managed Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uploadmanagedfile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        uploadManagedFile()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oembed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        oEmbed
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="oEmbed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filloembedurl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fillOembedUrl()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Entities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#extractentityidfrompage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extractEntityIdFromPage()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#page-readiness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page readiness
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Page readiness">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#waitforimages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForImages()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#waitforallimages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForAllImages()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#waitforframes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForFrames()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fallback-selectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fallback selectors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fallback selectors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#idprefixselector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        idPrefixSelector()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modules
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ismoduleenabled" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        isModuleEnabled()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ismoduleenabledbypath" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        isModuleEnabledByPath()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validaterequiredmodules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validateRequiredModules()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-log-dblog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database log (dblog)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Database log (dblog)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#isdblogenabled" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        isDblogEnabled()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#truncatedblog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        truncateDblog()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetchdblogentries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fetchDblogEntries()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checkdblogforerrors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        checkDblogForErrors()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#formatlogerrors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        formatLogErrors()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status report
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Status report">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getstatusreport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getStatusReport()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filterstatusitems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        filterStatusItems()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#formatstatusitems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        formatStatusItems()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docroot-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docroot resolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Docroot resolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getdocroot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getDocroot()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub Accessibility Annotations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Releases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#login" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        login()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#forms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Forms
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Forms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#waitforajax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForAjax()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openalldetails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        openAllDetails()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clicksavebutton" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clickSaveButton()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#waitforsaveoutcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForSaveOutcome()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#autosave_form-workarounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        autosave_form workarounds
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="autosave_form workarounds">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dismissautosavedraft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dismissAutosaveDraft()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#waitforautosaveready" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForAutosaveReady()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gin-theme-workarounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gin theme workarounds
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Gin theme workarounds">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#clicksubmit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clickSubmit()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ckeditor-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CKEditor 5
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CKEditor 5">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fill()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#media-library" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Media Library
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Media Library">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#selectfirstmediafromlibrary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        selectFirstMediaFromLibrary()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#findmediaidfromlisting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        findMediaIdFromListing()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managed-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managed Files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Managed Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uploadmanagedfile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        uploadManagedFile()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oembed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        oEmbed
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="oEmbed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filloembedurl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fillOembedUrl()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Entities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#extractentityidfrompage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extractEntityIdFromPage()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#page-readiness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page readiness
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Page readiness">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#waitforimages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForImages()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#waitforallimages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForAllImages()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#waitforframes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForFrames()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fallback-selectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fallback selectors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fallback selectors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#idprefixselector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        idPrefixSelector()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modules
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ismoduleenabled" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        isModuleEnabled()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ismoduleenabledbypath" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        isModuleEnabledByPath()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validaterequiredmodules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validateRequiredModules()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-log-dblog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database log (dblog)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Database log (dblog)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#isdblogenabled" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        isDblogEnabled()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#truncatedblog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        truncateDblog()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetchdblogentries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fetchDblogEntries()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checkdblogforerrors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        checkDblogForErrors()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#formatlogerrors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        formatLogErrors()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status report
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Status report">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getstatusreport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getStatusReport()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filterstatusitems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        filterStatusItems()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#formatstatusitems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        formatStatusItems()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docroot-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docroot resolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Docroot resolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getdocroot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getDocroot()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="drupal-testing-utilities">Drupal Testing Utilities</h1>
+<!-- Subsection order for Drupal Testing Utilities — insert new subsections in this order:
+     1. Authentication
+     2. Forms
+     3. autosave_form workarounds
+     4. Gin theme workarounds
+     5. CKEditor 5
+     6. Media Library
+     7. Managed Files
+     8. oEmbed
+     9. Entities
+     10. Page readiness
+     11. Fallback selectors
+     12. Modules
+     13. Database log (dblog)
+     14. Status report
+     15. Docroot resolution -->
+
+<p>This package ships a set of Drupal-aware Playwright utilities. Each utility targets a specific piece of Drupal behaviour that would otherwise have to be reimplemented in every test suite. Import from the package root:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">login</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">,</span><span class="w"> </span><span class="nx">getDocroot</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span></code></pre></div>
+<h2 id="authentication">Authentication</h2>
+<p>The <code>login()</code> helper authenticates a Drupal user during a test. It uses <code>drush user:login</code> to generate a one-time login link, navigates to it, and asserts that login succeeded by checking for a Drupal session cookie (<code>SESS*</code>/<code>SSESS*</code>), which works with any theme and any login redirect configuration.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">expect</span><span class="p">,</span><span class="w"> </span><span class="nx">login</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;can access the admin dashboard&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">login</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/admin&#39;</span><span class="p">);</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">).</span><span class="nx">toHaveTitle</span><span class="p">(</span><span class="sr">/Administration/</span><span class="p">);</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">});</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;can log in as a specific user&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">login</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;editor&#39;</span><span class="p">);</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="c1">// ...</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="login">login()</h3>
+<p><code>login(page: Page, user?: string): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object</td>
+</tr>
+<tr>
+<td><code>user</code></td>
+<td><code>'admin'</code></td>
+<td>The Drupal username to log in as</td>
+</tr>
+</tbody>
+</table>
+<h2 id="forms">Forms</h2>
+<p>Utilities for driving Drupal's form system: waiting on AJAX, expanding collapsed <code>&lt;details&gt;</code>, clicking Save buttons on distributions with <code>autosave_form</code>, and waiting for a submit to resolve one way or another. For Gin-sticky-header-safe clicks, see <a href="#gin-theme-workarounds">Gin theme workarounds</a>.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">openAllDetails</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForAjax</span><span class="p">,</span><span class="w"> </span><span class="nx">clickSaveButton</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForSaveOutcome</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;creates an article&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/node/add/article&#39;</span><span class="p">);</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">openAllDetails</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="nx">getByLabel</span><span class="p">(</span><span class="s1">&#39;Title&#39;</span><span class="p">).</span><span class="nx">fill</span><span class="p">(</span><span class="s1">&#39;Hello&#39;</span><span class="p">);</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">clickSaveButton</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;input[type=submit][value^=&quot;Save&quot;]&#39;</span><span class="p">);</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">outcome</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForSaveOutcome</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">addFormPathPattern</span><span class="o">:</span><span class="w"> </span><span class="sr">/\/node\/add\//</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="nx">expect</span><span class="p">(</span><span class="nx">outcome</span><span class="p">).</span><span class="nx">toBe</span><span class="p">(</span><span class="s1">&#39;ok&#39;</span><span class="p">);</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="waitforajax">waitForAjax()</h3>
+<p><code>waitForAjax(page: Page, opts?: { timeout?: number }): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>opts.timeout</code></td>
+<td><code>5000</code></td>
+<td>Maximum time to wait, in milliseconds.</td>
+</tr>
+</tbody>
+</table>
+<p>Waits for <code>Drupal.ajax.instances[i].ajaxing</code>, <code>jQuery.active</code>, and <code>jQuery(':animated')</code> to all be clear. Mirrors the predicate used by Drupal core's <code>JSWebAssert::assertWaitOnAjaxRequest()</code>. Call <em>after</em> the action that triggers AJAX — the wait resolves immediately if nothing is in flight. The animation check catches post-AJAX transitions (throbbers, vertical tabs) that can otherwise race with assertions.</p>
+<h3 id="openalldetails">openAllDetails()</h3>
+<p><code>openAllDetails(page: Page): Promise&lt;void&gt;</code></p>
+<p>Expands every <code>&lt;details&gt;</code> element on the page (vertical tabs, field groups, collapsible regions) so nested fields become interactable.</p>
+<h3 id="clicksavebutton">clickSaveButton()</h3>
+<p><code>clickSaveButton(page: Page, fallback: string): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>fallback</code></td>
+<td><em>(required)</em></td>
+<td>CSS selector to click when no <code>Save*</code> submit is found.</td>
+</tr>
+</tbody>
+</table>
+<p>Clicks the first submit button whose <code>value</code> starts with <code>Save</code> and which is not hijacked by <code>autosave_form</code>'s once-marker. Falls back to the supplied selector if no candidate matches. Handles Thunder's moderation "Save as" automatically. Uses <a href="#clicksubmit"><code>clickSubmit</code></a> from the Gin theme workarounds so the click survives a pinned admin header.</p>
+<h3 id="waitforsaveoutcome">waitForSaveOutcome()</h3>
+<p><code>waitForSaveOutcome(page: Page, opts: { addFormPathPattern: RegExp; timeout?: number }): Promise&lt;'ok' | 'error'&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>opts.addFormPathPattern</code></td>
+<td><em>(required)</em></td>
+<td>Regex matching the add-form URL; success is detected by the URL moving away from it.</td>
+</tr>
+<tr>
+<td><code>opts.timeout</code></td>
+<td><code>30000</code></td>
+<td>Maximum time to wait for either outcome, in milliseconds.</td>
+</tr>
+</tbody>
+</table>
+<p>Races two signals: URL change away from <code>addFormPathPattern</code> (returns <code>'ok'</code>), or a visible <code>.messages--error</code> (returns <code>'error'</code>). Throws a descriptive error when neither signal appears within the timeout.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>waitForSaveOutcome</code> throws on timeout. If your test needs a soft "neither happened" branch, wrap the call in <code>try/catch</code>.</p>
+</div>
+<h2 id="autosave_form-workarounds">autosave_form workarounds</h2>
+<p>Workarounds for sites that install the <a href="https://www.drupal.org/project/autosave_form">autosave_form</a> contrib module (Drupal CMS ships it). Without these, forms lock up behind the "Resume editing / Discard" modal and file uploads race the module's autosave AJAX. Each function is a no-op on sites that don't install the module.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">dismissAutosaveDraft</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForAutosaveReady</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;fills a Drupal CMS form&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/node/add/article&#39;</span><span class="p">);</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">dismissAutosaveDraft</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForAutosaveReady</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="nx">getByLabel</span><span class="p">(</span><span class="s1">&#39;Title&#39;</span><span class="p">).</span><span class="nx">fill</span><span class="p">(</span><span class="s1">&#39;Hello&#39;</span><span class="p">);</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="dismissautosavedraft">dismissAutosaveDraft()</h3>
+<p><code>dismissAutosaveDraft(page: Page): Promise&lt;void&gt;</code></p>
+<p>Clicks <code>.autosave-form-reject-button</code> if the "Resume editing / Discard" dialog is open. No-op otherwise.</p>
+<h3 id="waitforautosaveready">waitForAutosaveReady()</h3>
+<p><code>waitForAutosaveReady(page: Page): Promise&lt;void&gt;</code></p>
+<p>Waits for <code>input[name="autosave_form_last_autosave_timestamp"]</code> to have a non-empty value. Resolves immediately on forms without the module.</p>
+<h2 id="gin-theme-workarounds">Gin theme workarounds</h2>
+<p>Helpers scoped to quirks introduced by the <a href="https://www.drupal.org/project/gin">Gin</a> admin theme. Today the only helper is a click wrapper that survives Gin's pinned page header, which routinely overlaps submit buttons near the bottom of a form.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">clickSubmit</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;deletes a node&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/node/1/delete&#39;</span><span class="p">);</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">clickSubmit</span><span class="p">(</span><span class="nx">page</span><span class="p">.</span><span class="nx">locator</span><span class="p">(</span><span class="s1">&#39;input[type=submit][value=&quot;Delete&quot;]&#39;</span><span class="p">));</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="clicksubmit">clickSubmit()</h3>
+<p><code>clickSubmit(locator: Locator): Promise&lt;void&gt;</code></p>
+<p>Scrolls <code>locator</code> into view and clicks it with <code>force: true</code>. Two steps are needed because Playwright's default actionability check passes once the button is in the viewport, but Gin's sticky header can still cover it; <code>force: true</code> bypasses the overlap check, and the scroll ensures the button actually lands at a free position. Use for delete buttons, moderation actions, and any other submit-style click you don't want the pinned header to intercept. <a href="#clicksavebutton"><code>clickSaveButton</code></a> already delegates here internally.</p>
+<h2 id="ckeditor-5">CKEditor 5</h2>
+<p>The <code>Ckeditor5</code> class drives <strong>CKEditor 5</strong> fields — the editor Drupal core has shipped by default since Drupal 10. It clears any existing content, then types the new value through <code>page.keyboard</code> so CKEditor's event pipeline processes the edits correctly (Playwright's <code>locator.fill()</code> can be silently dropped because the editor re-renders from its internal model).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This class is for CKEditor <strong>5</strong> only. It does not work with CKEditor 4, which Drupal 10 still ships via the <code>ckeditor</code> module for sites that opted in. For CKEditor 4 use a plain <code>page.frameLocator(...)</code> + <code>fill()</code>.</p>
+</div>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">Ckeditor5</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;edits the body copy&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/node/1/edit&#39;</span><span class="p">);</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Ckeditor5</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;#edit-body-wrapper&#39;</span><span class="p">);</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">body</span><span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="s1">&#39;New body text&#39;</span><span class="p">);</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">});</span>
+</span></code></pre></div>
+<p><strong>Constructor:</strong> <code>new Ckeditor5(page: Page, selector: string, root?: Page | FrameLocator)</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The owning <code>Page</code>. Keyboard events target this page.</td>
+</tr>
+<tr>
+<td><code>selector</code></td>
+<td><em>(required)</em></td>
+<td>Selector for the widget <strong>wrapper</strong> containing the editor (e.g. <code>#edit-body-wrapper</code>, <code>[data-drupal-selector="edit-field-body-wrapper"]</code>). The class drills into <code>.ck-editor__editable</code> internally.</td>
+</tr>
+<tr>
+<td><code>root</code></td>
+<td><code>page</code></td>
+<td>Optional <code>FrameLocator</code> if the editor renders inside an iframe.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fill">fill()</h3>
+<p><code>async fill(text: string): Promise&lt;void&gt;</code></p>
+<p>Waits for the editor to become visible, clicks to place the caret, clears existing content via select-all + Backspace (platform-aware), and types the new text. Final value is exactly <code>text</code>, regardless of whether the field was empty — matching Playwright's <code>fill()</code> semantics.</p>
+<h2 id="media-library">Media Library</h2>
+<p>Drive Drupal's <code>media_library</code> widget end-to-end: open the modal, optionally upload a fixture when the library is empty, select the first available item, and click "Insert selected". <a href="#findmediaidfromlisting"><code>findMediaIdFromListing</code></a> covers the post-save fallback for distributions where the redirect doesn't land on <code>/media/N</code>.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">import</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;node:path&#39;</span><span class="p">;</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">selectFirstMediaFromLibrary</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;selects a media item for a required widget&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/node/add/article&#39;</span><span class="p">);</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">selectFirstMediaFromLibrary</span><span class="p">(</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nx">page</span><span class="p">,</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="s1">&#39;[data-drupal-selector=&quot;edit-field-media-image&quot;]&#39;</span><span class="p">,</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">uploadFixturePath</span><span class="o">:</span><span class="w"> </span><span class="kt">path.join</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;fixtures&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;test.png&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">  </span><span class="p">);</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="p">});</span>
+</span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Empty-library auto-upload <strong>only runs when you supply <code>uploadFixturePath</code></strong>. When the library is empty and no fixture path is provided, the function throws.</p>
+</div>
+<h3 id="selectfirstmediafromlibrary">selectFirstMediaFromLibrary()</h3>
+<p><code>selectFirstMediaFromLibrary(page: Page, wrapperSelector: string, opts?: { uploadFixturePath?: string }): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>wrapperSelector</code></td>
+<td><em>(required)</em></td>
+<td>Selector for the fieldset wrapping the widget (e.g. <code>[data-drupal-selector="edit-field-media-image"]</code>).</td>
+</tr>
+<tr>
+<td><code>opts.uploadFixturePath</code></td>
+<td><code>undefined</code></td>
+<td>Path to a file to upload when the media library is empty.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="findmediaidfromlisting">findMediaIdFromListing()</h3>
+<p><code>findMediaIdFromListing(page: Page, baseUrl: string, name: string): Promise&lt;string | undefined&gt;</code></p>
+<p>Looks up a media entity by name on <code>/admin/content/media</code> and extracts the ID from the first matching link. Useful when a post-save redirect skipped <code>/media/N</code> (e.g. on distributions with path aliases).</p>
+<h2 id="managed-files">Managed Files</h2>
+<p>Reliable file upload into a Drupal <code>managed_file</code> element, resilient to the races that plague the default flow — <code>autosave_form</code> posting the partial form on change, widgets like <code>image_focal_point</code> overriding the automatic JS click on the upload button, and the rare case where the file-ID hidden input never lands server-side.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">import</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;node:path&#39;</span><span class="p">;</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">uploadManagedFile</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;uploads an image into a managed_file field&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/media/add/image&#39;</span><span class="p">);</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">uploadManagedFile</span><span class="p">(</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="nx">page</span><span class="p">,</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="s1">&#39;[data-drupal-selector=&quot;edit-field-media-image-0&quot;]&#39;</span><span class="p">,</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;fixtures&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;test.png&#39;</span><span class="p">),</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">  </span><span class="p">);</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="uploadmanagedfile">uploadManagedFile()</h3>
+<p><code>uploadManagedFile(page: Page, fieldSelector: string, fixturePath: string, opts?: { retry?: boolean; maxPollMs?: number }): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>fieldSelector</code></td>
+<td><em>(required)</em></td>
+<td>Selector for the field wrapper (not the <code>&lt;input type=file&gt;</code> itself).</td>
+</tr>
+<tr>
+<td><code>fixturePath</code></td>
+<td><em>(required)</em></td>
+<td>Absolute path to the file to upload.</td>
+</tr>
+<tr>
+<td><code>opts.retry</code></td>
+<td><code>true</code></td>
+<td>Retry the upload once if the file-ID hidden input never populates.</td>
+</tr>
+<tr>
+<td><code>opts.maxPollMs</code></td>
+<td><code>15000</code></td>
+<td>Maximum time to wait for the file-ID hidden input, in milliseconds.</td>
+</tr>
+</tbody>
+</table>
+<p>Throws when the file ID still isn't present after the retry.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Works especially well with <code>autosave_form</code>-enabled distributions (e.g. Drupal CMS) because the internal <a href="#waitforajax"><code>waitForAjax</code></a> covers both core AJAX and the autosave post.</p>
+</div>
+<h2 id="oembed">oEmbed</h2>
+<p>Fill a Drupal oEmbed URL field, blur to trigger validation, and warn (don't throw) if Drupal rejects the URL.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">fillOembedUrl</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;embeds a YouTube video&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/media/add/video&#39;</span><span class="p">);</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">fillOembedUrl</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;[name=&quot;field_media_oembed_video[0][value]&quot;]&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;https://www.youtube.com/watch?v=dQw4w9WgXcQ&#39;</span><span class="p">);</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="filloembedurl">fillOembedUrl()</h3>
+<p><code>fillOembedUrl(page: Page, selector: string, url: string): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>selector</code></td>
+<td><em>(required)</em></td>
+<td>Selector for the oEmbed input.</td>
+</tr>
+<tr>
+<td><code>url</code></td>
+<td><em>(required)</em></td>
+<td>URL to fill.</td>
+</tr>
+</tbody>
+</table>
+<p>Fills, blurs (Tab), waits for AJAX, then warns via <code>console.warn</code> if a <code>.messages--error</code> is visible. Invalid URLs are common during fixture setup; callers who need hard-fail behaviour should inspect the error message themselves or use <a href="#waitforsaveoutcome"><code>waitForSaveOutcome</code></a>.</p>
+<h2 id="entities">Entities</h2>
+<p>Some Drupal distributions (notably Drupal CMS) add path aliases to freshly created entities, so the post-save redirect lands on <code>/my-article</code> rather than <code>/node/42</code>. <code>extractEntityIdFromPage</code> recovers the numeric ID by falling back to the first canonical edit link on the page.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">extractEntityIdFromPage</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1">// after saving a node form …</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="kd">const</span><span class="w"> </span><span class="nx">nodeId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">extractEntityIdFromPage</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;node&#39;</span><span class="p">);</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="nx">expect</span><span class="p">(</span><span class="nx">nodeId</span><span class="p">).</span><span class="nx">toBeDefined</span><span class="p">();</span>
+</span></code></pre></div>
+<h3 id="extractentityidfrompage">extractEntityIdFromPage()</h3>
+<p><code>extractEntityIdFromPage(page: Page, entityType: string): Promise&lt;string | undefined&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>entityType</code></td>
+<td><em>(required)</em></td>
+<td>The entity type's canonical-route path segment (typically the machine name) — e.g. <code>'node'</code>, <code>'media'</code>, <code>'user'</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Returns the numeric ID as a string, or <code>undefined</code> when neither the URL nor any rendered edit link matches <code>/\&lt;entityType\&gt;/(\\d+)</code>. Works for any entity whose edit route follows <code>/&lt;entityType&gt;/&lt;id&gt;/edit</code>. Entity types routed under <code>/admin/...</code> (some config entities) are not handled — that is a separate helper for another day.</p>
+<h2 id="page-readiness">Page readiness</h2>
+<p>Lazy-loaded images and iframes are often not present when Playwright first queries the DOM. These utilities scroll hidden regions into view and wait for network-backed resources to settle, so assertions run against a stable page. They are especially important before visual comparisons.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForFrames</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;hero renders with images and embedded video&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">);</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForFrames</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">).</span><span class="nx">toHaveScreenshot</span><span class="p">();</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="waitforimages">waitForImages()</h3>
+<p><code>waitForImages(page: Page, selector: string): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>selector</code></td>
+<td><em>(required)</em></td>
+<td>CSS selector for the <code>&lt;img&gt;</code> elements to wait for.</td>
+</tr>
+</tbody>
+</table>
+<p>Scrolls each matching image into view (to trigger lazy loading) and waits for them to finish loading. After all images have loaded, the page is scrolled back to the top so screenshots are stable.</p>
+<h3 id="waitforallimages">waitForAllImages()</h3>
+<p><code>waitForAllImages(page: Page): Promise&lt;void&gt;</code></p>
+<p>Shorthand for <a href="#waitforimages"><code>waitForImages(page, 'img:visible')</code></a>.</p>
+<h3 id="waitforframes">waitForFrames()</h3>
+<p><code>waitForFrames(page: Page): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+</tbody>
+</table>
+<p>Scrolls every <code>&lt;iframe&gt;</code> into view and waits for each one to have loaded a URL. Operates serially to avoid concurrency bugs; fast enough that parallelism is not worth the complexity.</p>
+<h2 id="fallback-selectors">Fallback selectors</h2>
+<p>Use these only when Playwright's human-focused locators (<code>getByRole</code>, <code>getByLabel</code>, <code>getByText</code>, etc.) cannot target the element. CSS/ID selectors are brittle and harder to maintain; prefer semantic locators wherever possible.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">idPrefixSelector</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1">// Only when getByRole / getByLabel cannot reach the element.</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="kd">const</span><span class="w"> </span><span class="nx">wrapper</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="nx">locator</span><span class="p">(</span><span class="nx">idPrefixSelector</span><span class="p">(</span><span class="s1">&#39;#edit-body-wrapper&#39;</span><span class="p">));</span>
+</span></code></pre></div>
+<h3 id="idprefixselector">idPrefixSelector()</h3>
+<p><code>idPrefixSelector(selector: string): string</code></p>
+<p>Pure string transform that rewrites every <code>#id</code> chunk in <code>selector</code> to <code>[id="&lt;id&gt;"], [id^="&lt;id&gt;--"]</code>. Lets consumers target Drupal IDs even after form rebuilds add the <code>--HASHSUFFIX</code>. Safe on non-ID selectors (they pass through unchanged).</p>
+<h2 id="modules">Modules</h2>
+<p>Check whether a Drupal module is enabled, or assert that a list of modules is enabled before a test runs. Drush-first: tests running inside this package's lifecycle get a fast, reliable check via <code>drush pm:list</code>. A UI fallback is available for contexts without Drush.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><a href="#ismoduleenabled"><code>isModuleEnabled</code></a> requires a bootstrapped test site because it uses <code>execDrushInTestSite</code>. For probes against a long-lived local site, use <a href="#ismoduleenabledbypath"><code>isModuleEnabledByPath</code></a> directly.</p>
+</div>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">validateRequiredModules</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="nx">test</span><span class="p">.</span><span class="nx">beforeAll</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">browser</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">browser</span><span class="p">.</span><span class="nx">newPage</span><span class="p">();</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">validateRequiredModules</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;field_ui&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;dblog&#39;</span><span class="p">]);</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="ismoduleenabled">isModuleEnabled()</h3>
+<p><code>isModuleEnabled(name: string): Promise&lt;boolean&gt;</code></p>
+<p>Queries <code>drush pm:list --status=enabled --field=name</code> and checks for the module's machine name on its own line.</p>
+<h3 id="ismoduleenabledbypath">isModuleEnabledByPath()</h3>
+<p><code>isModuleEnabledByPath(page: Page, moduleName: string, testPath: string): Promise&lt;boolean&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>moduleName</code></td>
+<td><em>(required)</em></td>
+<td>Informational — used in error messages.</td>
+</tr>
+<tr>
+<td><code>testPath</code></td>
+<td><em>(required)</em></td>
+<td>An admin path that is accessible only when the module is enabled.</td>
+</tr>
+</tbody>
+</table>
+<p>UI-only fallback. Returns <code>true</code> when the path responds 200 and no access-denied text is visible; <code>false</code> on 403/404 or when access-denied markers are present.</p>
+<h3 id="validaterequiredmodules">validateRequiredModules()</h3>
+<p><code>validateRequiredModules(page: Page, names: string[]): Promise&lt;void&gt;</code></p>
+<p>Throws with a Drush remediation hint if any of the listed modules are not enabled.</p>
+<h2 id="database-log-dblog">Database log (dblog)</h2>
+<p>Treat Drupal's watchdog log as an assertion target: truncate at the start of a test, drive the system under test, then fail if any <code>error</code> or <code>critical</code> entries accumulate. All functions go through <code>drush watchdog:*</code> via <code>execDrushInTestSite</code>, so they must run inside the bootstrapped test site this package manages.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">truncateDblog</span><span class="p">,</span><span class="w"> </span><span class="nx">checkDblogForErrors</span><span class="p">,</span><span class="w"> </span><span class="nx">formatLogErrors</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;content creation logs no errors&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">truncateDblog</span><span class="p">();</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">  </span><span class="c1">// … drive the flow under test …</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">checkDblogForErrors</span><span class="p">();</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">  </span><span class="nx">expect</span><span class="p">(</span><span class="nx">errors</span><span class="p">,</span><span class="w"> </span><span class="nx">formatLogErrors</span><span class="p">(</span><span class="nx">errors</span><span class="p">)).</span><span class="nx">toEqual</span><span class="p">([]);</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="p">});</span>
+</span></code></pre></div>
+<p><strong>Types:</strong> <code>DblogSeverity</code> (enum, lowercase values matching Drupal's RfcLogLevel names), <code>DblogEntry</code>, <code>DblogMonitorConfig</code></p>
+<h3 id="isdblogenabled">isDblogEnabled()</h3>
+<p><code>isDblogEnabled(): Promise&lt;boolean&gt;</code></p>
+<p>Thin wrapper around <a href="#ismoduleenabled"><code>isModuleEnabled('dblog')</code></a>.</p>
+<h3 id="truncatedblog">truncateDblog()</h3>
+<p><code>truncateDblog(): Promise&lt;void&gt;</code></p>
+<p>Runs <code>drush watchdog:delete all -y</code>.</p>
+<h3 id="fetchdblogentries">fetchDblogEntries()</h3>
+<p><code>fetchDblogEntries(config?: DblogMonitorConfig): Promise&lt;DblogEntry[]&gt;</code></p>
+<p>Runs <code>drush watchdog:show --format=json --extended --count=…</code> and returns the entries with severities normalised to lowercase. <code>config.moduleFilter</code> maps to <code>--type=</code>. The count cap is deliberately high so tests don't silently drop entries.</p>
+<h3 id="checkdblogforerrors">checkDblogForErrors()</h3>
+<p><code>checkDblogForErrors(config?: DblogMonitorConfig): Promise&lt;DblogEntry[]&gt;</code></p>
+<p>Returns only entries whose severity is in <code>config.failOnSeverities</code> (default: <code>CRITICAL</code> + <code>ERROR</code>).</p>
+<h3 id="formatlogerrors">formatLogErrors()</h3>
+<p><code>formatLogErrors(entries: DblogEntry[]): string</code></p>
+<p>Human-readable formatter for use in assertion messages.</p>
+<h2 id="status-report">Status report</h2>
+<p>Grab the contents of <code>/admin/reports/status</code> as typed arrays grouped by severity. Useful as a post-install smoke check. Runs <code>drush core:requirements --format=json</code> under the hood, so this shares the <code>execDrushInTestSite</code> lifecycle — must run inside the bootstrapped test site this package manages.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">getStatusReport</span><span class="p">,</span><span class="w"> </span><span class="nx">filterStatusItems</span><span class="p">,</span><span class="w"> </span><span class="nx">formatStatusItems</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;site has no unexpected status-report errors&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">getStatusReport</span><span class="p">();</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">filterStatusItems</span><span class="p">(</span><span class="nx">report</span><span class="p">.</span><span class="nx">errors</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ignoreItems</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;Trusted Host Settings&#39;</span><span class="p">]</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">  </span><span class="nx">expect</span><span class="p">(</span><span class="nx">errors</span><span class="p">,</span><span class="w"> </span><span class="nx">formatStatusItems</span><span class="p">(</span><span class="nx">errors</span><span class="p">)).</span><span class="nx">toEqual</span><span class="p">([]);</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="p">});</span>
+</span></code></pre></div>
+<p><strong>Types:</strong> <code>StatusReportItem</code> (with <code>id</code>, <code>title</code>, <code>severity</code>, <code>description</code>, <code>value</code>), <code>StatusReportResult</code>, <code>StatusReportConfig</code></p>
+<h3 id="getstatusreport">getStatusReport()</h3>
+<p><code>getStatusReport(): Promise&lt;StatusReportResult&gt;</code></p>
+<p>Returns <code>{ errors, warnings, info, ok }</code>, each a <code>StatusReportItem[]</code>. <code>severity</code> is lowercased to <code>'error' | 'warning' | 'info' | 'ok'</code>; entries without a title are skipped; unknown severity values fall into <code>ok</code>.</p>
+<h3 id="filterstatusitems">filterStatusItems()</h3>
+<p><code>filterStatusItems(items: StatusReportItem[], config?: StatusReportConfig): StatusReportItem[]</code></p>
+<p>Removes items whose title contains any of <code>config.ignoreItems</code> (case-insensitive substring match).</p>
+<h3 id="formatstatusitems">formatStatusItems()</h3>
+<p><code>formatStatusItems(items: StatusReportItem[]): string</code></p>
+<p>Formats items as a bulleted list with optional truncated-details lines, suitable for use in assertion messages.</p>
+<h2 id="docroot-resolution">Docroot resolution</h2>
+<p>Tests sometimes need to resolve files relative to the Drupal docroot — for example when generating fixtures or computing paths inside the Drupal site. <code>getDocroot()</code> reads <code>composer.json#extra.drupal-scaffold.locations.web-root</code> so tests don't hard-code <code>'web'</code> (or <code>'docroot'</code>) and work across Drupal scaffold configurations.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getDocroot</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">docroot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getDocroot</span><span class="p">();</span><span class="w"> </span><span class="c1">// &#39;web&#39; on drupal/recommended-project, &#39;docroot&#39; on other setups</span>
+</span></code></pre></div>
+<h3 id="getdocroot">getDocroot()</h3>
+<p><code>getDocroot(composerJsonPath?: string): string</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>composerJsonPath</code></td>
+<td><code>'../../composer.json'</code></td>
+<td>Path to the repo's <code>composer.json</code>, relative to the Playwright working directory.</td>
+</tr>
+</tbody>
+</table>
+<p>Returns the docroot directory name without a trailing slash. Falls back to <code>'web'</code> if the file is missing, the scaffold key is absent, or parsing fails.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.top", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/palette-sync.js"></script>
+      
+    
+  </body>
+</html>

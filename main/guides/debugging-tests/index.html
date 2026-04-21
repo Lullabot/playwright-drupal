@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://lullabot.github.io/playwright-drupal/main/getting-started/configuration/">
+        <link rel="canonical" href="https://lullabot.github.io/playwright-drupal/main/guides/debugging-tests/">
       
       
-        <link rel="prev" href="../installation/">
+        <link rel="prev" href="../visual-comparisons/">
       
       
-        <link rel="next" href="../../guides/writing-tests/">
+        <link rel="next" href="../drupal-testing-utilities/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Configuration - playwright-drupal</title>
+        <title>Debugging Tests - playwright-drupal</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#configuration-helper" class="md-skip">
+        <a href="#debugging-tests" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Configuration
+              Debugging Tests
             
           </span>
         </div>
@@ -232,13 +232,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
           
   
   
@@ -254,15 +252,17 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../guides/writing-tests/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../writing-tests/" class="md-tabs__link">
           
   
   
-  Guides
+  Working with Tests
 
         </a>
       </li>
@@ -278,11 +278,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../development/contributing/" class="md-tabs__link">
+        <a href="../../contributing/development/" class="md-tabs__link">
           
   
   
-  Development
+  Contributing
 
         </a>
       </li>
@@ -354,29 +354,24 @@
       
   
   
-    
   
   
-  
     
     
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   
@@ -394,7 +389,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -412,14 +407,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../getting-started/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Overview
+    About playwright-drupal
   
 
     
@@ -440,7 +435,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../installation/" class="md-nav__link">
+      <a href="../../getting-started/installation/" class="md-nav__link">
         
   
   
@@ -448,6 +443,152 @@
     
   
     Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/playwright-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playwright Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Working with Tests
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Working with Tests
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../writing-tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../visual-comparisons/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visual Comparisons (Diffs)
   
 
     
@@ -484,7 +625,7 @@
   <span class="md-ellipsis">
     
   
-    Configuration
+    Debugging Tests
   
 
     
@@ -502,7 +643,7 @@
   <span class="md-ellipsis">
     
   
-    Configuration
+    Debugging Tests
   
 
     
@@ -528,10 +669,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
+  <a href="#capturing-traces" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Usage
+        Capturing Traces
       
     </span>
   </a>
@@ -539,10 +680,43 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#overriding-defaults" class="md-nav__link">
+  <a href="#running-tests-in-a-browser-with-kasmvnc" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overriding Defaults
+        Running Tests in a Browser With KasmVNC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fixing-test-flakes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixing Test Flakes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verbose-cli-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verbose CLI Output
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-tests-without-isolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running Tests Without Isolation
       
     </span>
   </a>
@@ -558,63 +732,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Guides
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Guides
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
               
                 
   
@@ -622,14 +739,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/writing-tests/" class="md-nav__link">
+      <a href="../drupal-testing-utilities/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Writing Tests
+    Drupal Testing Utilities
   
 
     
@@ -650,70 +767,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/utilities/" class="md-nav__link">
+      <a href="../github-actions/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Drupal Utilities
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/visual-comparisons/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Visual Comparisons
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/github-actions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    GitHub Actions
+    GitHub Accessibility Annotations
   
 
     
@@ -762,7 +823,7 @@
   <span class="md-ellipsis">
     
   
-    Development
+    Contributing
   
 
     
@@ -778,7 +839,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Development
+    Contributing
   
 
           </label>
@@ -791,14 +852,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/contributing/" class="md-nav__link">
+      <a href="../../contributing/development/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Contributing
+    Development
   
 
     
@@ -819,7 +880,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/releases/" class="md-nav__link">
+      <a href="../../contributing/releases/" class="md-nav__link">
         
   
   
@@ -874,10 +935,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
+  <a href="#capturing-traces" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Usage
+        Capturing Traces
       
     </span>
   </a>
@@ -885,10 +946,43 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#overriding-defaults" class="md-nav__link">
+  <a href="#running-tests-in-a-browser-with-kasmvnc" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overriding Defaults
+        Running Tests in a Browser With KasmVNC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fixing-test-flakes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixing Test Flakes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verbose-cli-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verbose CLI Output
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-tests-without-isolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running Tests Without Isolation
       
     </span>
   </a>
@@ -912,61 +1006,50 @@
 
 
 
-<h1 id="configuration-helper">Configuration Helper</h1>
-<p>The <code>definePlaywrightDrupalConfig()</code> function returns a complete Playwright configuration with sensible defaults for Drupal testing. It wraps Playwright's <code>defineConfig()</code> and applies the following defaults:</p>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>use.baseURL</code></td>
-<td><code>process.env.DDEV_PRIMARY_URL</code></td>
-</tr>
-<tr>
-<td><code>fullyParallel</code></td>
-<td><code>true</code></td>
-</tr>
-<tr>
-<td><code>workers</code></td>
-<td><code>Math.max(2, os.cpus().length - 2)</code></td>
-</tr>
-<tr>
-<td><code>reporter</code></td>
-<td>CI: <code>[['line'], ['html'], ['json', ...]]</code>; Local: <code>[['html', ...], ['list'], ['json', ...]]</code></td>
-</tr>
-<tr>
-<td><code>globalSetup</code></td>
-<td>Auto-resolved path to this package's <code>global-setup</code> module</td>
-</tr>
-</tbody>
-</table>
-<h2 id="usage">Usage</h2>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">definePlaywrightDrupalConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@lullabot/playwright-drupal/config&#39;</span><span class="p">;</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">devices</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@playwright/test&#39;</span><span class="p">;</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">definePlaywrightDrupalConfig</span><span class="p">({</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nx">testDir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;./tests&#39;</span><span class="p">,</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nx">forbidOnly</span><span class="o">:</span><span class="w"> </span><span class="o">!!</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">CI</span><span class="p">,</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nx">retries</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.CI</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">2</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">0</span><span class="p">,</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="nx">use</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nx">ignoreHTTPSErrors</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="nx">trace</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;on-first-retry&#39;</span><span class="p">,</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="p">},</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nx">projects</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="p">{</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;chromium&#39;</span><span class="p">,</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">      </span><span class="nx">use</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">devices</span><span class="p">[</span><span class="s1">&#39;Desktop Chrome&#39;</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="p">},</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span><span class="p">],</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="p">});</span>
+<h1 id="debugging-tests">Debugging Tests</h1>
+<h2 id="capturing-traces">Capturing Traces</h2>
+<p>Traces record every step, network request, DOM snapshot, and console message from a test run, and are the best place to start when a test fails unexpectedly. To always record a trace, run tests with:</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="go">ddev playwright test --trace on</span>
 </span></code></pre></div>
-<h2 id="overriding-defaults">Overriding Defaults</h2>
-<p>Plain-object properties are deep-merged with their defaults at every nesting level, so providing <code>use.ignoreHTTPSErrors</code> keeps the default <code>use.baseURL</code> while adding your setting. Non-object properties (including arrays like <code>reporter</code>) replace the default entirely.</p>
-<p>If you need full control, you can always use Playwright's <code>defineConfig()</code> directly with the <code>globalSetup</code> path from this package, as described in prior versions of this README.</p>
+<p>When tests finish, the HTML report server starts inside the web container. The <code>ddev-playwright</code> addon exposes it at:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>https://&lt;PROJECT&gt;.ddev.site:9324
+</span></code></pre></div>
+<p>Open a failing test in the report and click the trace to step through it frame-by-frame. If the report server isn't already running, start it with:</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="go">ddev playwright show-report --host=0.0.0.0</span>
+</span></code></pre></div>
+<p>The <code>--host=0.0.0.0</code> flag is required so the server binds to all interfaces inside the container, not just localhost.</p>
+<h2 id="running-tests-in-a-browser-with-kasmvnc">Running Tests in a Browser With KasmVNC</h2>
+<p>The <a href="https://github.com/Lullabot/ddev-playwright/"><code>ddev-playwright</code></a> addon ships with <a href="https://www.kasmweb.com/kasmvnc">KasmVNC</a>, a remote desktop accessible from your browser. This lets you see the browser Playwright is driving in a consistent environment, which is invaluable when a test behaves differently headed versus headless or when generating code with <code>codegen</code>.</p>
+<p>Connect at:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>https://&lt;PROJECT&gt;.ddev.site:8444
+</span></code></pre></div>
+<p>Log in with your local username and the password <code>secret</code>.</p>
+<p>Once connected, run tests with a visible browser:</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="gp"># </span>Run<span class="w"> </span>tests<span class="w"> </span><span class="k">in</span><span class="w"> </span>headed<span class="w"> </span>mode<span class="w"> </span><span class="o">(</span>browser<span class="w"> </span>window<span class="w"> </span>appears<span class="w"> </span><span class="k">in</span><span class="w"> </span>KasmVNC<span class="o">)</span>.
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="go">ddev playwright test --headed</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="gp"># </span>Or<span class="w"> </span>launch<span class="w"> </span>Playwright<span class="err">&#39;</span>s<span class="w"> </span>interactive<span class="w"> </span>UI<span class="w"> </span>mode<span class="w"> </span><span class="k">for</span><span class="w"> </span>picking<span class="w"> </span>and<span class="w"> </span>re-running<span class="w"> </span>tests.
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="go">ddev playwright test --ui</span>
+</span></code></pre></div>
+<p>See Playwright's <a href="https://playwright.dev/docs/running-tests">Running and debugging tests</a> guide for the full list of options.</p>
+<h2 id="fixing-test-flakes">Fixing Test Flakes</h2>
+<p>Flaky tests are tests that pass most of the time but fail intermittently. To reproduce a flake, run the test many times in a row:</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="go">ddev playwright test tests/my-flaky.spec.ts --repeat-each 20 --max-failures 1</span>
+</span></code></pre></div>
+<p><code>--repeat-each</code> runs each matched test the given number of times. <code>--max-failures 1</code> stops the run as soon as one iteration fails, so you don't have to wait for the remaining repetitions to finish before inspecting the failure and its trace.</p>
+<p>Once you believe you've fixed the flake, run the same command again with a higher <code>--repeat-each</code> (and without <code>--max-failures</code>) to confirm the test is stable across many runs.</p>
+<h2 id="verbose-cli-output">Verbose CLI Output</h2>
+<p>By default, output from CLI commands (like drush or task) and browser web errors is captured and attached to each test result as text files. This keeps the terminal clean when running tests in parallel, since output from different workers would otherwise be interleaved.</p>
+<p>To print CLI output inline instead, set in your DDEV shell:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PLAYWRIGHT_DRUPAL_VERBOSE</span><span class="o">=</span><span class="m">1</span>
+</span></code></pre></div>
+<p>This is useful when debugging a single test or running with <code>--workers=1</code>, where interleaved output is not a concern. The attached output files are available in the HTML test report regardless of this setting.</p>
+<h2 id="running-tests-without-isolation">Running Tests Without Isolation</h2>
+<p>There are times you may want to run Playwright without isolating test runs. Perhaps you're manually scaffolding test content by hand, before writing code to create it. Or perhaps you would like to be absolutely sure that a test passes or fails when running against mariadb.</p>
+<p>To do this, set in your DDEV shell:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PLAYWRIGHT_NO_TEST_ISOLATION</span><span class="o">=</span><span class="m">1</span>
+</span></code></pre></div>
+<p>Consider running Playwright with <code>--workers=1</code> and with a single browser, since any changes to the database will persist.</p>
 
 
 

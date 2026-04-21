@@ -25,7 +25,7 @@
     
     
       
-        <title>Overview - playwright-drupal</title>
+        <title>About playwright-drupal - playwright-drupal</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#getting-started" class="md-skip">
+        <a href="#about-playwright-drupal" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Overview
+              About playwright-drupal
             
           </span>
         </div>
@@ -262,7 +262,7 @@
           
   
   
-  Guides
+  Working with Tests
 
         </a>
       </li>
@@ -278,11 +278,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../development/contributing/" class="md-tabs__link">
+        <a href="../contributing/development/" class="md-tabs__link">
           
   
   
-  Development
+  Contributing
 
         </a>
       </li>
@@ -428,7 +428,7 @@
   <span class="md-ellipsis">
     
   
-    Overview
+    About playwright-drupal
   
 
     
@@ -446,7 +446,7 @@
   <span class="md-ellipsis">
     
   
-    Overview
+    About playwright-drupal
   
 
     
@@ -476,28 +476,6 @@
     <span class="md-ellipsis">
       
         Requirements
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-this-works" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How This Works
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#docroot-auto-detection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Docroot Auto-Detection
       
     </span>
   </a>
@@ -548,14 +526,14 @@
   
   
     <li class="md-nav__item">
-      <a href="configuration/" class="md-nav__link">
+      <a href="playwright-configuration/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Configuration
+    Playwright Configuration
   
 
     
@@ -604,7 +582,7 @@
   <span class="md-ellipsis">
     
   
-    Guides
+    Working with Tests
   
 
     
@@ -620,7 +598,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Guides
+    Working with Tests
   
 
           </label>
@@ -661,14 +639,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/utilities/" class="md-nav__link">
+      <a href="../guides/visual-comparisons/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Drupal Utilities
+    Visual Comparisons (Diffs)
   
 
     
@@ -689,14 +667,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/visual-comparisons/" class="md-nav__link">
+      <a href="../guides/debugging-tests/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Visual Comparisons
+    Debugging Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/drupal-testing-utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drupal Testing Utilities
   
 
     
@@ -724,7 +730,7 @@
   <span class="md-ellipsis">
     
   
-    GitHub Actions
+    GitHub Accessibility Annotations
   
 
     
@@ -773,7 +779,7 @@
   <span class="md-ellipsis">
     
   
-    Development
+    Contributing
   
 
     
@@ -789,7 +795,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Development
+    Contributing
   
 
           </label>
@@ -802,14 +808,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/contributing/" class="md-nav__link">
+      <a href="../contributing/development/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Contributing
+    Development
   
 
     
@@ -830,7 +836,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/releases/" class="md-nav__link">
+      <a href="../contributing/releases/" class="md-nav__link">
         
   
   
@@ -895,28 +901,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#how-this-works" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How This Works
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#docroot-auto-detection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Docroot Auto-Detection
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -934,25 +918,19 @@
 
 
 
-<h1 id="getting-started">Getting Started</h1>
+<h1 id="about-playwright-drupal">About playwright-drupal</h1>
+<p>playwright-drupal includes an extended version of Playwright's <code>test</code> function that sets up and tears down isolated Drupal sites. Each test gets its own copy of a base <a href="https://sqlite.org/">SQLite database</a>, whether that database was created by a fresh site install or <a href="https://github.com/techouse/mysql-to-sqlite3">converted from an existing MySQL/MariaDB database</a>.</p>
+<p>Test requests from the web browser are directed to the right database though <code>settings.php</code> additions. The library <a href="https://github.com/Lullabot/playwright-drupal/blob/main/settings/settings.playwright.php">provides a settings file</a> to include from your own Drupal settings file.</p>
+<p>Drush commands also work within each test site instance, letting tests scaffold data or make changes to the specific Drupal instance being tested without going through the administration UI.</p>
+<p><a href="https://taskfile.dev">Task</a> is used as a task runner to install Drupal and set up the tests. This allows developers to easily run individual components of the test setup and teardown without having to step through JavaScript, or reuse them in other non-testing scenarios. Projects don't have to use Task as their primary build tool - feel free to call your own existing scripts as needed.</p>
 <h2 id="requirements">Requirements</h2>
-<ul>
+<ol>
 <li>The Drupal site must be using <a href="https://ddev.com/">DDEV</a> for development environments.</li>
 <li>The Drupal site is meant to be tested after a site install or database import, like how Drupal core tests work.</li>
-<li>The Playwright tests must be using <code>npm</code> as their package manager, or creating an npm-like node_modules directory. It's unclear at this moment how we could integrate yarn packages into the separate directory Playwright requires for test libraries. PRs welcome!</li>
-<li>Playwright tests will be written in TypeScript.</li>
-</ul>
-<h2 id="how-this-works">How This Works</h2>
-<ul>
-<li>This library includes an extended version of Playwright's <code>test</code> function that sets up and tears down isolated Drupal sites. Each test gets its own copy of a base SQLite database, whether that database was created by a fresh site install or converted from an existing MySQL/MariaDB database.</li>
-<li>We use Playwright's concept of "packages" to allow for a npm dependency to export a test function.</li>
-<li>Test requests from the web browser are directed to the right database though <code>settings.php</code> additions.</li>
-<li><code>drush-playwright</code> does its own bootstrap to route drush commands to the right site.</li>
-<li>We use <a href="https://taskfile.dev">Task</a> as a task runner to install Drupal and set up the tests. This allows developers to easily run individual components of the test setup and teardown without having to step through JavaScript, or reuse them in other non-testing scenarios.</li>
-<li>While as of this writing (March 2024) this is new code, a nearly identical version of this has been running on a real-world project for over a year.</li>
-</ul>
-<h2 id="docroot-auto-detection">Docroot Auto-Detection</h2>
-<p>This library automatically detects your Drupal docroot by reading the <code>extra.drupal-scaffold.locations.web-root</code> key from your project's <code>composer.json</code>. This means it works out of the box with <code>web/</code>, <code>docroot/</code>, or any custom directory name — no manual configuration is needed. If the key is not present in <code>composer.json</code>, it defaults to <code>web</code>.</p>
+<li>The Playwright tests must be using <code>npm</code> as their package manager, or creating an npm-like node_modules directory. It's unclear at this moment how we could integrate yarn packages into the separate directory Playwright requires for test libraries.</li>
+<li>Playwright tests must be written in TypeScript.</li>
+<li>The Drupal docroot can be any folder, as long as it is specified in the <code>web-root</code> field of your <code>composer.json</code>.</li>
+</ol>
 
 
 
