@@ -48,6 +48,29 @@ Tests that pass `baseline:` to [`checkAccessibility()`](#checkaccessibility) (or
 !!! warning "Snapshot mode (deprecated)"
     Earlier versions of this package pinned violations via Playwright's `toMatchSnapshot()` against a `.txt` snapshot in the test's `-snapshots/` directory. Tests with a committed `.txt` snapshot continue to assert against it for backwards compatibility, but snapshot mode is deprecated — new tests should use baselines, and existing tests should migrate. To migrate a test, delete its `.txt` snapshot and let the next local run seed a `.a11y-baseline.json` in its place.
 
+## Test report integration
+
+Accessibility results surface in the Playwright HTML report through tags, annotations, and attachments:
+
+- **`@a11y` tag** — every test that runs an accessibility check is tagged so runs can be filtered to just a11y tests.
+- **Scan summary annotations** — each scan adds an `Accessibility` annotation summarising counts (e.g. `WCAG scan: 0 new violations (2 baselined)`).
+- **Baselined violation annotations** — each suppressed violation appears as a `Baselined a11y violation` annotation with its `reason` and `willBeFixedIn` link, so reviewers can see what is being waived and where the fix is tracked.
+- **Stale baseline annotations** — baseline entries that no longer match any detected violation appear as `Stale a11y baseline entry` annotations so they can be cleaned up.
+- **Scan result attachments** — full axe-core JSON is attached as `a11y-best-practice-scan-results` and `a11y-wcag-scan-results` for detailed inspection.
+- **Violation screenshot** — when WCAG violations are detected, a full-page screenshot is attached with every violating element outlined in red. Disable via `screenshotViolations: false` in [AccessibilityOptions](#accessibilityoptions).
+
+A passing test shows the `@a11y` tag and a scan summary:
+
+![Annotations section showing the @a11y tag and a WCAG scan summary](../images/a11y-report-annotations.webp)
+
+When a baseline is in use, the report also lists baselined violations and any stale entries:
+
+![Report annotations listing baselined violations alongside a stale baseline entry](../images/a11y-report-baseline-annotations.webp)
+
+Unmatched violations fail the test with a detailed error — rule, impact, help URL, affected targets, and a copy-pasteable baseline entry you can drop straight into `.a11y-baseline.json`:
+
+![Playwright error output showing violation details, help URL, and a ready-to-paste baseline entry](../images/a11y-report-baseline-errors.webp)
+
 ## Accessibility functions
 
 ### checkAccessibility()
@@ -159,6 +182,28 @@ Pass-through identity function that exists for type inference. Returns the input
 | `willBeFixedIn` | Link to a tracking ticket. |
 
 **Type alias:** `AccessibilityBaseline = AccessibilityBaselineEntry[]`
+
+### Sharing a baseline with visual diffs
+
+The [visual-diff config](visual-comparisons.md) passed to `defineVisualDiffConfig()` accepts an `a11yBaseline` so every generated test inherits the same in-code baseline without having to thread it through each test case:
+
+```typescript
+import { defineVisualDiffConfig } from '@packages/playwright-drupal';
+import { baseline } from '~/a11y-baseline';
+
+export const config = defineVisualDiffConfig({
+  name: 'Umami Visual Diffs',
+  a11yBaseline: baseline,
+  groups: [
+    {
+      name: 'Landing Pages',
+      testCases: [
+        { name: 'Home Page', path: '/' },
+      ],
+    },
+  ],
+});
+```
 
 ## GitHub Accessibility Annotations
 
