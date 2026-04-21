@@ -4,6 +4,17 @@
     "config:recommended",
     "helpers:pinGitHubActionDigests"
   ],
+  "packageRules": [
+    {
+      "matchPackageNames": ["*"],
+      "automerge": true,
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "automerge": false
+    }
+  ],
   "customManagers": [
     {
       "customType": "regex",
