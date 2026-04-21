@@ -63,7 +63,6 @@ nav:
     - Accessibility Tests: working-with-tests/accessibility-tests.md
     - Debugging Tests: working-with-tests/debugging-tests.md
     - Drupal Testing Utilities: working-with-tests/drupal-testing-utilities.md
-    - GitHub Accessibility Annotations: working-with-tests/github-actions.md
   - Contributing:
     - Development: contributing/development.md
     - Releases: contributing/releases.md
