@@ -12,32 +12,7 @@ The `takeAccessibleScreenshot()` method will:
 4. Automatically trigger loading of all lazy-loaded iframes.
 5. Generate an accessibility report of the element being tested.
 
-## Accessibility violation baselines
-
-Each WCAG and best-practice scan is asserted against an on-disk JSON baseline file colocated with snapshots. The file uses an object schema with a human-readable note plus a `violations` array of accepted entries:
-
-```json
-{
-  "note": "TODO: fill in reason and willBeFixedIn for each entry before committing.",
-  "violations": [
-    {
-      "rule": "color-contrast",
-      "targets": ["#footer .legal"],
-      "reason": "TODO",
-      "willBeFixedIn": "TODO"
-    }
-  ]
-}
-```
-
-When you run a new test for the first time **locally**, the baseline file is auto-seeded next to where its snapshot would have been (e.g. `my-test-1.a11y-baseline.json` for WCAG, `my-test-1.a11y-baseline-best-practice.json` for best-practice). The first run passes; subsequent runs match against the file. Replace the `TODO` placeholders with a real reason and tracking ticket before committing.
-
-When a test runs on **CI** (`process.env.CI` set) and would auto-seed a baseline file, the file is written and attached to the test report, but the test **fails** with a directive to download/commit it. This mirrors Playwright's default behaviour for missing visual snapshots and prevents new accessibility violations from silently slipping through CI.
-
-Tests that pass `baseline:` to `checkAccessibility()` (or `a11y.check()`) using `defineAccessibilityBaseline()` take precedence over the on-disk JSON file — use this when you need to share a baseline across multiple tests or compute it from test data.
-
-!!! warning "Snapshot mode (deprecated)"
-    Earlier versions of this package pinned violations via Playwright's `toMatchSnapshot()` against a `.txt` snapshot in the test's `-snapshots/` directory. Tests with a committed `.txt` snapshot continue to assert against it for backwards compatibility, but snapshot mode is deprecated — new tests should use baselines, and existing tests should migrate. To migrate a test, delete its `.txt` snapshot and let the next local run seed a `.a11y-baseline.json` in its place.
+Each accessibility scan is asserted against an on-disk JSON baseline — see [Accessibility Tests](accessibility-tests.md) for the schema, auto-seeding behaviour, and the CI vs. local workflow.
 
 ## Visual Comparisons for Static Content
 

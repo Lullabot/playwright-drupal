@@ -60,6 +60,7 @@ nav:
   - Working with Tests:
     - Writing Tests: guides/writing-tests.md
     - Visual Comparisons (Diffs): guides/visual-comparisons.md
+    - Accessibility Tests: guides/accessibility-tests.md
     - Debugging Tests: guides/debugging-tests.md
     - Drupal Testing Utilities: guides/drupal-testing-utilities.md
     - GitHub Accessibility Annotations: guides/github-actions.md
