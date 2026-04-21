@@ -211,6 +211,8 @@ export const config = defineVisualDiffConfig({
 
 When running accessibility tests in CI, you can surface violations directly in GitHub workflow summaries and inline file annotations using the included composite action or CLI tool.
 
+![GitHub Actions workflow job summary showing accessibility violations with inline file annotations](../images/github-a11y-summary.webp)
+
 ### Prerequisites
 
 The JSON reporter must be enabled for the annotation tools to parse test results. This is included automatically when using `definePlaywrightDrupalConfig()` — no extra configuration needed.
