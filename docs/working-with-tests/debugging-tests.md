@@ -48,6 +48,8 @@ ddev playwright test --headed
 ddev playwright test --ui
 ```
 
+![Playwright UI mode interface showing the test tree on the left with three spec files, the timeline bar along the top, an empty browser preview in the middle, and the Locator/Source/Call/Log/Errors/Console/Network/Attachments/Annotations tab bar at the bottom](../images/playwright-ui-mode.webp)
+
 See Playwright's [Running and debugging tests](https://playwright.dev/docs/running-tests) guide for the full list of options.
 
 ## Fixing Test Flakes
