@@ -306,9 +306,23 @@
     <div class="md-grid md-typeset">
       <div class="mdx-hero">
         <div class="mdx-hero__image">
-          <img src="./images/demo.webp"
-               alt="Demo showing running isolated Drupal tests in parallel"
-               draggable="false">
+          <div class="mdx-hero__video">
+            <video class="mdx-hero__video-el"
+                   src="./images/demo.webm"
+                   autoplay loop muted playsinline
+                   aria-label="Demo showing running isolated Drupal tests in parallel"></video>
+            <button type="button"
+                    class="mdx-hero__video-toggle"
+                    aria-label="Pause demo"
+                    data-state="playing">
+              <svg class="mdx-hero__video-icon mdx-hero__video-icon--pause" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 5h4v14H6zM14 5h4v14h-4z"/>
+              </svg>
+              <svg class="mdx-hero__video-icon mdx-hero__video-icon--play" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </button>
+          </div>
         </div>
         <div class="mdx-hero__content">
           <h1>playwright-drupal</h1>
@@ -354,6 +368,25 @@
       </ul>
     </div>
   </section>
+
+  <script>
+    (function() {
+      var toggle = document.querySelector('.mdx-hero__video-toggle');
+      var video = document.querySelector('.mdx-hero__video-el');
+      if (!toggle || !video) return;
+      toggle.addEventListener('click', function() {
+        if (video.paused) {
+          video.play();
+          toggle.dataset.state = 'playing';
+          toggle.setAttribute('aria-label', 'Pause demo');
+        } else {
+          video.pause();
+          toggle.dataset.state = 'paused';
+          toggle.setAttribute('aria-label', 'Play demo');
+        }
+      });
+    })();
+  </script>
 
       <main class="md-main" data-md-component="main">
         <div class="md-main__inner md-grid">
