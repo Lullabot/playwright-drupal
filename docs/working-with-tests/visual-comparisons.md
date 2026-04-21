@@ -248,6 +248,8 @@ Use Playwright's [`page.route()`](https://playwright.dev/docs/api/class-page#pag
 
 Some elements change over time independently of your code — copyright years, timestamps, or live counters. These cause false snapshot failures. You can mask such elements by providing CSS selectors at any level of the visual diff configuration. Masked elements are covered with an overlay box (pink `#FF00FF` by default) in the screenshot.
 
+![Rendered Umami home page with a bright pink #FF00FF mask overlay box covering the site branding element](../images/visual-diff-mask-overlay.webp)
+
 Masks defined at multiple levels are merged together, so you can set global masks on the config and add more at the group or test-case level.
 
 ```typescript
