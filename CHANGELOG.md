@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.6.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.5.1...playwright-drupal-1.6.0) (2026-04-21)
+
+
+### Features
+
+* **a11y:** default new tests to baseline mode, preserve snapshot mode for existing ([#120](https://github.com/Lullabot/playwright-drupal/issues/120)) ([eda6d43](https://github.com/Lullabot/playwright-drupal/commit/eda6d430d8d9e1f782d4e5784bd03825a0f2df23))
+* add baseline allowlist and a11y fixture helper ([#105](https://github.com/Lullabot/playwright-drupal/issues/105)) ([37cd52e](https://github.com/Lullabot/playwright-drupal/commit/37cd52e397ae69ed2d41148857c423c739f78faa))
+* add GitHub a11y annotations action and CLI ([4c90232](https://github.com/Lullabot/playwright-drupal/commit/4c902320b30ac6899a3eba86c260554d453328ad))
+* add MkDocs documentation site with versioned GitHub Pages deployment ([#113](https://github.com/Lullabot/playwright-drupal/issues/113)) ([fd70861](https://github.com/Lullabot/playwright-drupal/commit/fd708614bbfad71fb85847371f18a5e894e3483e))
+* add screenshotViolations option to highlight a11y errors ([e9e83cf](https://github.com/Lullabot/playwright-drupal/commit/e9e83cf5451bd3db559ad7f350bd88d23fdc023a))
+* crop a11y screenshots to violation area and optimize with ImageMagick ([#112](https://github.com/Lullabot/playwright-drupal/issues/112)) ([fe0b2b5](https://github.com/Lullabot/playwright-drupal/commit/fe0b2b51b0060382bed2a13bf3b135b79098269f))
+* extract checkAccessibility() with configurable options ([#104](https://github.com/Lullabot/playwright-drupal/issues/104)) ([03e4009](https://github.com/Lullabot/playwright-drupal/commit/03e4009de979a626c87bd96fc618a32f7b182a4e))
+* **util:** add autosaveForm utilities ([#135](https://github.com/Lullabot/playwright-drupal/issues/135)) ([7cdd77c](https://github.com/Lullabot/playwright-drupal/commit/7cdd77cda47adb2e4c073dc96792258e1662e255))
+* **util:** add Ckeditor5 class ([#128](https://github.com/Lullabot/playwright-drupal/issues/128)) ([0f0d939](https://github.com/Lullabot/playwright-drupal/commit/0f0d939186e2853d4f0f374e57fdda9626f084af))
+* **util:** add dblog utilities ([#130](https://github.com/Lullabot/playwright-drupal/issues/130)) ([8276bea](https://github.com/Lullabot/playwright-drupal/commit/8276beacf9b3ae815a7a79b7eb7e841fb6635132))
+* **util:** add entities.extractEntityIdFromPage ([#127](https://github.com/Lullabot/playwright-drupal/issues/127)) ([f278c93](https://github.com/Lullabot/playwright-drupal/commit/f278c938c4aee4fd298517aec4dd437c0c4776d7))
+* **util:** add forms module for Drupal AJAX, gin, and submit plumbing ([#126](https://github.com/Lullabot/playwright-drupal/issues/126)) ([fdfcdb0](https://github.com/Lullabot/playwright-drupal/commit/fdfcdb00a4379337ccea2d6efb397017435c7174))
+* **util:** add managedFile.uploadManagedFile ([#134](https://github.com/Lullabot/playwright-drupal/issues/134)) ([5a46ea0](https://github.com/Lullabot/playwright-drupal/commit/5a46ea0d9e38904f5f3b49e143620c32459c4729))
+* **util:** add mediaLibrary.selectFirstMediaFromLibrary ([#133](https://github.com/Lullabot/playwright-drupal/issues/133)) ([ba81241](https://github.com/Lullabot/playwright-drupal/commit/ba812414487bb7d66a1bab3543c8c52f695285a0))
+* **util:** add modules probe utilities ([#129](https://github.com/Lullabot/playwright-drupal/issues/129)) ([581940c](https://github.com/Lullabot/playwright-drupal/commit/581940c83ea301fa090898549b6920200c35ac9b))
+* **util:** add oembed.fillOembedUrl ([#132](https://github.com/Lullabot/playwright-drupal/issues/132)) ([4d83fb8](https://github.com/Lullabot/playwright-drupal/commit/4d83fb82687074ae807dccc6e468b040f5bf8842))
+* **util:** add statusReport parser ([#131](https://github.com/Lullabot/playwright-drupal/issues/131)) ([3df29a7](https://github.com/Lullabot/playwright-drupal/commit/3df29a73bf46d657773c9275b40b48c3f8a4c72c))
+
+
+### Bug Fixes
+
+* **a11y-annotations:** pipe summary stdout to $GITHUB_STEP_SUMMARY ([055acd5](https://github.com/Lullabot/playwright-drupal/commit/055acd5184c19bb9f78eb5e9a516843bf662e5b7))
+* **a11y-annotations:** run npx inside the playwright install dir ([8976f99](https://github.com/Lullabot/playwright-drupal/commit/8976f99df9547755c2061250e5c5ac41a17faeab))
+* **a11y:** treat 'missing' as baseline mode, not snapshot mode ([#124](https://github.com/Lullabot/playwright-drupal/issues/124)) ([41467c1](https://github.com/Lullabot/playwright-drupal/commit/41467c146b1e2a9b663910e9983a5037bcd1612f))
+
 ## [1.5.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.5.0...playwright-drupal-1.5.1) (2026-04-02)
 
 
