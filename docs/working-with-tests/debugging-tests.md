@@ -22,6 +22,8 @@ ddev playwright show-report --host=0.0.0.0
 
 The `--host=0.0.0.0` flag is required so the server binds to all interfaces inside the container, not just localhost.
 
+![Playwright HTML report showing a failed test detail view with the "View Trace" link visible next to the test title, the @a11y annotation, and the accessibility violation error output](../images/playwright-report-trace-viewer.webp)
+
 ## Running Tests in a Browser With KasmVNC
 
 The [`ddev-playwright`](https://github.com/Lullabot/ddev-playwright/) addon ships with [KasmVNC](https://www.kasmweb.com/kasmvnc), a remote desktop accessible from your browser. This lets you see the browser Playwright is driving in a consistent environment, which is invaluable when a test behaves differently headed versus headless or when generating code with `codegen`.
