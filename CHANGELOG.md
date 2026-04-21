@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.6.0...playwright-drupal-1.7.0) (2026-04-21)
+
+
+### Features
+
+* **login:** accept numeric user ID ([#151](https://github.com/Lullabot/playwright-drupal/issues/151)) ([0a86f89](https://github.com/Lullabot/playwright-drupal/commit/0a86f89f3d0647bd45433a38bb864d38cea0af06))
+
 ## [1.6.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.5.1...playwright-drupal-1.6.0) (2026-04-21)
 
 
