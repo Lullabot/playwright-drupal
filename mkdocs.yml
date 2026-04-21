@@ -58,12 +58,12 @@ nav:
     - Installation: getting-started/installation.md
     - Playwright Configuration: getting-started/playwright-configuration.md
   - Working with Tests:
-    - Writing Tests: guides/writing-tests.md
-    - Visual Comparisons (Diffs): guides/visual-comparisons.md
-    - Accessibility Tests: guides/accessibility-tests.md
-    - Debugging Tests: guides/debugging-tests.md
-    - Drupal Testing Utilities: guides/drupal-testing-utilities.md
-    - GitHub Accessibility Annotations: guides/github-actions.md
+    - Writing Tests: working-with-tests/writing-tests.md
+    - Visual Comparisons (Diffs): working-with-tests/visual-comparisons.md
+    - Accessibility Tests: working-with-tests/accessibility-tests.md
+    - Debugging Tests: working-with-tests/debugging-tests.md
+    - Drupal Testing Utilities: working-with-tests/drupal-testing-utilities.md
+    - GitHub Accessibility Annotations: working-with-tests/github-actions.md
   - Contributing:
     - Development: contributing/development.md
     - Releases: contributing/releases.md
