@@ -1,3 +1,4 @@
-export PROJECT_DIR="/home/andrew.linux/lullabot/playwright-drupal/.claude/worktrees/virtual-coalescing-glade/tmp/pwdemo-FIFDkm99gk"
-export PROJECT_NAME="pwdemo-poxe"
-export PROJECT_URL="https://pwdemo-poxe.ddev.site"
+# Populated by bootstrap.sh at runtime.
+export PROJECT_DIR=""
+export PROJECT_NAME=""
+export PROJECT_URL=""

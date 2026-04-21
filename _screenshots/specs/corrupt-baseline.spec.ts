@@ -1,6 +1,10 @@
 import { test, chromium } from '@playwright/test';
+import { join } from 'node:path';
 
-const BASELINE = '/home/andrew.linux/lullabot/playwright-drupal/.claude/worktrees/virtual-coalescing-glade/tmp/pwdemo-FIFDkm99gk/test/playwright/tests/visualdiff/visualdiffs.spec.ts-snapshots/Capture-Home-en-1-visualdiff-desktop-linux.png';
+const BASELINE = join(
+  process.env.PROJECT_DIR ?? '',
+  'test/playwright/tests/visualdiff/visualdiffs.spec.ts-snapshots/Capture-Home-en-1-visualdiff-desktop-linux.png',
+);
 
 test('overwrite baseline with different page', async () => {
   const browser = await chromium.launch();

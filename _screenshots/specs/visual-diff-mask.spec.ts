@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const SITE_URL = process.env.SITE_URL ?? `${process.env.PROJECT_URL}/en`;
-const OUT = '/home/andrew.linux/lullabot/playwright-drupal/.claude/worktrees/virtual-coalescing-glade/docs/images/visual-diff-mask-overlay.webp';
+const OUT = join(__dirname, '../../docs/images/visual-diff-mask-overlay.webp');
 
 test('capture mask overlay on Umami home', async ({ page, context }) => {
   await disableAnimations(context);

@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const INPUT_HTML = '/tmp/gh-preview/index.html';
-const OUT = '/home/andrew.linux/lullabot/playwright-drupal/.claude/worktrees/virtual-coalescing-glade/docs/images/github-a11y-summary.webp';
+const OUT = join(__dirname, '../../docs/images/github-a11y-summary.webp');
 
 test('capture rendered a11y summary markdown', async ({ page, context }) => {
   await disableAnimations(context);

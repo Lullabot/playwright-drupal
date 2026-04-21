@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const UI_URL = process.env.UI_URL ?? 'http://127.0.0.1:45678/';
-const OUT = '/home/andrew.linux/lullabot/playwright-drupal/.claude/worktrees/virtual-coalescing-glade/docs/images/playwright-ui-mode.webp';
+const OUT = join(__dirname, '../../docs/images/playwright-ui-mode.webp');
 
 test('capture Playwright UI mode', async ({ page, context }) => {
   test.setTimeout(60_000);

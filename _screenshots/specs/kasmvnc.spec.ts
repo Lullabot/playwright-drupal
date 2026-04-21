@@ -5,7 +5,7 @@ import { tmpdir, userInfo } from 'node:os';
 import { join } from 'node:path';
 
 const KASM_URL = process.env.KASM_URL ?? `${process.env.PROJECT_URL}:8444`;
-const OUT = '/home/andrew.linux/lullabot/playwright-drupal/.claude/worktrees/virtual-coalescing-glade/docs/images/kasmvnc-headed-browser.webp';
+const OUT = join(__dirname, '../../docs/images/kasmvnc-headed-browser.webp');
 
 test.use({
   httpCredentials: { username: userInfo().username, password: 'secret' },

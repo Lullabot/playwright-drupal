@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const REPORT_URL = process.env.REPORT_URL ?? `${process.env.PROJECT_URL}:9324`;
-const OUT = '/home/andrew.linux/lullabot/playwright-drupal/.claude/worktrees/virtual-coalescing-glade/docs/images/visual-diff-failure.webp';
+const OUT = join(__dirname, '../../docs/images/visual-diff-failure.webp');
 
 test('capture visual-diff three-pane view', async ({ page, context }) => {
   test.setTimeout(60_000);
