@@ -8,6 +8,16 @@ Drush commands also work within each test site instance, letting tests scaffold 
 
 [Task](https://taskfile.dev) is used as a task runner to install Drupal and set up the tests. This allows developers to easily run individual components of the test setup and teardown without having to step through JavaScript, or reuse them in other non-testing scenarios. Projects don't have to use Task as their primary build tool - feel free to call your own existing scripts as needed.
 
+```mermaid
+flowchart TD
+    A["drush site:install<br/>(fresh site)"] --> Base["Base SQLite<br/>/tmp/sqlite/.ht.sqlite"]
+    B["playwright:mysql-to-sqlite<br/>(convert existing DB)"] --> Base
+    Base -->|"copied per test"| Copy["Per-test SQLite<br/>/tmp/sqlite/&lt;test-id&gt;/.ht.sqlite"]
+    Req["Browser request<br/>carries test User-Agent"] --> Settings["settings.playwright.php"]
+    Settings -->|"picks matching DB"| Copy
+    Copy --> Drupal["Drupal request handling<br/>(isolated per test)"]
+```
+
 ## Requirements
 
 1. The Drupal site must be using [DDEV](https://ddev.com/) for development environments.
