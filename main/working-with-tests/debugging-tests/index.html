@@ -1018,12 +1018,14 @@
 <div class="language-console highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="go">ddev playwright show-report --host=0.0.0.0</span>
 </span></code></pre></div>
 <p>The <code>--host=0.0.0.0</code> flag is required so the server binds to all interfaces inside the container, not just localhost.</p>
+<p><img alt="Playwright HTML report showing a failed test detail view with the &quot;View Trace&quot; link visible next to the test title, the @a11y annotation, and the accessibility violation error output" src="../../images/playwright-report-trace-viewer.webp" /></p>
 <h2 id="running-tests-in-a-browser-with-kasmvnc">Running Tests in a Browser With KasmVNC</h2>
 <p>The <a href="https://github.com/Lullabot/ddev-playwright/"><code>ddev-playwright</code></a> addon ships with <a href="https://www.kasmweb.com/kasmvnc">KasmVNC</a>, a remote desktop accessible from your browser. This lets you see the browser Playwright is driving in a consistent environment, which is invaluable when a test behaves differently headed versus headless or when generating code with <code>codegen</code>.</p>
 <p>Connect at:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>https://&lt;PROJECT&gt;.ddev.site:8444
 </span></code></pre></div>
 <p>Log in with your local username and the password <code>secret</code>.</p>
+<p><img alt="KasmVNC remote desktop in a host browser, with a Playwright-driven headed Chromium window visible inside the remote desktop showing the Umami home page" src="../../images/kasmvnc-headed-browser.webp" /></p>
 <p>Once connected, run tests with a visible browser:</p>
 <div class="language-console highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="gp"># </span>Run<span class="w"> </span>tests<span class="w"> </span><span class="k">in</span><span class="w"> </span>headed<span class="w"> </span>mode<span class="w"> </span><span class="o">(</span>browser<span class="w"> </span>window<span class="w"> </span>appears<span class="w"> </span><span class="k">in</span><span class="w"> </span>KasmVNC<span class="o">)</span>.
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="go">ddev playwright test --headed</span>
@@ -1031,6 +1033,7 @@
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="gp"># </span>Or<span class="w"> </span>launch<span class="w"> </span>Playwright<span class="err">&#39;</span>s<span class="w"> </span>interactive<span class="w"> </span>UI<span class="w"> </span>mode<span class="w"> </span><span class="k">for</span><span class="w"> </span>picking<span class="w"> </span>and<span class="w"> </span>re-running<span class="w"> </span>tests.
 </span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="go">ddev playwright test --ui</span>
 </span></code></pre></div>
+<p><img alt="Playwright UI mode interface showing the test tree on the left with three spec files, the timeline bar along the top, an empty browser preview in the middle, and the Locator/Source/Call/Log/Errors/Console/Network/Attachments/Annotations tab bar at the bottom" src="../../images/playwright-ui-mode.webp" /></p>
 <p>See Playwright's <a href="https://playwright.dev/docs/running-tests">Running and debugging tests</a> guide for the full list of options.</p>
 <h2 id="fixing-test-flakes">Fixing Test Flakes</h2>
 <p>Flaky tests are tests that pass most of the time but fail intermittently. To reproduce a flake, run the test many times in a row:</p>

@@ -1402,6 +1402,7 @@
 <li><strong>Scan result attachments</strong> — full axe-core JSON is attached as <code>a11y-best-practice-scan-results</code> and <code>a11y-wcag-scan-results</code> for detailed inspection.</li>
 <li><strong>Violation screenshot</strong> — when WCAG violations are detected, a full-page screenshot is attached with every violating element outlined in red. Disable via <code>screenshotViolations: false</code> in <a href="#accessibilityoptions">AccessibilityOptions</a>.</li>
 </ul>
+<p><img alt="Full-page Drupal screenshot with each WCAG-violating element outlined in red" src="../../images/a11y-violation-screenshot.webp" /></p>
 <p>A passing test shows the <code>@a11y</code> tag and a scan summary:</p>
 <p><img alt="Annotations section showing the @a11y tag and a WCAG scan summary" src="../../images/a11y-report-annotations.webp" /></p>
 <p>When a baseline is in use, the report also lists baselined violations and any stale entries:</p>
@@ -1640,6 +1641,7 @@
 </span></code></pre></div>
 <h2 id="github-accessibility-annotations">GitHub Accessibility Annotations</h2>
 <p>When running accessibility tests in CI, you can surface violations directly in GitHub workflow summaries and inline file annotations using the included composite action or CLI tool.</p>
+<p><img alt="Rendered Accessibility Results markdown emitted to $GITHUB_STEP_SUMMARY: violation count, per-test heading with the Accessibility annotation, and a table of rule, impact, description, and affected CSS target selectors" src="../../images/github-a11y-summary.webp" /></p>
 <h3 id="prerequisites">Prerequisites</h3>
 <p>The JSON reporter must be enabled for the annotation tools to parse test results. This is included automatically when using <code>definePlaywrightDrupalConfig()</code> — no extra configuration needed.</p>
 <h3 id="using-the-reusable-action-recommended">Using the Reusable Action (Recommended)</h3>

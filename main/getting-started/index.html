@@ -923,6 +923,13 @@
 <p>Test requests from the web browser are directed to the right database though <code>settings.php</code> additions. The library <a href="https://github.com/Lullabot/playwright-drupal/blob/main/settings/settings.playwright.php">provides a settings file</a> to include from your own Drupal settings file.</p>
 <p>Drush commands also work within each test site instance, letting tests scaffold data or make changes to the specific Drupal instance being tested without going through the administration UI.</p>
 <p><a href="https://taskfile.dev">Task</a> is used as a task runner to install Drupal and set up the tests. This allows developers to easily run individual components of the test setup and teardown without having to step through JavaScript, or reuse them in other non-testing scenarios. Projects don't have to use Task as their primary build tool - feel free to call your own existing scripts as needed.</p>
+<pre class="mermaid"><code>flowchart TD
+    A["drush site:install&lt;br/&gt;(fresh site)"] --&gt; Base["Base SQLite&lt;br/&gt;/tmp/sqlite/.ht.sqlite"]
+    B["playwright:mysql-to-sqlite&lt;br/&gt;(convert existing DB)"] --&gt; Base
+    Base --&gt;|"copied per test"| Copy["Per-test SQLite&lt;br/&gt;/tmp/sqlite/&amp;lt;test-id&amp;gt;/.ht.sqlite"]
+    Req["Browser request&lt;br/&gt;carries test User-Agent"] --&gt; Settings["settings.playwright.php"]
+    Settings --&gt;|"picks matching DB"| Copy
+    Copy --&gt; Drupal["Drupal request handling&lt;br/&gt;(isolated per test)"]</code></pre>
 <h2 id="requirements">Requirements</h2>
 <ol>
 <li>The Drupal site must be using <a href="https://ddev.com/">DDEV</a> for development environments.</li>

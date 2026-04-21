@@ -1087,6 +1087,7 @@
 <h1 id="visual-comparisons-diffs">Visual Comparisons (Diffs)</h1>
 <p>Playwright Visual Comparisons are a great way to add additional assertions to your tests. Since visual comparisons are integrated into the testing system, developers can compare all aspects of a site - including content forms or other authenticated content.</p>
 <p>We've found that taking a screenshot for a visual comparison is a great point to check for accessibility issues. Unlike other steps in a test, a visual comparison is specifically declaring that the page is ready for human consumption.</p>
+<p><img alt="Playwright HTML report showing a failed visual comparison with the Diff/Actual/Expected/Side by side/Slider pane selector at the top, image dimensions, and red diff highlighting over the rendered page below" src="../../images/visual-diff-failure.webp" /></p>
 <p>The <code>takeAccessibleScreenshot()</code> method will:</p>
 <ol>
 <li>Ensure that complex pages like node forms have time to stabilize before taking screenshots.</li>
@@ -1293,6 +1294,7 @@ Now, you can run just these tests with a command like:</p>
 <p>Use Playwright's <a href="https://playwright.dev/docs/api/class-page#page-route"><code>page.route()</code></a> to intercept requests matching a URL pattern and return deterministic content via <code>route.fulfill()</code>.</p>
 <h2 id="masking-dynamic-elements">Masking Dynamic Elements</h2>
 <p>Some elements change over time independently of your code — copyright years, timestamps, or live counters. These cause false snapshot failures. You can mask such elements by providing CSS selectors at any level of the visual diff configuration. Masked elements are covered with an overlay box (pink <code>#FF00FF</code> by default) in the screenshot.</p>
+<p><img alt="Rendered Umami home page with a bright pink #FF00FF mask overlay box covering the site branding element" src="../../images/visual-diff-mask-overlay.webp" /></p>
 <p>Masks defined at multiple levels are merged together, so you can set global masks on the config and add more at the group or test-case level.</p>
 <div class="language-typescript highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">defineVisualDiffConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
