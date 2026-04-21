@@ -211,7 +211,7 @@ export const config = defineVisualDiffConfig({
 
 When running accessibility tests in CI, you can surface violations directly in GitHub workflow summaries and inline file annotations using the included composite action or CLI tool.
 
-![GitHub Actions workflow job summary showing accessibility violations with inline file annotations](../images/github-a11y-summary.webp)
+![GitHub Actions workflow job summary showing Accessibility Results with a violation count, a per-test heading with the Accessibility annotation, and a table listing each violation's rule, impact, description, and affected CSS target selectors](../images/github-a11y-summary.webp)
 
 ### Prerequisites
 
