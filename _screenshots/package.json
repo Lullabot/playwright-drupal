@@ -1,0 +1,7 @@
+{
+  "name": "docs-screenshots-throwaway",
+  "private": true,
+  "dependencies": {
+    "@playwright/test": "^1.39.0"
+  }
+}
