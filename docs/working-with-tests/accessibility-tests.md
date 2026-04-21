@@ -59,6 +59,8 @@ Accessibility results surface in the Playwright HTML report through tags, annota
 - **Scan result attachments** — full axe-core JSON is attached as `a11y-best-practice-scan-results` and `a11y-wcag-scan-results` for detailed inspection.
 - **Violation screenshot** — when WCAG violations are detected, a full-page screenshot is attached with every violating element outlined in red. Disable via `screenshotViolations: false` in [AccessibilityOptions](#accessibilityoptions).
 
+![Full-page Drupal screenshot with each WCAG-violating element outlined in red](../images/a11y-violation-screenshot.webp)
+
 A passing test shows the `@a11y` tag and a scan summary:
 
 ![Annotations section showing the @a11y tag and a WCAG scan summary](../images/a11y-report-annotations.webp)
