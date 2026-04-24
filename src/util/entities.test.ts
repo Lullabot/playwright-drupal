@@ -1,9 +1,21 @@
 import { describe, it, expect, vi } from 'vitest';
 import { extractEntityIdFromPage } from './entities';
 
-function makePage({ url, editHref }: { url: string; editHref?: string | null }) {
+function makePage({
+  url,
+  editHref,
+  currentPath,
+}: {
+  url: string;
+  editHref?: string | null;
+  currentPath?: string | null;
+}) {
   return {
     url: () => url,
+    evaluate: vi.fn().mockImplementation(() => {
+      if (currentPath === undefined) return Promise.reject(new Error('boom'));
+      return Promise.resolve(currentPath);
+    }),
     locator: (_sel: string) => ({
       first: () => ({
         getAttribute: vi.fn().mockImplementation(() => {
@@ -21,9 +33,21 @@ describe('extractEntityIdFromPage', () => {
     expect(id).toBe('42');
   });
 
-  it('extracts from an edit-link fallback when the URL is path-aliased', async () => {
+  it('extracts from drupalSettings.path.currentPath when the URL is path-aliased and no canonical edit link is rendered', async () => {
     const id = await extractEntityIdFromPage(
-      makePage({ url: 'http://example.test/my-article', editHref: '/node/99/edit' }),
+      makePage({
+        url: 'http://example.test/news/my-article',
+        currentPath: 'node/99',
+        editHref: '/news/my-article/edit',
+      }),
+      'node',
+    );
+    expect(id).toBe('99');
+  });
+
+  it('extracts from an edit-link fallback when the URL is path-aliased and drupalSettings is unavailable', async () => {
+    const id = await extractEntityIdFromPage(
+      makePage({ url: 'http://example.test/my-article', currentPath: null, editHref: '/node/99/edit' }),
       'node',
     );
     expect(id).toBe('99');
@@ -39,15 +63,15 @@ describe('extractEntityIdFromPage', () => {
     expect(id).toBe('3');
   });
 
-  it('returns undefined when neither the URL nor an edit link matches', async () => {
+  it('returns undefined when URL, drupalSettings, and edit link all miss', async () => {
     const id = await extractEntityIdFromPage(
-      makePage({ url: 'http://example.test/unrelated', editHref: null }),
+      makePage({ url: 'http://example.test/unrelated', currentPath: null, editHref: null }),
       'node',
     );
     expect(id).toBeUndefined();
   });
 
-  it('returns undefined when the edit-link lookup rejects', async () => {
+  it('returns undefined when every lookup rejects', async () => {
     const id = await extractEntityIdFromPage(
       makePage({ url: 'http://example.test/unrelated' }),
       'node',
