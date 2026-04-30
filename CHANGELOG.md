@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.7.0...playwright-drupal-1.7.1) (2026-04-30)
+
+
+### Bug Fixes
+
+* **entities:** resolve entity ID via drupalSettings on pathauto-aliased redirects ([c6fd358](https://github.com/Lullabot/playwright-drupal/commit/c6fd35892294065b18938094ca450466c624eec2))
+
 ## [1.7.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.6.0...playwright-drupal-1.7.0) (2026-04-21)
 
 
