@@ -24,8 +24,9 @@ uvx --with-requirements "${TUGBOAT_ROOT}/docs/requirements.txt" \
   --site-dir "${TUGBOAT_ROOT}/site/${PREVIEW_VERSION}"
 
 # Add the preview to versions.json and make it the landing page so
-# reviewers see the PR's changes first.
-python3 - <<'PY'
+# reviewers see the PR's changes first. The base httpd image has no
+# system python3, so we borrow uv's managed interpreter.
+uv run --no-project --quiet --python 3 python - <<'PY'
 import json, os
 site = os.path.join(os.environ["TUGBOAT_ROOT"], "site")
 preview = os.environ["PREVIEW_VERSION"]
