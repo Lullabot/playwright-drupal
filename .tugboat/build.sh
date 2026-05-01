@@ -6,12 +6,13 @@ export PATH="$HOME/.local/bin:$PATH"
 cd "${TUGBOAT_ROOT}"
 
 # Pull the published docs (all versions) from gh-pages so the version
-# dropdown is populated in the preview.
-git fetch --no-tags --depth=1 origin gh-pages
-
+# dropdown is populated in the preview. We download a tarball over
+# HTTPS rather than `git fetch`-ing because the build container has no
+# SSH credentials for the configured `git@github.com:…` remote.
+GH_PAGES_TARBALL="https://codeload.github.com/Lullabot/playwright-drupal/tar.gz/refs/heads/gh-pages"
 rm -rf "${TUGBOAT_ROOT}/site"
 mkdir -p "${TUGBOAT_ROOT}/site"
-git archive --format=tar FETCH_HEAD | tar -x -C "${TUGBOAT_ROOT}/site"
+curl -fsSL "${GH_PAGES_TARBALL}" | tar -xz --strip-components=1 -C "${TUGBOAT_ROOT}/site"
 
 # Build this preview's docs into their own version directory alongside
 # the published versions.
