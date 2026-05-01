@@ -8,5 +8,5 @@ services:
         - curl -LsSf https://astral.sh/uv/0.11.8/install.sh | sh
 
       build:
-        - export PATH="$HOME/.local/bin:$PATH" && uvx --with-requirements ${TUGBOAT_ROOT}/docs/requirements.txt mkdocs build --strict --config-file ${TUGBOAT_ROOT}/mkdocs.yml
+        - bash ${TUGBOAT_ROOT}/.tugboat/build.sh
         - ln -snf ${TUGBOAT_ROOT}/site ${DOCROOT}
