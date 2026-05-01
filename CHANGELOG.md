@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.2](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.7.1...playwright-drupal-1.7.2) (2026-05-01)
+
+
+### Documentation
+
+* show all published versions in tugboat previews ([#160](https://github.com/Lullabot/playwright-drupal/issues/160)) ([559cb9c](https://github.com/Lullabot/playwright-drupal/commit/559cb9c5f8cfd1026c60f20b1768e8c0b5b294f2))
+* show latest alias in version menu ([#159](https://github.com/Lullabot/playwright-drupal/issues/159)) ([bfd0efa](https://github.com/Lullabot/playwright-drupal/commit/bfd0efadb82659c7388398101fb5012c48fd3598))
+
 ## [1.7.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.7.0...playwright-drupal-1.7.1) (2026-04-30)
 
 
