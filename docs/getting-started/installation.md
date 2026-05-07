@@ -39,12 +39,7 @@ ddev exec -d /var/www/html/test/playwright npx playwright test
 ## Add the playwright-drupal Integration
 
 ```console
-ddev exec -d /var/www/html/test/playwright npm i lullabot/playwright-drupal
-```
-
-```console
-# Or, to pull from GitHub's main branch:
-ddev exec -d /var/www/html/test/playwright npm i lullabot/playwright-drupal@github:Lullabot/playwright-drupal
+ddev exec -d /var/www/html/test/playwright npm i @lullabot/playwright-drupal@latest
 ```
 
 ## Configure Playwright
@@ -119,7 +114,7 @@ includes:
 
 ## Add Playwright to Drupal's Settings
 
-Add the following to your Drupal `sites/default/settings.php` (e.g. `web/sites/default/settings.php` or `docroot/sites/default/settings.php`, depending on your project). A `file_exists()` guard is used so that Drupal can still boot normally when the package is not installed:
+Add the following to your Drupal `sites/default/settings.php` (e.g. `web/sites/default/settings.php` or `docroot/sites/default/settings.php`, depending on your project). It must be added *after* any local-environment access settings (such as the `settings.ddev.php` include DDEV adds), so that this configuration takes precedence when running tests. A `file_exists()` guard is used so that Drupal can still boot normally when the package is not installed:
 
 ```php
 if (file_exists('../test/playwright/node_modules/@lullabot/playwright-drupal/settings/settings.playwright.php')) {
