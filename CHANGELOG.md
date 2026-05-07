@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.3](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.7.2...playwright-drupal-1.7.3) (2026-05-07)
+
+
+### Documentation
+
+* fix installation instructions ([#167](https://github.com/Lullabot/playwright-drupal/issues/167)) ([a1c11a3](https://github.com/Lullabot/playwright-drupal/commit/a1c11a365dacd552e90b6510465629fe7da8056f))
+
 ## [1.7.2](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.7.1...playwright-drupal-1.7.2) (2026-05-01)
 
 
