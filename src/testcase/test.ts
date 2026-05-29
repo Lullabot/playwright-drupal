@@ -42,6 +42,7 @@ const testBase = base_test.extend<TestFixture<any, any>>( {
 
     // Wait for the installation to complete.
     await new Promise<void>((resolve, reject) => {
+      install.on('error', reject);
       install.on('exit', async (code) => {
         if (code === null || code > 0) {
           reject(new Error("Task errored with exit code " + code));
@@ -82,6 +83,7 @@ const testBase = base_test.extend<TestFixture<any, any>>( {
 
     let cleanup = task('playwright:cleanup test_id=' + id);
     await new Promise<void>((resolve) => {
+      cleanup.on('error', () => resolve());
       cleanup.on('exit', () => resolve());
     });
 
