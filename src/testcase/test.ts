@@ -144,7 +144,7 @@ async function execDrushInTestSite(command: string) {
   const exec = util.promisify(child_process.exec);
   const p = exec(`${drush} ${command}`, {
     // @ts-ignore
-    cwd: process.env.DDEV_HOSTNAME ? '/var/www/html' : null,
+    cwd: process.env.DDEV_HOSTNAME ? (process.env.PLAYWRIGHT_DRUPAL_ROOT || '/var/www/html') : null,
   });
   p.then((res) => {
     if (isVerbose()) {
