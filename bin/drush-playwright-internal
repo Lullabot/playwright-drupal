@@ -29,7 +29,9 @@
  * isn't a problem for tests, since Playwright is configured to a 70-second test
  * timeout anyway.
  */
-require_once '/var/www/html/vendor/autoload.php';
+$project_root = getenv('PLAYWRIGHT_DRUPAL_ROOT') ?: '/var/www/html';
+
+require_once "$project_root/vendor/autoload.php";
 
 // We have to use an environment variable as we can't manipulate $argv.
 // https://stackoverflow.com/a/12638442
@@ -41,7 +43,7 @@ if (!$test_id) {
 
 // Detect the docroot from composer.json's drupal-scaffold configuration.
 $docroot = 'web';
-$composer_json_path = '/var/www/html/composer.json';
+$composer_json_path = "$project_root/composer.json";
 if (file_exists($composer_json_path)) {
   $composer = json_decode(file_get_contents($composer_json_path), true);
   if (isset($composer['extra']['drupal-scaffold']['locations']['web-root'])) {
@@ -49,7 +51,7 @@ if (file_exists($composer_json_path)) {
   }
 }
 
-$bootstrap_path = "/var/www/html/$docroot/core/includes/bootstrap.inc";
+$bootstrap_path = "$project_root/$docroot/core/includes/bootstrap.inc";
 if (!file_exists($bootstrap_path)) {
   print "bootstrap.inc not found at $bootstrap_path. Check your composer.json drupal-scaffold.locations.web-root setting.\n";
   exit(1);
@@ -58,10 +60,10 @@ include_once $bootstrap_path;
 drupal_valid_test_ua('test' . $test_id);
 
 # Drush 13.3.1+
-if (file_exists('/var/www/html/vendor/bin/drush.php')) {
-  return include '/var/www/html/vendor/bin/drush.php';
+if (file_exists("$project_root/vendor/bin/drush.php")) {
+  return include "$project_root/vendor/bin/drush.php";
 }
 else {
   # Drush < 13.3
-  return include '/var/www/html/vendor/bin/drush';
+  return include "$project_root/vendor/bin/drush";
 }
