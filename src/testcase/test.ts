@@ -19,6 +19,40 @@ export interface A11yFixture {
 }
 
 /**
+ * Wait for a `playwright:prepare` child process to finish.
+ *
+ * Rejects if the process fails to spawn (the `'error'` event, e.g. ENOENT when
+ * `task` is not on PATH) or exits with a non-zero/null code. Without the
+ * `'error'` listener a spawn failure never emits `'exit'`, so the test would
+ * hang until Playwright's timeout instead of failing fast.
+ */
+export function waitForPrepare(install: child_process.ChildProcess): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    install.on('error', reject);
+    install.on('exit', (code) => {
+      if (code === null || code > 0) {
+        reject(new Error("Task errored with exit code " + code));
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
+/**
+ * Wait for a `playwright:cleanup` child process to finish.
+ *
+ * Cleanup is best-effort: a spawn failure (the `'error'` event) or a non-zero
+ * exit still resolves so teardown can complete rather than failing the test.
+ */
+export function waitForCleanup(cleanup: child_process.ChildProcess): Promise<void> {
+  return new Promise<void>((resolve) => {
+    cleanup.on('error', () => resolve());
+    cleanup.on('exit', () => resolve());
+  });
+}
+
+/**
  * Set a simpletest cookie for routing the tests to a separate database.
  */
 const testBase = base_test.extend<TestFixture<any, any>>( {
@@ -41,16 +75,7 @@ const testBase = base_test.extend<TestFixture<any, any>>( {
     let install = task('playwright:prepare test_id=' + id);
 
     // Wait for the installation to complete.
-    await new Promise<void>((resolve, reject) => {
-      install.on('error', reject);
-      install.on('exit', async (code) => {
-        if (code === null || code > 0) {
-          reject(new Error("Task errored with exit code " + code));
-          return;
-        }
-        resolve();
-      });
-    });
+    await waitForPrepare(install);
 
     // After installation, set the right cookie in the browser so tests are
     // routed correctly.
@@ -82,10 +107,7 @@ const testBase = base_test.extend<TestFixture<any, any>>( {
     await context.close();
 
     let cleanup = task('playwright:cleanup test_id=' + id);
-    await new Promise<void>((resolve) => {
-      cleanup.on('error', () => resolve());
-      cleanup.on('exit', () => resolve());
-    });
+    await waitForCleanup(cleanup);
 
     // Attach the PHP error log to the test results.
     let logPath = '../../' + docroot + '/sites/simpletest/' + drupal_test_id + '/error.log';
