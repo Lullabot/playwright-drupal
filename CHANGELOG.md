@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.4](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.7.3...playwright-drupal-1.7.4) (2026-06-04)
+
+
+### Bug Fixes
+
+* **testcase:** handle spawn errors on prepare/cleanup child processes ([#194](https://github.com/Lullabot/playwright-drupal/issues/194)) ([ce6dc6f](https://github.com/Lullabot/playwright-drupal/commit/ce6dc6fd03aafe20f6885d42c83cb40d463f82ae))
+
 ## [1.7.3](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.7.2...playwright-drupal-1.7.3) (2026-05-07)
 
 
