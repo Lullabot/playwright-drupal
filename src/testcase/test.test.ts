@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { EventEmitter } from 'events'
+import type { ChildProcess } from 'child_process'
 
 // Mock the utility functions that the a11y fixture wraps.
 const mockCheckAccessibility = vi.fn()
@@ -105,5 +107,70 @@ describe('a11y fixture wrapper functions', () => {
     expect(mockTakeAccessibleScreenshot).toHaveBeenCalledWith(
       mockPage, mockTestInfo,
     )
+  })
+})
+
+// A minimal stand-in for the child process returned by task(). The fixture
+// only ever listens for the 'error' and 'exit' events, so an EventEmitter is
+// enough to drive both code paths without spawning a real process.
+function fakeChild(): ChildProcess {
+  return new EventEmitter() as unknown as ChildProcess
+}
+
+describe('waitForPrepare', () => {
+  it('resolves when the process exits with code 0', async () => {
+    const { waitForPrepare } = await import('./test')
+    const child = fakeChild()
+    const pending = waitForPrepare(child)
+    child.emit('exit', 0)
+    await expect(pending).resolves.toBeUndefined()
+  })
+
+  it('rejects when the process exits with a non-zero code', async () => {
+    const { waitForPrepare } = await import('./test')
+    const child = fakeChild()
+    const pending = waitForPrepare(child)
+    child.emit('exit', 1)
+    await expect(pending).rejects.toThrow('Task errored with exit code 1')
+  })
+
+  it('rejects when the process exits with a null code', async () => {
+    const { waitForPrepare } = await import('./test')
+    const child = fakeChild()
+    const pending = waitForPrepare(child)
+    child.emit('exit', null)
+    await expect(pending).rejects.toThrow('Task errored with exit code null')
+  })
+
+  it('rejects with the underlying error when the process fails to spawn', async () => {
+    // This is the regression case: a spawn failure emits 'error' but never
+    // 'exit', so without the 'error' listener the fixture would hang until
+    // Playwright's test timeout instead of failing fast.
+    const { waitForPrepare } = await import('./test')
+    const child = fakeChild()
+    const spawnError = Object.assign(new Error('spawn task ENOENT'), { code: 'ENOENT' })
+    const pending = waitForPrepare(child)
+    child.emit('error', spawnError)
+    await expect(pending).rejects.toBe(spawnError)
+  })
+})
+
+describe('waitForCleanup', () => {
+  it('resolves when the process exits', async () => {
+    const { waitForCleanup } = await import('./test')
+    const child = fakeChild()
+    const pending = waitForCleanup(child)
+    child.emit('exit', 0)
+    await expect(pending).resolves.toBeUndefined()
+  })
+
+  it('resolves even when cleanup fails to spawn', async () => {
+    // Cleanup is best-effort: a spawn 'error' during teardown must not fail
+    // the test, but the promise still has to resolve so the fixture finishes.
+    const { waitForCleanup } = await import('./test')
+    const child = fakeChild()
+    const pending = waitForCleanup(child)
+    child.emit('error', new Error('spawn task ENOENT'))
+    await expect(pending).resolves.toBeUndefined()
   })
 })
