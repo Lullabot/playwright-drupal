@@ -14,7 +14,7 @@ export function execSync(baseCommand: string, command: string, options: any) {
     options = {}
   }
 
-  options.cwd = process.env.DDEV_HOSTNAME ? '/var/www/html' : process.cwd();
+  options.cwd = process.env.DDEV_HOSTNAME ? (process.env.PLAYWRIGHT_DRUPAL_ROOT || '/var/www/html') : process.cwd();
 
   if (!isVerbose() && options.stdio !== 'inherit') {
     const label = `${baseCommand}-${command}`;
@@ -37,7 +37,7 @@ export function exec(baseCommand: string, command: string) {
   let ddev = process.env.DDEV_HOSTNAME ? baseCommand : 'ddev ' + baseCommand;
 
   let options = {
-    cwd: process.env.DDEV_HOSTNAME ? '/var/www/html' : process.cwd(),
+    cwd: process.env.DDEV_HOSTNAME ? (process.env.PLAYWRIGHT_DRUPAL_ROOT || '/var/www/html') : process.cwd(),
   };
 
   let childProcess = child_process.exec(`${ddev} ${command}`, options);
