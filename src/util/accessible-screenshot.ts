@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import {expect, Locator, Page, TestInfo} from "@playwright/test";
 import {waitForAllImages} from "./images";
 import {waitForFrames} from "./frames"
+import {waitForFonts} from "./fonts";
 import axe from 'axe-core';
 import {AccessibilityBaseline, AccessibilityBaselineEntry} from './accessibility-baseline'
 import {
@@ -511,6 +512,7 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
 
   await waitForAllImages(page);
   await waitForFrames(page);
+  await waitForFonts(page);
 
   if (scrollLocator) {
     await scrollLocator.scrollIntoViewIfNeeded();
