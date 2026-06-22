@@ -99,7 +99,7 @@ Runs a best-practice axe scan (unless `bestPracticeMode` is `'off'`) followed by
 | `scrollLocator` | `undefined` | Optional locator to scroll into view before the screenshot. |
 | `locator` | `page` | Optional element to screenshot. Axe still scans the whole page. |
 
-Waits for all images and iframes to load, applies project-specific thresholds for Firefox/Safari's non-deterministic image rendering, then calls Playwright's `toHaveScreenshot()` (soft) and finally invokes [`checkAccessibility`](#checkaccessibility) with `options.accessibility`. The timeout is clamped to at least 10 seconds so slow admin forms have time to stabilise.
+Waits for all images and iframes to load and for web fonts to settle, blurs any focused element (unless `blur: false`) so a stray focus ring does not make the diff non-deterministic, applies project-specific thresholds for Firefox/Safari's non-deterministic image rendering, then calls Playwright's `toHaveScreenshot()` (soft) and finally invokes [`checkAccessibility`](#checkaccessibility) with `options.accessibility`. The timeout is clamped to at least 10 seconds so slow admin forms have time to stabilise.
 
 ### a11y fixture
 
@@ -141,6 +141,7 @@ A superset of Playwright's [`toHaveScreenshot()` options](https://playwright.dev
 | Field | Default | Description |
 |---|---|---|
 | `accessibility` | `undefined` | [AccessibilityOptions](#accessibilityoptions) passed through to [`checkAccessibility`](#checkaccessibility). |
+| `blur` | `true` | Blurs the active element before capturing so a stray focus ring left over from earlier test interactions does not appear in only some runs. Set to `false` when the screenshot intentionally captures a focused state. |
 
 ## In-code baselines
 
