@@ -520,6 +520,15 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
     options.threshold = 0.8;
   }
 
+  // Blur any focused element so a stray focus ring does not make the screenshot
+  // non-deterministic, unless the caller is intentionally capturing focus. Do
+  // this before the load/stability waits so that any layout change a blur
+  // handler triggers (a closing dropdown, injected validation markup) settles
+  // before we capture.
+  if (options.blur !== false) {
+    await blurActiveElement(page);
+  }
+
   await waitForAllImages(page);
   await waitForFrames(page);
   await waitForFonts(page);
@@ -531,11 +540,6 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
   let locatorToScreenshot: Page|Locator = page;
   if (locator) {
     locatorToScreenshot = locator;
-  }
-  // Blur any focused element so a stray focus ring does not make the screenshot
-  // non-deterministic, unless the caller is intentionally capturing focus.
-  if (options.blur !== false) {
-    await blurActiveElement(page);
   }
   // Soft failure here so we can get accessibility violations too.
   await expect.soft(locatorToScreenshot).toHaveScreenshot(options);

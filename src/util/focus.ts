@@ -10,12 +10,18 @@ import {Page} from "@playwright/test";
  * first makes the focus state deterministic.
  *
  * @param page
+ * @returns `true` if an element was blurred, `false` if nothing was focused.
  */
-export async function blurActiveElement(page: Page): Promise<void> {
-  await page.evaluate(() => {
+export async function blurActiveElement(page: Page): Promise<boolean> {
+  return page.evaluate(() => {
     const el = document.activeElement as HTMLElement | null;
-    if (el && typeof el.blur === "function") {
-      el.blur();
+    // `document.activeElement` falls back to `<body>`/`<html>` when nothing is
+    // focused. Blurring that paints no focus ring but can still fire `focusout`
+    // handlers, so skip it and only blur a genuinely focused control.
+    if (!el || el === document.body || el === document.documentElement || typeof el.blur !== "function") {
+      return false;
     }
+    el.blur();
+    return true;
   });
 }
