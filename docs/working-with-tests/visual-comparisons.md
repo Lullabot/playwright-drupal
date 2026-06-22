@@ -11,8 +11,11 @@ The `takeAccessibleScreenshot()` method will:
 1. Ensure that complex pages like node forms have time to stabilize before taking screenshots.
 2. Handle browsers that have non-deterministic rendering of images (in particular, WebP) and allow for minute pixel differences in images that are not observable by a human.
 3. Automatically trigger loading of all lazy-loaded images.
-4. Automatically trigger loading of all lazy-loaded iframes.
-5. Generate an accessibility report of the element being tested.
+4. Recover images that errored (a 404, or a Stage File Proxy URL that 503s while it fetches the original on demand) by re-requesting them, instead of capturing them broken.
+5. Automatically trigger loading of all lazy-loaded iframes.
+6. Wait for web fonts to finish loading so text is not captured with fallback-font metrics on the first attempt.
+7. Blur any focused element so a stray focus ring does not produce a flaky, human-invisible diff (pass `blur: false` to keep an intentionally focused state).
+8. Generate an accessibility report of the element being tested.
 
 Each accessibility scan is asserted against an on-disk JSON baseline — see [Accessibility Tests](accessibility-tests.md) for the schema, auto-seeding behaviour, and the CI vs. local workflow.
 

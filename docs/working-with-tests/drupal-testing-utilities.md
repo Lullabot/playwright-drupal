@@ -332,13 +332,23 @@ test('hero renders with images and embedded video', async ({ page }) => {
 | `page` | *(required)* | The Playwright page object. |
 | `selector` | *(required)* | CSS selector for the `<img>` elements to wait for. |
 
-Scrolls each matching image into view (to trigger lazy loading) and waits for them to finish loading. After all images have loaded, the page is scrolled back to the top so screenshots are stable.
+Scrolls each matching image into view (to trigger lazy loading) and waits for them to finish loading. It also waits for every visible image to finish decoding and re-requests any that errored — a 404, or a Stage File Proxy URL that 503s while it fetches the original on demand — so a slow on-demand fetch can recover before the screenshot is taken instead of being captured as a broken image. After all images have loaded, the page is scrolled back to the top so screenshots are stable.
 
 ### waitForAllImages()
 
 `waitForAllImages(page: Page): Promise<void>`
 
 Shorthand for [`waitForImages(page, 'img:visible')`](#waitforimages).
+
+### waitForFonts()
+
+`waitForFonts(page: Page): Promise<void>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+
+Awaits `document.fonts.ready` so text is not captured with fallback-font metrics. Fallback glyphs have different widths, so text can wrap onto a different number of lines and render the page at a slightly different height until the real web fonts apply — a flake that typically only shows up on the first attempt.
 
 ### waitForFrames()
 
@@ -349,6 +359,16 @@ Shorthand for [`waitForImages(page, 'img:visible')`](#waitforimages).
 | `page` | *(required)* | The Playwright page object. |
 
 Scrolls every `<iframe>` into view and waits for each one to have loaded a URL. Operates serially to avoid concurrency bugs; fast enough that parallelism is not worth the complexity.
+
+### blurActiveElement()
+
+`blurActiveElement(page: Page): Promise<boolean>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+
+Removes keyboard focus from a genuinely focused control so its focus ring does not appear in only some screenshot runs. Returns `true` if an element was blurred, `false` if nothing was focused (the `<body>`/`<html>` fallback is left alone). [`takeAccessibleScreenshot()`](accessibility-tests.md#takeaccessiblescreenshot) calls this for you unless `blur: false` is passed.
 
 ## Fallback selectors
 
