@@ -3,6 +3,7 @@ import {expect, Locator, Page, TestInfo} from "@playwright/test";
 import {waitForAllImages} from "./images";
 import {waitForFrames} from "./frames"
 import {waitForFonts} from "./fonts";
+import {blurActiveElement} from "./focus";
 import axe from 'axe-core';
 import {AccessibilityBaseline, AccessibilityBaselineEntry} from './accessibility-baseline'
 import {
@@ -33,6 +34,15 @@ export interface ScreenshotOptions {
    * changed.  Defaults to `"hide"`.
    */
   caret?: "hide" | "initial";
+
+  /**
+   * When `true` (the default), blurs the active element before capturing so a
+   * stray focus ring left over from earlier test interactions does not appear in
+   * only some runs (an invisible-to-a-human diff that still trips the pixel
+   * budget). Set to `false` when the screenshot intentionally captures a focused
+   * state.
+   */
+  blur?: boolean;
 
   /**
    * When true, takes a screenshot of the full scrollable page, instead of the currently visible viewport. Defaults to
@@ -521,6 +531,11 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
   let locatorToScreenshot: Page|Locator = page;
   if (locator) {
     locatorToScreenshot = locator;
+  }
+  // Blur any focused element so a stray focus ring does not make the screenshot
+  // non-deterministic, unless the caller is intentionally capturing focus.
+  if (options.blur !== false) {
+    await blurActiveElement(page);
   }
   // Soft failure here so we can get accessibility violations too.
   await expect.soft(locatorToScreenshot).toHaveScreenshot(options);
