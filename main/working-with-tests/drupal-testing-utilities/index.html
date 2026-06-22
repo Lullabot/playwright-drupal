@@ -1066,10 +1066,32 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#waitforfonts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForFonts()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#waitforframes" class="md-nav__link">
     <span class="md-ellipsis">
       
         waitForFrames()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bluractiveelement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        blurActiveElement()
       
     </span>
   </a>
@@ -1806,10 +1828,32 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#waitforfonts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForFonts()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#waitforframes" class="md-nav__link">
     <span class="md-ellipsis">
       
         waitForFrames()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bluractiveelement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        blurActiveElement()
       
     </span>
   </a>
@@ -2505,10 +2549,29 @@
 </tr>
 </tbody>
 </table>
-<p>Scrolls each matching image into view (to trigger lazy loading) and waits for them to finish loading. After all images have loaded, the page is scrolled back to the top so screenshots are stable.</p>
+<p>Scrolls each matching image into view (to trigger lazy loading) and waits for them to finish loading. It also waits for every visible image to finish decoding and re-requests any that errored — a 404, or a Stage File Proxy URL that 503s while it fetches the original on demand — so a slow on-demand fetch can recover before the screenshot is taken instead of being captured as a broken image. After all images have loaded, the page is scrolled back to the top so screenshots are stable.</p>
 <h3 id="waitforallimages">waitForAllImages()</h3>
 <p><code>waitForAllImages(page: Page): Promise&lt;void&gt;</code></p>
 <p>Shorthand for <a href="#waitforimages"><code>waitForImages(page, 'img:visible')</code></a>.</p>
+<h3 id="waitforfonts">waitForFonts()</h3>
+<p><code>waitForFonts(page: Page): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+</tbody>
+</table>
+<p>Awaits <code>document.fonts.ready</code> so text is not captured with fallback-font metrics. Fallback glyphs have different widths, so text can wrap onto a different number of lines and render the page at a slightly different height until the real web fonts apply — a flake that typically only shows up on the first attempt.</p>
 <h3 id="waitforframes">waitForFrames()</h3>
 <p><code>waitForFrames(page: Page): Promise&lt;void&gt;</code></p>
 <table>
@@ -2528,6 +2591,25 @@
 </tbody>
 </table>
 <p>Scrolls every <code>&lt;iframe&gt;</code> into view and waits for each one to have loaded a URL. Operates serially to avoid concurrency bugs; fast enough that parallelism is not worth the complexity.</p>
+<h3 id="bluractiveelement">blurActiveElement()</h3>
+<p><code>blurActiveElement(page: Page): Promise&lt;boolean&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+</tbody>
+</table>
+<p>Removes keyboard focus from a genuinely focused control so its focus ring does not appear in only some screenshot runs. Returns <code>true</code> if an element was blurred, <code>false</code> if nothing was focused (the <code>&lt;body&gt;</code>/<code>&lt;html&gt;</code> fallback is left alone). <a href="../accessibility-tests/#takeaccessiblescreenshot"><code>takeAccessibleScreenshot()</code></a> calls this for you unless <code>blur: false</code> is passed.</p>
 <h2 id="fallback-selectors">Fallback selectors</h2>
 <p>Use these only when Playwright's human-focused locators (<code>getByRole</code>, <code>getByLabel</code>, <code>getByText</code>, etc.) cannot target the element. CSS/ID selectors are brittle and harder to maintain; prefer semantic locators wherever possible.</p>
 <div class="language-typescript highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">idPrefixSelector</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@packages/playwright-drupal&#39;</span><span class="p">;</span>

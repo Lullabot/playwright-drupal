@@ -1093,7 +1093,10 @@
 <li>Ensure that complex pages like node forms have time to stabilize before taking screenshots.</li>
 <li>Handle browsers that have non-deterministic rendering of images (in particular, WebP) and allow for minute pixel differences in images that are not observable by a human.</li>
 <li>Automatically trigger loading of all lazy-loaded images.</li>
+<li>Recover images that errored (a 404, or a Stage File Proxy URL that 503s while it fetches the original on demand) by re-requesting them, instead of capturing them broken.</li>
 <li>Automatically trigger loading of all lazy-loaded iframes.</li>
+<li>Wait for web fonts to finish loading so text is not captured with fallback-font metrics on the first attempt.</li>
+<li>Blur any focused element so a stray focus ring does not produce a flaky, human-invisible diff (pass <code>blur: false</code> to keep an intentionally focused state).</li>
 <li>Generate an accessibility report of the element being tested.</li>
 </ol>
 <p>Each accessibility scan is asserted against an on-disk JSON baseline — see <a href="../accessibility-tests/">Accessibility Tests</a> for the schema, auto-seeding behaviour, and the CI vs. local workflow.</p>

@@ -1477,7 +1477,7 @@
 </tr>
 </tbody>
 </table>
-<p>Waits for all images and iframes to load, applies project-specific thresholds for Firefox/Safari's non-deterministic image rendering, then calls Playwright's <code>toHaveScreenshot()</code> (soft) and finally invokes <a href="#checkaccessibility"><code>checkAccessibility</code></a> with <code>options.accessibility</code>. The timeout is clamped to at least 10 seconds so slow admin forms have time to stabilise.</p>
+<p>Waits for all images and iframes to load and for web fonts to settle, blurs any focused element (unless <code>blur: false</code>) so a stray focus ring does not make the diff non-deterministic, applies project-specific thresholds for Firefox/Safari's non-deterministic image rendering, then calls Playwright's <code>toHaveScreenshot()</code> (soft) and finally invokes <a href="#checkaccessibility"><code>checkAccessibility</code></a> with <code>options.accessibility</code>. The timeout is clamped to at least 10 seconds so slow admin forms have time to stabilise.</p>
 <h3 id="a11y-fixture">a11y fixture</h3>
 <p>The <code>a11y</code> fixture exposes the two helpers above via the test context so you don't have to pass <code>testInfo</code> explicitly.</p>
 <p><code>a11y.check(options?: AccessibilityOptions): Promise&lt;void&gt;</code></p>
@@ -1553,6 +1553,11 @@
 <td><code>accessibility</code></td>
 <td><code>undefined</code></td>
 <td><a href="#accessibilityoptions">AccessibilityOptions</a> passed through to <a href="#checkaccessibility"><code>checkAccessibility</code></a>.</td>
+</tr>
+<tr>
+<td><code>blur</code></td>
+<td><code>true</code></td>
+<td>Blurs the active element before capturing so a stray focus ring left over from earlier test interactions does not appear in only some runs. Set to <code>false</code> when the screenshot intentionally captures a focused state.</td>
 </tr>
 </tbody>
 </table>
