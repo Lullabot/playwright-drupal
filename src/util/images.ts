@@ -95,11 +95,13 @@ export async function waitForAllImages(page: Page): Promise<void> {
 /**
  * Wait for every visible image to finish decoding, recovering errored ones.
  *
- * An image only counts as loaded when it is `complete` *and* has a
- * `naturalWidth` greater than zero; an errored request (a 404, or a Stage File
- * Proxy URL that returns a 503 while it fetches the original on demand) is
- * `complete` with a `naturalWidth` of 0 and would otherwise be screenshotted as
- * a broken image. Such an image never recovers on its own, so it is re-requested
+ * A loaded image is `complete` with a `naturalWidth` greater than zero. An
+ * errored request (a 404, or a Stage File Proxy URL that returns a 503 while it
+ * fetches the original on demand) is `complete` with a `naturalWidth` of 0 and
+ * would otherwise be screenshotted as a broken image. A zero `naturalWidth` is
+ * ambiguous, though -- a valid but dimensionless image such as an SVG without an
+ * intrinsic size reports it too -- so `decode()` disambiguates: it rejects only
+ * for a genuine failure. A broken image never recovers on its own, so it is re-requested
  * with a cache-busting query parameter -- by then the on-demand fetch triggered
  * by the first request has usually finished, so the retry resolves to a real
  * image. The retry reuses `currentSrc` (the URL already chosen from `srcset`)
@@ -125,8 +127,6 @@ export async function waitForImagesToDecode(page: Page, timeoutMs = 15000): Prom
       const style = getComputedStyle(img);
       return style.visibility !== "hidden" && style.display !== "none";
     };
-    const isLoaded = (img: HTMLImageElement) => img.complete && img.naturalWidth > 0;
-    const isBroken = (img: HTMLImageElement) => img.complete && img.naturalWidth === 0;
     const reload = (img: HTMLImageElement) => {
       const src = img.currentSrc || img.src;
       if (!src || src.startsWith("data:")) {
@@ -150,14 +150,35 @@ export async function waitForImagesToDecode(page: Page, timeoutMs = 15000): Prom
 
     let lastReload = 0;
     while (Date.now() < deadline) {
-      const pending = Array.from(document.images).filter(img => isCandidate(img) && !isLoaded(img));
-      if (pending.length === 0) {
+      const candidates = Array.from(document.images).filter(isCandidate);
+      let pending = 0;
+      const errored: HTMLImageElement[] = [];
+      await Promise.all(candidates.map(async img => {
+        if (img.complete && img.naturalWidth > 0) {
+          return; // Loaded with intrinsic dimensions.
+        }
+        if (!img.complete) {
+          pending++; // Still loading.
+          return;
+        }
+        // Complete with a zero naturalWidth is ambiguous: a genuine load error
+        // (404/503) rejects decode(), while a valid but dimensionless image
+        // (such as an SVG with no intrinsic size) resolves it. Only the former
+        // should be re-requested; the latter is already settled.
+        try {
+          await img.decode();
+        } catch {
+          pending++;
+          errored.push(img);
+        }
+      }));
+      if (pending === 0) {
         return;
       }
       // Re-request errored images, throttled so each retry has time to resolve.
       if (Date.now() - lastReload > 2000) {
         lastReload = Date.now();
-        pending.filter(isBroken).forEach(reload);
+        errored.forEach(reload);
       }
       await new Promise(resolve => setTimeout(resolve, 250));
     }
