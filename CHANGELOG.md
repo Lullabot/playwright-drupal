@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.8.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.7.4...playwright-drupal-1.8.0) (2026-06-30)
+
+
+### Features
+
+* **screenshot:** blur the active element before capturing ([4e2a377](https://github.com/Lullabot/playwright-drupal/commit/4e2a37723eac1dc3144225c50b02a6ecd4716dbe))
+
+
+### Bug Fixes
+
+* **images:** wait for images to decode and recover errored ones ([86f8b9e](https://github.com/Lullabot/playwright-drupal/commit/86f8b9ef96d85cad6d106aff2eeee17c62ae966e))
+* **screenshot:** harden image-decode and blur waits ([df5c4ce](https://github.com/Lullabot/playwright-drupal/commit/df5c4cea12616c115220de5d4dabff20ee07ba07))
+* **screenshot:** wait for web fonts before capturing ([01b0b02](https://github.com/Lullabot/playwright-drupal/commit/01b0b02a9584810c22397586cf234ecb815e8e3e))
+
+
+### Documentation
+
+* document font/blur/image-decode screenshot behavior ([3c987ec](https://github.com/Lullabot/playwright-drupal/commit/3c987ece72b876fdfffbdc63c4a1e7cb9189d344))
+
 ## [1.7.4](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.7.3...playwright-drupal-1.7.4) (2026-06-04)
 
 
