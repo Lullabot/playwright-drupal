@@ -41,4 +41,4 @@ DDEV needs a Docker daemon it can talk to, which in most CI systems means either
 
 ### A note on non-DDEV environments
 
-We only support running these tests through DDEV. We do not support, and will not troubleshoot, arbitrary non-DDEV CI environments — issues reporting that the tests "don't work outside of DDEV in my CI environment" will be closed as *won't fix*. This keeps the surface area small enough for our core team to maintain. If your CI can run DDEV, it can run these tests; if it can't, that is a DDEV compatibility question rather than a playwright-drupal one.
+We only support running these tests through DDEV. Running without DDEV is possible, but at your own risk. This keeps the surface area small enough for our core team to maintain. If your CI can run DDEV, it can run these tests; if it can't, that is a DDEV compatibility question rather than a playwright-drupal one.
