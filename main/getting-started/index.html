@@ -482,6 +482,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#continuous-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuous integration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Continuous integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-note-on-non-ddev-environments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A note on non-DDEV environments
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -901,6 +929,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#continuous-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuous integration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Continuous integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-note-on-non-ddev-environments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A note on non-DDEV environments
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -938,6 +994,20 @@
 <li>Playwright tests must be written in TypeScript.</li>
 <li>The Drupal docroot can be any folder, as long as it is specified in the <code>web-root</code> field of your <code>composer.json</code>.</li>
 </ol>
+<h2 id="continuous-integration">Continuous integration</h2>
+<p>playwright-drupal runs the same way in CI as it does locally: through DDEV. There is no separate "CI mode." Any CI provider that can run DDEV can run these tests, and that is the only configuration we support.</p>
+<p>DDEV needs a Docker daemon it can talk to, which in most CI systems means either a Docker-in-Docker service or a runner/executor that exposes the host's Docker socket. DDEV publishes official setup guides and reusable configuration for the common providers:</p>
+<ul>
+<li><strong>GitHub Actions</strong> — use the official <a href="https://github.com/ddev/github-action-setup-ddev"><code>ddev/github-action-setup-ddev</code></a> action, which starts your project's DDEV environment from its <code>.ddev</code> config.</li>
+<li><strong>GitLab CI</strong> — see <a href="https://ddev.com/blog/ddev-in-gitlab-ci/">Using DDEV in GitLab CI Tests</a> and the <a href="https://github.com/ddev/ddev-gitlab-ci"><code>ddev/ddev-gitlab-ci</code></a> image, which run DDEV on shared or self-hosted runners via Docker-in-Docker.</li>
+<li><strong>CircleCI</strong> — run DDEV on CircleCI's <a href="https://circleci.com/docs/configuration-reference/#machine"><code>machine</code> executor</a>, which provides a full Docker host (the default <code>docker</code> executor cannot run DDEV). The DDEV community maintains a <a href="https://github.com/orgs/ddev/discussions/3219">worked example</a> of this setup.</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Acquia Code Studio</p>
+<p>Acquia Code Studio is built on GitLab CI and <em>should</em> be able to run DDEV, but Acquia has placed additional restrictions on its runners that prevent the privileged Docker-in-Docker access DDEV needs. At the time of writing, DDEV (and therefore playwright-drupal) does not run in Code Studio. If you need CI for a Code Studio project, run the Playwright tests on a different provider from the list above.</p>
+</div>
+<h3 id="a-note-on-non-ddev-environments">A note on non-DDEV environments</h3>
+<p>We only support running these tests through DDEV. Running without DDEV is possible, but at your own risk. This keeps the surface area small enough for our core team to maintain. If your CI can run DDEV, it can run these tests; if it can't, that is a DDEV compatibility question rather than a playwright-drupal one.</p>
 
 
 
