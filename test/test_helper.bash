@@ -75,10 +75,22 @@ DOCKERFILE
 
   echo "--- ddev start" >&3
   ddev start >&3 2>&3
-  echo "--- ddev composer create-project drupal/recommended-project" >&3
-  ddev composer create-project drupal/recommended-project >&3 2>&3
-  echo "--- ddev composer require drush/drush" >&3
-  ddev composer require drush/drush >&3 2>&3
+  # Pin Drupal core to the 11.3.x line. Drupal 11.4.0 (2026-07-01) moved
+  # Drupal\Core\Recipe\RecipeCommand to Drupal\Core\Recipe\Command\RecipeCommand
+  # and renamed the CLI command from `recipe` to `recipe:apply`. Drush still gates
+  # `drush recipe` on the old class name in ServiceManager::instantiateDrupalCoreBootstrappedCommands(),
+  # so on 11.4 the command is silently dropped and recipe.spec.ts fails with
+  # "Command recipe is not defined". No fixed Drush release exists yet (13.7.4 and
+  # the 13.x/14.x tips are all affected), so pin core until Drush supports the
+  # Drupal 11.4 recipe command. Create from the 11.3 project template so every
+  # core-* constraint stays ^11.3, letting `require --update-with-all-dependencies`
+  # resolve the whole graph down to 11.3.x without conflicts.
+  # Refs: https://www.drupal.org/node/3453474
+  #       https://github.com/drush-ops/drush/blob/13.x/src/Runtime/ServiceManager.php
+  echo "--- ddev composer create-project drupal/recommended-project (pinned to 11.3.x)" >&3
+  ddev composer create-project 'drupal/recommended-project:~11.3.0' >&3 2>&3
+  echo "--- ddev composer require drush/drush + pin drupal/core-recommended to 11.3.x" >&3
+  ddev composer require drush/drush 'drupal/core-recommended:~11.3.0' --update-with-all-dependencies >&3 2>&3
 
   # If using a non-default docroot, rewrite composer.json and rename the
   # web directory so DDEV and Drupal use the custom docroot.
