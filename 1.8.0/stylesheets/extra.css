@@ -1,0 +1,252 @@
+/* ============================================================
+   Inferred from lullabot.com
+   Not tested as an official brand palette.
+   ============================================================ */
+
+:root {
+  --lb-ink:        #01070b;  /* near-black, primary */
+  --lb-ink-soft:   #12212b;  /* dark navy, hero base */
+  --lb-text:       #171d21;  /* body text */
+  --lb-surface:    #f4f5f6;  /* light grey surface */
+  --lb-red:        #f81e00;  /* brand accent */
+  --lb-red-dark:   #c41800;  /* accent hover/active */
+}
+
+[data-md-color-scheme=default] {
+  --md-primary-fg-color:        var(--lb-ink);
+  --md-primary-fg-color--light: var(--lb-ink-soft);
+  --md-primary-fg-color--dark:  var(--lb-ink);
+  --md-primary-bg-color:        #ffffff;
+  --md-primary-bg-color--light: rgba(255, 255, 255, .7);
+  --md-accent-fg-color:         var(--lb-red);
+  --md-accent-fg-color--transparent: rgba(248, 30, 0, .1);
+  --md-accent-bg-color:         #ffffff;
+  --md-typeset-a-color:         var(--lb-red);
+}
+
+[data-md-color-scheme=slate] {
+  --md-hue: 210;
+  --md-default-bg-color:        hsla(230, 15%, 14%, 1);
+  --md-primary-fg-color:        var(--lb-ink-soft);
+  --md-primary-fg-color--light: var(--lb-ink-soft);
+  --md-primary-fg-color--dark:  var(--lb-ink);
+  --md-primary-bg-color:        #ffffff;
+  --md-primary-bg-color--light: rgba(255, 255, 255, .7);
+  --md-accent-fg-color:         #ff6a54;
+  --md-accent-fg-color--transparent: rgba(255, 106, 84, .15);
+  --md-accent-bg-color:         #ffffff;
+  --md-typeset-a-color:         #ff6a54;
+}
+
+.md-header__home-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ============================================================
+   Home page hero
+   ============================================================ */
+
+.mdx-container {
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1123 258'><path d='M1124,2c0,0 0,256 0,256l-1125,0l0,-48c0,0 16,5 55,5c116,0 197,-92 325,-92c121,0 114,46 254,46c140,0 214,-167 572,-166Z' style='fill: white' /></svg>")
+    no-repeat bottom,
+    linear-gradient(to bottom, var(--lb-ink-soft), var(--lb-ink) 99%, var(--md-default-bg-color) 99%);
+  padding-top: 1rem;
+}
+
+[data-md-color-scheme=slate] .mdx-container {
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1123 258'><path d='M1124,2c0,0 0,256 0,256l-1125,0l0,-48c0,0 16,5 55,5c116,0 197,-92 325,-92c121,0 114,46 254,46c140,0 214,-167 572,-166Z' style='fill: hsla(230, 15%, 14%, 1)' /></svg>")
+    no-repeat bottom,
+    linear-gradient(to bottom, var(--lb-ink-soft), var(--lb-ink) 99%, var(--md-default-bg-color) 99%);
+}
+
+.mdx-hero {
+  color: var(--md-primary-bg-color);
+  margin: 0 .8rem;
+}
+
+.mdx-hero h1 {
+  color: currentcolor;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+@media screen and (max-width: 29.984375em) {
+  .mdx-hero h1 { font-size: 1.4rem }
+}
+
+.mdx-hero__content {
+  padding-bottom: 6rem;
+}
+
+.mdx-hero .md-button {
+  color: var(--md-primary-bg-color);
+  margin-right: .5rem;
+  margin-top: .5rem;
+}
+
+.mdx-hero .md-button:focus,
+.mdx-hero .md-button:hover {
+  background-color: var(--md-accent-fg-color);
+  border-color: var(--md-accent-fg-color);
+  color: var(--md-accent-bg-color);
+}
+
+.mdx-hero .md-button--primary {
+  background-color: var(--md-primary-bg-color);
+  border-color: var(--md-primary-bg-color);
+  color: var(--md-primary-fg-color);
+}
+
+@media screen and (min-width: 60em) {
+  .mdx-hero {
+    align-items: stretch;
+    display: flex;
+  }
+
+  .mdx-hero__content {
+    margin-top: 3.5rem;
+    max-width: 22rem;
+    padding-bottom: 14vw;
+  }
+
+  .mdx-hero__image {
+    order: 1;
+    transform: translateX(4rem);
+    width: 38rem;
+  }
+}
+
+@media screen and (min-width: 76.25em) {
+  .mdx-hero__image {
+    transform: translateX(8rem);
+  }
+}
+
+.mdx-hero__image img {
+  border-radius: .4rem;
+  box-shadow: 0 .4rem 1rem rgba(0, 0, 0, .3);
+  width: 100%;
+}
+
+.mdx-hero__video {
+  position: relative;
+  border-radius: .4rem;
+  box-shadow: 0 .4rem 1rem rgba(0, 0, 0, .3);
+  overflow: hidden;
+}
+
+.mdx-hero__video-el {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mdx-hero__video-toggle {
+  position: absolute;
+  bottom: .6rem;
+  right: .6rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(1, 7, 11, .6);
+  color: var(--md-primary-bg-color);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 125ms, transform 125ms;
+}
+
+.mdx-hero__video-toggle:hover,
+.mdx-hero__video-toggle:focus-visible {
+  background: var(--md-accent-fg-color);
+  outline: none;
+}
+
+.mdx-hero__video-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: currentcolor;
+}
+
+.mdx-hero__video-toggle[data-state="playing"] .mdx-hero__video-icon--play,
+.mdx-hero__video-toggle[data-state="paused"] .mdx-hero__video-icon--pause {
+  display: none;
+}
+
+/* ============================================================
+   Feature cards
+   ============================================================ */
+
+.mdx-features {
+  margin: 2rem 0;
+  padding: 0 .8rem;
+}
+
+.mdx-features .md-grid {
+  padding: 0;
+}
+
+.md-typeset ul.mdx-features__list:not([hidden]) {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media screen and (max-width: 59.984375em) {
+  .md-typeset ul.mdx-features__list:not([hidden]) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.md-typeset .mdx-features__list > li.mdx-features__item {
+  list-style: none;
+  margin: 0;
+}
+
+.md-typeset .mdx-features__list > li.mdx-features__item::before {
+  content: none;
+}
+
+.mdx-features__item {
+  background: var(--md-default-bg-color);
+  border: .05rem solid var(--md-default-fg-color--lightest);
+  border-radius: .4rem;
+  box-shadow: var(--md-shadow-z1);
+  transition: box-shadow 125ms;
+}
+
+.mdx-features__item:hover {
+  box-shadow: var(--md-shadow-z2);
+}
+
+.md-typeset .mdx-features__link {
+  color: inherit;
+  display: block;
+  padding: 1.2rem 1.4rem;
+  text-decoration: none;
+}
+
+.md-typeset .mdx-features__link:hover .mdx-features__title {
+  color: var(--md-accent-fg-color);
+}
+
+.md-typeset .mdx-features__title {
+  font-size: .85rem;
+  font-weight: 700;
+  margin: 0 0 .4rem;
+}
+
+.md-typeset .mdx-features__item p {
+  color: var(--md-default-fg-color--light);
+  font-size: .75rem;
+  margin: 0;
+}
