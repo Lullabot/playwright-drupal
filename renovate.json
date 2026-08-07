@@ -2,16 +2,19 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    "helpers:pinGitHubActionDigests"
+    "helpers:pinGitHubActionDigestsToSemver"
   ],
   "packageRules": [
     {
+      "description": "Wait 3 days after a release before proposing it, then automerge everything.",
       "matchPackageNames": ["*"],
-      "automerge": true,
-      "minimumReleaseAge": "3 days"
+      "minimumReleaseAge": "3 days",
+      "automerge": true
     },
     {
+      "description": "Never automerge a digest move: the tag stayed put but the commit it points at changed, so the code was never reviewed under that version.",
       "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["digest"],
       "automerge": false
     }
   ],
