@@ -340,6 +340,17 @@ Scrolls each matching image into view (to trigger lazy loading) and waits for th
 
 Shorthand for [`waitForImages(page, 'img:visible')`](#waitforimages).
 
+### waitForImagesToDecode()
+
+`waitForImagesToDecode(page: Page, timeoutMs?: number): Promise<string[]>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+| `timeoutMs` | `15000` | How long to wait for images to decode before giving up. |
+
+Called by [`waitForImages()`](#waitforimages); call it directly only to use a different timeout or to assert on the result. Waits for every visible image to decode, re-requesting any that errored with a cache-busting query parameter so a slow on-demand fetch can recover. Images that never decode are not an error. Instead, they are warned about on the console and returned, so a broken image in a screenshot has an explanation instead of just a pixel diff.
+
 ### waitForFonts()
 
 `waitForFonts(page: Page): Promise<void>`
