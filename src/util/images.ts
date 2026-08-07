@@ -93,7 +93,7 @@ export async function waitForAllImages(page: Page): Promise<void> {
 }
 
 /**
- * Wait for every visible image to finish decoding, recovering errored ones.
+ * Poll every visible image until it decodes, re-requesting errored ones.
  *
  * A loaded image is `complete` with a `naturalWidth` greater than zero. An
  * errored request (a 404, or a Stage File Proxy URL that returns a 503 while it
@@ -101,86 +101,145 @@ export async function waitForAllImages(page: Page): Promise<void> {
  * would otherwise be screenshotted as a broken image. A zero `naturalWidth` is
  * ambiguous, though -- a valid but dimensionless image such as an SVG without an
  * intrinsic size reports it too -- so `decode()` disambiguates: it rejects only
- * for a genuine failure. A broken image never recovers on its own, so it is re-requested
- * with a cache-busting query parameter -- by then the on-demand fetch triggered
- * by the first request has usually finished, so the retry resolves to a real
- * image. The retry reuses `currentSrc` (the URL already chosen from `srcset`)
- * and drops the responsive sources so that exact image loads, keeping the render
- * identical to a clean first load. 1x1 visually-hidden images are skipped, and
- * the whole thing is bounded by a timeout.
+ * for a genuine failure. A broken image never recovers on its own, so it is
+ * re-requested with a cache-busting query parameter -- by then the on-demand
+ * fetch triggered by the first request has usually finished, so the retry
+ * resolves to a real image. The retry reuses `currentSrc` (the URL already
+ * chosen from `srcset`) and drops the responsive sources so that exact image
+ * loads, keeping the render identical to a clean first load. 1x1
+ * visually-hidden images are skipped.
+ *
+ * This runs in the browser via `page.evaluate()`, which serializes the function
+ * source, so it must stay self-contained and reference nothing else in this
+ * module. It is exported separately from waitForImagesToDecode() so the polling
+ * can be tested directly.
+ *
+ * Every image is checked at least once, even with a timeout of zero, and the
+ * images that never settled are returned rather than swallowed so the caller
+ * can report them.
+ *
+ * @param options.timeoutMs How long to keep polling before giving up.
+ * @param options.pollMs How long to sleep between polls.
+ * @param options.reloadIntervalMs How long to leave a re-requested image to
+ *   resolve before re-requesting it again.
+ * @returns The URLs of the images that never decoded. Empty when they all did.
+ */
+export async function decodeVisibleImages(
+  options: {timeoutMs: number, pollMs?: number, reloadIntervalMs?: number}
+): Promise<string[]> {
+  const timeoutMs = options.timeoutMs;
+  const pollMs = options.pollMs ?? 250;
+  const reloadIntervalMs = options.reloadIntervalMs ?? 2000;
+  const deadline = Date.now() + timeoutMs;
+  const isCandidate = (img: HTMLImageElement) => {
+    // Skip 1x1 visually-hidden images (see waitForImages above).
+    if (img.width <= 1 && img.height <= 1) {
+      return false;
+    }
+    const rect = img.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      return false;
+    }
+    const style = getComputedStyle(img);
+    return style.visibility !== "hidden" && style.display !== "none";
+  };
+  const reload = (img: HTMLImageElement) => {
+    const src = img.currentSrc || img.src;
+    if (!src || src.startsWith("data:")) {
+      return;
+    }
+    try {
+      const url = new URL(src, location.href);
+      url.searchParams.set("playwrightReload", String(Date.now()));
+      // Drop the responsive sources so the resolved URL we just loaded is the
+      // one fetched, instead of re-running srcset selection.
+      const picture = img.closest("picture");
+      if (picture) {
+        picture.querySelectorAll("source").forEach(source => source.remove());
+      }
+      img.removeAttribute("srcset");
+      img.src = url.href;
+    } catch {
+      // Ignore anything that is not a reloadable URL.
+    }
+  };
+
+  let lastReload = 0;
+  // Checking before testing the deadline means a zero or already-elapsed
+  // timeout still reports on the images instead of claiming success.
+  for (;;) {
+    const candidates = Array.from(document.images).filter(isCandidate);
+    // Collect the verdicts positionally rather than pushing as each check
+    // settles, so anything reported below stays in document order.
+    const verdicts = await Promise.all(candidates.map(async img => {
+      if (img.complete && img.naturalWidth > 0) {
+        return "loaded"; // Loaded with intrinsic dimensions.
+      }
+      if (!img.complete) {
+        return "loading";
+      }
+      // Complete with a zero naturalWidth is ambiguous: a genuine load error
+      // (404/503) rejects decode(), while a valid but dimensionless image
+      // (such as an SVG with no intrinsic size) resolves it. Only the former
+      // should be re-requested; the latter is already settled.
+      try {
+        await img.decode();
+        return "loaded";
+      } catch {
+        return "errored";
+      }
+    }));
+    const pending = candidates.filter((img, index) => verdicts[index] !== "loaded");
+    const errored = candidates.filter((img, index) => verdicts[index] === "errored");
+    if (pending.length === 0) {
+      return [];
+    }
+    if (Date.now() >= deadline) {
+      return pending.map(img => {
+        const src = img.currentSrc || img.src;
+        try {
+          // Report the URL as the page authored it, without the cache-busting
+          // parameter a retry added, so the warning is greppable.
+          const url = new URL(src, location.href);
+          url.searchParams.delete("playwrightReload");
+          return url.href;
+        } catch {
+          return src;
+        }
+      });
+    }
+    // Re-request errored images, throttled so each retry has time to resolve.
+    if (Date.now() - lastReload > reloadIntervalMs) {
+      lastReload = Date.now();
+      errored.forEach(reload);
+    }
+    await new Promise(resolve => setTimeout(resolve, pollMs));
+  }
+}
+
+/**
+ * Wait for every visible image to finish decoding, recovering errored ones.
+ *
+ * See decodeVisibleImages() for how an image is judged loaded, broken, or
+ * merely dimensionless, and how broken ones are re-requested.
+ *
+ * Giving up is not an error: a page that legitimately references a missing
+ * image should still be screenshotted and still have its accessibility checked,
+ * and the screenshot comparison is what fails. But the wait is not silent
+ * either -- the images that never decoded are warned about, so a mysterious
+ * pixel diff (and the timeout's worth of delay before it) has an explanation --
+ * and they are returned so a caller can assert on them.
  *
  * @param page
  * @param timeoutMs How long to wait for images to decode before giving up.
+ * @returns The URLs of the images that never decoded. Empty when they all did.
  */
-export async function waitForImagesToDecode(page: Page, timeoutMs = 15000): Promise<void> {
-  await page.evaluate(async (timeout) => {
-    const deadline = Date.now() + timeout;
-    const isCandidate = (img: HTMLImageElement) => {
-      // Skip 1x1 visually-hidden images (see waitForImages above).
-      if (img.width <= 1 && img.height <= 1) {
-        return false;
-      }
-      const rect = img.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) {
-        return false;
-      }
-      const style = getComputedStyle(img);
-      return style.visibility !== "hidden" && style.display !== "none";
-    };
-    const reload = (img: HTMLImageElement) => {
-      const src = img.currentSrc || img.src;
-      if (!src || src.startsWith("data:")) {
-        return;
-      }
-      try {
-        const url = new URL(src, location.href);
-        url.searchParams.set("playwrightReload", String(Date.now()));
-        // Drop the responsive sources so the resolved URL we just loaded is the
-        // one fetched, instead of re-running srcset selection.
-        const picture = img.closest("picture");
-        if (picture) {
-          picture.querySelectorAll("source").forEach(source => source.remove());
-        }
-        img.removeAttribute("srcset");
-        img.src = url.href;
-      } catch {
-        // Ignore anything that is not a reloadable URL.
-      }
-    };
-
-    let lastReload = 0;
-    while (Date.now() < deadline) {
-      const candidates = Array.from(document.images).filter(isCandidate);
-      let pending = 0;
-      const errored: HTMLImageElement[] = [];
-      await Promise.all(candidates.map(async img => {
-        if (img.complete && img.naturalWidth > 0) {
-          return; // Loaded with intrinsic dimensions.
-        }
-        if (!img.complete) {
-          pending++; // Still loading.
-          return;
-        }
-        // Complete with a zero naturalWidth is ambiguous: a genuine load error
-        // (404/503) rejects decode(), while a valid but dimensionless image
-        // (such as an SVG with no intrinsic size) resolves it. Only the former
-        // should be re-requested; the latter is already settled.
-        try {
-          await img.decode();
-        } catch {
-          pending++;
-          errored.push(img);
-        }
-      }));
-      if (pending === 0) {
-        return;
-      }
-      // Re-request errored images, throttled so each retry has time to resolve.
-      if (Date.now() - lastReload > 2000) {
-        lastReload = Date.now();
-        errored.forEach(reload);
-      }
-      await new Promise(resolve => setTimeout(resolve, 250));
-    }
-  }, timeoutMs);
+export async function waitForImagesToDecode(page: Page, timeoutMs = 15000): Promise<string[]> {
+  const undecoded = await page.evaluate(decodeVisibleImages, {timeoutMs});
+  if (undecoded.length > 0) {
+    console.warn(
+      `waitForImagesToDecode: ${undecoded.length} image(s) did not finish loading within ${timeoutMs}ms and may be captured as broken: ${undecoded.join(', ')}`
+    );
+  }
+  return undecoded;
 }
