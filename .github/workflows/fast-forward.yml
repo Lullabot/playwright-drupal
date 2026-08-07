@@ -11,13 +11,13 @@ jobs:
       contains(github.event.comment.body, '/fast-forward')
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: app-token
         with:
           app-id: ${{ vars.REBASE_APP_ID }}
           private-key: ${{ secrets.REBASE_PRIVATE_KEY }}
       - name: Fast-forward merge
-        uses: sequoia-pgp/fast-forward@v1
+        uses: sequoia-pgp/fast-forward@ea7628bedcb0b0b96e94383ada458d812fca4979 # v1.0.0
         with:
           merge: true
           github_token: ${{ steps.app-token.outputs.token }}
