@@ -1066,6 +1066,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#waitforimagestodecode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForImagesToDecode()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#waitforfonts" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1828,6 +1839,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#waitforimagestodecode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForImagesToDecode()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#waitforfonts" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2553,6 +2575,30 @@
 <h3 id="waitforallimages">waitForAllImages()</h3>
 <p><code>waitForAllImages(page: Page): Promise&lt;void&gt;</code></p>
 <p>Shorthand for <a href="#waitforimages"><code>waitForImages(page, 'img:visible')</code></a>.</p>
+<h3 id="waitforimagestodecode">waitForImagesToDecode()</h3>
+<p><code>waitForImagesToDecode(page: Page, timeoutMs?: number): Promise&lt;string[]&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>timeoutMs</code></td>
+<td><code>15000</code></td>
+<td>How long to wait for images to decode before giving up.</td>
+</tr>
+</tbody>
+</table>
+<p>Called by <a href="#waitforimages"><code>waitForImages()</code></a>; call it directly only to use a different timeout or to assert on the result. Waits for every visible image to decode, re-requesting any that errored with a cache-busting query parameter so a slow on-demand fetch can recover. Images that never decode are not an error. Instead, they are warned about on the console and returned, so a broken image in a screenshot has an explanation instead of just a pixel diff.</p>
 <h3 id="waitforfonts">waitForFonts()</h3>
 <p><code>waitForFonts(page: Page): Promise&lt;void&gt;</code></p>
 <table>
