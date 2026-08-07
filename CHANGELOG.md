@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.8.0...playwright-drupal-1.8.1) (2026-08-07)
+
+
+### Bug Fixes
+
+* **images:** report images that never decode instead of giving up silently ([360c084](https://github.com/Lullabot/playwright-drupal/commit/360c0844d0600d4d1963ce8a6745b899d02d5557))
+
 ## [1.8.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.7.4...playwright-drupal-1.8.0) (2026-07-03)
 
 
