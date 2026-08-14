@@ -197,6 +197,16 @@ describe('generateComment', () => {
     expect(generateComment(report)).not.toContain('<img')
   })
 
+  it('marks the failure count for a workflow to read', () => {
+    // The empty-state sentence contains the words "failing test", so anything
+    // grepping the prose would treat a green run as a failure.
+    expect(generateComment(report)).toContain('<!-- playwright-drupal-failures: 1 -->')
+
+    const green = generateComment({ tests: [], totalFailed: 0, totalImages: 0 })
+    expect(green).toContain('<!-- playwright-drupal-failures: 0 -->')
+    expect(green).toMatch(/No failing tests/)
+  })
+
   it('truncates a long list rather than posting a wall of text', () => {
     const many: FailureReport = {
       tests: Array.from({ length: 12 }, (_, i) => ({

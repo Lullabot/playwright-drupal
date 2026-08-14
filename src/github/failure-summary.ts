@@ -62,6 +62,13 @@ export interface FailureReport {
 export type IncludeMode = 'diff' | 'all'
 
 /**
+ * Prefix of the HTML comment carrying the failure count in a generated comment
+ * body. Invisible when rendered, and greppable by a workflow that has to decide
+ * whether the run is worth commenting on.
+ */
+export const FAILURE_MARKER_PREFIX = '<!-- playwright-drupal-failures: '
+
+/**
  * Neutralise text that the Actions runner would redact.
  *
  * Job summaries pass through the runner's secret masking (comments posted over
@@ -269,6 +276,11 @@ export function generateComment(
   if (options.summaryUrl) {
     lines.push(`[View the screenshots in the job summary](${options.summaryUrl})\n`)
   }
+
+  // A machine-readable count, so a workflow assembling several of these can
+  // decide whether to post at all without grepping prose — the empty-state
+  // sentence contains the words "failing test" too.
+  lines.push(`${FAILURE_MARKER_PREFIX}${report.totalFailed} -->\n`)
 
   return lines.join('\n')
 }

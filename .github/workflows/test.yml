@@ -183,12 +183,13 @@ jobs:
             echo >> comment.md
           done
 
-          # Nothing failed anywhere: remove any comment left by an earlier run
-          # rather than leaving a stale one, and do not post a new one.
-          if ! grep -q 'failing test' comment.md; then
-            echo 'has-failures=false' >> "${GITHUB_OUTPUT}"
-          else
+          # Read the marker the CLI emits rather than the prose: the empty-state
+          # sentence contains the words "failing test" as well. Nothing failed
+          # anywhere means delete any comment an earlier run left behind.
+          if grep -qE '<!-- playwright-drupal-failures: [1-9]' comment.md; then
             echo 'has-failures=true' >> "${GITHUB_OUTPUT}"
+          else
+            echo 'has-failures=false' >> "${GITHUB_OUTPUT}"
           fi
 
       - name: Comment on the pull request
