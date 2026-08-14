@@ -18,40 +18,6 @@ The `takeAccessibleScreenshot()` method will:
 8. Settle every `<video>`: wait for a decodable frame, bring it on screen once so Chromium composites that frame, then pause it and rewind to the start.
 9. Generate an accessibility report of the element being tested.
 
-### Videos
-
-A `<video>` is the one element a full-page screenshot cannot capture reliably on
-its own, and Playwright's `animations: 'disabled'` does not help — it
-fast-forwards CSS transitions and Web Animations, and never touches media
-playback. Two things go wrong without step 8 above:
-
-- **The frame is captured before it exists.** A full-page screenshot rasters the
-  whole document, including regions that were never in the viewport, and
-  Chromium has no reason to have composited a video far below the fold. The
-  region paints as background on one capture and as the video on the next, which
-  Playwright reports as `Failed to take two consecutive stable screenshots`. On a
-  long page the run can burn its entire stability window on this and fail even
-  though the image it settled on was correct. If the video is slow enough, the
-  captures agree — on a *blank* video, which is worse: it passes stability and
-  bakes an empty box into the baseline if you happen to be regenerating.
-- **The frame is captured while the video is playing.** An `autoplay muted loop`
-  video renders whatever moment the shutter caught. Chromium only autoplays a
-  muted video while it is on screen, so whether a baseline is reproducible ends
-  up depending on nothing more principled than whether an earlier scroll brought
-  the video into the viewport.
-
-Pausing changes the rendered pixels for a video that *was* playing when the
-baseline was taken — including the play overlay, on a video with `controls`. Any
-such baseline was a coin flip already; regenerate it once and it stays stable
-from then on. A video that was already paused at its first frame, which is the
-usual case for one below the fold, captures byte-identically to before.
-
-`requestVideoFrameCallback()` looks like the right signal for "the frame is on
-screen" and is not: it only fires when a frame is *presented*, and a paused
-off-screen video never presents one. Measured against a real page it never fired
-at all — every call sat until its timeout, adding that timeout to every capture
-and reporting nothing.
-
 Each accessibility scan is asserted against an on-disk JSON baseline — see [Accessibility Tests](accessibility-tests.md) for the schema, auto-seeding behaviour, and the CI vs. local workflow.
 
 ## Visual Comparisons for Static Content
