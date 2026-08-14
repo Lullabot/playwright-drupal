@@ -89,6 +89,28 @@ artifact, and assemble one comment in a job that runs after them. Posting from
 each matrix job means they overwrite each other, and no single comment can say
 how the run went as a whole. This repository's own `test.yml` does it this way.
 
+### Deciding whether to comment at all
+
+Each comment body ends with an HTML comment carrying the failure count, so an
+assembling job can tell a green run from a red one without reading the prose:
+
+```
+<!-- playwright-drupal-failures: 0 -->
+```
+
+Grep for that rather than for wording. The empty-state sentence is "No failing
+tests with screenshots", which contains the words "failing test" and will
+happily match a naive pattern:
+
+```bash
+if grep -qE '<!-- playwright-drupal-failures: [1-9]' comment.md; then
+  echo 'has-failures=true' >> "$GITHUB_OUTPUT"
+fi
+```
+
+Pair that with the sticky action's `delete:` input to clear the comment when a
+previously failing pull request goes green.
+
 ## Options
 
 | Flag | Default | Meaning |
@@ -96,7 +118,7 @@ how the run went as a whole. This repository's own `test.yml` does it this way.
 | `--report-path` | `test-results/results.json` | Playwright JSON report to read. |
 | `--comment-path` | none | Where to write the comment body. |
 | `--title` | `Playwright results` | Heading for the comment. |
-| `--include` | `diff` | `diff` uploads only the diff image; `all` adds the expected and actual images. |
+| `--include` | `diff` | `diff` uploads only the diff image; `all` adds the expected and actual images. Accessibility screenshots are included either way. |
 | `--max-uploads` | `20` | Stop uploading after this many images. |
 
 A missing report is not an error — the suite may simply not have run.
