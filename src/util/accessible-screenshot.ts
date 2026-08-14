@@ -3,7 +3,7 @@ import {expect, Locator, Page, TestInfo} from "@playwright/test";
 import {waitForAllImages} from "./images";
 import {waitForFrames} from "./frames"
 import {waitForFonts} from "./fonts";
-import {waitForVideos} from "./videos";
+import {restoreVideoPlayback, waitForVideos} from "./videos";
 import {blurActiveElement} from "./focus";
 import axe from 'axe-core';
 import {AccessibilityBaseline, AccessibilityBaselineEntry} from './accessibility-baseline'
@@ -548,6 +548,11 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
   }
   // Soft failure here so we can get accessibility violations too.
   await expect.soft(locatorToScreenshot).toHaveScreenshot(options);
+
+  // Settling a video pauses it, clears `autoplay` and rewinds it. That is only
+  // wanted for the duration of the capture: a test that screenshots a page and
+  // then asserts the hero video is playing should still pass.
+  await restoreVideoPlayback(page);
 
   return checkAccessibility(page, testInfo, options.accessibility)
 }

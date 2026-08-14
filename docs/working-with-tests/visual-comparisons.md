@@ -15,7 +15,7 @@ The `takeAccessibleScreenshot()` method will:
 5. Automatically trigger loading of all lazy-loaded iframes.
 6. Wait for web fonts to finish loading so text is not captured with fallback-font metrics on the first attempt.
 7. Blur any focused element so a stray focus ring does not produce a flaky, human-invisible diff (pass `blur: false` to keep an intentionally focused state).
-8. Settle every `<video>`: wait for a decodable frame, bring it on screen once so Chromium composites that frame, then pause it and rewind to the start.
+8. Settle every `<video>`, in every frame: pause it, bring it on screen once so it loads and Chromium composites its first frame, wait for that frame, and rewind to the start. Playback is restored once the screenshot is taken, so a test can still assert that a video is playing.
 9. Generate an accessibility report of the element being tested.
 
 Each accessibility scan is asserted against an on-disk JSON baseline — see [Accessibility Tests](accessibility-tests.md) for the schema, auto-seeding behaviour, and the CI vs. local workflow.
