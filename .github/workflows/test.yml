@@ -120,3 +120,81 @@ jobs:
             echo "No JSON report found — skipping a11y summary."
           fi
 
+      # Embeds failure screenshots in the job summary when SCREENSHOT_GITHUB_TOKEN
+      # is set, and writes a comment body for the aggregating job below. Without
+      # the secret — including on pull requests from forks, which never receive
+      # it — this still produces the text summary, minus the images.
+      - name: Failure summary
+        if: always()
+        env:
+          SCREENSHOT_GITHUB_TOKEN: ${{ secrets.SCREENSHOT_GITHUB_TOKEN }}
+        run: |
+          REPORT=$(find tmp/ -path "*/test/playwright/test-results/results.json" 2>/dev/null | head -1)
+          if [ -z "$REPORT" ]; then
+            echo "No JSON report found — skipping failure summary."
+            exit 0
+          fi
+          node lib/github/failure-summary.js \
+            --report-path="$REPORT" \
+            --comment-path=failure-comment-${{ matrix.suite }}.md \
+            --title="Playwright results — ${{ matrix.suite }}"
+
+      - name: Upload comment body
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: failure-comment-${{ matrix.suite }}
+          path: failure-comment-${{ matrix.suite }}.md
+          retention-days: 1
+          if-no-files-found: ignore
+
+  # One comment for the whole run. Posting from each matrix job instead would
+  # have them overwrite each other, and none of them could say how the other
+  # suites did.
+  failure-comment:
+    needs: test
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+      # download-artifact reads the run's artifacts through the Actions API,
+      # and a job-level permissions block denies everything it does not list.
+      actions: read
+      contents: read
+    steps:
+      - name: Download comment bodies
+        id: download
+        continue-on-error: true
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: failure-comment-*
+          path: comments
+
+      - name: Assemble the comment
+        id: assemble
+        run: |
+          set -uo pipefail
+
+          : > comment.md
+          for file in comments/*/*.md; do
+            [ -f "$file" ] || continue
+            cat "$file" >> comment.md
+            echo >> comment.md
+          done
+
+          # Nothing failed anywhere: remove any comment left by an earlier run
+          # rather than leaving a stale one, and do not post a new one.
+          if ! grep -q 'failing test' comment.md; then
+            echo 'has-failures=false' >> "${GITHUB_OUTPUT}"
+          else
+            echo 'has-failures=true' >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Comment on the pull request
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: playwright-drupal-results
+          path: comment.md
+          delete: ${{ steps.assemble.outputs.has-failures == 'false' }}
+
