@@ -154,12 +154,13 @@ describe('generateSummary', () => {
     }
   }
 
-  it('embeds uploaded images in a collapsed block', () => {
+  it('points at the comment rather than embedding images', () => {
+    // A summary is rendered once when the job ends, before a just-uploaded
+    // attachment resolves, and that dead render is cached for good.
     const summary = generateSummary(reportWith('https://example.test/a'))
 
-    expect(summary).toContain('<details>')
-    expect(summary).toContain('<img src="https://example.test/a"')
-    expect(summary).toContain('width="640"')
+    expect(summary).not.toContain('<img')
+    expect(summary).toContain('1 screenshot(s) uploaded — see the pull request comment.')
     expect(summary).toContain('homepage matches')
   })
 
@@ -167,7 +168,7 @@ describe('generateSummary', () => {
     const summary = generateSummary(reportWith(undefined))
 
     expect(summary).not.toContain('<img')
-    expect(summary).toContain('Images were not uploaded')
+    expect(summary).toContain('not uploaded')
   })
 
   it('does not claim zero failing tests when only a11y captured something', () => {
@@ -199,14 +200,14 @@ describe('generateSummary', () => {
   it('escapes the asset URL, which may one day carry query parameters', () => {
     const report = reportWith('https://example.test/a?x=1&y=2')
 
-    expect(generateSummary(report)).toContain('src="https://example.test/a?x=1&amp;y=2"')
+    expect(generateComment(report)).toContain('src="https://example.test/a?x=1&amp;y=2"')
   })
 
   it('escapes quotes coming from a test title', () => {
     const report = reportWith('https://example.test/a')
     report.tests[0].title = 'renders "quoted" text'
 
-    expect(generateSummary(report)).toContain('alt="diff for renders &quot;quoted&quot; text"')
+    expect(generateComment(report)).toContain('alt="diff for renders &quot;quoted&quot; text"')
   })
 })
 
@@ -231,13 +232,9 @@ describe('generateComment', () => {
     expect(comment).toContain('(https://example.test/run/1)')
   })
 
-  it('carries no images, because notification emails would break them', () => {
-    expect(generateComment(report)).not.toContain('<img')
-  })
-
-  it('references uploaded images invisibly, which is what binds them', () => {
-    // An attachment does not render in a job summary until it is referenced
-    // from real content, so the URLs go in an HTML comment.
+  it('embeds uploaded images in a collapsed block', () => {
+    // A comment re-renders on every read, so an attachment resolves however
+    // recently it was uploaded. This is the only place they display.
     const withUrls: FailureReport = {
       ...report,
       tests: [{
@@ -253,13 +250,16 @@ describe('generateComment', () => {
 
     const comment = generateComment(withUrls)
 
-    expect(comment).toContain('<!--')
-    expect(comment).toContain('https://github.com/user-attachments/assets/abc')
-    expect(comment).not.toContain('<img')
+    expect(comment).toContain('<details>')
+    expect(comment).toContain('<img src="https://github.com/user-attachments/assets/abc"')
+    expect(comment).toContain('width="640"')
   })
 
-  it('omits the binding block when nothing was uploaded', () => {
-    expect(generateComment(report)).not.toContain('user-attachments')
+  it('shows no image block when nothing was uploaded', () => {
+    const comment = generateComment(report)
+
+    expect(comment).not.toContain('<img')
+    expect(comment).not.toContain('<details>')
   })
 
   it('marks the failure count for a workflow to read', () => {

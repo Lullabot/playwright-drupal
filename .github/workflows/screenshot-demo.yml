@@ -96,6 +96,42 @@ jobs:
           include: all
           package: .
 
+      # Does an attachment render in a job summary once it is old enough? The
+      # first URL was uploaded in an earlier run and is hours old by now; the
+      # second is uploaded here, seconds before this summary is written. If only
+      # the old one appears, the summary renders once and caches the result, and
+      # a just-uploaded attachment is simply too new to resolve.
+      - name: Age test
+        if: always()
+        env:
+          SCREENSHOT_GITHUB_TOKEN: ${{ secrets.SCREENSHOT_GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+
+          base64 -d > fresh.png <<'PNG'
+          iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==
+          PNG
+
+          fresh=$(curl -sS -X POST \
+            -H "Authorization: Bearer ${SCREENSHOT_GITHUB_TOKEN}" \
+            -H 'Accept: application/json' \
+            -H 'Content-Type: image/png' \
+            --data-binary '@fresh.png' \
+            "https://uploads.github.com/user-attachments/assets?name=fresh.png&content_type=image/png&repository_id=${GITHUB_REPOSITORY_ID}" \
+            | sed -n 's/.*"url":"\([^"]*\)".*/\1/p')
+
+          {
+            echo '## Age test'
+            echo
+            echo 'Old attachment, uploaded in an earlier run:'
+            echo
+            echo '<img src="https://github.com/user-attachments/assets/6097aa1f-c4ef-42ce-baf1-5a083470891f" alt="old" width="200">'
+            echo
+            echo 'Fresh attachment, uploaded seconds ago:'
+            echo
+            echo "<img src=\"${fresh}\" alt=\"fresh\" width=\"200\">"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
 
   comment:
     name: Post the demo comment

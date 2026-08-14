@@ -263,32 +263,51 @@ export function generateSummary(report: FailureReport, options: { artifactHint?:
 
     if (test.images.length === 0) continue
 
-    lines.push('<details>')
-    lines.push(`<summary>Screenshots (${test.images.length})</summary>\n`)
-
-    const embedded = test.images.filter(image => image.url)
-    if (embedded.length === 0) {
+    // The images go in the pull request comment, not here. A job summary is
+    // rendered once, when the job finishes, and an attachment uploaded seconds
+    // earlier is not resolvable yet — so it renders as a dead link and the
+    // cached result never improves, however often the page is reloaded.
+    const embedded = test.images.filter(image => image.url).length
+    if (embedded > 0) {
+      lines.push(`${embedded} screenshot(s) uploaded — see the pull request comment.\n`)
+    } else {
       const hint = options.artifactHint ?? 'the Playwright report artifact'
-      lines.push(`Images were not uploaded — download ${hint} to view them.\n`)
+      lines.push(`${test.images.length} screenshot(s) captured, not uploaded — download ${hint}.\n`)
     }
-
-    for (const image of embedded) {
-      lines.push(`**${image.kind}**\n`)
-      const src = escapeAttribute(image.url ?? '')
-      lines.push(`<img src="${src}" alt="${image.kind} for ${escapeAttribute(title)}" width="640">\n`)
-    }
-
-    lines.push('</details>\n')
   }
 
   return lines.join('\n')
 }
 
+/** A collapsed block of images for one test, used in the comment. */
+function renderImageBlock(test: FailedTest): string[] {
+  const embedded = test.images.filter(image => image.url)
+  if (embedded.length === 0) return []
+
+  const title = defuseMaskTriggers(test.title)
+  const lines = ['<details>', `<summary>Screenshots (${embedded.length})</summary>\n`]
+
+  for (const image of embedded) {
+    lines.push(`**${image.kind}**\n`)
+    const src = escapeAttribute(image.url ?? '')
+    lines.push(`<img src="${src}" alt="${image.kind} for ${escapeAttribute(title)}" width="640">\n`)
+  }
+
+  lines.push('</details>\n')
+  return lines
+}
+
 /**
- * Render a short PR comment. It carries counts and a link rather than the
- * images themselves: emailed notifications render once, and the signed image
- * URLs expire minutes later, so an inline image in a comment is a broken image
- * in everyone's inbox.
+ * Render the pull request comment. This is where the screenshots go.
+ *
+ * A comment is rendered afresh every time it is read, so an attachment resolves
+ * however recently it was uploaded. A job summary is rendered once when the job
+ * ends, before a just-uploaded attachment is resolvable, and that result is
+ * what everyone sees from then on.
+ *
+ * The cost is emailed notifications: those are rendered once when sent, and the
+ * signed URLs behind these images expire minutes later, so the images will be
+ * broken in the email even though they are fine on the web.
  */
 export function generateComment(
   report: FailureReport,
@@ -299,57 +318,33 @@ export function generateComment(
 
   if (report.tests.length > 0) {
     for (const test of report.tests.slice(0, 10)) {
+      const title = defuseMaskTriggers(test.title)
       const images = test.images.length > 0 ? ` — ${test.images.length} screenshot(s)` : ''
-      lines.push(`- \`${test.status}\` ${defuseMaskTriggers(test.title)}${images}`)
+      lines.push(`- \`${test.status}\` ${title}${images}`)
     }
     if (report.tests.length > 10) {
       lines.push(`- …and ${report.tests.length - 10} more`)
     }
     lines.push('')
+
+    for (const test of report.tests) {
+      const block = renderImageBlock(test)
+      if (block.length === 0) continue
+      lines.push(`**${defuseMaskTriggers(test.title)}**\n`)
+      lines.push(...block)
+    }
   }
 
   if (options.summaryUrl) {
-    lines.push(`[View the screenshots in the job summary](${options.summaryUrl})\n`)
+    lines.push(`[Full run](${options.summaryUrl})\n`)
   }
 
   // A machine-readable count, so a workflow assembling several of these can
   // decide whether to post at all without grepping prose — the empty-state
   // sentence contains the words "failing test" too.
   lines.push(`${FAILURE_MARKER_PREFIX}${report.totalFailed} -->\n`)
-  lines.push(renderBindingBlock(report))
 
   return lines.join('\n')
-}
-
-/**
- * Reference every uploaded image in an HTML comment.
- *
- * An uploaded attachment does not render in a job summary until it has been
- * referenced from real content — an issue or pull request body. Naming the URLs
- * here does that without showing the images, which is deliberate: notification
- * emails are rendered once when they are sent, and the signed URLs GitHub
- * generates expire minutes later, so a visible image here is a broken image in
- * everyone's inbox.
- */
-function renderBindingBlock(report: FailureReport): string {
-  const urls = report.tests
-    .flatMap(test => test.images)
-    .map(image => image.url)
-    // A URL containing `--` would close the comment early. None do, but the
-    // consequence of being wrong is a mangled comment.
-    .filter((url): url is string => Boolean(url) && !url!.includes('--'))
-
-  if (urls.length === 0) return ''
-
-  return [
-    '<!--',
-    'Referencing the uploaded screenshots so they render in the job summary.',
-    'They are not shown here on purpose: emailed notifications render once, and',
-    'these URLs expire minutes after that.',
-    ...urls,
-    '-->',
-    '',
-  ].join('\n')
 }
 
 function escapeAttribute(value: string): string {
