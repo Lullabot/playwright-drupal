@@ -47,6 +47,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # A table row containing the word "Bearer" came back from the job summary
+      # as ***, which swallowed a cell delimiter and broke the row. Echo the
+      # candidate strings so the log (same masker as the summary) shows exactly
+      # which one is being redacted.
+      - name: What does the runner mask
+        run: |
+          echo 'A: Bearer | 404'
+          echo 'B: Bearer 404'
+          echo 'C: Bearer'
+          echo 'D: bearer'
+          echo 'E: token scheme'
+          echo 'F: Authorization: Bearer abc123'
+          echo 'G: plain text control'
+
       - name: Generate probe image
         run: node .github/scripts/make-probe-image.mjs probe.png "${{ github.run_id }}"
 
