@@ -8,6 +8,11 @@ permissions:
   contents: write
   pull-requests: write
   id-token: write
+  # A called workflow cannot request more than its caller was granted, and an
+  # explicit block here denies everything it does not list. test.yml's
+  # failure-comment job asks for actions: read, so without this the whole run
+  # is rejected before any job starts and release-please never executes.
+  actions: read
 
 jobs:
   release-please:
