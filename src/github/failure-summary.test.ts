@@ -89,6 +89,19 @@ describe('parseFailures', () => {
     expect(all.tests[0].images.map(i => i.kind)).toEqual(['diff', 'actual', 'expected'])
   })
 
+  it('keeps an inlined attachment body, which is how a11y screenshots arrive', () => {
+    const reportPath = writeReport([{
+      attachments: [
+        { name: 'a11y-violation-screenshot', contentType: 'image/png', body: 'aGVsbG8=' },
+      ],
+    }])
+
+    const image = parseFailures(reportPath).tests[0].images[0]
+
+    expect(image.body).toBe('aGVsbG8=')
+    expect(image.filePath).toBeUndefined()
+  })
+
   it('keeps an accessibility screenshot even when the test passed', () => {
     // A baselined violation still passes, and its screenshot is still the
     // thing worth looking at.
@@ -155,6 +168,23 @@ describe('generateSummary', () => {
 
     expect(summary).not.toContain('<img')
     expect(summary).toContain('Images were not uploaded')
+  })
+
+  it('does not claim zero failing tests when only a11y captured something', () => {
+    const summary = generateSummary({
+      tests: [{
+        title: 'homepage a11y',
+        file: 'tests/a11y.spec.ts',
+        line: 7,
+        status: 'passed',
+        images: [{ name: 'a11y-violation-screenshot', contentType: 'image/png', kind: 'a11y' }],
+      }],
+      totalFailed: 0,
+      totalImages: 1,
+    })
+
+    expect(summary).not.toContain('**0** failing test(s)')
+    expect(summary).toContain('No failing tests · **1** screenshot(s)')
   })
 
   it('says so plainly when there is nothing to report', () => {
@@ -238,6 +268,33 @@ describe('defuseMaskTriggers', () => {
 })
 
 describe('uploadImages', () => {
+  it('uploads an inlined body, giving it a name derived from the content type', async () => {
+    const names: string[] = []
+    const impl: FetchLike = async (url) => {
+      names.push(new URL(url).searchParams.get('name') ?? '')
+      return { ok: true, status: 201, text: async () => '{"url":"https://example.test/a"}' }
+    }
+
+    const report: FailureReport = {
+      tests: [{
+        title: 'a', file: 'f', line: 1, status: 'passed',
+        images: [{
+          name: 'a11y-violation-screenshot',
+          body: Buffer.from('png bytes').toString('base64'),
+          contentType: 'image/png',
+          kind: 'a11y',
+        }],
+      }],
+      totalFailed: 0,
+      totalImages: 1,
+    }
+
+    await uploadImages(report, new AttachmentUploader({ token: 't', repositoryId: '1', fetchImpl: impl }))
+
+    expect(names).toEqual(['a11y-violation-screenshot.png'])
+    expect(report.tests[0].images[0].url).toBe('https://example.test/a')
+  })
+
   it('records a URL per image and leaves the rest alone once uploads stop', async () => {
     const filePath = path.join(tmpDir, 'diff.png')
     fs.writeFileSync(filePath, Buffer.alloc(8, 1))

@@ -132,15 +132,31 @@ export class AttachmentUploader {
       return null
     }
 
-    let size: number
+    let body: Buffer
     try {
-      size = fs.statSync(filePath).size
+      body = fs.readFileSync(filePath)
     } catch {
       // A missing file is this file's problem, not a reason to stop the run.
       this.stats.skipped++
       this.log(`Attachment upload skipped, unreadable file: ${filePath}`)
       return null
     }
+
+    return this.uploadBuffer(body, displayName ?? path.basename(filePath), mimeTypeFor(filePath))
+  }
+
+  /**
+   * Upload bytes that never touched the disk. Playwright's JSON reporter
+   * inlines attachments added with `testInfo.attach({ body })` as base64, which
+   * is how the accessibility screenshots arrive.
+   */
+  async uploadBuffer(body: Buffer, displayName: string, contentType: string): Promise<string | null> {
+    if (this.disabled) {
+      this.stats.skipped++
+      return null
+    }
+
+    const size = body.length
 
     // Budgets are a deliberate stop, so say so rather than going quiet.
     if (this.stats.uploaded >= this.maxUploads) {
@@ -150,8 +166,7 @@ export class AttachmentUploader {
       return this.disable(`byte budget of ${this.maxTotalBytes} bytes reached`)
     }
 
-    const name = sanitizeName(displayName ?? path.basename(filePath))
-    const contentType = mimeTypeFor(filePath)
+    const name = sanitizeName(displayName)
     const query = new URLSearchParams({
       name,
       content_type: contentType,
@@ -159,7 +174,6 @@ export class AttachmentUploader {
     })
 
     try {
-      const body = fs.readFileSync(filePath)
       const response = await this.fetchImpl(`${UPLOAD_ORIGIN}/user-attachments/assets?${query}`, {
         method: 'POST',
         headers: {

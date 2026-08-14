@@ -33,8 +33,14 @@ export type ImageKind = 'diff' | 'actual' | 'expected' | 'previous' | 'a11y' | '
 export interface FailureImage {
   /** Attachment name as it appears in the report. */
   name: string
-  /** Path on disk. Attachments stored inline have none. */
+  /** Path on disk. Attachments the reporter inlined have none. */
   filePath?: string
+  /**
+   * Base64 bytes, for attachments added with `testInfo.attach({ body })`. The
+   * JSON reporter inlines those rather than writing them out, which is how the
+   * accessibility screenshots arrive.
+   */
+  body?: string
   contentType: string
   kind: ImageKind
   /** Populated once the image has been uploaded. */
@@ -122,6 +128,7 @@ function collectImages(attachments: any[], include: IncludeMode): FailureImage[]
     images.push({
       name,
       filePath: attachment?.path ? String(attachment.path) : undefined,
+      body: attachment?.body ? String(attachment.body) : undefined,
       contentType,
       kind,
     })
@@ -191,17 +198,41 @@ export async function uploadImages(
 ): Promise<void> {
   for (const test of report.tests) {
     for (const image of test.images) {
-      if (!image.filePath) continue
-      const url = await uploader.upload(image.filePath, path.basename(image.filePath))
+      let url: string | null = null
+
+      if (image.filePath) {
+        url = await uploader.upload(image.filePath, path.basename(image.filePath))
+      } else if (image.body) {
+        url = await uploader.uploadBuffer(
+          Buffer.from(image.body, 'base64'),
+          `${image.name}${extensionFor(image.contentType)}`,
+          image.contentType,
+        )
+      }
+
       if (url) image.url = url
     }
   }
 }
 
+/** Inlined attachments carry no file name, so derive one from the content type. */
+function extensionFor(contentType: string): string {
+  if (contentType === 'image/png') return '.png'
+  if (contentType === 'image/jpeg') return '.jpg'
+  if (contentType === 'image/gif') return '.gif'
+  if (contentType === 'image/webp') return '.webp'
+  return ''
+}
+
 function headline(report: FailureReport): string {
   if (report.tests.length === 0) return ':white_check_mark: No failing tests with screenshots.'
 
-  const parts = [`**${report.totalFailed}** failing test(s)`]
+  // Nothing failed, but an accessibility check still captured something worth
+  // seeing — a baselined violation passes and is still screenshotted.
+  const parts = report.totalFailed === 0
+    ? [':white_check_mark: No failing tests']
+    : [`**${report.totalFailed}** failing test(s)`]
+
   if (report.totalImages > 0) parts.push(`**${report.totalImages}** screenshot(s)`)
   return parts.join(' · ')
 }
