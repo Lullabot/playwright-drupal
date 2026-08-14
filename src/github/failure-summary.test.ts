@@ -185,6 +185,8 @@ describe('generateSummary', () => {
 
     expect(summary).not.toContain('**0** failing test(s)')
     expect(summary).toContain('No failing tests · **1** screenshot(s)')
+    // Nothing failed, so do not head the section "Test Failures".
+    expect(summary).toContain('## Test Screenshots')
   })
 
   it('says so plainly when there is nothing to report', () => {

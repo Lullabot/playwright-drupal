@@ -134,6 +134,9 @@ jobs:
             echo "No JSON report found — skipping failure summary."
             exit 0
           fi
+          # The accessibility step above normally builds; do not depend on that
+          # having happened, or reordering these steps breaks this one.
+          [ -f lib/github/failure-summary.js ] || { npm install && npm run build; }
           node lib/github/failure-summary.js \
             --report-path="$REPORT" \
             --comment-path=failure-comment-${{ matrix.suite }}.md \

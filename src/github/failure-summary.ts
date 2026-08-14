@@ -245,7 +245,10 @@ function headline(report: FailureReport): string {
  * and the runner's masking can eat a cell delimiter and corrupt a whole row.
  */
 export function generateSummary(report: FailureReport, options: { artifactHint?: string } = {}): string {
-  const lines: string[] = ['## Test Failures\n', `${headline(report)}\n`]
+  // A baselined accessibility violation is screenshotted without failing
+  // anything, so a green run can still have something to show here.
+  const heading = report.totalFailed > 0 ? '## Test Failures' : '## Test Screenshots'
+  const lines: string[] = [`${heading}\n`, `${headline(report)}\n`]
 
   if (report.tests.length === 0) return lines.join('\n')
 
