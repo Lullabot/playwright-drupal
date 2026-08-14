@@ -10,6 +10,9 @@ name: Token Permission Probe
 # Round 1, a token scoped read-only to public repositories: HTTP 403,
 # "Resource not accessible by personal access token" — the right kind of token
 # and a visible repository, but permissions too narrow.
+# Round 2, an approved token with Contents read-only on this repository: 403
+# again, so read access is not enough.
+# Round 3, the same token with Contents read and write: see below.
 
 on:
   workflow_dispatch:
