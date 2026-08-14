@@ -16,6 +16,20 @@ name: Attachment Upload Probe
 #   - A GitHub App installation token gets the same 404, so it is the token
 #     class that is rejected, not the specific token.
 # Set an ATTACHMENT_UPLOAD_PAT secret to confirm a PAT works from CI too.
+#
+# Rendering, confirmed by inspection:
+#   - Assets render in both PR comments and job summaries, as markdown or as an
+#     <img> tag, including inside a <details> element.
+#   - An asset uploaded by one identity renders in content authored by another,
+#     which is the arrangement this feature needs (PAT uploads, bot comments).
+#   - github.com/user-attachments/assets/<uuid> is a renderer-only handle: a
+#     direct GET is 404 with or without a token. GitHub rewrites it at render
+#     time to private-user-images.githubusercontent.com/... behind a JWT that
+#     expires after 300 seconds. Never verify an upload by fetching it back.
+#   - Job summaries pass through the runner's secret masking; comments posted
+#     over the API do not. The masker redacts `Bearer <value>` and takes the
+#     following characters with it, so arbitrary text in a summary table cell
+#     can silently destroy the row.
 
 on:
   pull_request:
@@ -46,20 +60,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      # A table row containing the word "Bearer" came back from the job summary
-      # as ***, which swallowed a cell delimiter and broke the row. Echo the
-      # candidate strings so the log (same masker as the summary) shows exactly
-      # which one is being redacted.
-      - name: What does the runner mask
-        run: |
-          echo 'A: Bearer | 404'
-          echo 'B: Bearer 404'
-          echo 'C: Bearer'
-          echo 'D: bearer'
-          echo 'E: token scheme'
-          echo 'F: Authorization: Bearer abc123'
-          echo 'G: plain text control'
 
       - name: Generate probe image
         run: node .github/scripts/make-probe-image.mjs probe.png "${{ github.run_id }}"
@@ -119,7 +119,10 @@ jobs:
             fi
           }
 
-          probe 'GITHUB_TOKEN, Bearer' 'actions-bearer' "${TOKEN_ACTIONS}" 'Bearer'
+          # Do not put the word "Bearer" in a label: the runner redacts the
+          # pattern `Bearer <value>` in logs and job summaries, and the redaction
+          # swallows whatever follows — including a table cell delimiter.
+          probe 'GITHUB_TOKEN, bearer scheme' 'actions-bearer' "${TOKEN_ACTIONS}" 'Bearer'
           probe 'GITHUB_TOKEN, token scheme' 'actions-token' "${TOKEN_ACTIONS}" 'token'
           probe 'PAT (ATTACHMENT_UPLOAD_PAT)' 'pat' "${TOKEN_PAT}" 'Bearer'
 
