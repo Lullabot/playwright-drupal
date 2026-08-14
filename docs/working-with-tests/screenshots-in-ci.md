@@ -76,20 +76,41 @@ so there is no way to do this with credentials a workflow already has.
 feature was built and tested against — and unlike a classic token they can be
 restricted to the one repository that needs them.
 
-What is verified about what the token needs:
+Give it exactly this:
 
-- **Access to the repository whose ID you pass.** Uploading against a
-  repository the token has no grant on returns exactly the same 404 an Actions
-  token gets, so repository access is genuinely checked.
-- `GITHUB_REPOSITORY_ID` supplies that ID, and Actions sets it for you.
-- **Read-only access is not enough.** A token scoped to public repositories
-  read-only is refused.
+- **Repository access:** only the repository you are uploading for.
+- **Repository permissions:** **Contents — read and write**. Metadata read
+  comes with every fine-grained token and is also required.
 
-The endpoint is undocumented and does not return the
-`X-Accepted-GitHub-Permissions` header that documented endpoints use to
-advertise their requirements, so the minimum cannot be read off the API. It is
-verified working with a token granted repository access including Contents
-write.
+Nothing else. A token with those two settings uploads; Issues, Pull requests
+and Actions permissions are all unnecessary.
+
+That is the measured minimum, not a guess. The endpoint is undocumented and
+does not return the `X-Accepted-GitHub-Permissions` header that documented
+endpoints use to advertise their requirements, so it cannot be read off the
+API — it was found by trying successively wider grants against the live
+endpoint:
+
+| Grant | Result |
+| --- | --- |
+| Public repositories, read-only | 403 |
+| This repository, Contents read-only | 403 |
+| This repository, Contents read and write | **201** |
+
+Write access is a real cost worth weighing: a token that can write repository
+contents is a bigger thing to hand a CI job than one that can only read. That
+is the price of this endpoint, and it is the main argument for a machine
+account below.
+
+Two more things that are easy to trip over:
+
+- `GITHUB_REPOSITORY_ID` supplies the repository ID the endpoint wants, and
+  Actions sets it for you.
+- On an organisation's repository, a fine-grained token asking for a selected
+  repository needs an **organisation owner to approve it**. Until then it has
+  less access than the public read-only preset, which needs no approval at all.
+  Editing an existing token's permissions keeps the token string unchanged, so
+  the stored secret keeps working; minting a new one means updating the secret.
 
 The status code tells you which problem you have, which is worth knowing
 because the two look identical from the outside:
