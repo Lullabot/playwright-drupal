@@ -1,0 +1,97 @@
+name: Playwright failure summary
+description: >-
+  Write a job summary of Playwright failures, with the screenshots embedded when
+  an upload token is available, and optionally a body for a sticky pull request
+  comment.
+
+inputs:
+  report-path:
+    description: Playwright JSON report to read.
+    required: true
+  token:
+    description: >-
+      A user personal access token permitted to upload attachments. Leave it
+      unset — as it will be on pull requests from forks — to get the same
+      summary without images.
+    required: false
+    default: ''
+  comment-path:
+    description: Where to write the comment body. Leave unset to skip it.
+    required: false
+    default: ''
+  artifact-name:
+    description: >-
+      Upload the comment body under this artifact name, for a later job to
+      assemble. Leave unset to skip the upload.
+    required: false
+    default: ''
+  title:
+    description: Heading for the comment.
+    required: false
+    default: Playwright results
+  include:
+    description: >-
+      `diff` uploads only the diff image for a failed comparison; `all` adds the
+      expected and actual images. Accessibility screenshots are included either
+      way.
+    required: false
+    default: diff
+  max-uploads:
+    description: Stop uploading after this many images.
+    required: false
+    default: '20'
+  package:
+    description: >-
+      Package to run the command from, resolved with npx — so a name, a version
+      spec, or a tarball all work. Pass the path of a checkout that has already
+      been built (`.`) to run that build directly instead of installing it.
+    required: false
+    default: '@lullabot/playwright-drupal'
+
+runs:
+  using: composite
+  steps:
+    - name: Write the failure summary
+      shell: bash
+      env:
+        SCREENSHOT_GITHUB_TOKEN: ${{ inputs.token }}
+        REPORT_PATH: ${{ inputs.report-path }}
+        COMMENT_PATH: ${{ inputs.comment-path }}
+        TITLE: ${{ inputs.title }}
+        INCLUDE: ${{ inputs.include }}
+        MAX_UPLOADS: ${{ inputs.max-uploads }}
+        PACKAGE: ${{ inputs.package }}
+      run: |
+        # A missing report is not a failure: the suite may not have run.
+        if [ ! -f "${REPORT_PATH}" ]; then
+          echo "No Playwright report at ${REPORT_PATH} — skipping the failure summary."
+          exit 0
+        fi
+
+        args=(
+          "--report-path=${REPORT_PATH}"
+          "--include=${INCLUDE}"
+          "--max-uploads=${MAX_UPLOADS}"
+          "--title=${TITLE}"
+        )
+        if [ -n "${COMMENT_PATH}" ]; then
+          args+=("--comment-path=${COMMENT_PATH}")
+        fi
+
+        # A checkout that has already been built can be run as it stands, which
+        # keeps this repository's own CI testing the working tree rather than
+        # the last release.
+        if [ -f "${PACKAGE}/lib/github/failure-summary.js" ]; then
+          node "${PACKAGE}/lib/github/failure-summary.js" "${args[@]}"
+        else
+          npx -y -p "${PACKAGE}" playwright-drupal-failure-summary "${args[@]}"
+        fi
+
+    - name: Upload the comment body
+      if: inputs.artifact-name != '' && inputs.comment-path != ''
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ inputs.comment-path }}
+        retention-days: 1
+        if-no-files-found: ignore

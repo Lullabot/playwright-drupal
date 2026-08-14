@@ -1,0 +1,61 @@
+name: Playwright failure comment
+description: >-
+  Assemble the comment bodies written by each job of a run and post them as one
+  sticky pull request comment — or clear it when nothing failed.
+
+inputs:
+  pattern:
+    description: Artifact name pattern holding the comment bodies.
+    required: false
+    default: failure-comment-*
+  header:
+    description: >-
+      Sticky comment header. Distinguishes this comment from others posted by
+      the same repository; not shown to readers.
+    required: false
+    default: playwright-drupal-results
+  github-token:
+    description: >-
+      Token used to post the comment. The default Actions token is enough — it
+      cannot upload attachments, but it can comment.
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Download the comment bodies
+      continue-on-error: true
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        pattern: ${{ inputs.pattern }}
+        path: playwright-failure-comments
+
+    - name: Assemble the comment
+      id: assemble
+      shell: bash
+      run: |
+        : > playwright-failure-comment.md
+        for file in playwright-failure-comments/*/*.md; do
+          [ -f "${file}" ] || continue
+          cat "${file}" >> playwright-failure-comment.md
+          echo >> playwright-failure-comment.md
+        done
+
+        # Read the marker the command emits rather than the prose: the
+        # empty-state sentence contains the words "failing test" as well.
+        if grep -qE '<!-- playwright-drupal-failures: [1-9]' playwright-failure-comment.md; then
+          echo 'has-failures=true' >> "${GITHUB_OUTPUT}"
+        else
+          echo 'has-failures=false' >> "${GITHUB_OUTPUT}"
+        fi
+
+    # Nothing failed anywhere means clearing any comment an earlier run left,
+    # rather than leaving a stale one behind.
+    - name: Comment on the pull request
+      uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+      with:
+        header: ${{ inputs.header }}
+        path: playwright-failure-comment.md
+        delete: ${{ steps.assemble.outputs.has-failures == 'false' }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
