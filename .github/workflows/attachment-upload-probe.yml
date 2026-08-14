@@ -1,0 +1,152 @@
+name: Attachment Upload Probe
+
+# Probes the undocumented https://uploads.github.com/user-attachments/assets
+# endpoint — the programmatic equivalent of dragging an image into a comment —
+# to find out which of our tokens (if any) is allowed to use it. If it works,
+# test screenshots and visual diffs can be embedded directly in PR comments
+# instead of being buried in a zipped artifact.
+#
+# Results land in the job summary either way; a comment is only posted when at
+# least one upload succeeds.
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/attachment-upload-probe.yml
+      - .github/scripts/make-probe-image.mjs
+  workflow_dispatch:
+    inputs:
+      pr-number:
+        description: 'Pull request to comment on. Leave blank for a job summary only.'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  probe:
+    name: Probe attachment upload
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Mint GitHub App token
+        id: app-token
+        if: vars.REBASE_APP_ID != ''
+        continue-on-error: true
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ vars.REBASE_APP_ID }}
+          private-key: ${{ secrets.REBASE_PRIVATE_KEY }}
+
+      - name: Generate probe image
+        run: node .github/scripts/make-probe-image.mjs probe.png "${{ github.run_id }}"
+
+      - name: Upload attachment with each token
+        id: upload
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TOKEN_ACTIONS: ${{ secrets.GITHUB_TOKEN }}
+          TOKEN_APP: ${{ steps.app-token.outputs.token }}
+          TOKEN_PAT: ${{ secrets.ATTACHMENT_UPLOAD_PAT }}
+        run: |
+          set -uo pipefail
+
+          REPO_ID=$(gh api "repos/${GITHUB_REPOSITORY}" --jq .id)
+          echo "Repository ID: ${REPO_ID}"
+
+          : > results.md
+          : > images.md
+          SUCCEEDED=0
+
+          probe() {
+            label="$1"
+            slug="$2"
+            token="$3"
+
+            if [ -z "${token}" ]; then
+              printf '| %s | — | not configured, skipped |\n' "${label}" >> results.md
+              return
+            fi
+
+            status=$(curl -sS -o response.json -w '%{http_code}' \
+              -X POST \
+              -H "Authorization: Bearer ${token}" \
+              -H 'Accept: application/json' \
+              --data-binary '@probe.png' \
+              "https://uploads.github.com/user-attachments/assets?name=probe-${slug}.png&content_type=image/png&repository_id=${REPO_ID}") || status='000'
+
+            href=$(jq -r '.href // .url // .asset.href // empty' response.json 2>/dev/null)
+
+            echo "::group::${label} (HTTP ${status})"
+            head -c 2000 response.json
+            echo
+            echo '::endgroup::'
+
+            if [ -n "${href}" ]; then
+              printf '| %s | %s | uploaded ✅ |\n' "${label}" "${status}" >> results.md
+              printf '**Uploaded with %s**\n\n<img src="%s" alt="probe image uploaded with %s" width="480">\n\n' \
+                "${label}" "${href}" "${label}" >> images.md
+              SUCCEEDED=1
+            else
+              # Keep the failure body short; it is usually a one-line JSON error.
+              body=$(tr -d '\n' < response.json | head -c 200)
+              printf '| %s | %s | failed ❌ `%s` |\n' "${label}" "${status}" "${body:-no body}" >> results.md
+            fi
+          }
+
+          probe 'GITHUB_TOKEN (Actions)' 'actions' "${TOKEN_ACTIONS}"
+          probe 'GitHub App installation token' 'app' "${TOKEN_APP}"
+          probe 'PAT (ATTACHMENT_UPLOAD_PAT)' 'pat' "${TOKEN_PAT}"
+
+          {
+            echo '## Attachment upload probe'
+            echo
+            echo '| Token | HTTP | Result |'
+            echo '| --- | --- | --- |'
+            cat results.md
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          echo "any-success=${SUCCEEDED}" >> "${GITHUB_OUTPUT}"
+
+      - name: Comment on the pull request
+        id: comment
+        if: steps.upload.outputs.any-success == '1'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr-number }}
+        run: |
+          set -uo pipefail
+
+          if [ -z "${PR_NUMBER}" ]; then
+            echo 'No pull request to comment on — job summary only.'
+            exit 0
+          fi
+
+          {
+            echo '### Attachment upload probe'
+            echo
+            echo "Run [\`${GITHUB_RUN_ID}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) uploaded the images below through \`uploads.github.com/user-attachments/assets\`."
+            echo
+            cat images.md
+            echo '| Token | HTTP | Result |'
+            echo '| --- | --- | --- |'
+            cat results.md
+          } > comment.md
+
+          if gh pr comment "${PR_NUMBER}" --body-file comment.md; then
+            echo 'Commented with GITHUB_TOKEN.'
+            exit 0
+          fi
+
+          echo 'GITHUB_TOKEN could not comment; retrying with the app token.'
+          if [ -z "${APP_TOKEN}" ]; then
+            echo 'No app token available.' >&2
+            exit 1
+          fi
+          GH_TOKEN="${APP_TOKEN}" gh pr comment "${PR_NUMBER}" --body-file comment.md
