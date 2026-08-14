@@ -12,12 +12,18 @@ failed.
 
 !!! note "The images go in the comment, not the job summary"
 
-    Job summaries do not resolve uploaded attachments. Embedding one there
-    produces a dead link, and the result is rendered once and cached, so
-    reloading never fixes it. Comments re-render on every read and resolve the
-    attachments correctly, so that is where the screenshots go. The summary
-    carries the failure list and says how many screenshots are waiting in the
+    An attachment uploaded by CI does not resolve in a job summary. Embedding
+    one there produces a dead link, and reloading never fixes it. Comments
+    resolve the same attachment correctly, so that is where the screenshots go;
+    the summary carries the failure list and says how many are waiting in the
     comment.
+
+    The rule may be narrower than "summaries never work": the one summary that
+    did render an image used an attachment uploaded by the person viewing the
+    page, rather than by CI. Either way a machine account uploads and humans
+    read, so the comment is the only place this works in practice. Age is not
+    the factor — an attachment hours old fails in a summary exactly as a fresh
+    one does.
 
 ## The quickest version
 
