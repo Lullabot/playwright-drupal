@@ -134,8 +134,12 @@ DOCKERFILE
   # picks up the add-on's Dockerfile.task and Dockerfile.uv in the same pass.
   # Restarting now just pays for an extra container/router cycle, and its
   # pre-start hook would copy a test/playwright directory that doesn't exist yet.
-  echo "--- ddev add-on get Lullabot/ddev-playwright" >&3
-  ddev add-on get Lullabot/ddev-playwright >&3 2>&3
+  #
+  # Set DDEV_PLAYWRIGHT_ADDON to a local checkout to validate an unreleased
+  # add-on change against this suite.
+  local addon="${DDEV_PLAYWRIGHT_ADDON:-Lullabot/ddev-playwright}"
+  echo "--- ddev add-on get $addon" >&3
+  ddev add-on get "$addon" >&3 2>&3
 
   # Initialize Playwright tests.
   mkdir -p test/playwright
@@ -168,18 +172,27 @@ DOCKERFILE
 
   TARBALL="$(basename "$TARBALL_PATH")"
 
-  # Copy the tarball into the Drupal project root, which is bind-mounted
-  # at /var/www/html inside the DDEV container.
-  cp "$TARBALL_PATH" "$PROJECT_DIR/"
+  # Copy the tarball into test/playwright, which is bind-mounted under
+  # /var/www/html inside the DDEV container.
+  #
+  # It has to live here rather than at the project root. npm records a local
+  # tarball as a "file:" dependency relative to the package directory, and
+  # ddev-playwright's pre-start hook stages only test/playwright's dependency
+  # manifests (plus any *.tgz alongside them) into the web image build context.
+  # From the project root the recorded path would be
+  # "file:../../lullabot-playwright-drupal-x.y.z.tgz", which resolves outside
+  # the staged directory, so the build's npm install would fail with ENOENT.
+  cp "$TARBALL_PATH" "$PROJECT_DIR/test/playwright/"
   echo "--- Waiting for mutagen..." >&3
   # On macOS with mutagen enabled, sync so the tarball is visible inside the
   # container immediately. On Linux (no mutagen), this is a no-op.
   ddev mutagen sync 2>/dev/null || true
 
-  # Install the tarball inside the DDEV container.
+  # Install the tarball inside the DDEV container. Passing the bare filename
+  # makes npm record "file:<tarball>", relative to test/playwright.
   cd "$PROJECT_DIR"
   echo "--- npm install @lullabot/playwright-drupal" >&3
-  ddev exec -d /var/www/html/test/playwright npm install "/var/www/html/$TARBALL" >&3 2>&3
+  ddev exec -d /var/www/html/test/playwright npm install "./$TARBALL" >&3 2>&3
 
   # Clean up the tarball from the repo root (only if we built it).
   if [[ -z "${PLAYWRIGHT_DRUPAL_TARBALL:-}" ]]; then
