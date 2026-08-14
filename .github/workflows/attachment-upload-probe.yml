@@ -114,9 +114,11 @@ jobs:
 
           echo "any-success=${SUCCEEDED}" >> "${GITHUB_OUTPUT}"
 
+      # Always comment, even when nothing uploaded: whether GITHUB_TOKEN can
+      # post a comment at all is a separate question from whether it can upload
+      # an attachment, and this is the step that answers it.
       - name: Comment on the pull request
         id: comment
-        if: steps.upload.outputs.any-success == '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr-number }}
@@ -131,12 +133,19 @@ jobs:
           {
             echo '### Attachment upload probe'
             echo
-            echo "Run [\`${GITHUB_RUN_ID}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) uploaded the images below through \`uploads.github.com/user-attachments/assets\`."
+            echo "Run [\`${GITHUB_RUN_ID}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) tried \`uploads.github.com/user-attachments/assets\` with each token available to it."
             echo
-            cat images.md
+            if [ -s images.md ]; then
+              cat images.md
+            else
+              echo 'No token managed to upload, so there is no image to embed here.'
+              echo
+            fi
             echo '| Token | HTTP | Result |'
             echo '| --- | --- | --- |'
             cat results.md
+            echo
+            echo 'This comment itself was posted with `GITHUB_TOKEN`.'
           } > comment.md
 
           gh pr comment "${PR_NUMBER}" --body-file comment.md
