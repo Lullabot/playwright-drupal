@@ -1097,6 +1097,7 @@
 <li>Automatically trigger loading of all lazy-loaded iframes.</li>
 <li>Wait for web fonts to finish loading so text is not captured with fallback-font metrics on the first attempt.</li>
 <li>Blur any focused element so a stray focus ring does not produce a flaky, human-invisible diff (pass <code>blur: false</code> to keep an intentionally focused state).</li>
+<li>Settle every <code>&lt;video&gt;</code>, in every frame: pause it, bring it on screen once so it loads and Chromium composites its first frame, wait for that frame, and rewind to the start. Playback is restored once the screenshot is taken, so a test can still assert that a video is playing.</li>
 <li>Generate an accessibility report of the element being tested.</li>
 </ol>
 <p>Each accessibility scan is asserted against an on-disk JSON baseline — see <a href="../accessibility-tests/">Accessibility Tests</a> for the schema, auto-seeding behaviour, and the CI vs. local workflow.</p>
