@@ -11,6 +11,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/screenshot-demo.yml
+      - .github/actions/**
 
 permissions:
   contents: read

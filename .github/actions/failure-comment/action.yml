@@ -36,11 +36,16 @@ runs:
       shell: bash
       run: |
         : > playwright-failure-comment.md
-        for file in playwright-failure-comments/*/*.md; do
-          [ -f "${file}" ] || continue
+
+        # Search recursively and sort: download-artifact puts each artifact in
+        # its own directory when several match the pattern, but extracts
+        # straight into the target directory when only one does. A fixed-depth
+        # glob silently matches nothing in the second case, which reads as "no
+        # failures" and clears the comment.
+        while IFS= read -r file; do
           cat "${file}" >> playwright-failure-comment.md
           echo >> playwright-failure-comment.md
-        done
+        done < <(find playwright-failure-comments -type f -name '*.md' 2>/dev/null | sort)
 
         # Read the marker the command emits rather than the prose: the
         # empty-state sentence contains the words "failing test" as well.
