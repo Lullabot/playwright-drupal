@@ -176,6 +176,17 @@ describe('AttachmentUploader', () => {
     expect(await uploader.upload(writeFile('present.png'))).not.toBeNull()
   })
 
+  it('reduces a name of nothing but dashes to a usable one', async () => {
+    // Trimming these with /^-+|-+$/ backtracks quadratically, so the trim is an
+    // index scan instead. Long runs of dashes are the shape that provokes it.
+    const { impl, calls } = stubFetch([])
+    const uploader = new AttachmentUploader({ token: 't', repositoryId: '1', fetchImpl: impl })
+
+    await uploader.upload(writeFile('a.png'), `${'-'.repeat(50000)}b.png`)
+
+    expect(calls[0]).toContain('name=attachment')
+  })
+
   it('reduces awkward file names to something a query string can carry', async () => {
     const { impl, calls } = stubFetch([])
     const uploader = new AttachmentUploader({ token: 't', repositoryId: '1', fetchImpl: impl })

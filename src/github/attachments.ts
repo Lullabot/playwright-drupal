@@ -240,10 +240,26 @@ function summarize(text: string): string {
 }
 
 /**
+ * Trim leading and trailing dashes.
+ *
+ * An index scan rather than `/^-+|-+$/`, because that pattern backtracks
+ * quadratically over a long run of dashes and this input is derived from test
+ * titles — which nobody controls.
+ */
+function trimDashes(value: string): string {
+  let start = 0
+  let end = value.length
+  while (start < end && value[start] === '-') start++
+  while (end > start && value[end - 1] === '-') end--
+  return value.slice(start, end)
+}
+
+/**
  * Reduce a file name to something safe to put in a query string. Test titles
  * reach this by way of snapshot file names and can contain anything.
  */
 function sanitizeName(name: string): string {
-  const cleaned = name.replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '')
-  return cleaned.slice(0, 120) || 'attachment'
+  // Truncate before trimming, so a trailing dash left by the cut goes too.
+  const cleaned = name.replace(/[^A-Za-z0-9._-]+/g, '-').slice(0, 120)
+  return trimDashes(cleaned) || 'attachment'
 }
