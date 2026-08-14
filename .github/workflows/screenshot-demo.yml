@@ -1,0 +1,117 @@
+name: Screenshot Demo
+
+# Temporary. Runs a real Playwright screenshot comparison, fails it on purpose,
+# and feeds the resulting report through the shipped actions so the embedded
+# images can be looked at before any of this merges.
+#
+# Delete this once you have seen it work.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/screenshot-demo.yml
+
+permissions:
+  contents: read
+
+jobs:
+  demo:
+    name: Produce a failing comparison
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+
+      - name: Build the package
+        run: npm install && npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Write the demo project
+        run: |
+          mkdir -p demo
+
+          cat > demo/playwright.config.ts <<'CONFIG'
+          import { defineConfig } from '@playwright/test'
+
+          export default defineConfig({
+            testDir: '.',
+            reporter: [['json', { outputFile: 'results.json' }]],
+            projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
+          })
+          CONFIG
+
+          # The page renders whatever colour the environment asks for, so the
+          # baseline and the comparison can be made to disagree on purpose.
+          cat > demo/demo.spec.ts <<'SPEC'
+          import { test, expect } from '@playwright/test'
+
+          test('the styleguide page still looks right', async ({ page }) => {
+            const colour = process.env.DEMO_COLOUR ?? '#ef4444'
+            await page.setViewportSize({ width: 480, height: 240 })
+            await page.setContent(`
+              <body style="margin:0;font-family:system-ui;background:${colour}">
+                <div style="padding:40px;color:#fff">
+                  <h1 style="margin:0 0 12px">Checkout summary</h1>
+                  <p style="margin:0;opacity:.85">Total: £42.00</p>
+                </div>
+              </body>
+            `)
+            await expect(page).toHaveScreenshot('styleguide.png', { maxDiffPixels: 0 })
+          })
+          SPEC
+
+      - name: Record the baseline
+        working-directory: demo
+        env:
+          DEMO_COLOUR: '#ef4444'
+        run: npx playwright test --update-snapshots
+
+      - name: Break it on purpose
+        working-directory: demo
+        env:
+          DEMO_COLOUR: '#3b82f6'
+        run: |
+          # The failure is the point, so do not let it fail the job.
+          npx playwright test || echo 'Comparison failed, which is what this demo is for.'
+
+      # The real action, the real upload, the real job summary.
+      - name: Failure summary
+        uses: ./.github/actions/failure-summary
+        with:
+          report-path: demo/results.json
+          token: ${{ secrets.SCREENSHOT_GITHUB_TOKEN }}
+          comment-path: demo-comment.md
+          artifact-name: screenshot-demo-comment
+          title: Screenshot demo — a deliberately failing comparison
+          include: all
+          package: .
+
+  comment:
+    name: Post the demo comment
+    needs: demo
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Comment on the pull request
+        uses: ./.github/actions/failure-comment
+        with:
+          pattern: screenshot-demo-comment
+          # A header of its own, so this cannot collide with the real one.
+          header: playwright-drupal-screenshot-demo
