@@ -30,7 +30,8 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "bin": {
-    "playwright-drupal-a11y-summary": "./bin/github-a11y-summary"
+    "playwright-drupal-a11y-summary": "./bin/github-a11y-summary",
+    "playwright-drupal-failure-summary": "./bin/github-failure-summary"
   },
   "exports": {
     ".": {
@@ -44,6 +45,14 @@
     "./github/a11y-summary": {
       "types": "./lib/github/a11y-summary.d.ts",
       "default": "./lib/github/a11y-summary.js"
+    },
+    "./github/failure-summary": {
+      "types": "./lib/github/failure-summary.d.ts",
+      "default": "./lib/github/failure-summary.js"
+    },
+    "./github/attachments": {
+      "types": "./lib/github/attachments.d.ts",
+      "default": "./lib/github/attachments.js"
     }
   },
   "dependencies": {

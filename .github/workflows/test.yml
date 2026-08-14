@@ -120,3 +120,50 @@ jobs:
             echo "No JSON report found — skipping a11y summary."
           fi
 
+      # The report lives under a generated directory, so find it before handing
+      # it over. Everything after that is the shipped action, which keeps this
+      # repository honest about what consumers get.
+      - name: Locate the Playwright report
+        if: always()
+        run: |
+          REPORT=$(find tmp/ -path "*/test/playwright/test-results/results.json" 2>/dev/null | head -1)
+          echo "PLAYWRIGHT_REPORT=${REPORT}" >> "${GITHUB_ENV}"
+          # The action needs a built checkout to run the working tree rather
+          # than the last release.
+          [ -f lib/github/failure-summary.js ] || { npm install && npm run build; }
+
+      # Without SCREENSHOT_GITHUB_TOKEN — as on pull requests from forks, which
+      # never receive it — this still writes the summary, just without images.
+      - name: Failure summary
+        if: always() && env.PLAYWRIGHT_REPORT != ''
+        uses: ./.github/actions/failure-summary
+        with:
+          report-path: ${{ env.PLAYWRIGHT_REPORT }}
+          token: ${{ secrets.SCREENSHOT_GITHUB_TOKEN }}
+          comment-path: failure-comment-${{ matrix.suite }}.md
+          artifact-name: failure-comment-${{ matrix.suite }}
+          title: Playwright results — ${{ matrix.suite }}
+          package: .
+
+  # One comment for the whole run. Posting from each matrix job instead would
+  # have them overwrite each other, and none of them could say how the other
+  # suites did.
+  failure-comment:
+    needs: test
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+      # download-artifact reads the run's artifacts through the Actions API,
+      # and a job-level permissions block denies everything it does not list.
+      actions: read
+      contents: read
+    steps:
+      # A local action needs the repository on disk before it can be used.
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Comment on the pull request
+        uses: ./.github/actions/failure-comment
+
