@@ -3,6 +3,7 @@ import {expect, Locator, Page, TestInfo} from "@playwright/test";
 import {waitForAllImages} from "./images";
 import {waitForFrames} from "./frames"
 import {waitForFonts} from "./fonts";
+import {waitForVideos} from "./videos";
 import {blurActiveElement} from "./focus";
 import axe from 'axe-core';
 import {AccessibilityBaseline, AccessibilityBaselineEntry} from './accessibility-baseline'
@@ -532,6 +533,10 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
   await waitForAllImages(page);
   await waitForFrames(page);
   await waitForFonts(page);
+  // Last of the waits, so the video frames it composites are as fresh as
+  // possible when the capture happens. It restores the scroll position it
+  // found, so it does not disturb where the waits above leave the page.
+  await waitForVideos(page);
 
   if (scrollLocator) {
     await scrollLocator.scrollIntoViewIfNeeded();
