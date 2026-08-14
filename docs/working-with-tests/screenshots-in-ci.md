@@ -6,14 +6,24 @@ accessibility a full-page screenshot with the violating elements outlined. By
 default those end up zipped inside an artifact that has to be downloaded and
 unpacked before anyone can look at them.
 
-This package can put them in the job summary instead, and post a pull request
-comment pointing at it.
+This package can put them in a pull request comment instead, where they can be
+looked at without downloading anything, and write a job summary saying what
+failed.
+
+!!! note "The images go in the comment, not the job summary"
+
+    Job summaries do not resolve uploaded attachments. Embedding one there
+    produces a dead link, and the result is rendered once and cached, so
+    reloading never fixes it. Comments re-render on every read and resolve the
+    attachments correctly, so that is where the screenshots go. The summary
+    carries the failure list and says how many screenshots are waiting in the
+    comment.
 
 ## The quickest version
 
-Two actions ship with the package. The first writes the job summary for a job,
-and the second turns whatever the jobs produced into a single pull request
-comment:
+Two actions ship with the package. The first writes the job summary and a
+comment body for a job, and the second turns whatever the jobs produced into a
+single pull request comment:
 
 ```yaml
 jobs:
@@ -47,9 +57,10 @@ Pin `@main` to a release tag in real use. The `actions: read` permission is
 needed because a job-level `permissions:` block denies everything it does not
 list, and the second action reads the run's artifacts.
 
-Without `SCREENSHOT_GITHUB_TOKEN` the summary still gets written — it just
-points at the Playwright artifact rather than showing the images. That is also
-what happens on pull requests from forks, which never receive secrets.
+Without `SCREENSHOT_GITHUB_TOKEN` both the summary and the comment are still
+written — they just point at the Playwright artifact rather than showing the
+images. That is also what happens on pull requests from forks, which never
+receive secrets.
 
 ## Or call the command directly
 
@@ -145,10 +156,14 @@ retention policy when you turn this on.
 
 ## Comments
 
-The comment carries no images, deliberately. Notification emails are rendered
-once when sent, and the signed image URLs expire minutes later, so an inline
-image in a comment is a broken image in everyone's inbox. The images live in
-the job summary and the comment links to it.
+The comment carries the screenshots, in a collapsed block per failing test.
+This is the only place they display: see the note at the top for why.
+
+It comes with one cost worth knowing about. Notification emails are rendered
+once, when they are sent, and the signed URLs GitHub generates for these images
+expire minutes later — so the images will be broken in the email even though
+they are fine on the web. If that matters more to you than inline screenshots,
+there is no way to have both today.
 
 With a matrix build, each job writes its own comment body and uploads it as an
 artifact, and one job afterwards assembles them into a single comment. Posting
@@ -200,12 +215,16 @@ A missing report is not an error — the suite may simply not have run.
 
 The endpoint is undocumented and may change or disappear. A single failure
 switches uploading off for the rest of the run rather than retrying against
-something that is not there, and the reason is logged. The summary still gets
-written; it points at the artifact instead of showing images. Nothing about
-this can fail a build.
+something that is not there, and the reason is logged. The summary and comment
+are still written; they point at the artifact instead of showing images.
+Nothing about this can fail a build.
 
 One consequence of how the endpoint works is worth stating plainly: the URL it
 returns cannot be fetched. It is a handle that only GitHub's Markdown renderer
 resolves, and a direct request for it returns 404 whether or not you send
 credentials. A 201 response carrying a URL is the only success signal there is,
 so do not add a step that verifies an upload by reading it back.
+
+That is also why an upload can succeed while an image still fails to display:
+whether it renders depends on where you put it, not on whether the upload
+worked. Comments resolve these URLs; job summaries do not.
