@@ -8,6 +8,14 @@ name: Attachment Upload Probe
 #
 # Results land in the job summary either way; a comment is only posted when at
 # least one upload succeeds.
+#
+# Findings so far:
+#   - A user PAT works: HTTP 201 with {"url": "https://github.com/user-attachments/assets/<uuid>"}.
+#   - The Actions GITHUB_TOKEN gets HTTP 404 {"message":"Not Found"}, which is
+#     how GitHub denies an endpoint you are not allowed to see.
+#   - A GitHub App installation token gets the same 404, so it is the token
+#     class that is rejected, not the specific token.
+# Set an ATTACHMENT_UPLOAD_PAT secret to confirm a PAT works from CI too.
 
 on:
   pull_request:
@@ -57,6 +65,9 @@ jobs:
             label="$1"
             slug="$2"
             token="$3"
+            # The endpoint is undocumented, so try both auth schemes rather than
+            # concluding anything from a header format quirk.
+            scheme="${4:-Bearer}"
 
             if [ -z "${token}" ]; then
               printf '| %s | — | not configured, skipped |\n' "${label}" >> results.md
@@ -65,7 +76,7 @@ jobs:
 
             status=$(curl -sS -o response.json -w '%{http_code}' \
               -X POST \
-              -H "Authorization: Bearer ${token}" \
+              -H "Authorization: ${scheme} ${token}" \
               -H 'Accept: application/json' \
               --data-binary '@probe.png' \
               "https://uploads.github.com/user-attachments/assets?name=probe-${slug}.png&content_type=image/png&repository_id=${REPO_ID}") || status='000'
@@ -89,8 +100,9 @@ jobs:
             fi
           }
 
-          probe 'GITHUB_TOKEN (Actions)' 'actions' "${TOKEN_ACTIONS}"
-          probe 'PAT (ATTACHMENT_UPLOAD_PAT)' 'pat' "${TOKEN_PAT}"
+          probe 'GITHUB_TOKEN, Bearer' 'actions-bearer' "${TOKEN_ACTIONS}" 'Bearer'
+          probe 'GITHUB_TOKEN, token scheme' 'actions-token' "${TOKEN_ACTIONS}" 'token'
+          probe 'PAT (ATTACHMENT_UPLOAD_PAT)' 'pat' "${TOKEN_PAT}" 'Bearer'
 
           {
             echo '## Attachment upload probe'
