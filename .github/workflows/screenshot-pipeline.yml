@@ -1,0 +1,153 @@
+name: Screenshot Pipeline
+
+# Our own suite is green, so it never produces a failing screenshot and never
+# exercises uploading or rendering. Two bugs reached us that way. This makes a
+# comparison fail on purpose, runs the shipped action over the result, and then
+# checks that the images actually resolved — the endpoint is undocumented, so
+# "it uploaded" is not the same as "it displays".
+
+on:
+  pull_request:
+    paths:
+      - src/github/**
+      - .github/actions/**
+      - .github/workflows/screenshot-pipeline.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  verify:
+    name: Verify screenshots reach the comment
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+
+      - name: Build the package
+        run: npm install && npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Write a spec that will fail its comparison
+        run: |
+          mkdir -p screenshot-check
+
+          cat > screenshot-check/playwright.config.ts <<'CONFIG'
+          import { defineConfig } from '@playwright/test'
+
+          export default defineConfig({
+            testDir: '.',
+            reporter: [['json', { outputFile: 'results.json' }]],
+            projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
+          })
+          CONFIG
+
+          # The page renders whatever colour the environment asks for, so the
+          # baseline and the comparison can be made to disagree on purpose.
+          cat > screenshot-check/check.spec.ts <<'SPEC'
+          import { test, expect } from '@playwright/test'
+
+          test('the styleguide page still looks right', async ({ page }) => {
+            const colour = process.env.CHECK_COLOUR ?? '#ef4444'
+            await page.setViewportSize({ width: 480, height: 240 })
+            await page.setContent(`
+              <body style="margin:0;font-family:system-ui;background:${colour}">
+                <div style="padding:40px;color:#fff">
+                  <h1 style="margin:0 0 12px">Checkout summary</h1>
+                  <p style="margin:0;opacity:.85">Total: £42.00</p>
+                </div>
+              </body>
+            `)
+            await expect(page).toHaveScreenshot('styleguide.png', { maxDiffPixels: 0 })
+          })
+          SPEC
+
+      - name: Record the baseline
+        working-directory: screenshot-check
+        env:
+          CHECK_COLOUR: '#ef4444'
+        run: npx playwright test --update-snapshots
+
+      - name: Break it on purpose
+        working-directory: screenshot-check
+        env:
+          CHECK_COLOUR: '#3b82f6'
+        run: npx playwright test || echo 'Comparison failed, which is the point.'
+
+      - name: Failure summary
+        uses: ./.github/actions/failure-summary
+        with:
+          report-path: screenshot-check/results.json
+          token: ${{ secrets.SCREENSHOT_GITHUB_TOKEN }}
+          comment-path: screenshot-check-comment.md
+          title: Screenshot pipeline check
+          include: all
+          package: .
+
+      - name: Comment on the pull request
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: playwright-drupal-pipeline-check
+          path: screenshot-check-comment.md
+
+      # Uploading is not the same as displaying: an attachment URL renders in a
+      # comment but not in a job summary, and a broken one degrades to link text
+      # rather than erroring. Read the comment back and count what resolved.
+      - name: Check the images resolved
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HAS_TOKEN: ${{ secrets.SCREENSHOT_GITHUB_TOKEN != '' && 'yes' || 'no' }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -uo pipefail
+
+          if [ "${HAS_TOKEN}" != 'yes' ]; then
+            echo 'No SCREENSHOT_GITHUB_TOKEN — uploads are off, so there is nothing to check.'
+            echo 'This is expected on pull requests from forks.'
+            exit 0
+          fi
+
+          id=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --paginate \
+            --jq '[.[] | select(.body | contains("playwright-drupal-pipeline-check"))][-1].id')
+          if [ -z "${id}" ]; then
+            echo 'Could not find the check comment.' >&2
+            exit 1
+          fi
+
+          gh api "repos/${GITHUB_REPOSITORY}/issues/comments/${id}" \
+            -H 'Accept: application/vnd.github.html+json' --jq '.body_html' > rendered.html
+
+          resolved=$(grep -o 'src="https://private-user-images[^"]*"' rendered.html | wc -l)
+          unresolved=$(grep -o 'src="https://github.com/user-attachments[^"]*"' rendered.html | wc -l)
+
+          echo "Resolved images: ${resolved}"
+          echo "Unresolved attachment URLs: ${unresolved}"
+
+          {
+            echo '## Screenshot pipeline check'
+            echo
+            echo "- Images resolved to signed URLs: ${resolved}"
+            echo "- Attachment URLs left unresolved: ${unresolved}"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          # A failing comparison attaches expected, actual and diff.
+          if [ "${resolved}" -lt 3 ]; then
+            echo "Expected 3 resolved images, got ${resolved}." >&2
+            exit 1
+          fi
+          if [ "${unresolved}" -ne 0 ]; then
+            echo "${unresolved} attachment URL(s) did not resolve." >&2
+            exit 1
+          fi
