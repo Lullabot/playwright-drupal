@@ -82,13 +82,25 @@ What is verified about what the token needs:
   repository the token has no grant on returns exactly the same 404 an Actions
   token gets, so repository access is genuinely checked.
 - `GITHUB_REPOSITORY_ID` supplies that ID, and Actions sets it for you.
+- **Read-only access is not enough.** A token scoped to public repositories
+  read-only is refused.
 
-What is *not* knowable: the minimum permission set. The endpoint is
-undocumented and does not return the `X-Accepted-GitHub-Permissions` header
-that documented endpoints use to advertise their requirements, so it cannot be
-read off the API. It is verified working with a token granted repository access
-and Contents. Start with the narrowest grant you think will do and widen only
-if uploads fail — the command logs the status and response body, and switches
+The endpoint is undocumented and does not return the
+`X-Accepted-GitHub-Permissions` header that documented endpoints use to
+advertise their requirements, so the minimum cannot be read off the API. It is
+verified working with a token granted repository access including Contents
+write.
+
+The status code tells you which problem you have, which is worth knowing
+because the two look identical from the outside:
+
+| Status | Meaning |
+| --- | --- |
+| `201` | Uploaded. |
+| `403` `Resource not accessible by personal access token` | Right kind of token, repository visible, permissions too narrow. Widen them. |
+| `404` `Not Found` | Wrong kind of token — an Actions or GitHub App token — or a repository this token has no grant on. |
+
+The command logs both the status and the response body, then switches
 uploading off for the rest of the run rather than retrying.
 
 !!! warning "Prefer a machine account"
