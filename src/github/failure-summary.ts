@@ -274,7 +274,8 @@ export function generateSummary(report: FailureReport, options: { artifactHint?:
 
     for (const image of embedded) {
       lines.push(`**${image.kind}**\n`)
-      lines.push(`<img src="${image.url}" alt="${image.kind} for ${escapeAttribute(title)}" width="640">\n`)
+      const src = escapeAttribute(image.url ?? '')
+      lines.push(`<img src="${src}" alt="${image.kind} for ${escapeAttribute(title)}" width="640">\n`)
     }
 
     lines.push('</details>\n')

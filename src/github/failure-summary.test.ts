@@ -196,6 +196,12 @@ describe('generateSummary', () => {
     expect(summary).not.toContain('<details>')
   })
 
+  it('escapes the asset URL, which may one day carry query parameters', () => {
+    const report = reportWith('https://example.test/a?x=1&y=2')
+
+    expect(generateSummary(report)).toContain('src="https://example.test/a?x=1&amp;y=2"')
+  })
+
   it('escapes quotes coming from a test title', () => {
     const report = reportWith('https://example.test/a')
     report.tests[0].title = 'renders "quoted" text'
