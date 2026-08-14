@@ -17,6 +17,8 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  # Comments on a pull request are served by the issues API.
+  issues: read
 
 jobs:
   verify:
@@ -110,6 +112,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HAS_TOKEN: ${{ secrets.SCREENSHOT_GITHUB_TOKEN != '' && 'yes' || 'no' }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+        # Not `bash -e`: each step is checked explicitly so a failure says which
+        # one, rather than exiting silently.
+        shell: bash --noprofile --norc {0}
         run: |
           set -uo pipefail
 
@@ -119,15 +124,26 @@ jobs:
             exit 0
           fi
 
-          id=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --paginate \
-            --jq '[.[] | select(.body | contains("playwright-drupal-pipeline-check"))][-1].id')
+          echo "Listing comments on pull request ${PR_NUMBER}"
+          if ! gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --paginate > comments.json; then
+            echo 'Could not list the comments.' >&2
+            exit 1
+          fi
+          echo "Fetched $(jq 'length' comments.json) comment(s)"
+
+          # A comment with a null body would break `contains`, so guard it.
+          id=$(jq -r '[.[] | select(.body != null and (.body | contains("playwright-drupal-pipeline-check")))][-1].id // empty' comments.json)
           if [ -z "${id}" ]; then
             echo 'Could not find the check comment.' >&2
             exit 1
           fi
+          echo "Check comment: ${id}"
 
-          gh api "repos/${GITHUB_REPOSITORY}/issues/comments/${id}" \
-            -H 'Accept: application/vnd.github.html+json' --jq '.body_html' > rendered.html
+          if ! gh api "repos/${GITHUB_REPOSITORY}/issues/comments/${id}" \
+            -H 'Accept: application/vnd.github.html+json' --jq '.body_html' > rendered.html; then
+            echo 'Could not read the rendered comment.' >&2
+            exit 1
+          fi
 
           resolved=$(grep -o 'src="https://private-user-images[^"]*"' rendered.html | wc -l)
           unresolved=$(grep -o 'src="https://github.com/user-attachments[^"]*"' rendered.html | wc -l)
