@@ -96,28 +96,6 @@ jobs:
           include: all
           package: .
 
-      # The rendered summary cannot be read back through the API, and
-      # $GITHUB_STEP_SUMMARY is a per-step file so a later step cannot read what
-      # an earlier one wrote. Re-run the command with it unset to get the same
-      # Markdown on stdout — the asset URLs are the evidence needed to work out
-      # why they do or do not resolve. This uploads a second set of assets.
-      - name: Capture the markdown with its asset URLs
-        if: always()
-        env:
-          SCREENSHOT_GITHUB_TOKEN: ${{ secrets.SCREENSHOT_GITHUB_TOKEN }}
-        run: |
-          env -u GITHUB_STEP_SUMMARY node lib/github/failure-summary.js \
-            --report-path=demo/results.json --include=all > summary-markdown.md
-          grep -o 'user-attachments/assets/[a-f0-9-]*' summary-markdown.md || true
-
-      - name: Upload the summary markdown
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: screenshot-demo-summary
-          path: summary-markdown.md
-          retention-days: 1
-          if-no-files-found: ignore
 
   comment:
     name: Post the demo comment

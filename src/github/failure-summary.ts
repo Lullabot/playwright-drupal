@@ -316,8 +316,40 @@ export function generateComment(
   // decide whether to post at all without grepping prose — the empty-state
   // sentence contains the words "failing test" too.
   lines.push(`${FAILURE_MARKER_PREFIX}${report.totalFailed} -->\n`)
+  lines.push(renderBindingBlock(report))
 
   return lines.join('\n')
+}
+
+/**
+ * Reference every uploaded image in an HTML comment.
+ *
+ * An uploaded attachment does not render in a job summary until it has been
+ * referenced from real content — an issue or pull request body. Naming the URLs
+ * here does that without showing the images, which is deliberate: notification
+ * emails are rendered once when they are sent, and the signed URLs GitHub
+ * generates expire minutes later, so a visible image here is a broken image in
+ * everyone's inbox.
+ */
+function renderBindingBlock(report: FailureReport): string {
+  const urls = report.tests
+    .flatMap(test => test.images)
+    .map(image => image.url)
+    // A URL containing `--` would close the comment early. None do, but the
+    // consequence of being wrong is a mangled comment.
+    .filter((url): url is string => Boolean(url) && !url!.includes('--'))
+
+  if (urls.length === 0) return ''
+
+  return [
+    '<!--',
+    'Referencing the uploaded screenshots so they render in the job summary.',
+    'They are not shown here on purpose: emailed notifications render once, and',
+    'these URLs expire minutes after that.',
+    ...urls,
+    '-->',
+    '',
+  ].join('\n')
 }
 
 function escapeAttribute(value: string): string {

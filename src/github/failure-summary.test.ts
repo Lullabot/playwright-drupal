@@ -235,6 +235,33 @@ describe('generateComment', () => {
     expect(generateComment(report)).not.toContain('<img')
   })
 
+  it('references uploaded images invisibly, which is what binds them', () => {
+    // An attachment does not render in a job summary until it is referenced
+    // from real content, so the URLs go in an HTML comment.
+    const withUrls: FailureReport = {
+      ...report,
+      tests: [{
+        ...report.tests[0],
+        images: [{
+          name: 'homepage-diff.png',
+          contentType: 'image/png',
+          kind: 'diff',
+          url: 'https://github.com/user-attachments/assets/abc',
+        }],
+      }],
+    }
+
+    const comment = generateComment(withUrls)
+
+    expect(comment).toContain('<!--')
+    expect(comment).toContain('https://github.com/user-attachments/assets/abc')
+    expect(comment).not.toContain('<img')
+  })
+
+  it('omits the binding block when nothing was uploaded', () => {
+    expect(generateComment(report)).not.toContain('user-attachments')
+  })
+
   it('marks the failure count for a workflow to read', () => {
     // The empty-state sentence contains the words "failing test", so anything
     // grepping the prose would treat a green run as a failure.
