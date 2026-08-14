@@ -6,6 +6,10 @@ name: Token Permission Probe
 # that documented endpoints use to advertise their requirements.
 #
 # Delete this once the answer is recorded in the docs.
+#
+# Round 1, a token scoped read-only to public repositories: HTTP 403,
+# "Resource not accessible by personal access token" — the right kind of token
+# and a visible repository, but permissions too narrow.
 
 on:
   workflow_dispatch:
