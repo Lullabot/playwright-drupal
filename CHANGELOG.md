@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.8.2](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.8.1...playwright-drupal-1.8.2) (2026-08-14)
+
+
+### Bug Fixes
+
+* **screenshot:** settle each video correctly and hand playback back ([8ce3398](https://github.com/Lullabot/playwright-drupal/commit/8ce3398f6ec8a13a47d6c4c9e62235b12e3b711c))
+* **screenshot:** settle videos before capturing ([c6ba00b](https://github.com/Lullabot/playwright-drupal/commit/c6ba00be3f3c1b88a7589ba78ea48fb225dfe8d0))
+
+
+### Documentation
+
+* remove verbose docs ([ab3a591](https://github.com/Lullabot/playwright-drupal/commit/ab3a591f134ec87d4318c3667694d8a28fc39b3f))
+
 ## [1.8.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.8.0...playwright-drupal-1.8.1) (2026-08-07)
 
 
