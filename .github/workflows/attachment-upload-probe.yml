@@ -28,6 +28,11 @@ on:
         description: 'Pull request to comment on. Leave blank for a job summary only.'
         required: false
         type: string
+      asset-url:
+        description: 'An already-uploaded user-attachments URL to test rendering with.'
+        required: false
+        default: 'https://github.com/user-attachments/assets/beebfc6c-1748-4831-82cc-451cc54e2d23'
+        type: string
 
 permissions:
   contents: read
@@ -114,6 +119,44 @@ jobs:
 
           echo "any-success=${SUCCEEDED}" >> "${GITHUB_OUTPUT}"
 
+      # The upload and the render are separate questions. CI cannot upload, but
+      # it can embed an asset someone else uploaded — which is exactly the real
+      # arrangement, where a PAT uploads and the Actions bot writes the content.
+      # Emitting the same block into both the job summary and a comment shows
+      # whether the summary renderer resolves these URLs the way comments do.
+      - name: Build render checks
+        env:
+          ASSET_URL: ${{ inputs.asset-url || 'https://github.com/user-attachments/assets/beebfc6c-1748-4831-82cc-451cc54e2d23' }}
+        run: |
+          set -uo pipefail
+
+          {
+            echo '### Render checks'
+            echo
+            echo 'The asset below was uploaded by a user PAT. This text was written by the'
+            echo 'Actions job, so a rendered image means an asset uploaded by one identity'
+            echo 'displays in content authored by another.'
+            echo
+            echo '<details>'
+            echo '<summary>Collapsed details element (click to expand)</summary>'
+            echo
+            echo '**1. Markdown image syntax**'
+            echo
+            echo "![markdown form inside details](${ASSET_URL})"
+            echo
+            echo '**2. HTML img tag with width**'
+            echo
+            echo "<img src=\"${ASSET_URL}\" alt=\"html form inside details\" width=\"480\">"
+            echo
+            echo '</details>'
+            echo
+            echo '**3. Markdown image outside any details element**'
+            echo
+            echo "![markdown form outside details](${ASSET_URL})"
+          } > render-checks.md
+
+          cat render-checks.md >> "${GITHUB_STEP_SUMMARY}"
+
       # Always comment, even when nothing uploaded: whether GITHUB_TOKEN can
       # post a comment at all is a separate question from whether it can upload
       # an attachment, and this is the step that answers it.
@@ -146,6 +189,8 @@ jobs:
             cat results.md
             echo
             echo 'This comment itself was posted with `GITHUB_TOKEN`.'
+            echo
+            cat render-checks.md
           } > comment.md
 
           gh pr comment "${PR_NUMBER}" --body-file comment.md
