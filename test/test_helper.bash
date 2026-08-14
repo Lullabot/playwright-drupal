@@ -129,11 +129,13 @@ DOCKERFILE
     ddev restart >&3 2>&3
   fi
 
-  # Install the ddev-playwright add-on and restart.
+  # Install the ddev-playwright add-on. No restart here: `ddev install-playwright`
+  # below enables Dockerfile.playwright and does its own rebuild + restart, which
+  # picks up the add-on's Dockerfile.task and Dockerfile.uv in the same pass.
+  # Restarting now just pays for an extra container/router cycle, and its
+  # pre-start hook would copy a test/playwright directory that doesn't exist yet.
   echo "--- ddev add-on get Lullabot/ddev-playwright" >&3
   ddev add-on get Lullabot/ddev-playwright >&3 2>&3
-  echo "--- ddev restart" >&3
-  ddev restart >&3 2>&3
 
   # Initialize Playwright tests.
   mkdir -p test/playwright
