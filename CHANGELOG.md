@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.9.0...playwright-drupal-1.9.1) (2026-08-15)
+
+
+### Bug Fixes
+
+* **github:** read attachments written on the other side of a container ([#280](https://github.com/Lullabot/playwright-drupal/issues/280)) ([26015b8](https://github.com/Lullabot/playwright-drupal/commit/26015b8da1104139107940fc1b71343577577a3c))
+
 ## [1.9.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.8.2...playwright-drupal-1.9.0) (2026-08-15)
 
 
