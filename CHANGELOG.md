@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.9.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.8.2...playwright-drupal-1.9.0) (2026-08-15)
+
+
+### Features
+
+* **github:** embed failure screenshots in a sticky comment ([d32ace1](https://github.com/Lullabot/playwright-drupal/commit/d32ace16e5533944df245a0aa4281dc3077b3ca8))
+
+
+### Performance Improvements
+
+* **test:** drop redundant ddev restart after add-on install ([8c8b370](https://github.com/Lullabot/playwright-drupal/commit/8c8b370ab2e944ae9a7a1e2e5881d5d4c3dcd88b))
+
 ## [1.8.2](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.8.1...playwright-drupal-1.8.2) (2026-08-14)
 
 
