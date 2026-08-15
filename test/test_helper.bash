@@ -566,12 +566,19 @@ run_visual_diff_failure_summary() {
   local command
   command="test/playwright/node_modules/@lullabot/playwright-drupal/lib/github/failure-summary.js"
 
+  # Point $GITHUB_STEP_SUMMARY at a file of our own. The command writes the
+  # summary there whenever it is set, which on a runner it always is — so
+  # reading stdout instead would find it empty under CI and full locally, and
+  # this run's invented failure would land in the real job summary.
+  #
+  # That frees stdout, which is where workflow commands have to go, so both
+  # streams can be merged into one log and asserted on the same way either way.
   set +e
-  node "$command" \
-    --report-path=test/playwright/visual-diff-results.json \
-    --comment-path="$BATS_FILE_TMPDIR/visual_diff_comment.md" \
-    > "$BATS_FILE_TMPDIR/visual_diff_summary.md" \
-    2> "$BATS_FILE_TMPDIR/visual_diff_summary_log.txt"
+  env GITHUB_STEP_SUMMARY="$BATS_FILE_TMPDIR/visual_diff_summary.md" \
+    node "$command" \
+      --report-path=test/playwright/visual-diff-results.json \
+      --comment-path="$BATS_FILE_TMPDIR/visual_diff_comment.md" \
+      > "$BATS_FILE_TMPDIR/visual_diff_summary_log.txt" 2>&1
   echo "$?" > "$BATS_FILE_TMPDIR/visual_diff_summary_exit_code"
   set -e
 

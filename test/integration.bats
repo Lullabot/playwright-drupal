@@ -275,6 +275,14 @@ setup() {
 }
 
 @test "visual diff: the summary says why images were not uploaded" {
+  # Say so plainly when the summary went somewhere else entirely, rather than
+  # reporting a failed grep against a file that was never written.
+  if [ ! -s "$BATS_FILE_TMPDIR/visual_diff_summary.md" ]; then
+    echo "No summary was written to \$GITHUB_STEP_SUMMARY. Log:" >&2
+    cat "$BATS_FILE_TMPDIR/visual_diff_summary_log.txt" >&2
+    return 1
+  fi
+
   # No upload token here, which must read as an absent token rather than as a
   # missing file — the two used to be the same sentence.
   if ! grep -q "not uploaded (no upload token configured)" "$BATS_FILE_TMPDIR/visual_diff_summary.md"; then
