@@ -25,6 +25,11 @@ import * as path from 'path'
  * `config` is deliberately not consulted: `rootDir` is the *test* directory
  * rather than the project root, and `outputDir` need not contain the report,
  * so neither reliably shares a tail with the path the report was read from.
+ *
+ * Symlinking the container path on the runner instead looks like it should
+ * work and does not: the Ubuntu runner image ships Apache, so /var/www/html
+ * already exists as a directory and `ln -sfn` quietly creates the link inside
+ * it. The command exits 0 and changes nothing.
  */
 
 /**
