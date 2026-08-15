@@ -110,7 +110,7 @@ export function createPathResolver(
       const tail = target.components.slice(target.components.length - length).join('/')
 
       for (const root of searchRoots) {
-        const candidate = `${root.replace(/[\\/]+$/, '')}/${tail}`
+        const candidate = `${trimTrailingSeparators(root)}/${tail}`
         if (!exists(candidate)) continue
 
         return {
@@ -151,8 +151,21 @@ function applyPrefix(filePath: string, prefix: PathPrefix): string | null {
   }
 
   const rest = target.components.slice(from.components.length)
-  const to = prefix.to.replace(/[\\/]+$/, '')
+  const to = trimTrailingSeparators(prefix.to)
   return rest.length === 0 ? to : `${to}/${rest.join('/')}`
+}
+
+/**
+ * Trim trailing separators.
+ *
+ * An index scan rather than `/[\\/]+$/`, because that pattern backtracks
+ * quadratically over a long run of separators — and these strings are paths
+ * out of a report this package did not write.
+ */
+function trimTrailingSeparators(value: string): string {
+  let end = value.length
+  while (end > 0 && (value[end - 1] === '/' || value[end - 1] === '\\')) end--
+  return value.slice(0, end)
 }
 
 interface SplitPath {

@@ -207,11 +207,13 @@ describe('createPathResolver', () => {
     expect(resolution.prefix).toEqual({ from: '/var/www/html', to: tmpDir })
   })
 
-  it('tolerates a trailing slash on the local side', () => {
+  it('tolerates trailing slashes on the local side', () => {
     touch('test-results/diff.png')
     const resolve = createPathResolver({
       reportPath: path.join(tmpDir, 'results.json'),
-      prefixes: [{ from: '/var/www/html', to: `${tmpDir}/` }],
+      // A run of them, not just one: the trim is an index scan rather than a
+      // regex, because `/[\\/]+$/` backtracks quadratically over exactly this.
+      prefixes: [{ from: '/var/www/html', to: `${tmpDir}///` }],
     })
 
     expect(resolve('/var/www/html/test-results/diff.png').path)
