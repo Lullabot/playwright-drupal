@@ -4,12 +4,14 @@ import * as os from 'os'
 import * as path from 'path'
 import {
   parseFailures,
+  resolveImagePaths,
   generateSummary,
   generateComment,
   uploadImages,
   defuseMaskTriggers,
   FailureReport,
 } from './failure-summary'
+import { createPathResolver } from './report-paths'
 import { AttachmentUploader, FetchLike } from './attachments'
 
 let tmpDir: string
@@ -171,6 +173,33 @@ describe('generateSummary', () => {
     expect(summary).toContain('not uploaded')
   })
 
+  it('says an absent token is why nothing was uploaded', () => {
+    const summary = generateSummary(reportWith(undefined), {
+      uploadReason: 'no upload token configured',
+    })
+
+    expect(summary).toContain('not uploaded (no upload token configured)')
+  })
+
+  it('says so when the images were not where the report said they were', () => {
+    // The reason a reader most needs, and the one that used to be silent: the
+    // token is fine, the files are on the other side of a container boundary.
+    const report = reportWith(undefined)
+    report.tests[0].images[0].filePath = '/var/www/html/test/playwright/test-results/home-1-diff.png'
+    report.tests[0].images[0].unreadable = true
+
+    const summary = generateSummary(report)
+
+    expect(summary).toContain('1 screenshot(s) could not be read')
+    expect(summary).toContain('/var/www/html/test/playwright/test-results/home-1-diff.png')
+    expect(summary).toContain('--path-prefix=')
+    expect(summary).toContain('not uploaded (1 could not be read')
+  })
+
+  it('does not mention a path boundary when there is none', () => {
+    expect(generateSummary(reportWith(undefined))).not.toContain('could not be read')
+  })
+
   it('does not claim zero failing tests when only a11y captured something', () => {
     const summary = generateSummary({
       tests: [{
@@ -230,6 +259,28 @@ describe('generateComment', () => {
     expect(comment).toContain('**1** failing test(s)')
     expect(comment).toContain('homepage matches')
     expect(comment).toContain('(https://example.test/run/1)')
+  })
+
+  it('says why the screenshots it promised are not there', () => {
+    // The bullet list still advertises the screenshots, so a comment with no
+    // images has to account for them or it reads as a broken feature.
+    const comment = generateComment(report, { uploadReason: 'no upload token configured' })
+
+    expect(comment).toContain('1 screenshot(s) not shown — no upload token configured')
+  })
+
+  it('distinguishes unreadable images from an absent token', () => {
+    const unreadable: FailureReport = {
+      ...report,
+      tests: [{
+        ...report.tests[0],
+        images: [{ ...report.tests[0].images[0], unreadable: true }],
+      }],
+    }
+
+    const comment = generateComment(unreadable)
+
+    expect(comment).toContain('1 could not be read from the path recorded in the report')
   })
 
   it('embeds uploaded images in a collapsed block', () => {
@@ -299,6 +350,98 @@ describe('defuseMaskTriggers', () => {
 
   it('leaves the bare word alone, which the runner does not redact', () => {
     expect(defuseMaskTriggers('Bearer')).toBe('Bearer')
+  })
+})
+
+describe('resolveImagePaths', () => {
+  /**
+   * A report as it arrives from a run inside DDEV: every path absolute and
+   * under /var/www/html, read from a checkout that has no such directory.
+   */
+  function containerRun(diffPath: string) {
+    const raw = {
+      config: {
+        // What Playwright actually records: the *test* directory, which is why
+        // the report's own config is no use for locating the mount point.
+        rootDir: '/var/www/html/test/playwright/tests',
+        projects: [{ name: 'chromium', outputDir: '/var/www/html/test/playwright/test-results' }],
+      },
+      suites: [{
+        title: '',
+        file: 'tests/visual.spec.ts',
+        specs: [{
+          title: 'homepage matches',
+          line: 10,
+          tests: [{
+            results: [{
+              status: 'failed',
+              attachments: [{ name: 'homepage-1-diff.png', contentType: 'image/png', path: diffPath }],
+            }],
+          }],
+        }],
+      }],
+    }
+
+    const reportPath = path.join(tmpDir, 'test/playwright/test-results/results.json')
+    fs.mkdirSync(path.dirname(reportPath), { recursive: true })
+    fs.writeFileSync(reportPath, JSON.stringify(raw))
+
+    return reportPath
+  }
+
+  it('finds a diff image written by a container and read from outside it', () => {
+    // The bind mount that makes the two views differ also makes this work:
+    // the same file is under the checkout, at a different prefix.
+    const diffPath = path.join(tmpDir, 'test/playwright/test-results/homepage-chromium/homepage-1-diff.png')
+    fs.mkdirSync(path.dirname(diffPath), { recursive: true })
+    fs.writeFileSync(diffPath, 'png')
+
+    const reportPath = containerRun(
+      '/var/www/html/test/playwright/test-results/homepage-chromium/homepage-1-diff.png',
+    )
+    const report = parseFailures(reportPath)
+
+    const summary = resolveImagePaths(report, createPathResolver({ reportPath }))
+
+    expect(summary.unreadable).toEqual([])
+    expect(summary.remapped).toBe(1)
+    expect(summary.used).toEqual([{ from: '/var/www/html', to: tmpDir }])
+    expect(report.tests[0].images[0].filePath).toBe(diffPath)
+    expect(report.tests[0].images[0].unreadable).toBeUndefined()
+  })
+
+  it('marks an image it cannot reach, rather than passing the path on', () => {
+    const reportPath = containerRun(
+      '/var/www/html/test/playwright/test-results/never-written/never-written-diff.png',
+    )
+    const report = parseFailures(reportPath)
+
+    const summary = resolveImagePaths(report, createPathResolver({ reportPath }))
+
+    expect(summary.remapped).toBe(0)
+    expect(summary.unreadable).toEqual([
+      '/var/www/html/test/playwright/test-results/never-written/never-written-diff.png',
+    ])
+    expect(report.tests[0].images[0].unreadable).toBe(true)
+  })
+
+  it('leaves an inlined accessibility screenshot alone', () => {
+    // These carry a body rather than a path, which is why they were the one
+    // attachment kind that never hit the boundary.
+    const report = parseFailures(writeReport([{
+      title: 'homepage a11y',
+      status: 'failed',
+      attachments: [{
+        name: 'a11y-violation-screenshot',
+        contentType: 'image/png',
+        body: 'aGVsbG8=',
+      }],
+    }]))
+
+    const summary = resolveImagePaths(report, createPathResolver({ reportPath: '/nowhere/results.json' }))
+
+    expect(summary).toEqual({ remapped: 0, used: [], unreadable: [] })
+    expect(report.tests[0].images[0].body).toBe('aGVsbG8=')
   })
 })
 

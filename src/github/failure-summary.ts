@@ -1,6 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { AttachmentUploader, AttachmentUploaderOptions } from './attachments'
+import { PathPrefix, PathResolution, createPathResolver, parsePathPrefix } from './report-paths'
 
 /**
  * Turn a Playwright JSON report into a job summary — and optionally a PR
@@ -45,6 +46,12 @@ export interface FailureImage {
   kind: ImageKind
   /** Populated once the image has been uploaded. */
   url?: string
+  /**
+   * Set when the recorded path could not be found on this side of a container
+   * boundary. Distinguishes "there was nothing to upload with" from "there was
+   * nowhere to upload to", which otherwise render identically.
+   */
+  unreadable?: boolean
 }
 
 export interface FailedTest {
@@ -187,6 +194,56 @@ export function parseFailures(reportPath: string, include: IncludeMode = 'diff')
   return { tests, totalFailed, totalImages }
 }
 
+/** What re-rooting the report's attachment paths achieved. */
+export interface PathResolutionSummary {
+  /** Attachments whose recorded path had to be rewritten to be readable. */
+  remapped: number
+  /** The mappings that were used, for the log line. */
+  used: PathPrefix[]
+  /** Recorded paths with no readable file behind them, on either side. */
+  unreadable: string[]
+}
+
+/**
+ * Point every image at a file this process can open, and note the ones where
+ * that was not possible.
+ *
+ * Runs whether or not uploads are switched on: an unreachable attachment is
+ * worth reporting even on a fork build that was never going to upload it,
+ * because it is the same misconfiguration either way.
+ */
+export function resolveImagePaths(
+  report: FailureReport,
+  resolve: (filePath: string) => PathResolution,
+): PathResolutionSummary {
+  const summary: PathResolutionSummary = { remapped: 0, used: [], unreadable: [] }
+
+  for (const test of report.tests) {
+    for (const image of test.images) {
+      if (!image.filePath) continue
+
+      const resolution = resolve(image.filePath)
+      if (!resolution.found) {
+        image.unreadable = true
+        summary.unreadable.push(image.filePath)
+        continue
+      }
+
+      if (resolution.path === image.filePath) continue
+
+      summary.remapped++
+      image.filePath = resolution.path
+
+      const prefix = resolution.prefix
+      if (prefix && !summary.used.some(used => used.from === prefix.from && used.to === prefix.to)) {
+        summary.used.push(prefix)
+      }
+    }
+  }
+
+  return summary
+}
+
 /**
  * Upload every collected image, annotating each one with its URL. Images the
  * uploader declines are simply left without a URL, which the renderers treat
@@ -202,6 +259,9 @@ export async function uploadImages(
 
       if (image.filePath) {
         url = await uploader.upload(image.filePath, path.basename(image.filePath))
+        // resolveImagePaths() has already checked the file is there, so a null
+        // from an uploader that is still running means the read itself failed.
+        if (!url && uploader.enabled) image.unreadable = true
       } else if (image.body) {
         url = await uploader.uploadBuffer(
           Buffer.from(image.body, 'base64'),
@@ -237,6 +297,37 @@ function headline(report: FailureReport): string {
   return parts.join(' · ')
 }
 
+/** Every image across every test, which is what the diagnostics count. */
+function allImages(report: FailureReport): FailureImage[] {
+  return report.tests.flatMap(test => test.images)
+}
+
+/**
+ * Say why a set of images was not uploaded, or nothing when they were.
+ *
+ * "No token" and "the files were not where the report said" are different
+ * problems with different fixes, and until they are named apart a reader has
+ * no way to tell which one they have. An absent token is the dominant reason
+ * when it applies: nothing was going to be uploaded regardless.
+ */
+function missingImageReason(images: FailureImage[], uploadReason?: string): string | undefined {
+  if (uploadReason) return uploadReason
+
+  const unreadable = images.filter(image => image.unreadable).length
+  if (unreadable === 0) return undefined
+
+  return `${unreadable} could not be read from the path recorded in the report`
+}
+
+export interface SummaryOptions {
+  artifactHint?: string
+  /**
+   * Why uploading did not happen at all, phrased to sit inside a sentence —
+   * `no upload token configured`, say. Leave unset when uploads ran.
+   */
+  uploadReason?: string
+}
+
 /**
  * Render the job summary: a heading, a headline, and one collapsed block per
  * test holding its images.
@@ -244,13 +335,26 @@ function headline(report: FailureReport): string {
  * Deliberately table-free. Test titles and error messages are arbitrary text,
  * and the runner's masking can eat a cell delimiter and corrupt a whole row.
  */
-export function generateSummary(report: FailureReport, options: { artifactHint?: string } = {}): string {
+export function generateSummary(report: FailureReport, options: SummaryOptions = {}): string {
   // A baselined accessibility violation is screenshotted without failing
   // anything, so a green run can still have something to show here.
   const heading = report.totalFailed > 0 ? '## Test Failures' : '## Test Screenshots'
   const lines: string[] = [`${heading}\n`, `${headline(report)}\n`]
 
   if (report.tests.length === 0) return lines.join('\n')
+
+  // Name the path boundary where it will be read, rather than leaving the
+  // reader to conclude they forgot the token.
+  const unreadable = allImages(report).filter(image => image.unreadable)
+  if (unreadable.length > 0) {
+    const example = defuseMaskTriggers(unreadable[0].filePath ?? '')
+    lines.push(
+      `> :warning: **${unreadable.length} screenshot(s) could not be read.** The report records them ` +
+      `under \`${example}\`, which does not exist where this step ran. Playwright ran somewhere else — ` +
+      'a container, most likely — so run this command there too, or pass ' +
+      '`--path-prefix=CONTAINER_PATH:LOCAL_PATH` to map one onto the other.\n',
+    )
+  }
 
   for (const test of report.tests) {
     const title = defuseMaskTriggers(test.title)
@@ -272,7 +376,9 @@ export function generateSummary(report: FailureReport, options: { artifactHint?:
       lines.push(`${embedded} screenshot(s) uploaded — see the pull request comment.\n`)
     } else {
       const hint = options.artifactHint ?? 'the Playwright report artifact'
-      lines.push(`${test.images.length} screenshot(s) captured, not uploaded — download ${hint}.\n`)
+      const reason = missingImageReason(test.images, options.uploadReason)
+      const because = reason ? ` (${reason})` : ''
+      lines.push(`${test.images.length} screenshot(s) captured, not uploaded${because} — download ${hint}.\n`)
     }
   }
 
@@ -311,7 +417,7 @@ function renderImageBlock(test: FailedTest): string[] {
  */
 export function generateComment(
   report: FailureReport,
-  options: { summaryUrl?: string; title?: string } = {},
+  options: { summaryUrl?: string; title?: string; uploadReason?: string } = {},
 ): string {
   const heading = options.title ?? 'Playwright results'
   const lines: string[] = [`### ${heading}\n`, `${headline(report)}\n`]
@@ -332,6 +438,14 @@ export function generateComment(
       if (block.length === 0) continue
       lines.push(`**${defuseMaskTriggers(test.title)}**\n`)
       lines.push(...block)
+    }
+
+    // An empty comment where images were expected reads as a broken feature.
+    // Whatever the reason, it belongs where the images would have been.
+    const missing = allImages(report).filter(image => !image.url)
+    const reason = missingImageReason(missing, options.uploadReason)
+    if (missing.length > 0 && reason) {
+      lines.push(`_${missing.length} screenshot(s) not shown — ${reason}._\n`)
     }
   }
 
@@ -357,15 +471,26 @@ interface CliOptions {
   include: IncludeMode
   maxUploads?: number
   title?: string
+  pathPrefixes: PathPrefix[]
 }
 
 function parseArgs(args: string[]): CliOptions {
   const options: CliOptions = {
     reportPath: 'test-results/results.json',
     include: 'diff',
+    pathPrefixes: [],
   }
 
   for (const arg of args) {
+    // Repeatable: a project can have more than one mount to translate.
+    if (arg.startsWith('--path-prefix=')) {
+      const prefix = parsePathPrefix(arg.slice('--path-prefix='.length))
+      if (prefix) {
+        options.pathPrefixes.push(prefix)
+      } else {
+        console.error(`Ignoring --path-prefix: expected FROM:TO, got ${arg.slice('--path-prefix='.length)}`)
+      }
+    }
     if (arg.startsWith('--report-path=')) options.reportPath = arg.slice('--report-path='.length)
     if (arg.startsWith('--comment-path=')) options.commentPath = arg.slice('--comment-path='.length)
     if (arg.startsWith('--title=')) options.title = arg.slice('--title='.length)
@@ -380,6 +505,28 @@ function parseArgs(args: string[]): CliOptions {
   }
 
   return options
+}
+
+/**
+ * Raise a warning where someone will see it.
+ *
+ * A `::warning::` command has to go to stdout for the runner to pick it up,
+ * which is only safe once the summary itself is going to a file — otherwise it
+ * would land in the middle of the Markdown. Outside Actions, or when the
+ * summary is on stdout, stderr is the only sensible place.
+ */
+function warn(message: string): void {
+  const inActions = process.env.GITHUB_ACTIONS === 'true' && !!process.env.GITHUB_STEP_SUMMARY
+  if (inActions) {
+    process.stdout.write(`::warning title=Playwright screenshots::${escapeAnnotation(message)}\n`)
+  } else {
+    console.error(`Warning: ${message}`)
+  }
+}
+
+/** Workflow commands are line-based, so anything that ends a line is encoded. */
+function escapeAnnotation(message: string): string {
+  return message.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A')
 }
 
 /** Build the run's job summary URL, which is the best anchor a comment can link to. */
@@ -416,6 +563,25 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
 
   const report = parseFailures(resolvedPath, options.include)
 
+  // The report records where the run wrote its attachments, which is not
+  // necessarily anywhere this process can reach. Settle that before uploading,
+  // so an unreachable file is reported as one rather than as a silent skip.
+  const paths = resolveImagePaths(
+    report,
+    createPathResolver({ reportPath: resolvedPath, prefixes: options.pathPrefixes }),
+  )
+  if (paths.remapped > 0) {
+    const mappings = paths.used.map(prefix => `${prefix.from} → ${prefix.to}`).join(', ')
+    console.error(`Remapped ${paths.remapped} attachment path(s): ${mappings || 'no mapping recorded'}`)
+  }
+  if (paths.unreadable.length > 0) {
+    warn(
+      `${paths.unreadable.length} screenshot(s) could not be read, starting with ${paths.unreadable[0]}. ` +
+      'Playwright ran somewhere this command cannot reach — a container, most likely. Run it there too, ' +
+      'or pass --path-prefix=CONTAINER_PATH:LOCAL_PATH.',
+    )
+  }
+
   const uploader = uploaderFromEnvironment(
     options.maxUploads === undefined ? {} : { maxUploads: options.maxUploads },
   )
@@ -424,13 +590,16 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
     const stats = uploader.getStats()
     console.error(`Uploaded ${stats.uploaded} screenshot(s), skipped ${stats.skipped}.`)
     if (uploader.disabledReason) {
-      console.error(`Uploads stopped early — ${uploader.disabledReason}.`)
+      // Reaching an undocumented endpoint that no longer answers is a real
+      // fault, unlike an absent token on a fork build.
+      warn(`Screenshot uploads stopped early — ${uploader.disabledReason}.`)
     }
   } else {
     console.error(`Screenshot uploads are off — ${uploader.disabledReason}.`)
   }
 
-  const summary = generateSummary(report)
+  const uploadReason = uploader.disabledReason ?? undefined
+  const summary = generateSummary(report, { uploadReason })
   const summaryFile = process.env.GITHUB_STEP_SUMMARY
   if (summaryFile) {
     fs.appendFileSync(summaryFile, summary)
@@ -440,7 +609,11 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
   }
 
   if (options.commentPath) {
-    const comment = generateComment(report, { summaryUrl: summaryUrl(), title: options.title })
+    const comment = generateComment(report, {
+      summaryUrl: summaryUrl(),
+      title: options.title,
+      uploadReason,
+    })
     fs.writeFileSync(path.resolve(options.commentPath), comment)
     console.error(`Comment body written to ${options.commentPath}`)
   }

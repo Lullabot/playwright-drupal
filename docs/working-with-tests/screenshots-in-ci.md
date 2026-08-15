@@ -211,6 +211,7 @@ The action inputs map onto the command's flags.
 | `--title` | `title` | `Playwright results` | Heading for the comment. |
 | `--include` | `include` | `diff` | `diff` uploads only the diff image; `all` adds the expected and actual images. Accessibility screenshots are included either way. |
 | `--max-uploads` | `max-uploads` | `20` | Stop uploading after this many images. |
+| `--path-prefix` | `path-prefix` | derived | `FROM:TO` for attachment paths written on the other side of a container boundary. Repeatable on the command line. |
 | — | `token` | none | The upload token. Without it, no images. |
 | — | `artifact-name` | none | Upload the comment body under this artifact name. |
 | — | `package` | `@lullabot/playwright-drupal` | Where to run the command from. |
@@ -224,6 +225,13 @@ switches uploading off for the rest of the run rather than retrying against
 something that is not there, and the reason is logged. The summary and comment
 are still written; they point at the artifact instead of showing images.
 Nothing about this can fail a build.
+
+Whatever the cause, the rendered output says which one it was. "No upload token
+configured" and "3 could not be read from the path recorded in the report" are
+different problems with different fixes, and a summary that only said images
+were missing left no way to tell them apart. An unreachable attachment also
+raises a `::warning::` on the job, because it is a misconfiguration rather than
+a fact of life like an absent token on a fork build.
 
 One consequence of how the endpoint works is worth stating plainly: the URL it
 returns cannot be fetched. It is a handle that only GitHub's Markdown renderer

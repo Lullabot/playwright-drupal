@@ -202,6 +202,116 @@ setup() {
   fi
 }
 
+@test "setup: write visual diff test" {
+  write_visual_diff_test
+}
+
+@test "visual diff: write the baseline screenshot" {
+  # The helper leaves the shell in the project directory, so look for the
+  # baseline relative to it rather than joining the path a second time.
+  run_visual_diff_baseline
+
+  if ! ls test/playwright/tests/visual-diff.spec.ts-snapshots/*.png >/dev/null 2>&1; then
+    echo "Expected a baseline screenshot to be written. Output:" >&2
+    cat "$BATS_FILE_TMPDIR/visual_baseline_output.txt" >&2
+    return 1
+  fi
+}
+
+@test "visual diff: the comparison fails" {
+  run_visual_diff_tests
+
+  local exit_code
+  exit_code="$(cat "$BATS_FILE_TMPDIR/visual_diff_exit_code")"
+  if [ "$exit_code" -eq 0 ]; then
+    echo "Expected the visual comparison to fail, but it passed. Output:" >&2
+    cat "$BATS_FILE_TMPDIR/visual_diff_output.txt" >&2
+    return 1
+  fi
+}
+
+@test "visual diff: the report records a container path for the diff image" {
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+  local report="$PROJECT_DIR/test/playwright/visual-diff-results.json"
+
+  if [ ! -f "$report" ]; then
+    echo "Expected a JSON report at $report." >&2
+    return 1
+  fi
+
+  # This is the boundary the failure summary has to cross: the diff image is
+  # the only attachment kind carrying a path, and that path is the container's.
+  if ! grep -q '"path": *"/var/www/html/[^"]*-diff\.png"' "$report"; then
+    echo "Expected a container-side path for the diff image in the report:" >&2
+    grep -o '"path": *"[^"]*"' "$report" >&2 || true
+    return 1
+  fi
+}
+
+@test "visual diff: the failure summary reads the container's diff image" {
+  run_visual_diff_failure_summary
+
+  local exit_code
+  exit_code="$(cat "$BATS_FILE_TMPDIR/visual_diff_summary_exit_code")"
+  if [ "$exit_code" -ne 0 ]; then
+    echo "Failure summary exited with code $exit_code. Log:" >&2
+    cat "$BATS_FILE_TMPDIR/visual_diff_summary_log.txt" >&2
+    return 1
+  fi
+
+  # Ran on the host against a report written in the container, so the paths
+  # only resolve if they were re-rooted onto the checkout.
+  if ! grep -q "Remapped .* attachment path" "$BATS_FILE_TMPDIR/visual_diff_summary_log.txt"; then
+    echo "Expected the summary to re-root the container paths. Log:" >&2
+    cat "$BATS_FILE_TMPDIR/visual_diff_summary_log.txt" >&2
+    return 1
+  fi
+
+  if grep -q "could not be read" "$BATS_FILE_TMPDIR/visual_diff_summary_log.txt"; then
+    echo "The diff image was not readable from the host. Log:" >&2
+    cat "$BATS_FILE_TMPDIR/visual_diff_summary_log.txt" >&2
+    return 1
+  fi
+}
+
+@test "visual diff: the summary says why images were not uploaded" {
+  # Say so plainly when the summary went somewhere else entirely, rather than
+  # reporting a failed grep against a file that was never written.
+  if [ ! -s "$BATS_FILE_TMPDIR/visual_diff_summary.md" ]; then
+    echo "No summary was written to \$GITHUB_STEP_SUMMARY. Log:" >&2
+    cat "$BATS_FILE_TMPDIR/visual_diff_summary_log.txt" >&2
+    return 1
+  fi
+
+  # No upload token here, which must read as an absent token rather than as a
+  # missing file — the two used to be the same sentence.
+  if ! grep -q "not uploaded (no upload token configured)" "$BATS_FILE_TMPDIR/visual_diff_summary.md"; then
+    echo "Expected the summary to name the missing token. Summary:" >&2
+    cat "$BATS_FILE_TMPDIR/visual_diff_summary.md" >&2
+    return 1
+  fi
+
+  if grep -q "could not be read" "$BATS_FILE_TMPDIR/visual_diff_summary.md"; then
+    echo "The summary reported an unreadable image. Summary:" >&2
+    cat "$BATS_FILE_TMPDIR/visual_diff_summary.md" >&2
+    return 1
+  fi
+}
+
+@test "visual diff: the comment reports the failure" {
+  if ! grep -q "visual comparison fixture" "$BATS_FILE_TMPDIR/visual_diff_comment.md"; then
+    echo "Expected the failing test in the comment body. Comment:" >&2
+    cat "$BATS_FILE_TMPDIR/visual_diff_comment.md" >&2
+    return 1
+  fi
+
+  if ! grep -qE '<!-- playwright-drupal-failures: [1-9]' "$BATS_FILE_TMPDIR/visual_diff_comment.md"; then
+    echo "Expected a non-zero failure marker in the comment body. Comment:" >&2
+    cat "$BATS_FILE_TMPDIR/visual_diff_comment.md" >&2
+    return 1
+  fi
+}
+
 @test "setup: write recipe test" {
   write_recipe_test
 }

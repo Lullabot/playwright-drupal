@@ -492,6 +492,99 @@ run_a11y_baseline_tests() {
   set -e
 }
 
+# The failure summary reads the report from outside the container that wrote
+# it, so the one attachment kind carrying a file path — the snapshot comparison
+# images — is the only kind that can land on the wrong side of that boundary.
+# Accessibility screenshots are attached as a body and inlined into the report
+# as base64, so they never exercise it. Produce a real failing comparison.
+#
+# The page is built with setContent() rather than fetched from Drupal: the
+# subject here is the path the diff image is written to, and a fixture that
+# cannot vary with site content makes the failure deterministic.
+write_visual_diff_test() {
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+
+  cd "$PROJECT_DIR"
+
+  cat > test/playwright/tests/visual-diff.spec.ts << 'TESTEOF'
+import { test, expect } from '@playwright/test';
+
+test('visual comparison fixture', async ({ page }) => {
+  const colour = process.env.VISUAL_DIFF_COLOUR ?? 'white';
+  await page.setContent(`<body style="margin:0;background:${colour}"><h1>Visual diff fixture</h1></body>`);
+  await expect(page).toHaveScreenshot('fixture.png', { maxDiffPixels: 0 });
+});
+TESTEOF
+}
+
+run_visual_diff_baseline() {
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+
+  cd "$PROJECT_DIR"
+
+  # Keep this run away from test-results/, which holds the report the workflow
+  # picks up, and off the JSON reporter, which would overwrite it.
+  set +e
+  ddev exec -d /var/www/html/test/playwright \
+    npx playwright test tests/visual-diff.spec.ts --project=chromium --update-snapshots \
+    --reporter=line --output=test-results-visual \
+    2>&1 | tee "$BATS_FILE_TMPDIR/visual_baseline_output.txt" >&3
+  echo "${PIPESTATUS[0]}" > "$BATS_FILE_TMPDIR/visual_baseline_exit_code"
+  set -e
+}
+
+# Fail the comparison against the baseline just written, and keep the report
+# out of test-results/: that is where every other suite's report lives, and
+# Playwright empties the output directory at the start of each run.
+run_visual_diff_tests() {
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+
+  cd "$PROJECT_DIR"
+
+  set +e
+  ddev exec -d /var/www/html/test/playwright \
+    bash -c 'VISUAL_DIFF_COLOUR=red PLAYWRIGHT_JSON_OUTPUT_NAME=visual-diff-results.json \
+      npx playwright test tests/visual-diff.spec.ts --project=chromium --reporter=json \
+      --output=test-results-visual' \
+    > "$BATS_FILE_TMPDIR/visual_diff_output.txt" 2>&1
+  echo "$?" > "$BATS_FILE_TMPDIR/visual_diff_exit_code"
+  set -e
+
+  # Leave the tree as it was found: a spec that fails by design would fail any
+  # later full-suite run.
+  rm -f test/playwright/tests/visual-diff.spec.ts
+  rm -rf test/playwright/tests/visual-diff.spec.ts-snapshots
+}
+
+# Run the failure summary the way a workflow does — on the host, against a
+# report whose attachment paths were written inside the container.
+run_visual_diff_failure_summary() {
+  PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
+
+  cd "$PROJECT_DIR"
+
+  local command
+  command="test/playwright/node_modules/@lullabot/playwright-drupal/lib/github/failure-summary.js"
+
+  # Point $GITHUB_STEP_SUMMARY at a file of our own. The command writes the
+  # summary there whenever it is set, which on a runner it always is — so
+  # reading stdout instead would find it empty under CI and full locally, and
+  # this run's invented failure would land in the real job summary.
+  #
+  # That frees stdout, which is where workflow commands have to go, so both
+  # streams can be merged into one log and asserted on the same way either way.
+  set +e
+  env GITHUB_STEP_SUMMARY="$BATS_FILE_TMPDIR/visual_diff_summary.md" \
+    node "$command" \
+      --report-path=test/playwright/visual-diff-results.json \
+      --comment-path="$BATS_FILE_TMPDIR/visual_diff_comment.md" \
+      > "$BATS_FILE_TMPDIR/visual_diff_summary_log.txt" 2>&1
+  echo "$?" > "$BATS_FILE_TMPDIR/visual_diff_summary_exit_code"
+  set -e
+
+  cat "$BATS_FILE_TMPDIR/visual_diff_summary_log.txt" >&3
+}
+
 write_recipe_test() {
   PROJECT_DIR="$(cat "$BATS_FILE_TMPDIR/project_dir")"
 
