@@ -80,6 +80,57 @@ npx playwright-drupal-failure-summary --report-path=test-results/results.json
 It writes to `$GITHUB_STEP_SUMMARY`, or to stdout when run outside GitHub
 Actions.
 
+## Running Playwright in a container
+
+If your tests run in DDEV's web container — which is the arrangement this
+package is built for — the report and the images it points at are written from
+inside it. Every attachment path in the report is a container path,
+`/var/www/html/test/playwright/test-results/…`, and a workflow step reading
+that report on the runner is on the other side of the boundary. The report
+opens; the images it names do not exist.
+
+Nothing needs configuring for this. DDEV bind-mounts the project root at
+`/var/www/html`, so both views of a file agree on everything below the mount
+point and differ only above it. The mount point is found by hanging
+progressively longer tails of an unreadable path off the directories around the
+report until one of them names a file that is really there — longest tail
+first, so the most specific match wins, and never on the file name alone. Every
+mapping is confirmed against the disk before it is used, so a wrong guess finds
+nothing rather than the wrong image.
+
+The report's own `config` is deliberately not consulted for this. Its `rootDir`
+is the *test* directory rather than the project root, and `outputDir` need not
+contain the report, so neither reliably shares a tail with the path the report
+was read from.
+
+When that cannot work — a report copied somewhere unrelated to the checkout it
+describes, or a mount this cannot infer — say so directly:
+
+```yaml
+- uses: Lullabot/playwright-drupal/.github/actions/failure-summary@main
+  with:
+    report-path: test/playwright/test-results/results.json
+    path-prefix: /var/www/html:${{ github.workspace }}
+```
+
+Running the command inside the container instead also works, and is what the
+accessibility action does. It needs one extra step: `$GITHUB_STEP_SUMMARY` is a
+runner-side path the container cannot write to, so the summary has to be piped
+to it from the host shell.
+
+!!! warning "Do not symlink `/var/www/html` on the runner"
+
+    It looks like it should work and it does not. The Ubuntu runner image ships
+    Apache, so `/var/www/html` already exists as a directory, and `ln -sfn`
+    quietly creates the link *inside* it. The command exits 0 and changes
+    nothing.
+
+Only snapshot comparison images are affected, which is why this can look like a
+feature that works. Accessibility screenshots are attached as a body rather
+than a file, and Playwright's JSON reporter inlines those as base64 — they
+travel inside the report and never touch a path. The `-diff`, `-actual` and
+`-expected` images are the only attachments carrying one.
+
 ## The upload token
 
 Embedding images means uploading them to GitHub first, and that upload is the
@@ -211,6 +262,7 @@ The action inputs map onto the command's flags.
 | `--title` | `title` | `Playwright results` | Heading for the comment. |
 | `--include` | `include` | `diff` | `diff` uploads only the diff image; `all` adds the expected and actual images. Accessibility screenshots are included either way. |
 | `--max-uploads` | `max-uploads` | `20` | Stop uploading after this many images. |
+| `--path-prefix` | `path-prefix` | derived | `FROM:TO` for attachment paths written on the other side of a container boundary. Repeatable on the command line. |
 | — | `token` | none | The upload token. Without it, no images. |
 | — | `artifact-name` | none | Upload the comment body under this artifact name. |
 | — | `package` | `@lullabot/playwright-drupal` | Where to run the command from. |
@@ -224,6 +276,13 @@ switches uploading off for the rest of the run rather than retrying against
 something that is not there, and the reason is logged. The summary and comment
 are still written; they point at the artifact instead of showing images.
 Nothing about this can fail a build.
+
+Whatever the cause, the rendered output says which one it was. "No upload token
+configured" and "3 could not be read from the path recorded in the report" are
+different problems with different fixes, and a summary that only said images
+were missing left no way to tell them apart. An unreachable attachment also
+raises a `::warning::` on the job, because it is a misconfiguration rather than
+a fact of life like an absent token on a fork build.
 
 One consequence of how the endpoint works is worth stating plainly: the URL it
 returns cannot be fetched. It is a handle that only GitHub's Markdown renderer

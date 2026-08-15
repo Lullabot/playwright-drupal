@@ -40,6 +40,17 @@ inputs:
     description: Stop uploading after this many images.
     required: false
     default: '20'
+  path-prefix:
+    description: >-
+      `FROM:TO` mapping for the attachment paths in the report, for when
+      Playwright ran somewhere this step cannot reach — mapping
+      `/var/www/html` onto the checkout, for a DDEV project. Normally
+      unnecessary: the mapping is worked out by locating the recorded files
+      around the report, and confirmed against the disk before it is used. Set
+      it when that cannot work, such as a report moved away from the files it
+      describes.
+    required: false
+    default: ''
   package:
     description: >-
       Package to run the command from, resolved with npx — so a name, a version
@@ -60,6 +71,7 @@ runs:
         TITLE: ${{ inputs.title }}
         INCLUDE: ${{ inputs.include }}
         MAX_UPLOADS: ${{ inputs.max-uploads }}
+        PATH_PREFIX: ${{ inputs.path-prefix }}
         PACKAGE: ${{ inputs.package }}
       run: |
         # A missing report is not a failure: the suite may not have run.
@@ -76,6 +88,9 @@ runs:
         )
         if [ -n "${COMMENT_PATH}" ]; then
           args+=("--comment-path=${COMMENT_PATH}")
+        fi
+        if [ -n "${PATH_PREFIX}" ]; then
+          args+=("--path-prefix=${PATH_PREFIX}")
         fi
 
         # A checkout that has already been built can be run as it stands, which
