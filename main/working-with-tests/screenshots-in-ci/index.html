@@ -1362,6 +1362,12 @@ previously failing pull request goes green.</p>
 <td>Stop uploading after this many images.</td>
 </tr>
 <tr>
+<td><code>--path-prefix</code></td>
+<td><code>path-prefix</code></td>
+<td>derived</td>
+<td><code>FROM:TO</code> for attachment paths written on the other side of a container boundary. Repeatable on the command line.</td>
+</tr>
+<tr>
 <td>—</td>
 <td><code>token</code></td>
 <td>none</td>
@@ -1388,6 +1394,12 @@ switches uploading off for the rest of the run rather than retrying against
 something that is not there, and the reason is logged. The summary and comment
 are still written; they point at the artifact instead of showing images.
 Nothing about this can fail a build.</p>
+<p>Whatever the cause, the rendered output says which one it was. "No upload token
+configured" and "3 could not be read from the path recorded in the report" are
+different problems with different fixes, and a summary that only said images
+were missing left no way to tell them apart. An unreachable attachment also
+raises a <code>::warning::</code> on the job, because it is a misconfiguration rather than
+a fact of life like an absent token on a fork build.</p>
 <p>One consequence of how the endpoint works is worth stating plainly: the URL it
 returns cannot be fetched. It is a handle that only GitHub's Markdown renderer
 resolves, and a direct request for it returns 404 whether or not you send
