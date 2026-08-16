@@ -25,17 +25,7 @@ export async function waitForImages(page: Page, selector: string): Promise<void>
   }
 
   // Make sure all images have loaded.
-  // @ts-ignore
-  const promises = (await locators.all()).map(locator => locator.evaluate(image => {
-    // Make sure 1x1 images that are visually hidden for accessibility (like
-    // on the Umami home page) don't hang waiting for the image to load. Even
-    // though the images are :visible, Chrome doesn't load the image at desktop
-    // widths.
-    // See https://www.tpgi.com/the-anatomy-of-visually-hidden/ for details on
-    // how .visually-hidden works.
-    // @ts-ignore
-    return ((image.width <= 1 && image.height <= 1) || image.complete || new Promise(f => image.onload = f));
-  }));
+  const promises = (await locators.all()).map(locator => locator.evaluate(settleImage));
   await Promise.all(promises);
 
   // The wait above treats an errored image as "loaded": a 404 -- or a Stage
@@ -81,6 +71,49 @@ export async function waitForImages(page: Page, selector: string): Promise<void>
     }
     return window.scrollY == 0;
   }, forcedScroll);
+}
+
+/**
+ * Wait for a single image to stop being in flight.
+ *
+ * Returns without a promise for an image that needs no waiting at all: one that
+ * has already settled, or a 1x1 image that is visually hidden for accessibility
+ * (like on the Umami home page), which would otherwise hang forever -- even
+ * though such images are :visible, Chrome doesn't load them at desktop widths. See
+ * https://www.tpgi.com/the-anatomy-of-visually-hidden/ for how .visually-hidden
+ * works.
+ *
+ * Otherwise it waits for the request to finish, whether it succeeds or fails.
+ * Waiting on `load` alone would hang until the test timed out on any image that
+ * errors after the wait begins -- a 404, or a Stage File Proxy URL that 503s
+ * while it fetches the original on demand -- because such an image only ever
+ * fires `error`. That hang is worse than useless here: it happens before
+ * waitForImagesToDecode() runs, so it also denies the one piece of code that
+ * knows how to re-request a broken image the chance to recover it. Settling on
+ * `error` hands the image on to that recovery instead.
+ *
+ * Listeners are added rather than assigned to `onload`/`onerror` so that any
+ * handler the page itself installed keeps working.
+ *
+ * This runs in the browser via `evaluate()`, which serializes the function
+ * source, so it must stay self-contained and reference nothing else in this
+ * module. It is exported so the waiting can be tested directly.
+ *
+ * @param image
+ */
+export function settleImage(image: HTMLImageElement): void | Promise<void> {
+  if ((image.width <= 1 && image.height <= 1) || image.complete) {
+    return;
+  }
+  return new Promise<void>(resolve => {
+    const settled = () => {
+      image.removeEventListener("load", settled);
+      image.removeEventListener("error", settled);
+      resolve();
+    };
+    image.addEventListener("load", settled);
+    image.addEventListener("error", settled);
+  });
 }
 
 /**

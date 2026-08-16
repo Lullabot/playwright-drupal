@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-import { decodeVisibleImages, waitForImagesToDecode } from './images'
+import { decodeVisibleImages, settleImage, waitForImagesToDecode } from './images'
 
 /**
  * A stand-in for the parts of HTMLImageElement decodeVisibleImages() touches.
@@ -179,6 +179,86 @@ describe('decodeVisibleImages', () => {
     expect(await decodeVisibleImages({ timeoutMs: 0, ...fast })).toEqual([
       'https://example.com/missing.jpg',
     ])
+  })
+})
+
+/**
+ * A stand-in for the parts of HTMLImageElement settleImage() touches.
+ *
+ * settleImage() also runs in the browser, so it is exercised against a fake
+ * element whose load and error events can be fired on demand.
+ */
+function makeSettleImage(options: { width?: number, height?: number, complete?: boolean } = {}) {
+  const listeners: Record<string, Array<() => void>> = { load: [], error: [] }
+
+  return {
+    width: options.width ?? 100,
+    height: options.height ?? 100,
+    complete: options.complete ?? false,
+    /** Assigning these instead of adding listeners would clobber the page's. */
+    onload: null,
+    onerror: null,
+    addEventListener: (type: string, handler: () => void) => {
+      listeners[type].push(handler)
+    },
+    removeEventListener: (type: string, handler: () => void) => {
+      listeners[type] = listeners[type].filter(h => h !== handler)
+    },
+    fire: (type: 'load' | 'error') => {
+      listeners[type].slice().forEach(handler => handler())
+    },
+    listenerCount: () => listeners.load.length + listeners.error.length,
+  }
+}
+
+describe('settleImage', () => {
+  it('does not wait for an image that has already settled', () => {
+    const settled = makeSettleImage({ complete: true })
+
+    // No promise back means nothing to await.
+    expect(settleImage(settled as any)).toBeUndefined()
+    expect(settled.listenerCount()).toBe(0)
+  })
+
+  it('does not wait for a 1x1 visually-hidden image', () => {
+    // Chrome never loads these at desktop widths, so waiting would hang.
+    const hidden = makeSettleImage({ width: 1, height: 1, complete: false })
+
+    expect(settleImage(hidden as any)).toBeUndefined()
+    expect(hidden.listenerCount()).toBe(0)
+  })
+
+  it('resolves once a loading image loads', async () => {
+    const loading = makeSettleImage()
+    const settled = settleImage(loading as any)
+    loading.fire('load')
+
+    await expect(settled).resolves.toBeUndefined()
+  })
+
+  it('resolves once a loading image errors', async () => {
+    // The regression: an image that 404s or 503s after the wait begins only
+    // ever fires `error`. Waiting on `load` alone hung until the test timed
+    // out, and never reached the decode retry that could have recovered it.
+    const loading = makeSettleImage()
+    const settled = settleImage(loading as any)
+    loading.fire('error')
+
+    await expect(settled).resolves.toBeUndefined()
+  })
+
+  it('cleans up both listeners once settled, and leaves the page handlers alone', async () => {
+    const loading = makeSettleImage()
+    const settled = settleImage(loading as any)
+    expect(loading.listenerCount()).toBe(2)
+
+    loading.fire('error')
+    await settled
+
+    expect(loading.listenerCount()).toBe(0)
+    // Assigning onload/onerror would have replaced whatever the page installed.
+    expect(loading.onload).toBeNull()
+    expect(loading.onerror).toBeNull()
   })
 })
 
