@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.2](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.9.1...playwright-drupal-1.9.2) (2026-08-17)
+
+
+### Bug Fixes
+
+* **images:** settle the image wait on error as well as load ([ca49e0b](https://github.com/Lullabot/playwright-drupal/commit/ca49e0b34d66c266f33101452d8c2d2f910e9091))
+
 ## [1.9.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.9.0...playwright-drupal-1.9.1) (2026-08-15)
 
 
