@@ -62,6 +62,21 @@ jobs:
           path: lullabot-playwright-drupal-*.tgz
           retention-days: 1
 
+  shell-test:
+    # bin/playwright-mutex needs neither DDEV nor Docker, so it does not belong
+    # behind the fifteen-minute integration matrix below.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install bats
+        run: sudo apt-get update && sudo apt-get install -y bats
+
+      - name: Run shell tests
+        run: bats test/mutex.bats
+
   test:
     needs: build
     runs-on: ubuntu-24.04

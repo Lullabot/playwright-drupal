@@ -15,6 +15,7 @@ describe('definePlaywrightDrupalConfig', () => {
     // Clear CI and DDEV_PRIMARY_URL before each test.
     delete process.env.CI
     delete process.env.DDEV_PRIMARY_URL
+    delete process.env.PLAYWRIGHT_WORKERS
   })
 
   afterEach(() => {
@@ -84,6 +85,40 @@ describe('definePlaywrightDrupalConfig', () => {
   it('allows overriding workers', async () => {
     const config = await loadConfig({ workers: 1 })
     expect(config.workers).toBe(1)
+  })
+
+  it('reads workers from PLAYWRIGHT_WORKERS', async () => {
+    process.env.PLAYWRIGHT_WORKERS = '3'
+    const config = await loadConfig()
+    expect(config.workers).toBe(3)
+  })
+
+  it('accepts a percentage in PLAYWRIGHT_WORKERS', async () => {
+    process.env.PLAYWRIGHT_WORKERS = '50%'
+    const config = await loadConfig()
+    expect(config.workers).toBe('50%')
+  })
+
+  it('lets PLAYWRIGHT_WORKERS win over a config override', async () => {
+    process.env.PLAYWRIGHT_WORKERS = '3'
+    const config = await loadConfig({ workers: 8 })
+    expect(config.workers).toBe(3)
+  })
+
+  it('ignores an empty PLAYWRIGHT_WORKERS', async () => {
+    process.env.PLAYWRIGHT_WORKERS = '   '
+    const config = await loadConfig()
+    expect(config.workers).toBe(Math.max(2, os.cpus().length - 2))
+  })
+
+  it('throws on an unusable PLAYWRIGHT_WORKERS', async () => {
+    process.env.PLAYWRIGHT_WORKERS = 'lots'
+    await expect(loadConfig()).rejects.toThrow(/PLAYWRIGHT_WORKERS/)
+  })
+
+  it('throws on a non-positive PLAYWRIGHT_WORKERS', async () => {
+    process.env.PLAYWRIGHT_WORKERS = '0'
+    await expect(loadConfig()).rejects.toThrow(/PLAYWRIGHT_WORKERS/)
   })
 
   it('allows overriding globalSetup', async () => {

@@ -3,17 +3,57 @@ version: '3'
 vars:
   DOCROOT:
     sh: node -e "try { const c = require('./composer.json'); const w = (c.extra?.['drupal-scaffold']?.locations?.['web-root'] || 'web').replace(/\/$/, ''); process.stdout.write(w); } catch(e) { process.stdout.write('web'); }"
+
+  # Wrapper that serialises Playwright runs across every DDEV project on the
+  # machine. It is a no-op unless PLAYWRIGHT_MUTEX=1 is set, so wiring it in
+  # here changes nothing by default. See bin/playwright-mutex and the
+  # "Running Tests Concurrently" documentation.
+  #
+  # Falls back to `env`, which runs its arguments unchanged, so a project that
+  # vendors this Taskfile somewhere unexpected still runs its tests.
+  MUTEX:
+    sh: |
+      for candidate in \
+        "{{ .TASKFILE_DIR }}/../bin/playwright-mutex" \
+        "test/playwright/node_modules/@lullabot/playwright-drupal/bin/playwright-mutex" \
+        "node_modules/@lullabot/playwright-drupal/bin/playwright-mutex"; do
+        if [ -x "$candidate" ]; then
+          printf '%s' "$candidate"
+          exit 0
+        fi
+      done
+      printf 'env'
 tasks:
   run:
     desc: "Runs playwright functional tests."
     summary: |
       Runs Playwright tests.
         - shard=x/y: Run a fraction of tests. Optional.
+
+      Arguments after `--` are forwarded to `playwright test`:
+
+        task playwright:run -- --grep @smoke
+
+      Note that they are forwarded as a single string and re-split on spaces,
+      so a pattern containing a space needs to avoid one: prefer
+      `--grep 'Front.page'` over `--grep 'Front page'`.
+
+      With PLAYWRIGHT_MUTEX=1 set, only one run happens at a time across the
+      whole machine. See "Running Tests Concurrently" in the documentation.
+    cmds:
+      # The body is a separate task because the lock has to span both
+      # playwright:install and the run itself, and a Taskfile cmd is one shell.
+      - '{{ .MUTEX }} task -x playwright:run:locked shard={{ default "1/1" .shard }} -- {{ .CLI_ARGS }}'
+
+  # Deliberately has no desc: it is an implementation detail of playwright:run
+  # and stays out of `task --list`. It cannot be marked `internal`, because the
+  # mutex shells back out to `task` and that counts as a CLI invocation.
+  run:locked:
     cmds:
       - task: install
       - |
         cd test/playwright
-        npx playwright test --shard={{ default "1/1" .shard }}
+        npx playwright test --shard={{ default "1/1" .shard }} {{ .CLI_ARGS }}
         STATUS=$?
         echo "System uptime and load average statistics:"; uptime
         echo "If the load average is significantly different than **$(cat /proc/cpuinfo | grep processor | wc -l)** there may be too many or two few Playwright workers assigned. You might want to tweak the number of workers or shards."
@@ -156,17 +196,44 @@ tasks:
 
   visualdiff:
     desc: Runs only visual diff tests
-    deps:
-      - install
+    summary: |
+      Runs only the tests that have a -snapshots directory next to them.
+
+      Arguments after `--` are forwarded to `playwright test`:
+
+        task playwright:visualdiff -- --project chromium
+
+      They are forwarded as a single string and re-split on spaces, so a
+      pattern containing a space needs to avoid one: prefer
+      `--grep 'Front.page'` over `--grep 'Front page'`.
+
+      With PLAYWRIGHT_MUTEX=1 set, only one run happens at a time across the
+      whole machine. See "Running Tests Concurrently" in the documentation.
     cmds:
+      # See the note on playwright:run for why the body is a separate task.
+      - '{{ .MUTEX }} task -x playwright:visualdiff:locked -- {{ .CLI_ARGS }}'
+
+  visualdiff:locked:
+    cmds:
+      - task: install
       - |
         cd test/playwright
 
         # First capture all tests that have snapshots.
         TESTS=$(find . -name '*-snapshots' -type d | sed 's/-snapshots//' | sed 's/\.\///')
 
+        # Bail rather than run everything. `xargs` with an empty list still
+        # executes the command, and `playwright test` with no file filter runs
+        # the entire suite -- a green result that tested far more than asked.
+        if [ -z "$TESTS" ]; then
+          echo "No *-snapshots directories found under test/playwright." >&2
+          echo "Nothing was run. Run the test once so Playwright writes its first" >&2
+          echo "snapshot, which is what creates the directory this looks for." >&2
+          exit 1
+        fi
+
         # Run just tests with snapshots.
-        echo $TESTS | xargs npx playwright test
+        echo $TESTS | xargs npx playwright test {{ .CLI_ARGS }}
 
   regenerate:
     desc: Regenerates all Playwright snapshots, deleting existing ones by default
@@ -175,29 +242,72 @@ tasks:
       Playwright test. Then, it reruns tests with the --update-snapshots
       argument.
         - delete=<0,1>: Set to 0 to not delete existing snapshots. Useful
-                        when snapshot filenames should not change. Optional.
+                        when snapshot filenames should not change. Optional,
+                        and defaults to 1 only when no filter is given.
+
+      Arguments after `--` are forwarded to `playwright test`, and require an
+      explicit `delete` because deleting every snapshot before regenerating a
+      filtered subset would leave the rest missing.
+
+      They are forwarded as a single string and re-split on spaces, so a
+      pattern containing a space needs to avoid one: prefer
+      `--grep 'Front.page'` over `--grep 'Front page'`.
+
+      With PLAYWRIGHT_MUTEX=1 set, only one run happens at a time across the
+      whole machine. See "Running Tests Concurrently" in the documentation.
 
       Examples:
         Do not delete snapshots when regenerating.
         - task playwright:regenerate delete=0
-    deps:
-      - playwright:install
-    vars:
-      delete: '{{ default "1" .delete }}'
+
+        Regenerate only one test's snapshots, keeping the rest.
+        - task playwright:regenerate delete=0 -- --grep 'Front.page'
     cmds:
+      # See the note on playwright:run for why the body is a separate task.
+      # Both `delete` and the trailing arguments have to cross the nested task
+      # call: a nested `task` process starts with an empty CLI_ARGS, so
+      # dropping either silently changes what this destroys.
+      - '{{ .MUTEX }} task -x playwright:regenerate:locked delete={{ .delete }} -- {{ .CLI_ARGS }}'
+
+  regenerate:locked:
+    cmds:
+      - task: install
       - |
         cd test/playwright
         # First capture all tests that have snapshots.
         TESTS=$(find . -name '*-snapshots' -type d | sed 's/-snapshots//' | sed 's/\.\///')
 
+        if [ -z "$TESTS" ]; then
+          echo "No *-snapshots directories found under test/playwright." >&2
+          echo "Nothing was run. Create the directory for a test before regenerating," >&2
+          echo "or run the test once so Playwright writes its first snapshot." >&2
+          exit 1
+        fi
+
+        DELETE='{{ .delete }}'
+        ARGS='{{ .CLI_ARGS }}'
+
+        # Deleting every snapshot and then regenerating a filtered subset
+        # leaves the rest missing, which looks like a regeneration that worked
+        # until the next full run. Make the caller say which they meant.
+        if [ -z "$DELETE" ]; then
+          if [ -n "$ARGS" ]; then
+            echo "Refusing to delete every snapshot for a filtered regeneration." >&2
+            echo "Pass delete=0 to keep the snapshots you are not regenerating," >&2
+            echo "or delete=1 if wiping all of them really is what you want." >&2
+            exit 1
+          fi
+          DELETE=1
+        fi
+
         # Remove snapshot files, but keep the directories. That way if tests
         # fail and this is rerun, we know what tests should have snapshots.
-        if [[ {{ .delete }} -eq 1 ]]; then
+        if [ "$DELETE" = "1" ]; then
           find . -name '*-snapshots' -type d | xargs -I {} -n1 /bin/sh -c 'rm -rf {}/*'
         fi
 
         # Run just tests with snapshots.
-        echo $TESTS | xargs npx playwright test --update-snapshots --retries 3
+        echo $TESTS | xargs npx playwright test --update-snapshots --retries 3 $ARGS
         echo "From your host, run the following from the project directory to add all changes to commit."
         echo "Be sure to review for unexpected changes, and don't be surprised if modified tests cause"
         echo "files to be renamed."

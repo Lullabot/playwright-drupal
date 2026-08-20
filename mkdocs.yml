@@ -67,6 +67,7 @@ nav:
     - Visual Comparisons (Diffs): working-with-tests/visual-comparisons.md
     - Accessibility Tests: working-with-tests/accessibility-tests.md
     - Debugging Tests: working-with-tests/debugging-tests.md
+    - Running Tests Concurrently: working-with-tests/running-tests-concurrently.md
     - Screenshots in CI: working-with-tests/screenshots-in-ci.md
     - Drupal Testing Utilities: working-with-tests/drupal-testing-utilities.md
   - Contributing:
