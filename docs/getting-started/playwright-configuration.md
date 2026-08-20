@@ -6,11 +6,16 @@ The `definePlaywrightDrupalConfig()` function returns a complete Playwright conf
 |---|---|
 | `use.baseURL` | `process.env.DDEV_PRIMARY_URL` |
 | `fullyParallel` | `true` |
-| `workers` | `Math.max(2, os.cpus().length - 2)` |
+| `workers` | `Math.max(2, os.cpus().length - 2)`, or `PLAYWRIGHT_WORKERS` when set |
 | `reporter` | CI: `[['line'], ['html'], ['json', ...]]`; Local: `[['html', ...], ['list'], ['json', ...]]` |
 | `globalSetup` | Auto-resolved path to this package's `global-setup` module |
 
 ## Overriding Defaults
+
+`PLAYWRIGHT_WORKERS` overrides `workers` for a single invocation, taking
+precedence over anything passed here — see
+[Running Tests Concurrently](../working-with-tests/running-tests-concurrently.md).
+Everything else is set by the overrides argument.
 
 Plain-object properties are deep-merged with their defaults at every nesting level. For example, providing `use.ignoreHTTPSErrors` keeps the default `use.baseURL` while adding your setting. Non-object properties (including arrays like `reporter`) replace the default entirely.
 

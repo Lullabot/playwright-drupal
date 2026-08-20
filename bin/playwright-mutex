@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+
+# Machine-wide mutex for Playwright runs. Opt-in: does nothing unless
+# PLAYWRIGHT_MUTEX is set to 1.
+#
+# definePlaywrightDrupalConfig() asks for `cpus - 2` workers, so a single suite
+# already claims nearly the whole machine. Two suites at once do not each take
+# half the time; they take longer than running them back to back, and starve
+# each other badly enough to fail visual comparisons that have nothing wrong
+# with them. Nothing in Playwright or DDEV notices this, because each worktree
+# or checkout is its own DDEV project and they never see each other.
+#
+# The lock file lives on `ddev-global-cache`, the Docker named volume DDEV
+# mounts into every project's web container at /mnt/ddev-global-cache. That is
+# one inode on the host, so flock(2) is honoured across containers - which is
+# what makes this work across projects with no per-project setup and no
+# `ddev restart`. The kernel releases the lock however the holder dies, so
+# there is no stale lock to clear.
+#
+# Usage:
+#   playwright-mutex <command> [args...]
+#
+# Environment:
+#   PLAYWRIGHT_MUTEX=1          enable the lock. Unset or 0 runs the command
+#                               unchanged, which is the default.
+#   PLAYWRIGHT_MUTEX=force      enable the lock even when CI is set. See below.
+#   PLAYWRIGHT_MUTEX_WAIT=<s>   seconds to wait for the lock (default 1800).
+#                               0 means do not wait at all.
+#   PLAYWRIGHT_MUTEX_FAIL_FAST=1
+#                               refuse immediately instead of waiting, for
+#                               callers that would rather do something else
+#                               than sit in a queue. Same as WAIT=0.
+#   PLAYWRIGHT_MUTEX_DIR=<dir>  lock location (default
+#                               /mnt/ddev-global-cache/playwright).
+#   PLAYWRIGHT_MUTEX_HELD=1     set for the command being run, so nested
+#                               invocations pass through instead of blocking
+#                               on a lock their own process tree holds.
+#
+# The lock is skipped when CI is set. CI jobs get their own machine, and
+# sharded runs (`task playwright:run shard=1/3`) are supposed to overlap;
+# worse, several jobs on one self-hosted runner share a Docker daemon and so
+# would share this volume, turning a correct parallel build into a queue or a
+# pile of failures. PLAYWRIGHT_MUTEX=force overrides this for the rare CI
+# machine that really does need serialising.
+#
+# Exits 75 (EX_TEMPFAIL) when the lock could not be acquired, which is distinct
+# from any status Playwright itself produces, so "busy" is never mistaken for
+# "tests failed". Nothing has run at that point.
+
+set -uo pipefail
+
+lock_dir="${PLAYWRIGHT_MUTEX_DIR:-/mnt/ddev-global-cache/playwright}"
+lock_file="$lock_dir/mutex.lock"
+holder_file="$lock_dir/mutex.holder"
+enabled="${PLAYWRIGHT_MUTEX:-0}"
+
+if [ "$#" -eq 0 ]; then
+  echo "usage: ${0##*/} <command> [args...]" >&2
+  exit 64
+fi
+
+# Off by default. Wiring this into a Taskfile is therefore inert until someone
+# opts in, and every wrapped task keeps behaving exactly as it did before.
+case "$enabled" in
+  1 | force) ;;
+  *) exec "$@" ;;
+esac
+
+# Reentrancy. flock(2) is held by the open file description, not by the process
+# tree, so a nested acquisition would block against a lock this very tree
+# already holds and then time out.
+if [ "${PLAYWRIGHT_MUTEX_HELD:-}" = "1" ]; then
+  exec "$@"
+fi
+
+if [ -n "${CI:-}" ] && [ "$enabled" != "force" ]; then
+  exec "$@"
+fi
+
+# No shared volume means nothing to contend with - a plain container, a host
+# shell, a non-DDEV environment. Run rather than fail, but say so: the
+# alternative to a warning here is a machine that quietly stopped serialising.
+if [ ! -d "${lock_dir%/*}" ]; then
+  echo "playwright-mutex: ${lock_dir%/*} is not mounted; running WITHOUT the mutex." >&2
+  exec "$@"
+fi
+
+mkdir -p "$lock_dir" 2>/dev/null
+: >>"$lock_file" 2>/dev/null
+
+if [ ! -r "$lock_file" ]; then
+  echo "playwright-mutex: cannot open $lock_file; running WITHOUT the mutex." >&2
+  exec "$@"
+fi
+
+# Read-only fd on purpose: flock(2) only needs an open file description, and
+# asking for write access would fail against a lock file another user created.
+exec 9<"$lock_file"
+
+# Parsed, never sourced. The file holds a `command=` line with spaces in it,
+# and sourcing that would run its tail.
+holder_field() {
+  [ -r "$holder_file" ] || return 0
+  sed -n "s/^$1=//p" "$holder_file" 2>/dev/null | head -n 1
+}
+
+# Best-effort breadcrumb for whoever is waiting. The lock, not this file, is
+# authoritative; it exists only to make the message useful.
+describe_holder() {
+  local project started started_human elapsed=""
+  project="$(holder_field project)"
+  started="$(holder_field started)"
+  started_human="$(holder_field started_human)"
+
+  case "$started" in
+    "" | *[!0-9]*) ;;
+    *) elapsed=" for $(( ( $(date +%s) - started ) / 60 ))m" ;;
+  esac
+
+  if [ -n "$project" ]; then
+    echo "held by project '${project}'${elapsed} (started ${started_human:-unknown})"
+  else
+    echo "held${elapsed} by an unknown run"
+  fi
+}
+
+wait_seconds="${PLAYWRIGHT_MUTEX_WAIT:-1800}"
+case "$wait_seconds" in
+  "" | *[!0-9]*)
+    echo "playwright-mutex: ignoring non-numeric PLAYWRIGHT_MUTEX_WAIT='${wait_seconds}'." >&2
+    wait_seconds=1800
+    ;;
+esac
+if [ "${PLAYWRIGHT_MUTEX_FAIL_FAST:-}" = "1" ]; then
+  wait_seconds=0
+fi
+
+# Try once without blocking so the common case stays silent, and so there is
+# something to print before a wait that could last half an hour.
+if ! flock -n 9; then
+  if [ "$wait_seconds" -gt 0 ]; then
+    echo "playwright-mutex: another Playwright run is $(describe_holder)." >&2
+    echo "playwright-mutex: waiting up to ${wait_seconds}s for it to finish." >&2
+  fi
+
+  if ! flock -w "$wait_seconds" 9; then
+    {
+      echo ""
+      echo "playwright-mutex: another Playwright run is $(describe_holder)."
+      echo ""
+      echo "Nothing was run. Playwright uses cpus-2 workers, so a second suite would"
+      echo "make both runs slower than running them one after the other, and can fail"
+      echo "visual comparisons through CPU starvation."
+      echo ""
+      echo "Wait for the current run to finish and re-run this command. Set"
+      echo "PLAYWRIGHT_MUTEX_WAIT to a larger number of seconds to queue instead,"
+      echo "or PLAYWRIGHT_MUTEX=0 to opt out entirely."
+      echo ""
+    } >&2
+    exit 75
+  fi
+fi
+
+{
+  echo "project=${DDEV_SITENAME:-unknown}"
+  echo "pid=$$"
+  echo "started=$(date +%s)"
+  echo "started_human=$(date '+%Y-%m-%d %H:%M:%S')"
+  echo "command=$*"
+} >"$holder_file" 2>/dev/null
+trap 'rm -f "$holder_file" 2>/dev/null' EXIT
+
+PLAYWRIGHT_MUTEX_HELD=1 "$@"
+exit $?

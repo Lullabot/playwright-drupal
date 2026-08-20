@@ -31,7 +31,8 @@ if (__dirname.includes(path.sep + 'packages' + path.sep + 'playwright-drupal')) 
  * Provides:
  * - `use.baseURL` from the `DDEV_PRIMARY_URL` environment variable
  * - `fullyParallel: true`
- * - `workers` based on CPU count (`Math.max(2, cpus - 2)`)
+ * - `workers` based on CPU count (`Math.max(2, cpus - 2)`), or the value of
+ *   the `PLAYWRIGHT_WORKERS` environment variable when it is set
  * - CI-aware `reporter` (line + html on CI; html + list locally)
  * - `globalSetup` pointing to this package's global-setup module
  *
@@ -40,6 +41,12 @@ if (__dirname.includes(path.sep + 'packages' + path.sep + 'playwright-drupal')) 
  *   level, so providing `use.baseURL` replaces the default while keeping
  *   other `use` defaults. Non-object properties (including arrays like
  *   `reporter`) replace the default entirely.
+ *
+ *   `PLAYWRIGHT_WORKERS` takes precedence over `overrides.workers`. The point
+ *   of the variable is to dial a run down without editing a config file that
+ *   is shared and committed - most often because something else is already
+ *   using the machine - so a project setting must not silently win over it.
+ *   Playwright's own `--workers` flag still overrides both.
  */
 export function definePlaywrightDrupalConfig(overrides: PlaywrightTestConfig = {}): PlaywrightTestConfig {
   const isCI = !!process.env.CI;
@@ -56,7 +63,42 @@ export function definePlaywrightDrupalConfig(overrides: PlaywrightTestConfig = {
     },
   };
 
-  return defineConfig(deepMerge(defaults, overrides));
+  const merged = deepMerge(defaults, overrides);
+
+  const workers = workersFromEnvironment();
+  if (workers !== undefined) {
+    merged.workers = workers;
+  }
+
+  return defineConfig(merged);
+}
+
+/**
+ * Read `PLAYWRIGHT_WORKERS`, returning `undefined` when it is not usable.
+ *
+ * Accepts the same shapes Playwright's `workers` option does: a positive
+ * integer, or a percentage of the available CPUs such as `50%`. Anything else
+ * is a typo rather than an instruction, and silently running the whole suite
+ * with the wrong parallelism is worse than saying so.
+ */
+function workersFromEnvironment(): number | string | undefined {
+  const raw = process.env.PLAYWRIGHT_WORKERS?.trim();
+  if (!raw) {
+    return undefined;
+  }
+
+  if (/^\d+(\.\d+)?%$/.test(raw)) {
+    return raw;
+  }
+
+  const parsed = Number(raw);
+  if (Number.isInteger(parsed) && parsed > 0) {
+    return parsed;
+  }
+
+  throw new Error(
+    `PLAYWRIGHT_WORKERS must be a positive integer or a percentage such as '50%', got '${raw}'.`
+  );
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

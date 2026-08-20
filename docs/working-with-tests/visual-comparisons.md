@@ -316,6 +316,35 @@ Selectors that don't match any element on the page are silently ignored — no e
 
 **Note:** When using a custom test function via `config.describe(myTestFunction)`, automatic mask merging is bypassed. Your custom function is responsible for applying masks itself.
 
+## Running and Regenerating Snapshots
+
+Two tasks cover the day-to-day work, and both run only the tests that have a
+`-snapshots` directory next to them:
+
+```console
+ddev task playwright:visualdiff
+ddev task playwright:regenerate
+```
+
+`playwright:regenerate` deletes every existing snapshot before rerunning with
+`--update-snapshots`, so that a test whose snapshot filenames changed does not
+leave the old files behind. Pass `delete=0` to keep them.
+
+Arguments after `--` are forwarded to `playwright test`:
+
+```console
+ddev task playwright:visualdiff -- --project chromium
+ddev task playwright:regenerate delete=0 -- --grep 'Front.page'
+```
+
+A filtered regeneration requires an explicit `delete`, because deleting every
+snapshot and then regenerating only the ones that matched would leave the rest
+missing — a regeneration that looks like it worked until the next full run.
+
+Note that these arguments are forwarded as a single string and re-split on
+spaces, so a pattern containing a space needs to avoid one: prefer
+`--grep 'Front.page'` over `--grep 'Front page'`.
+
 ## Snapshot Storage
 
 Commiting screenshots to your project repository is the easiest way to save and compare them. However, projects with many snapshots or design changes may lead to significant churn on the snapshots, which can cause [git repository size to grow significantly](https://www.lullabot.com/articles/how-calculate-git-repository-growth-over-time). Instead of committing snapshots directly to your project, consider:
