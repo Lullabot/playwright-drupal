@@ -724,6 +724,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#running-and-regenerating-snapshots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running and Regenerating Snapshots
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#snapshot-storage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -786,6 +797,34 @@
     
   
     Debugging Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../running-tests-concurrently/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running Tests Concurrently
   
 
     
@@ -1078,6 +1117,17 @@
     <span class="md-ellipsis">
       
         Masking Dynamic Elements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-and-regenerating-snapshots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running and Regenerating Snapshots
       
     </span>
   </a>
@@ -1378,6 +1428,25 @@ Now, you can run just these tests with a command like:</p>
 </span></code></pre></div>
 <p>Selectors that don't match any element on the page are silently ignored — no error is thrown.</p>
 <p><strong>Note:</strong> When using a custom test function via <code>config.describe(myTestFunction)</code>, automatic mask merging is bypassed. Your custom function is responsible for applying masks itself.</p>
+<h2 id="running-and-regenerating-snapshots">Running and Regenerating Snapshots</h2>
+<p>Two tasks cover the day-to-day work, and both run only the tests that have a
+<code>-snapshots</code> directory next to them:</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="go">ddev task playwright:visualdiff</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="go">ddev task playwright:regenerate</span>
+</span></code></pre></div>
+<p><code>playwright:regenerate</code> deletes every existing snapshot before rerunning with
+<code>--update-snapshots</code>, so that a test whose snapshot filenames changed does not
+leave the old files behind. Pass <code>delete=0</code> to keep them.</p>
+<p>Arguments after <code>--</code> are forwarded to <code>playwright test</code>:</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="go">ddev task playwright:visualdiff -- --project chromium</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="go">ddev task playwright:regenerate delete=0 -- --grep 'Front.page'</span>
+</span></code></pre></div>
+<p>A filtered regeneration requires an explicit <code>delete</code>, because deleting every
+snapshot and then regenerating only the ones that matched would leave the rest
+missing — a regeneration that looks like it worked until the next full run.</p>
+<p>Note that these arguments are forwarded as a single string and re-split on
+spaces, so a pattern containing a space needs to avoid one: prefer
+<code>--grep 'Front.page'</code> over <code>--grep 'Front page'</code>.</p>
 <h2 id="snapshot-storage">Snapshot Storage</h2>
 <p>Commiting screenshots to your project repository is the easiest way to save and compare them. However, projects with many snapshots or design changes may lead to significant churn on the snapshots, which can cause <a href="https://www.lullabot.com/articles/how-calculate-git-repository-growth-over-time">git repository size to grow significantly</a>. Instead of committing snapshots directly to your project, consider:</p>
 <ul>

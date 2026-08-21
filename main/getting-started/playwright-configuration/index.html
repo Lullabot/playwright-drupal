@@ -723,6 +723,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../working-with-tests/running-tests-concurrently/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running Tests Concurrently
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../working-with-tests/screenshots-in-ci/" class="md-nav__link">
         
   
@@ -966,7 +994,7 @@
 </tr>
 <tr>
 <td><code>workers</code></td>
-<td><code>Math.max(2, os.cpus().length - 2)</code></td>
+<td><code>Math.max(2, os.cpus().length - 2)</code>, or <code>PLAYWRIGHT_WORKERS</code> when set</td>
 </tr>
 <tr>
 <td><code>reporter</code></td>
@@ -979,6 +1007,10 @@
 </tbody>
 </table>
 <h2 id="overriding-defaults">Overriding Defaults</h2>
+<p><code>PLAYWRIGHT_WORKERS</code> overrides <code>workers</code> for a single invocation, taking
+precedence over anything passed here — see
+<a href="../../working-with-tests/running-tests-concurrently/">Running Tests Concurrently</a>.
+Everything else is set by the overrides argument.</p>
 <p>Plain-object properties are deep-merged with their defaults at every nesting level. For example, providing <code>use.ignoreHTTPSErrors</code> keeps the default <code>use.baseURL</code> while adding your setting. Non-object properties (including arrays like <code>reporter</code>) replace the default entirely.</p>
 <p>If you need full control, you can always use Playwright's <code>defineConfig()</code> directly with the <code>globalSetup</code> path from this package.</p>
 <p>This example imports the default configuration and shows overriding some common settings.</p>
