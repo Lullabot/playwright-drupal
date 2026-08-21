@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.9.2...playwright-drupal-1.10.0) (2026-08-21)
+
+
+### Features
+
+* add an opt-in machine-wide mutex for Playwright runs ([33f8e59](https://github.com/Lullabot/playwright-drupal/commit/33f8e5980973eeae1a925fc590312fe77561211d))
+
 ## [1.9.2](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.9.1...playwright-drupal-1.9.2) (2026-08-17)
 
 
