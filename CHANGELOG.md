@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.11.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.10.0...playwright-drupal-1.11.0) (2026-09-08)
+
+
+### Features
+
+* **github:** send the last two media types GitHub renders ([ca6e7f7](https://github.com/Lullabot/playwright-drupal/commit/ca6e7f7ec5a13ec7e2274bdd94d2994aeb212ec4))
+
+
+### Bug Fixes
+
+* **github:** skip an oversized screenshot rather than stopping the run ([29209b2](https://github.com/Lullabot/playwright-drupal/commit/29209b25781fb46abe6461ec11c1c604a637e1e4))
+
+
+### Documentation
+
+* **github:** say why gh --attach does not replace the upload token ([445f7db](https://github.com/Lullabot/playwright-drupal/commit/445f7dbc69557efc05fd384cbe8551dc21d63cf6))
+* remove gh cli docs ([3f9550a](https://github.com/Lullabot/playwright-drupal/commit/3f9550ac0e33900707e8f69560965dd51dd3c680))
+
 ## [1.10.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.9.2...playwright-drupal-1.10.0) (2026-08-21)
 
 
