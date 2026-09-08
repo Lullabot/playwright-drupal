@@ -43,6 +43,8 @@ describe('mimeTypeFor', () => {
     expect(mimeTypeFor('a/b/diff.png')).toBe('image/png')
     expect(mimeTypeFor('shot.JPEG')).toBe('image/jpeg')
     expect(mimeTypeFor('clip.webm')).toBe('video/webm')
+    expect(mimeTypeFor('icon.svg')).toBe('image/svg+xml')
+    expect(mimeTypeFor('clip.MOV')).toBe('video/quicktime')
   })
 
   it('falls back to a generic type for anything else', () => {
