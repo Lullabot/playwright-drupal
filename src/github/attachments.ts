@@ -25,6 +25,14 @@ import * as path from 'path'
 const UPLOAD_ORIGIN = 'https://uploads.github.com'
 const DEFAULT_MAX_UPLOADS = 20
 const DEFAULT_MAX_TOTAL_BYTES = 20 * 1024 * 1024
+/**
+ * GitHub's own ceiling for a single image or GIF, as documented for the
+ * `gh --attach` flag over this endpoint. Video is 10 MB on free plans and
+ * 100 MB on paid ones; this uploader carries screenshots, so the image number
+ * is the one that binds. Checking it here turns a rejection that would stop
+ * the run into one skipped file.
+ */
+const DEFAULT_MAX_FILE_BYTES = 10 * 1024 * 1024
 const DEFAULT_TIMEOUT_MS = 15_000
 
 const MIME_TYPES: Record<string, string> = {
@@ -57,11 +65,23 @@ export interface AttachmentUploaderOptions {
   maxUploads?: number
   /** Stop once this many bytes have been uploaded. Defaults to 20 MiB. */
   maxTotalBytes?: number
+  /**
+   * Skip any single file larger than this. Defaults to 10 MiB, which is what
+   * GitHub accepts for an image.
+   */
+  maxFileBytes?: number
   /** Per-request timeout. Defaults to 15 seconds. */
   timeoutMs?: number
   fetchImpl?: FetchLike
   log?: (message: string) => void
 }
+
+/**
+ * Why a call returned null. Every one of these is a null from a method that
+ * never throws, and they need different things said about them: a file that
+ * could not be read is a path problem, one over the size limit is not.
+ */
+export type SkipReason = 'disabled' | 'unreadable' | 'too-large' | 'budget'
 
 export interface UploadStats {
   uploaded: number
@@ -82,12 +102,14 @@ export class AttachmentUploader {
   private readonly repositoryId: string
   private readonly maxUploads: number
   private readonly maxTotalBytes: number
+  private readonly maxFileBytes: number
   private readonly timeoutMs: number
   private readonly fetchImpl: FetchLike
   private readonly log: (message: string) => void
 
   private disabled: boolean
   private reason: string | null = null
+  private lastSkip: SkipReason | null = null
   private stats: UploadStats = { uploaded: 0, skipped: 0, bytes: 0 }
 
   constructor(options: AttachmentUploaderOptions = {}) {
@@ -95,6 +117,7 @@ export class AttachmentUploader {
     this.repositoryId = String(options.repositoryId ?? '')
     this.maxUploads = options.maxUploads ?? DEFAULT_MAX_UPLOADS
     this.maxTotalBytes = options.maxTotalBytes ?? DEFAULT_MAX_TOTAL_BYTES
+    this.maxFileBytes = options.maxFileBytes ?? DEFAULT_MAX_FILE_BYTES
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS
     this.fetchImpl = options.fetchImpl ?? (globalThis.fetch as unknown as FetchLike)
     this.log = options.log ?? (() => {})
@@ -119,6 +142,19 @@ export class AttachmentUploader {
     return this.reason
   }
 
+  /**
+   * Why the most recent call returned null, or null when it returned a URL.
+   *
+   * A file that could not be read and one the size limits refused both come
+   * back as null from a still-running uploader, and a caller that cannot tell
+   * them apart reports the wrong problem — an oversized screenshot reads as a
+   * missing one, which sends the reader hunting for a path mapping that is not
+   * wrong.
+   */
+  get lastSkipReason(): SkipReason | null {
+    return this.lastSkip
+  }
+
   getStats(): UploadStats {
     return { ...this.stats }
   }
@@ -129,19 +165,14 @@ export class AttachmentUploader {
    * must not fail anyone's build.
    */
   async upload(filePath: string, displayName?: string): Promise<string | null> {
-    if (this.disabled) {
-      this.stats.skipped++
-      return null
-    }
+    if (this.disabled) return this.skip('disabled')
 
     let body: Buffer
     try {
       body = fs.readFileSync(filePath)
     } catch {
       // A missing file is this file's problem, not a reason to stop the run.
-      this.stats.skipped++
-      this.log(`Attachment upload skipped, unreadable file: ${filePath}`)
-      return null
+      return this.skip('unreadable', `Attachment upload skipped, unreadable file: ${filePath}`)
     }
 
     return this.uploadBuffer(body, displayName ?? path.basename(filePath), mimeTypeFor(filePath))
@@ -153,22 +184,34 @@ export class AttachmentUploader {
    * is how the accessibility screenshots arrive.
    */
   async uploadBuffer(body: Buffer, displayName: string, contentType: string): Promise<string | null> {
-    if (this.disabled) {
-      this.stats.skipped++
-      return null
-    }
+    if (this.disabled) return this.skip('disabled')
 
     const size = body.length
+    const name = sanitizeName(displayName)
 
-    // Budgets are a deliberate stop, so say so rather than going quiet.
+    // A count budget is reached once and stays reached, so stop there.
     if (this.stats.uploaded >= this.maxUploads) {
       return this.disable(`upload limit of ${this.maxUploads} reached`)
     }
+
+    // Size limits are the individual file's problem. GitHub refuses one over
+    // its own ceiling, and a run has only so many bytes to spend; either way
+    // one large screenshot must not cost the run every smaller one behind it,
+    // so skip it and carry on. `maxUploads` bounds how often this can repeat.
+    if (size > this.maxFileBytes) {
+      return this.skip(
+        'too-large',
+        `Attachment skipped, ${size} bytes is over the ${this.maxFileBytes} byte limit: ${name}`,
+      )
+    }
     if (this.stats.bytes + size > this.maxTotalBytes) {
-      return this.disable(`byte budget of ${this.maxTotalBytes} bytes reached`)
+      const left = this.maxTotalBytes - this.stats.bytes
+      return this.skip(
+        'budget',
+        `Attachment skipped, ${size} bytes does not fit the ${left} bytes left in the budget: ${name}`,
+      )
     }
 
-    const name = sanitizeName(displayName)
     const query = new URLSearchParams({
       name,
       content_type: contentType,
@@ -203,6 +246,7 @@ export class AttachmentUploader {
 
       this.stats.uploaded++
       this.stats.bytes += size
+      this.lastSkip = null
       return url
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
@@ -214,8 +258,19 @@ export class AttachmentUploader {
   private disable(reason: string): null {
     this.disabled = true
     this.reason = reason
-    this.stats.skipped++
     this.log(`Attachment uploads disabled — ${reason}.`)
+    return this.skip('disabled')
+  }
+
+  /**
+   * Record one file that was not uploaded, and why. Most reasons leave the
+   * uploader running; `disable()` routes through here for the one that does
+   * not, so `lastSkipReason` is set however a call came back null.
+   */
+  private skip(reason: SkipReason, message?: string): null {
+    this.stats.skipped++
+    this.lastSkip = reason
+    if (message) this.log(message)
     return null
   }
 }

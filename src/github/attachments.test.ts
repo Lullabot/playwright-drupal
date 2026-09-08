@@ -155,7 +155,29 @@ describe('AttachmentUploader', () => {
     expect(uploader.disabledReason).toMatch(/upload limit of 1/)
   })
 
-  it('enforces the byte budget', async () => {
+  it('skips a file over GitHub\'s size limit and keeps going', async () => {
+    // GitHub refuses an image over 10 MB, and a rejection would otherwise
+    // switch uploading off for every image behind it.
+    const { impl, calls } = stubFetch([])
+    const uploader = new AttachmentUploader({
+      token: 't',
+      repositoryId: '1',
+      maxFileBytes: 100,
+      fetchImpl: impl,
+    })
+
+    expect(await uploader.upload(writeFile('huge.png', 200))).toBeNull()
+    expect(uploader.enabled).toBe(true)
+    expect(uploader.lastSkipReason).toBe('too-large')
+    // Nothing was sent for it: the limit is checked before the request.
+    expect(calls).toHaveLength(0)
+
+    expect(await uploader.upload(writeFile('small.png', 10))).not.toBeNull()
+    expect(uploader.lastSkipReason).toBeNull()
+    expect(uploader.getStats()).toEqual({ uploaded: 1, skipped: 1, bytes: 10 })
+  })
+
+  it('skips a file that does not fit the byte budget, rather than stopping', async () => {
     const { impl } = stubFetch([])
     const uploader = new AttachmentUploader({
       token: 't',
@@ -164,9 +186,35 @@ describe('AttachmentUploader', () => {
       fetchImpl: impl,
     })
 
-    expect(await uploader.upload(writeFile('small.png', 60))).not.toBeNull()
+    expect(await uploader.upload(writeFile('first.png', 60))).not.toBeNull()
     expect(await uploader.upload(writeFile('big.png', 60))).toBeNull()
-    expect(uploader.disabledReason).toMatch(/byte budget/)
+    expect(uploader.lastSkipReason).toBe('budget')
+
+    // The budget is a ceiling on the total, not a stop: what still fits goes.
+    expect(await uploader.upload(writeFile('last.png', 30))).not.toBeNull()
+    expect(uploader.enabled).toBe(true)
+    expect(uploader.getStats().bytes).toBe(90)
+  })
+
+  it('tells an unreadable file apart from one the limits refused', async () => {
+    const { impl } = stubFetch([{ ok: false, status: 404, body: '{"message":"Not Found"}' }])
+    const uploader = new AttachmentUploader({
+      token: 't',
+      repositoryId: '1',
+      maxFileBytes: 100,
+      fetchImpl: impl,
+    })
+
+    await uploader.upload(path.join(tmpDir, 'missing.png'))
+    expect(uploader.lastSkipReason).toBe('unreadable')
+
+    await uploader.upload(writeFile('huge.png', 200))
+    expect(uploader.lastSkipReason).toBe('too-large')
+
+    // A dead endpoint is the run's problem rather than any one file's.
+    await uploader.upload(writeFile('fine.png', 10))
+    expect(uploader.lastSkipReason).toBe('disabled')
+    expect(uploader.enabled).toBe(false)
   })
 
   it('skips an unreadable file without giving up on the rest', async () => {

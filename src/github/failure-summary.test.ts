@@ -504,4 +504,46 @@ describe('uploadImages', () => {
     const urls = report.tests[0].images.map(i => i.url)
     expect(urls).toEqual(['https://example.test/one', undefined, undefined])
   })
+
+  it('marks an image the size limit refused without calling it unreadable', async () => {
+    // The two render as the same absence, and only one of them is fixed by a
+    // path mapping — so the summary must not send the reader after the wrong
+    // one.
+    const big = path.join(tmpDir, 'big.png')
+    fs.writeFileSync(big, Buffer.alloc(200, 1))
+    const small = path.join(tmpDir, 'small.png')
+    fs.writeFileSync(small, Buffer.alloc(8, 1))
+
+    const impl: FetchLike = async () => ({
+      ok: true,
+      status: 201,
+      text: async () => '{"url":"https://example.test/small"}',
+    })
+
+    const report: FailureReport = {
+      tests: [{
+        title: 'a', file: 'f', line: 1, status: 'failed',
+        images: [
+          { name: 'big.png', filePath: big, contentType: 'image/png', kind: 'diff' },
+          { name: 'small.png', filePath: small, contentType: 'image/png', kind: 'diff' },
+        ],
+      }],
+      totalFailed: 1,
+      totalImages: 2,
+    }
+
+    await uploadImages(
+      report,
+      new AttachmentUploader({ token: 't', repositoryId: '1', maxFileBytes: 100, fetchImpl: impl }),
+    )
+
+    const [oversize, uploaded] = report.tests[0].images
+    expect(oversize.oversize).toBe(true)
+    expect(oversize.unreadable).toBeUndefined()
+    // The one behind it still went, which is the point of skipping rather
+    // than stopping.
+    expect(uploaded.url).toBe('https://example.test/small')
+
+    expect(generateComment(report)).toContain('1 screenshot(s) not shown — 1 too large to upload')
+  })
 })
