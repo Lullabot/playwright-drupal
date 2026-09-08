@@ -1422,6 +1422,12 @@ switches uploading off for the rest of the run rather than retrying against
 something that is not there, and the reason is logged. The summary and comment
 are still written; they point at the artifact instead of showing images.
 Nothing about this can fail a build.</p>
+<p>One file's problem is not the run's, though, and the two are handled
+differently. An image over GitHub's 10 MB limit — or one that no longer fits
+the run's 20 MB budget — is skipped, and everything behind it still uploads.
+It is counted in the run's skipped total and named in the output as "too large
+to upload", rather than as a screenshot that could not be read: those are
+fixed by a <code>--path-prefix</code>, and this one is not.</p>
 <p>Whatever the cause, the rendered output says which one it was. "No upload token
 configured" and "3 could not be read from the path recorded in the report" are
 different problems with different fixes, and a summary that only said images
