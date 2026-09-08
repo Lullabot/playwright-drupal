@@ -17,9 +17,15 @@ import * as path from 'path'
  *    an upload by reading it back — a 201 with a URL in the body is the only
  *    success signal there is.
  *
- * Because it is undocumented it may also change or vanish without notice, so a
- * single failure disables the uploader for the rest of the run rather than
- * retrying against an endpoint that has gone away.
+ * What it accepts is no longer guesswork, even though the endpoint has no
+ * documentation of its own: `gh --attach` (CLI 2.99.0) is a supported wrapper
+ * over the same upload, and GitHub documents its formats and size limits. That
+ * flag needs the same kind of user token, which is why it is no help here —
+ * see docs/working-with-tests/screenshots-in-ci.md.
+ *
+ * A single endpoint failure still disables the uploader for the rest of the
+ * run: retrying an endpoint that has answered 404 once only wastes CI time,
+ * and nothing here is worth failing a build over.
  */
 
 const UPLOAD_ORIGIN = 'https://uploads.github.com'

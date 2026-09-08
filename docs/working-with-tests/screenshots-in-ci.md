@@ -160,6 +160,33 @@ indefinitely, where artifacts expire on the schedule you set. If your tests
 screenshot a site with real content, that content leaves your artifact
 retention policy when you turn this on.
 
+### Why `gh --attach` does not help
+
+GitHub CLI 2.99.0 added a repeatable `--attach` flag to `gh issue` and `gh pr`
+— `create`, `edit` and `comment` — which uploads a local image or video and
+writes the resulting URL into the body. It is a supported wrapper over the same
+upload this command makes directly, so it is the obvious thing to reach for,
+and it does not help.
+
+It does not remove the token requirement. Uploads authenticate with the OAuth
+token from `gh auth login` or a classic personal access token, and GitHub's
+documentation for the flag says you need push access to the repository.
+`GH_TOKEN: ${{ github.token }}` still cannot upload, and a pull request from a
+fork still gets no images. Note also that it names *classic* tokens, where the
+token described above is fine-grained.
+
+It also cannot post the comment this package produces. Bodies are written per
+job, assembled into one, and posted as a sticky comment that is updated in
+place and deleted when a run goes green. `gh pr comment` has `--edit-last` and
+`--delete-last`, but both key on "the last comment by this user" rather than on
+a marker, which is not the same comment as soon as anything else comments too.
+`--attach` rewrites `![alt](./path)` Markdown, which would also lose the
+`width="640"` these screenshots are rendered at.
+
+What it does give us is GitHub's limits in writing, which the command now
+applies before it sends anything: 10 MB for an image or GIF, and for video
+10 MB on free plans or 100 MB on paid ones.
+
 ## Comments
 
 The comment carries the screenshots, in a collapsed block per failing test.
@@ -225,6 +252,13 @@ switches uploading off for the rest of the run rather than retrying against
 something that is not there, and the reason is logged. The summary and comment
 are still written; they point at the artifact instead of showing images.
 Nothing about this can fail a build.
+
+One file's problem is not the run's, though, and the two are handled
+differently. An image over GitHub's 10 MB limit — or one that no longer fits
+the run's 20 MB budget — is skipped, and everything behind it still uploads.
+It is counted in the run's skipped total and named in the output as "too large
+to upload", rather than as a screenshot that could not be read: those are
+fixed by a `--path-prefix`, and this one is not.
 
 Whatever the cause, the rendered output says which one it was. "No upload token
 configured" and "3 could not be read from the path recorded in the report" are
