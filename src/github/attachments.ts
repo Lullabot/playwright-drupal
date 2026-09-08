@@ -33,8 +33,10 @@ const MIME_TYPES: Record<string, string> = {
   '.jpeg': 'image/jpeg',
   '.gif': 'image/gif',
   '.webp': 'image/webp',
+  '.svg': 'image/svg+xml',
   '.webm': 'video/webm',
   '.mp4': 'video/mp4',
+  '.mov': 'video/quicktime',
 }
 
 /** The subset of `fetch` this module uses, so tests can substitute their own. */
