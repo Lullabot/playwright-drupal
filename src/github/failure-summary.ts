@@ -52,6 +52,12 @@ export interface FailureImage {
    * nowhere to upload to", which otherwise render identically.
    */
   unreadable?: boolean
+  /**
+   * Set when the uploader would not carry the image: over GitHub's 10 MB
+   * ceiling, or over what is left of the run's byte budget. Uploading carried
+   * on around it, so this is one image's story rather than the run's.
+   */
+  oversize?: boolean
 }
 
 export interface FailedTest {
@@ -259,9 +265,6 @@ export async function uploadImages(
 
       if (image.filePath) {
         url = await uploader.upload(image.filePath, path.basename(image.filePath))
-        // resolveImagePaths() has already checked the file is there, so a null
-        // from an uploader that is still running means the read itself failed.
-        if (!url && uploader.enabled) image.unreadable = true
       } else if (image.body) {
         url = await uploader.uploadBuffer(
           Buffer.from(image.body, 'base64'),
@@ -270,7 +273,24 @@ export async function uploadImages(
         )
       }
 
-      if (url) image.url = url
+      if (url) {
+        image.url = url
+        continue
+      }
+
+      // Every one of these is a null, and they need different things said
+      // about them. resolveImagePaths() has already checked the file is there,
+      // so 'unreadable' here means the read itself failed; the size reasons
+      // are the uploader declining this one image rather than stopping.
+      switch (uploader.lastSkipReason) {
+        case 'unreadable':
+          image.unreadable = true
+          break
+        case 'too-large':
+        case 'budget':
+          image.oversize = true
+          break
+      }
     }
   }
 }
@@ -313,10 +333,19 @@ function allImages(report: FailureReport): FailureImage[] {
 function missingImageReason(images: FailureImage[], uploadReason?: string): string | undefined {
   if (uploadReason) return uploadReason
 
-  const unreadable = images.filter(image => image.unreadable).length
-  if (unreadable === 0) return undefined
+  const reasons: string[] = []
 
-  return `${unreadable} could not be read from the path recorded in the report`
+  const unreadable = images.filter(image => image.unreadable).length
+  if (unreadable > 0) {
+    reasons.push(`${unreadable} could not be read from the path recorded in the report`)
+  }
+
+  const oversize = images.filter(image => image.oversize).length
+  if (oversize > 0) {
+    reasons.push(`${oversize} too large to upload`)
+  }
+
+  return reasons.length > 0 ? reasons.join('; ') : undefined
 }
 
 export interface SummaryOptions {
