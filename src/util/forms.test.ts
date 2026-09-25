@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { clickSaveButton, waitForSaveOutcome } from './forms';
+import { clickSaveButton, saveDrupalForm, waitForSaveOutcome } from './forms';
 
 describe('clickSaveButton', () => {
   function makeBtn({
@@ -131,5 +131,41 @@ describe('waitForSaveOutcome', () => {
         { addFormPathPattern: /\/node\/add\//, timeout: 20 },
       ),
     ).rejects.toThrow(/neither a URL change.*nor a \.messages--error appeared/);
+  });
+});
+
+describe('saveDrupalForm', () => {
+  it('waits for AJAX, submits once, and waits for navigation', async () => {
+    const calls: string[] = [];
+    const saveBtn = {
+      isVisible: vi.fn().mockResolvedValue(true),
+      getAttribute: vi.fn().mockImplementation((name: string) =>
+        Promise.resolve(name === 'value' ? 'Save' : ''),
+      ),
+      scrollIntoViewIfNeeded: vi.fn().mockImplementation(async () => { calls.push('scroll'); }),
+      click: vi.fn().mockImplementation(async () => { calls.push('click'); }),
+    };
+    const page = {
+      waitForFunction: vi.fn().mockImplementation(async () => { calls.push('ajax'); }),
+      waitForURL: vi.fn().mockImplementation(async () => { calls.push('outcome'); }),
+      locator: vi.fn().mockImplementation((selector: string) => {
+        if (selector === 'input[type=submit][name="op"]') {
+          return { count: async () => 1, nth: () => saveBtn };
+        }
+        if (selector.includes('.messages--error')) {
+          return { first: () => ({ waitFor: () => new Promise(() => undefined) }) };
+        }
+        return saveBtn;
+      }),
+    } as never;
+
+    const result = await saveDrupalForm(page, {
+      fallback: '#edit-submit',
+      addFormPathPattern: /\/node\/add\//,
+    });
+
+    expect(result).toBe('ok');
+    expect(calls).toEqual(['ajax', 'scroll', 'click', 'outcome']);
+    expect(saveBtn.click).toHaveBeenCalledTimes(1);
   });
 });
