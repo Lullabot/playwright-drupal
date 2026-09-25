@@ -101,6 +101,12 @@ export interface ScreenshotOptions {
   scale?: "css" | "device";
 
   /**
+   * A stylesheet, or list of stylesheets, to apply while taking the screenshot.
+   * The styles pierce Shadow DOM and apply to inner frames.
+   */
+  stylePath?: string | string[];
+
+  /**
    * An acceptable perceived color difference in the [YIQ color space](https://en.wikipedia.org/wiki/YIQ) between the
    * same pixel in compared images, between zero (strict) and one (lax), default is configurable with
    * `TestConfig.expect`. Defaults to `0.2`.
