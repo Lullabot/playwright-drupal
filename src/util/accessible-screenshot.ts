@@ -5,6 +5,7 @@ import {waitForFrames} from "./frames"
 import {waitForFonts} from "./fonts";
 import {restoreVideoPlayback, waitForVideos} from "./videos";
 import {blurActiveElement} from "./focus";
+import {clearHover} from "./hover";
 import axe from 'axe-core';
 import {AccessibilityBaseline, AccessibilityBaselineEntry} from './accessibility-baseline'
 import {
@@ -44,6 +45,14 @@ export interface ScreenshotOptions {
    * state.
    */
   blur?: boolean;
+
+  /**
+   * When `true` (the default), moves the pointer onto a temporary transparent
+   * shield before capturing so stale pointer activity does not leave an
+   * unrelated element in its hover state. Set to `false` when the screenshot
+   * intentionally captures a hovered state.
+   */
+  clearHover?: boolean;
 
   /**
    * An object specifying the page area to capture, in CSS pixels.
@@ -546,32 +555,38 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
     await blurActiveElement(page);
   }
 
-  await waitForFrames(page);
-  // Loading lazy frames can scroll the page. Load images afterwards so that
-  // any images exposed by that scrolling are settled and waitForAllImages()
-  // restores the viewport to the top before capture.
-  await waitForAllImages(page);
-  await waitForFonts(page);
-  // Last of the waits, so the video frames it composites are as fresh as
-  // possible when the capture happens. It restores the scroll position it
-  // found, so it does not disturb where the waits above leave the page.
-  await waitForVideos(page);
+  const removeHoverShield = options.clearHover === false ? undefined : await clearHover(page);
 
-  if (scrollLocator) {
-    await scrollLocator.scrollIntoViewIfNeeded();
+  try {
+    await waitForFrames(page);
+    // Loading lazy frames can scroll the page. Load images afterwards so that
+    // any images exposed by that scrolling are settled and waitForAllImages()
+    // restores the viewport to the top before capture.
+    await waitForAllImages(page);
+    await waitForFonts(page);
+    // Last of the waits, so the video frames it composites are as fresh as
+    // possible when the capture happens. It restores the scroll position it
+    // found, so it does not disturb where the waits above leave the page.
+    await waitForVideos(page);
+
+    if (scrollLocator) {
+      await scrollLocator.scrollIntoViewIfNeeded();
+    }
+
+    let locatorToScreenshot: Page|Locator = page;
+    if (locator) {
+      locatorToScreenshot = locator;
+    }
+    // Soft failure here so we can get accessibility violations too.
+    await expect.soft(locatorToScreenshot).toHaveScreenshot(options);
+  } finally {
+    await removeHoverShield?.();
+
+    // Settling a video pauses it, clears `autoplay` and rewinds it. That is only
+    // wanted for the duration of the capture: a test that screenshots a page and
+    // then asserts that a video is playing should still pass.
+    await restoreVideoPlayback(page);
   }
-
-  let locatorToScreenshot: Page|Locator = page;
-  if (locator) {
-    locatorToScreenshot = locator;
-  }
-  // Soft failure here so we can get accessibility violations too.
-  await expect.soft(locatorToScreenshot).toHaveScreenshot(options);
-
-  // Settling a video pauses it, clears `autoplay` and rewinds it. That is only
-  // wanted for the duration of the capture: a test that screenshots a page and
-  // then asserts the hero video is playing should still pass.
-  await restoreVideoPlayback(page);
 
   return checkAccessibility(page, testInfo, options.accessibility)
 }

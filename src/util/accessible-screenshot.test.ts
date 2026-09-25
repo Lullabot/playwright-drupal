@@ -23,15 +23,17 @@ vi.mock('@axe-core/playwright', () => ({
 }))
 
 // Mock @playwright/test — use vi.hoisted to define values before the hoisted vi.mock call
-const { mockToMatchSnapshot, mockExpectSoft, mockExpectHard } = vi.hoisted(() => {
+const { mockToMatchSnapshot, mockToHaveScreenshot, mockExpectSoft, mockExpectHard } = vi.hoisted(() => {
   const mockToMatchSnapshot = vi.fn()
+  const mockToHaveScreenshot = vi.fn()
   const mockExpectSoft = vi.fn(() => ({
     toMatchSnapshot: mockToMatchSnapshot,
+    toHaveScreenshot: mockToHaveScreenshot,
   }))
   const mockExpectHard = vi.fn(() => ({
     toMatchSnapshot: mockToMatchSnapshot,
   }))
-  return { mockToMatchSnapshot, mockExpectSoft, mockExpectHard }
+  return { mockToMatchSnapshot, mockToHaveScreenshot, mockExpectSoft, mockExpectHard }
 })
 
 vi.mock('@playwright/test', () => {
@@ -46,7 +48,37 @@ vi.mock('@playwright/test', () => {
   }
 })
 
-import { checkAccessibility } from './accessible-screenshot'
+const {
+  mockWaitForAllImages,
+  mockWaitForFrames,
+  mockWaitForFonts,
+  mockWaitForVideos,
+  mockRestoreVideoPlayback,
+  mockBlurActiveElement,
+  mockClearHover,
+  mockRemoveHoverShield,
+} = vi.hoisted(() => ({
+  mockWaitForAllImages: vi.fn(),
+  mockWaitForFrames: vi.fn(),
+  mockWaitForFonts: vi.fn(),
+  mockWaitForVideos: vi.fn(),
+  mockRestoreVideoPlayback: vi.fn(),
+  mockBlurActiveElement: vi.fn(),
+  mockClearHover: vi.fn(),
+  mockRemoveHoverShield: vi.fn(),
+}))
+
+vi.mock('./images', () => ({ waitForAllImages: mockWaitForAllImages }))
+vi.mock('./frames', () => ({ waitForFrames: mockWaitForFrames }))
+vi.mock('./fonts', () => ({ waitForFonts: mockWaitForFonts }))
+vi.mock('./videos', () => ({
+  waitForVideos: mockWaitForVideos,
+  restoreVideoPlayback: mockRestoreVideoPlayback,
+}))
+vi.mock('./focus', () => ({ blurActiveElement: mockBlurActiveElement }))
+vi.mock('./hover', () => ({ clearHover: mockClearHover }))
+
+import { checkAccessibility, takeAccessibleScreenshot } from './accessible-screenshot'
 import AxeBuilder from '@axe-core/playwright'
 
 function makeAxeResults(overrides?: Partial<{ violations: any[], passes: any[] }>) {
@@ -68,6 +100,7 @@ function makeTestInfo() {
     attach: vi.fn().mockResolvedValue(undefined),
     snapshotPath: (...segs: string[]) => `/tmp/__a11y_test_snapshots__/${segs.join('/')}`,
     config: { updateSnapshots: 'all' as const },
+    project: { name: 'desktop chromium' },
   }
 }
 
@@ -75,6 +108,7 @@ describe('checkAccessibility', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockAnalyze.mockResolvedValue(makeAxeResults())
+    mockClearHover.mockResolvedValue(mockRemoveHoverShield)
   })
 
   it('uses default WCAG tags when none provided', async () => {
@@ -318,5 +352,51 @@ describe('checkAccessibility', () => {
     })
 
     expect(mockPage.screenshot).not.toHaveBeenCalled()
+  })
+})
+
+describe('takeAccessibleScreenshot hover handling', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockAnalyze.mockResolvedValue(makeAxeResults())
+    mockClearHover.mockResolvedValue(mockRemoveHoverShield)
+  })
+
+  it('clears hover by default and removes the shield after capture', async () => {
+    const page = {} as any
+    const testInfo = makeTestInfo()
+
+    await takeAccessibleScreenshot(page, testInfo as any)
+
+    expect(mockClearHover).toHaveBeenCalledWith(page)
+    expect(mockToHaveScreenshot).toHaveBeenCalledWith({ timeout: 10000 })
+    expect(mockRemoveHoverShield).toHaveBeenCalledOnce()
+    expect(mockRestoreVideoPlayback).toHaveBeenCalledWith(page)
+    expect(mockRemoveHoverShield.mock.invocationCallOrder[0])
+      .toBeGreaterThan(mockToHaveScreenshot.mock.invocationCallOrder[0])
+    expect(mockRemoveHoverShield.mock.invocationCallOrder[0])
+      .toBeLessThan(mockAnalyze.mock.invocationCallOrder[0])
+  })
+
+  it('preserves an intentional hover state when clearHover is false', async () => {
+    const page = {} as any
+    const testInfo = makeTestInfo()
+
+    await takeAccessibleScreenshot(page, testInfo as any, { clearHover: false })
+
+    expect(mockClearHover).not.toHaveBeenCalled()
+    expect(mockRemoveHoverShield).not.toHaveBeenCalled()
+    expect(mockToHaveScreenshot).toHaveBeenCalledWith({ clearHover: false, timeout: 10000 })
+  })
+
+  it('removes the shield when capture throws', async () => {
+    const page = {} as any
+    const testInfo = makeTestInfo()
+    mockToHaveScreenshot.mockRejectedValueOnce(new Error('capture failed'))
+
+    await expect(takeAccessibleScreenshot(page, testInfo as any)).rejects.toThrow('capture failed')
+
+    expect(mockRemoveHoverShield).toHaveBeenCalledOnce()
+    expect(mockRestoreVideoPlayback).toHaveBeenCalledWith(page)
   })
 })
