@@ -136,7 +136,7 @@ test('uses the a11y fixture', async ({ page, a11y }) => {
 
 ### ScreenshotOptions
 
-A superset of Playwright's [`toHaveScreenshot()` options](https://playwright.dev/docs/api/class-pageassertions#page-assertions-to-have-screenshot-1) (`animations`, `caret`, `fullPage`, `mask`, `maskColor`, `maxDiffPixelRatio`, `maxDiffPixels`, `omitBackground`, `scale`, `threshold`, `timeout`) plus:
+A superset of Playwright's [`toHaveScreenshot()` options](https://playwright.dev/docs/api/class-pageassertions#page-assertions-to-have-screenshot-1) (`animations`, `caret`, `clip`, `fullPage`, `mask`, `maskColor`, `maxDiffPixelRatio`, `maxDiffPixels`, `omitBackground`, `scale`, `threshold`, `timeout`) plus:
 
 | Field | Default | Description |
 |---|---|---|

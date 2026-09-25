@@ -46,6 +46,16 @@ export interface ScreenshotOptions {
   blur?: boolean;
 
   /**
+   * An object specifying the page area to capture, in CSS pixels.
+   */
+  clip?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+
+  /**
    * When true, takes a screenshot of the full scrollable page, instead of the currently visible viewport. Defaults to
    * `false`.
    */
