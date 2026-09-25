@@ -113,6 +113,20 @@ export interface WaitForSaveOutcomeOptions {
 }
 
 /**
+ * Options accepted by `saveDrupalForm`.
+ */
+export interface SaveDrupalFormOptions extends WaitForSaveOutcomeOptions {
+  /**
+   * Selector used when no suitable Drupal Save button can be discovered.
+   */
+  fallback: string;
+  /**
+   * Maximum time to wait for AJAX already in flight before submitting.
+   */
+  ajaxTimeout?: number;
+}
+
+/**
  * Wait for a Drupal entity-form submit to finish one way or another.
  *
  * Races two signals:
@@ -146,4 +160,22 @@ export async function waitForSaveOutcome(
       { cause: err },
     );
   }
+}
+
+/**
+ * Save a Drupal entity form once and wait for a definitive outcome.
+ *
+ * This composes the safe order required by AJAX-driven forms: allow field and
+ * moderation widgets to finish rebuilding the form, click the real Save
+ * control, then wait for either navigation or a validation error. The submit
+ * is deliberately not retried because the server may have accepted it even
+ * when navigation is delayed.
+ */
+export async function saveDrupalForm(
+  page: Page,
+  opts: SaveDrupalFormOptions,
+): Promise<'ok' | 'error'> {
+  await waitForAjax(page, { timeout: opts.ajaxTimeout });
+  await clickSaveButton(page, opts.fallback);
+  return waitForSaveOutcome(page, opts);
 }
