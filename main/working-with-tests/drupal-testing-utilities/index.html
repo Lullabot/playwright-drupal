@@ -821,6 +821,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#savedrupalform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        saveDrupalForm()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#waitforajax" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1594,6 +1605,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#savedrupalform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        saveDrupalForm()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#waitforajax" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2249,17 +2271,23 @@
 </table>
 <h2 id="forms">Forms</h2>
 <p>Utilities for driving Drupal's form system: waiting on AJAX, expanding collapsed <code>&lt;details&gt;</code>, clicking Save buttons on distributions with <code>autosave_form</code>, and waiting for a submit to resolve one way or another. For Gin-sticky-header-safe clicks, see <a href="#gin-theme-workarounds">Gin theme workarounds</a>.</p>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">openAllDetails</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForAjax</span><span class="p">,</span><span class="w"> </span><span class="nx">clickSaveButton</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForSaveOutcome</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@packages/playwright-drupal'</span><span class="p">;</span>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">openAllDetails</span><span class="p">,</span><span class="w"> </span><span class="nx">saveDrupalForm</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@packages/playwright-drupal'</span><span class="p">;</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">'creates an article'</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">'/node/add/article'</span><span class="p">);</span>
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">openAllDetails</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="nx">getByLabel</span><span class="p">(</span><span class="s1">'Title'</span><span class="p">).</span><span class="nx">fill</span><span class="p">(</span><span class="s1">'Hello'</span><span class="p">);</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">clickSaveButton</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="s1">'input[type=submit][value^="Save"]'</span><span class="p">);</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">outcome</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForSaveOutcome</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">addFormPathPattern</span><span class="o">:</span><span class="w"> </span><span class="sr">/\/node\/add\//</span><span class="w"> </span><span class="p">});</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="nx">expect</span><span class="p">(</span><span class="nx">outcome</span><span class="p">).</span><span class="nx">toBe</span><span class="p">(</span><span class="s1">'ok'</span><span class="p">);</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="p">});</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">outcome</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">saveDrupalForm</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nx">fallback</span><span class="o">:</span><span class="w"> </span><span class="s1">'input[type=submit][value^="Save"]'</span><span class="p">,</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="nx">addFormPathPattern</span><span class="o">:</span><span class="w"> </span><span class="sr">/\/node\/add\//</span><span class="p">,</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="p">});</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="nx">expect</span><span class="p">(</span><span class="nx">outcome</span><span class="p">).</span><span class="nx">toBe</span><span class="p">(</span><span class="s1">'ok'</span><span class="p">);</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="p">});</span>
 </span></code></pre></div>
+<h3 id="savedrupalform">saveDrupalForm()</h3>
+<p><code>saveDrupalForm(page: Page, opts: { fallback: string; addFormPathPattern: RegExp; timeout?: number; ajaxTimeout?: number }): Promise&lt;'ok' | 'error'&gt;</code></p>
+<p>Waits for in-flight Drupal AJAX, clicks the real Save button using the Gin- and autosave-safe helpers, and then waits for navigation or a visible validation error. It submits exactly once: retrying a save can create duplicate content when the server accepts the first request but the browser's redirect is delayed.</p>
+<p>Use the lower-level helpers below when a form has a different success signal or needs custom behavior between these steps.</p>
 <h3 id="waitforajax">waitForAjax()</h3>
 <p><code>waitForAjax(page: Page, opts?: { timeout?: number }): Promise&lt;void&gt;</code></p>
 <table>
