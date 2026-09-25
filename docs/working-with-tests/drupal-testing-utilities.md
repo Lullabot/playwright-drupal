@@ -391,6 +391,16 @@ Scrolls every `<iframe>` into view and waits for each one to have loaded a URL. 
 
 Removes keyboard focus from a genuinely focused control so its focus ring does not appear in only some screenshot runs. Returns `true` if an element was blurred, `false` if nothing was focused (the `<body>`/`<html>` fallback is left alone). [`takeAccessibleScreenshot()`](accessibility-tests.md#takeaccessiblescreenshot) calls this for you unless `blur: false` is passed.
 
+### clearHover()
+
+`clearHover(page: Page): Promise<() => Promise<void>>`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | *(required)* | The Playwright page object. |
+
+Moves the pointer onto a temporary transparent viewport shield so stale pointer activity cannot leave unrelated page content in its `:hover` state. Returns an idempotent cleanup function that removes the shield and restores normal pointer hit testing. [`takeAccessibleScreenshot()`](accessibility-tests.md#takeaccessiblescreenshot) calls and cleans this up automatically unless `clearHover: false` is passed.
+
 ## Fallback selectors
 
 Use these only when Playwright's human-focused locators (`getByRole`, `getByLabel`, `getByText`, etc.) cannot target the element. CSS/ID selectors are brittle and harder to maintain; prefer semantic locators wherever possible.
