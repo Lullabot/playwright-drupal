@@ -530,8 +530,11 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
     await blurActiveElement(page);
   }
 
-  await waitForAllImages(page);
   await waitForFrames(page);
+  // Loading lazy frames can scroll the page. Load images afterwards so that
+  // any images exposed by that scrolling are settled and waitForAllImages()
+  // restores the viewport to the top before capture.
+  await waitForAllImages(page);
   await waitForFonts(page);
   // Last of the waits, so the video frames it composites are as fresh as
   // possible when the capture happens. It restores the scroll position it
