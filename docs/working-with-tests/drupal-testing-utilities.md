@@ -56,17 +56,27 @@ test('can log in as a specific user', async ({ page }) => {
 Utilities for driving Drupal's form system: waiting on AJAX, expanding collapsed `<details>`, clicking Save buttons on distributions with `autosave_form`, and waiting for a submit to resolve one way or another. For Gin-sticky-header-safe clicks, see [Gin theme workarounds](#gin-theme-workarounds).
 
 ```typescript
-import { test, openAllDetails, waitForAjax, clickSaveButton, waitForSaveOutcome } from '@packages/playwright-drupal';
+import { test, openAllDetails, saveDrupalForm } from '@packages/playwright-drupal';
 
 test('creates an article', async ({ page }) => {
   await page.goto('/node/add/article');
   await openAllDetails(page);
   await page.getByLabel('Title').fill('Hello');
-  await clickSaveButton(page, 'input[type=submit][value^="Save"]');
-  const outcome = await waitForSaveOutcome(page, { addFormPathPattern: /\/node\/add\// });
+  const outcome = await saveDrupalForm(page, {
+    fallback: 'input[type=submit][value^="Save"]',
+    addFormPathPattern: /\/node\/add\//,
+  });
   expect(outcome).toBe('ok');
 });
 ```
+
+### saveDrupalForm()
+
+`saveDrupalForm(page: Page, opts: { fallback: string; addFormPathPattern: RegExp; timeout?: number; ajaxTimeout?: number }): Promise<'ok' | 'error'>`
+
+Waits for in-flight Drupal AJAX, clicks the real Save button using the Gin- and autosave-safe helpers, and then waits for navigation or a visible validation error. It submits exactly once: retrying a save can create duplicate content when the server accepts the first request but the browser's redirect is delayed.
+
+Use the lower-level helpers below when a form has a different success signal or needs custom behavior between these steps.
 
 ### waitForAjax()
 
