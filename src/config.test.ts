@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import fs from 'fs'
 import os from 'os'
 
 // Mock @playwright/test so defineConfig just returns whatever is passed in.
@@ -15,10 +16,13 @@ describe('definePlaywrightDrupalConfig', () => {
     // Clear CI and DDEV_PRIMARY_URL before each test.
     delete process.env.CI
     delete process.env.DDEV_PRIMARY_URL
+    delete process.env.DDEV_HOSTNAME
     delete process.env.PLAYWRIGHT_WORKERS
+    delete process.env.TMPDIR
   })
 
   afterEach(() => {
+    vi.restoreAllMocks()
     process.env = { ...originalEnv }
   })
 
@@ -34,6 +38,39 @@ describe('definePlaywrightDrupalConfig', () => {
     expect(config).toHaveProperty('reporter')
     expect(config).toHaveProperty('globalSetup')
     expect(config).toHaveProperty('use')
+  })
+
+  it('uses the ddev-playwright tmpfs for browser temporary files', async () => {
+    process.env.DDEV_HOSTNAME = 'example.ddev.site'
+    vi.spyOn(fs, 'existsSync').mockReturnValue(true)
+    const mkdir = vi.spyOn(fs, 'mkdirSync').mockReturnValue(undefined)
+
+    await loadConfig()
+
+    expect(mkdir).toHaveBeenCalledWith('/tmp/ddev-playwright/playwright', { recursive: true })
+    expect(process.env.TMPDIR).toBe('/tmp/ddev-playwright/playwright')
+  })
+
+  it('does not change TMPDIR outside DDEV', async () => {
+    process.env.TMPDIR = '/existing/tmp'
+    const mkdir = vi.spyOn(fs, 'mkdirSync')
+
+    await loadConfig()
+
+    expect(mkdir).not.toHaveBeenCalled()
+    expect(process.env.TMPDIR).toBe('/existing/tmp')
+  })
+
+  it('does not change TMPDIR when the ddev-playwright tmpfs is unavailable', async () => {
+    process.env.DDEV_HOSTNAME = 'example.ddev.site'
+    process.env.TMPDIR = '/existing/tmp'
+    vi.spyOn(fs, 'existsSync').mockReturnValue(false)
+    const mkdir = vi.spyOn(fs, 'mkdirSync')
+
+    await loadConfig()
+
+    expect(mkdir).not.toHaveBeenCalled()
+    expect(process.env.TMPDIR).toBe('/existing/tmp')
   })
 
   it('sets CI reporter when process.env.CI is set', async () => {
