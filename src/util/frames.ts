@@ -19,6 +19,7 @@ export async function waitForFrames(page: Page): Promise<void> {
         const element = await locator.elementHandle();
         const frame = await element?.contentFrame();
         await frame?.waitForURL(new RegExp('.*/.*', 'i'));
+        await frame?.waitForLoadState('load');
       }
     }
   }
