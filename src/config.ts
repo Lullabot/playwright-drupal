@@ -1,6 +1,16 @@
 import { defineConfig, PlaywrightTestConfig } from '@playwright/test';
+import fs from 'fs';
 import path from 'path';
 import os from 'os';
+
+// Browser profiles contain many small files. When the ddev-playwright add-on's
+// tmpfs is available, keep those files in memory so parallel workers do not
+// contend on the host-backed filesystem.
+if (process.env.DDEV_HOSTNAME && fs.existsSync('/tmp/ddev-playwright')) {
+  const browserTmp = '/tmp/ddev-playwright/playwright';
+  fs.mkdirSync(browserTmp, { recursive: true });
+  process.env.TMPDIR = browserTmp;
+}
 
 // Detect when this module is loaded from the packages/ source copy in a config
 // file. The barrel (index.ts) re-exports config before testcase, so this check
@@ -35,6 +45,7 @@ if (__dirname.includes(path.sep + 'packages' + path.sep + 'playwright-drupal')) 
  *   the `PLAYWRIGHT_WORKERS` environment variable when it is set
  * - CI-aware `reporter` (line + html on CI; html + list locally)
  * - `globalSetup` pointing to this package's global-setup module
+ * - browser temporary files stored on ddev-playwright's tmpfs when available
  *
  * @param overrides - Optional Playwright config overrides. Plain-object
  *   properties are deep-merged with the corresponding defaults at every
