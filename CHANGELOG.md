@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.12.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.11.0...playwright-drupal-1.12.0) (2026-09-26)
+
+
+### Features
+
+* **forms:** add safe Drupal form save helper ([#325](https://github.com/Lullabot/playwright-drupal/issues/325)) ([89cf3ac](https://github.com/Lullabot/playwright-drupal/commit/89cf3acebe234fa53a42dd3e5100073c52f12b27))
+* **screenshot:** expose clip option ([40b8b64](https://github.com/Lullabot/playwright-drupal/commit/40b8b64c5d5dd7310a9466d6910df338ff0d6e8c))
+* **screenshot:** expose stylePath option ([d859409](https://github.com/Lullabot/playwright-drupal/commit/d859409335ef87291829e7916287ad8c0d4b92a3))
+
+
+### Bug Fixes
+
+* **frames:** wait for iframe load state ([53091f5](https://github.com/Lullabot/playwright-drupal/commit/53091f5a0d6bebb8c3722271d848f0ef5e269e70))
+* **screenshot:** load frames before images ([8a9dde9](https://github.com/Lullabot/playwright-drupal/commit/8a9dde9c10d91cccfa1bdd9a3a5c53b3d01519f1))
+
+
+### Performance Improvements
+
+* store browser profiles on ddev tmpfs ([55539b9](https://github.com/Lullabot/playwright-drupal/commit/55539b9f5a618143ebe9cde5828ec94266a6089c))
+
 ## [1.11.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.10.0...playwright-drupal-1.11.0) (2026-09-08)
 
 
