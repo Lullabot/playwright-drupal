@@ -149,7 +149,7 @@ jobs:
 
       # Without SCREENSHOT_GITHUB_TOKEN — as on pull requests from forks, which
       # never receive it — this still writes the summary, just without images.
-      - name: Failure summary
+      - name: Failure and flake summary
         if: always() && env.PLAYWRIGHT_REPORT != ''
         uses: ./.github/actions/failure-summary
         with:
@@ -181,4 +181,3 @@ jobs:
 
       - name: Comment on the pull request
         uses: ./.github/actions/failure-comment
-

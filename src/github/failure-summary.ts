@@ -64,7 +64,7 @@ export interface FailedTest {
   title: string
   file: string
   line: number
-  /** Playwright result status, e.g. `failed` or `timedOut`. */
+  /** Display status, including the synthetic `flaky` status for a retry that passed. */
   status: string
   /** First error message, trimmed to something a comment can carry. */
   error?: string
@@ -74,6 +74,7 @@ export interface FailedTest {
 export interface FailureReport {
   tests: FailedTest[]
   totalFailed: number
+  totalFlaky: number
   totalImages: number
 }
 
@@ -86,6 +87,9 @@ export type IncludeMode = 'diff' | 'all'
  * whether the run is worth commenting on.
  */
 export const FAILURE_MARKER_PREFIX = '<!-- playwright-drupal-failures: '
+
+/** Machine-readable flaky-test count used by the comment assembly action. */
+export const FLAKE_MARKER_PREFIX = '<!-- playwright-drupal-flakes: '
 
 /**
  * Neutralise text that the Actions runner would redact.
@@ -163,20 +167,35 @@ function walkSuites(suites: any[], parentFile: string, include: IncludeMode, out
 
     for (const spec of suite.specs ?? []) {
       for (const test of spec.tests ?? []) {
-        const result = test.results?.[test.results.length - 1]
+        const results = test.results ?? []
+        const result = results[results.length - 1]
         if (!result) continue
 
-        const images = collectImages(result.attachments ?? [], include)
+        // Playwright reports each retry as another result. A passing final
+        // attempt therefore hides the failed attempt unless we deliberately
+        // retain it and give the test its Playwright outcome: flaky.
+        const failedAttempts = results.slice(0, -1).filter((attempt: any) => (
+          attempt?.status !== 'passed' && attempt?.status !== 'skipped'
+        ))
+        // JSON reports expose Playwright's computed outcome on the test. Keep
+        // the attempt-based fallback for older or hand-written reports that do
+        // not carry it.
+        const flaky = test.status === 'flaky' || (
+          test.status === undefined && result.status === 'passed' && failedAttempts.length > 0
+        )
+        const reportedResult = flaky ? failedAttempts[failedAttempts.length - 1] : result
+
+        const images = collectImages(reportedResult.attachments ?? [], include)
         const failed = result.status !== 'passed' && result.status !== 'skipped'
         const hasA11yImage = images.some(image => image.kind === 'a11y')
-        if (!failed && !hasA11yImage) continue
+        if (!failed && !flaky && !hasA11yImage) continue
 
         out.push({
           title: spec.title,
           file,
           line: spec.line ?? 1,
-          status: String(result.status ?? 'unknown'),
-          error: firstError(result),
+          status: flaky ? 'flaky' : String(result.status ?? 'unknown'),
+          error: firstError(reportedResult),
           images,
         })
       }
@@ -194,10 +213,13 @@ export function parseFailures(reportPath: string, include: IncludeMode = 'diff')
   const tests: FailedTest[] = []
   walkSuites(report.suites ?? [], '', include, tests)
 
-  const totalFailed = tests.filter(test => test.status !== 'passed' && test.status !== 'skipped').length
+  const totalFailed = tests.filter(test => (
+    test.status !== 'passed' && test.status !== 'skipped' && test.status !== 'flaky'
+  )).length
+  const totalFlaky = tests.filter(test => test.status === 'flaky').length
   const totalImages = tests.reduce((sum, test) => sum + test.images.length, 0)
 
-  return { tests, totalFailed, totalImages }
+  return { tests, totalFailed, totalFlaky, totalImages }
 }
 
 /** What re-rooting the report's attachment paths achieved. */
@@ -305,13 +327,15 @@ function extensionFor(contentType: string): string {
 }
 
 function headline(report: FailureReport): string {
-  if (report.tests.length === 0) return ':white_check_mark: No failing tests with screenshots.'
+  if (report.tests.length === 0) return ':white_check_mark: No failing tests or flaky tests with screenshots.'
 
   // Nothing failed, but an accessibility check still captured something worth
   // seeing — a baselined violation passes and is still screenshotted.
   const parts = report.totalFailed === 0
     ? [':white_check_mark: No failing tests']
     : [`**${report.totalFailed}** failing test(s)`]
+
+  if (report.totalFlaky > 0) parts.push(`:warning: **${report.totalFlaky}** flaky test(s)`)
 
   if (report.totalImages > 0) parts.push(`**${report.totalImages}** screenshot(s)`)
   return parts.join(' · ')
@@ -367,7 +391,9 @@ export interface SummaryOptions {
 export function generateSummary(report: FailureReport, options: SummaryOptions = {}): string {
   // A baselined accessibility violation is screenshotted without failing
   // anything, so a green run can still have something to show here.
-  const heading = report.totalFailed > 0 ? '## Test Failures' : '## Test Screenshots'
+  const heading = report.totalFailed > 0
+    ? '## Test Failures'
+    : report.totalFlaky > 0 ? '## Test Flakes' : '## Test Screenshots'
   const lines: string[] = [`${heading}\n`, `${headline(report)}\n`]
 
   if (report.tests.length === 0) return lines.join('\n')
@@ -486,6 +512,7 @@ export function generateComment(
   // decide whether to post at all without grepping prose — the empty-state
   // sentence contains the words "failing test" too.
   lines.push(`${FAILURE_MARKER_PREFIX}${report.totalFailed} -->\n`)
+  lines.push(`${FLAKE_MARKER_PREFIX}${report.totalFlaky} -->\n`)
 
   return lines.join('\n')
 }
