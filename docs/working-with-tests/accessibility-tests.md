@@ -99,7 +99,7 @@ Runs a best-practice axe scan (unless `bestPracticeMode` is `'off'`) followed by
 | `scrollLocator` | `undefined` | Optional locator to scroll into view before the screenshot. |
 | `locator` | `page` | Optional element to screenshot. Axe still scans the whole page. |
 
-Waits for all images and iframes to load and for web fonts to settle, blurs any focused element (unless `blur: false`), and moves the pointer onto a temporary transparent shield (unless `clearHover: false`) so stray interaction states do not make the diff non-deterministic. It then applies project-specific thresholds for Firefox/Safari's non-deterministic image rendering, calls Playwright's `toHaveScreenshot()` (soft), removes the shield, and finally invokes [`checkAccessibility`](#checkaccessibility) with `options.accessibility`. The timeout is clamped to at least 10 seconds so slow admin forms have time to stabilise.
+Waits for all images and iframes to load and for web fonts to settle, blurs any focused element (unless `blur: false`), and moves the pointer onto a temporary transparent shield (unless `clearHover: false`) so stray interaction states do not make the diff non-deterministic. After the page settles, it applies any declared `interactionStates`, applies project-specific thresholds for Firefox/Safari's non-deterministic image rendering, calls Playwright's `toHaveScreenshot()` (soft), removes the shield, and invokes [`checkAccessibility`](#checkaccessibility) while the requested interaction states remain active. The states are cleaned up after the scan, including when capture or scanning fails. The timeout is clamped to at least 10 seconds so slow admin forms have time to stabilise.
 
 ### a11y fixture
 
@@ -143,6 +143,7 @@ A superset of Playwright's [`toHaveScreenshot()` options](https://playwright.dev
 | `accessibility` | `undefined` | [AccessibilityOptions](#accessibilityoptions) passed through to [`checkAccessibility`](#checkaccessibility). |
 | `blur` | `true` | Blurs the active element before capturing so a stray focus ring left over from earlier test interactions does not appear in only some runs. Set to `false` when the screenshot intentionally captures a focused state. |
 | `clearHover` | `true` | Moves the pointer onto a temporary transparent shield before capturing so stale pointer activity does not leave unrelated content hovered. Set to `false` when the screenshot intentionally captures a hovered state. |
+| `interactionStates` | `[]` | Real cross-browser `hover` and `focus` states to apply after the page settles and preserve through the screenshot and accessibility scan. Accepts `{ locator, states }` entries. At most one locator may receive each state. |
 
 ## In-code baselines
 

@@ -210,3 +210,38 @@ describe('defaultTestFunction pseudo-state handling', () => {
     expect(clearState).toHaveBeenCalledOnce()
   })
 })
+
+describe('defaultTestFunction interaction-state handling', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('merges cross-browser interaction states from all three levels', async () => {
+    const config = makeConfig({
+      interactionStates: [{selector: '.nav', states: ['hover']}],
+    })
+    const group = makeGroup({
+      interactionStates: [{selector: '.menu-item', states: ['focus']}],
+    })
+    const testCase = makeTestCase({
+      interactionStates: [{selector: '.trigger', states: ['hover', 'focus']}],
+    })
+
+    const {mockPage} = await runDefaultTestFunction(testCase, group, config)
+
+    expect(mockTakeAccessibleScreenshot.mock.calls[0][2].interactionStates).toEqual([
+      {locator: {_selector: '.nav'}, states: ['hover']},
+      {locator: {_selector: '.menu-item'}, states: ['focus']},
+      {locator: {_selector: '.trigger'}, states: ['hover', 'focus']},
+    ])
+    expect(mockPage.locator).toHaveBeenCalledWith('.nav')
+    expect(mockPage.locator).toHaveBeenCalledWith('.menu-item')
+    expect(mockPage.locator).toHaveBeenCalledWith('.trigger')
+  })
+
+  it('omits interactionStates when none are configured', async () => {
+    await runDefaultTestFunction(makeTestCase(), makeGroup())
+
+    expect(mockTakeAccessibleScreenshot.mock.calls[0][2].interactionStates).toBeUndefined()
+  })
+})

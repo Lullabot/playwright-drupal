@@ -5,6 +5,7 @@ import {
   AccessibilityBaseline,
   forcePseudoState,
   ForcedPseudoState,
+  InteractionState,
 } from "../util";
 
 export function defineVisualDiffConfig(cases: VisualDiffUrlConfig) {
@@ -69,7 +70,19 @@ export function defaultTestFunction(testCase: VisualDiff, group: VisualDiffGroup
       screenshotOptions.accessibility = { baseline: config.a11yBaseline }
     }
 
-    // Force declared interaction states after navigation and keep them active
+    const interactionStates: VisualDiffInteractionState[] = [
+      ...(config?.interactionStates ?? []),
+      ...(group.interactionStates ?? []),
+      ...(testCase.interactionStates ?? []),
+    ];
+    if (interactionStates.length > 0) {
+      screenshotOptions.interactionStates = interactionStates.map(({selector, states}) => ({
+        locator: page.locator(selector),
+        states,
+      }));
+    }
+
+    // Force declared pseudo-states after navigation and keep them active
     // through both the screenshot and the accessibility scan. These synthetic
     // states are unaffected by takeAccessibleScreenshot() clearing incidental
     // pointer hover and DOM focus.
@@ -119,8 +132,8 @@ export class VisualDiffTestCases {
    * Describe, execute, and skip test cases
    *
    * @param overriddenTestFunction An optional custom test function. Note: when
-   *   using a custom test function, automatic mask and pseudo-state handling is
-   *   bypassed. You must apply them yourself.
+   *   using a custom test function, automatic mask, interaction-state, and
+   *   pseudo-state handling is bypassed. You must apply them yourself.
    */
   public describe(overriddenTestFunction?: (testCase: VisualDiff, group: VisualDiffGroup) => Function | void) {
     // Handle skipping of test cases, either based on a simple boolean or a callback.
@@ -194,6 +207,11 @@ export type VisualDiffUrlConfig = {
    */
   a11yBaseline?: AccessibilityBaseline,
   /**
+   * Cross-browser hover and focus states to apply for every test case. These
+   * are merged with group-level and test-case-level interaction states.
+   */
+  interactionStates?: VisualDiffInteractionState[],
+  /**
    * Chromium-only pseudo-states to force for every test case. These are merged
    * with group-level and test-case-level pseudo-states.
    */
@@ -214,6 +232,12 @@ export interface MockableConstructor {
 }
 export interface Mockable {
   mock(page: Page): Promise<void>
+}
+
+/** A selector and real cross-browser interaction states to apply to it. */
+export interface VisualDiffInteractionState {
+  selector: string
+  states: InteractionState[]
 }
 
 /**
@@ -244,6 +268,11 @@ export type BaseVisualDiff = {
    * Overrides the mask color set at less-specific levels (config or group).
    */
   maskColor?: string,
+  /**
+   * Cross-browser hover and focus states to apply while capturing the
+   * screenshot and running its accessibility scan.
+   */
+  interactionStates?: VisualDiffInteractionState[],
   /**
    * Chromium-only pseudo-states to force while capturing the screenshot and
    * running its accessibility scan.

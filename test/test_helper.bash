@@ -420,6 +420,39 @@ test('a11y fixture check works', async ({ page, a11y }) => {
   await page.goto('/');
   await a11y.check({ bestPracticeMode: 'off' });
 });
+
+test('a11y screenshot preserves real interaction states through capture', async ({ page, a11y }) => {
+  await page.setContent(`
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <title>Interaction states</title>
+        <style>
+          button:hover { background: rgb(255, 255, 0); }
+          button:focus { outline: 4px solid rgb(0, 0, 255); }
+        </style>
+      </head>
+      <body>
+        <main><button type="button">Menu</button></main>
+        <script>
+          const button = document.querySelector('button');
+          button.addEventListener('mouseenter', () => button.dataset.hovered = 'true');
+          button.addEventListener('focus', () => button.dataset.focused = 'true');
+        </script>
+      </body>
+    </html>
+  `);
+  const button = page.getByRole('button', { name: 'Menu' });
+
+  await a11y.screenshot({
+    interactionStates: [{ locator: button, states: ['hover', 'focus'] }],
+    accessibility: { bestPracticeMode: 'off' },
+  });
+
+  await expect(button).toHaveAttribute('data-hovered', 'true');
+  await expect(button).toHaveAttribute('data-focused', 'true');
+  await expect(button).not.toBeFocused();
+});
 TESTEOF
 }
 
