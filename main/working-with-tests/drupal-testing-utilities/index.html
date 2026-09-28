@@ -1176,6 +1176,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#clearhover" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clearHover()
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1954,6 +1965,17 @@
     <span class="md-ellipsis">
       
         blurActiveElement()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clearhover" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clearHover()
       
     </span>
   </a>
@@ -2740,6 +2762,25 @@
 </tbody>
 </table>
 <p>Removes keyboard focus from a genuinely focused control so its focus ring does not appear in only some screenshot runs. Returns <code>true</code> if an element was blurred, <code>false</code> if nothing was focused (the <code>&lt;body&gt;</code>/<code>&lt;html&gt;</code> fallback is left alone). <a href="../accessibility-tests/#takeaccessiblescreenshot"><code>takeAccessibleScreenshot()</code></a> calls this for you unless <code>blur: false</code> is passed.</p>
+<h3 id="clearhover">clearHover()</h3>
+<p><code>clearHover(page: Page): Promise&lt;() =&gt; Promise&lt;void&gt;&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+</tbody>
+</table>
+<p>Moves the pointer onto a temporary transparent viewport shield so stale pointer activity cannot leave unrelated page content in its <code>:hover</code> state. Returns an idempotent cleanup function that removes the shield and restores normal pointer hit testing. <a href="../accessibility-tests/#takeaccessiblescreenshot"><code>takeAccessibleScreenshot()</code></a> calls and cleans this up automatically unless <code>clearHover: false</code> is passed.</p>
 <h2 id="fallback-selectors">Fallback selectors</h2>
 <p>Use these only when Playwright's human-focused locators (<code>getByRole</code>, <code>getByLabel</code>, <code>getByText</code>, etc.) cannot target the element. CSS/ID selectors are brittle and harder to maintain; prefer semantic locators wherever possible.</p>
 <div class="language-typescript highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">idPrefixSelector</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@packages/playwright-drupal'</span><span class="p">;</span>
