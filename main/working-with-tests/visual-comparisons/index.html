@@ -724,6 +724,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#testing-hover-and-focus-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Hover and Focus States
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Hover and Focus States">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chromium-only-forced-pseudo-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chromium-only forced pseudo-states
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#running-and-regenerating-snapshots" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1124,6 +1152,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#testing-hover-and-focus-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Hover and Focus States
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Hover and Focus States">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chromium-only-forced-pseudo-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chromium-only forced pseudo-states
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#running-and-regenerating-snapshots" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1429,18 +1485,95 @@ Now, you can run just these tests with a command like:</p>
 </span></code></pre></div>
 <p>Selectors that don't match any element on the page are silently ignored — no error is thrown.</p>
 <p><strong>Note:</strong> When using a custom test function via <code>config.describe(myTestFunction)</code>, automatic mask merging is bypassed. Your custom function is responsible for applying masks itself.</p>
+<h2 id="testing-hover-and-focus-states">Testing Hover and Focus States</h2>
+<p>Use <code>interactionStates</code> to exercise real hover and focus behavior in Chromium,
+Firefox, and WebKit. The actions run after the page has settled and remain active
+for both the screenshot and its accessibility scan.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">defineVisualDiffConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@packages/playwright-drupal'</span><span class="p">;</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">defineVisualDiffConfig</span><span class="p">({</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"MySite Visual Diffs"</span><span class="p">,</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">  </span><span class="nx">groups</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"Navigation"</span><span class="p">,</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">      </span><span class="nx">testCases</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">        </span><span class="p">{</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">          </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"Expanded navigation"</span><span class="p">,</span>
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">          </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s2">"/"</span><span class="p">,</span>
+</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">          </span><span class="nx">interactionStates</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="nx">selector</span><span class="o">:</span><span class="w"> </span><span class="s1">'.main-menu__trigger'</span><span class="p">,</span><span class="w"> </span><span class="nx">states</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">'hover'</span><span class="p">,</span><span class="w"> </span><span class="s1">'focus'</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-13-14"><a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="w">          </span><span class="p">],</span>
+</span><span id="__span-13-15"><a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="w">        </span><span class="p">},</span>
+</span><span id="__span-13-16"><a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a><span class="w">      </span><span class="p">],</span>
+</span><span id="__span-13-17"><a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-13-18"><a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-13-19"><a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a><span class="p">});</span>
+</span></code></pre></div>
+<p>Like masks, <code>interactionStates</code> from the top-level config, group, and test case
+are merged. Because these represent real browser state, at most one locator may
+receive <code>hover</code> and at most one may receive <code>focus</code> after merging. One locator
+can receive both, or hover and focus can target different locators. A stale or
+ambiguous selector fails through Playwright's normal locator checks.</p>
+<p>Custom tests can pass semantic Playwright locators directly:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">await</span><span class="w"> </span><span class="nx">takeAccessibleScreenshot</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="nx">testInfo</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="nx">interactionStates</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">      </span><span class="nx">locator</span><span class="o">:</span><span class="w"> </span><span class="kt">page.getByRole</span><span class="p">(</span><span class="s1">'button'</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'Menu'</span><span class="w"> </span><span class="p">}),</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">      </span><span class="nx">states</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">'hover'</span><span class="p">,</span><span class="w"> </span><span class="s1">'focus'</span><span class="p">],</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="p">});</span>
+</span></code></pre></div>
+<p>There is no need to set <code>blur: false</code> or <code>clearHover: false</code>; the helper first
+clears incidental states, applies the requested interactions at the correct
+point in the capture lifecycle, and cleans them up after axe finishes. Real
+focus also updates the accessibility tree, and real hover runs the same pointer
+handlers as a user interaction.</p>
+<h3 id="chromium-only-forced-pseudo-states">Chromium-only forced pseudo-states</h3>
+<p>Use <code>pseudoStates</code> when a Chromium test needs synthetic CSS state without real
+DOM focus or pointer events, needs pseudo-classes that have no portable action,
+or needs to force the same state on multiple elements:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="p">{</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'Forced navigation states'</span><span class="p">,</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">'/'</span><span class="p">,</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span><span class="nx">pseudoStates</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">selector</span><span class="o">:</span><span class="w"> </span><span class="s1">'.main-menu__trigger'</span><span class="p">,</span><span class="w"> </span><span class="nx">pseudoClasses</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">'hover'</span><span class="p">,</span><span class="w"> </span><span class="s1">'focus-visible'</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><code>pseudoStates</code> are also merged across config, group, and test-case levels. They
+use Chromium's <code>CSS.forcePseudoState</code> DevTools command, so tests that declare
+them must run in a Chromium project. Supported values are <code>active</code>, <code>focus</code>,
+<code>focus-visible</code>, <code>focus-within</code>, <code>hover</code>, and <code>target</code>.</p>
+<p>Forced states are CSS-only and do not update DOM focus or the accessibility
+tree. The normal blur and hover-clearing stability steps do not affect them.</p>
+<p>Custom Chromium tests can use the lower-level helper and keep the state active
+around the entire screenshot/accessibility operation:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">forcePseudoState</span><span class="p">,</span><span class="w"> </span><span class="nx">takeAccessibleScreenshot</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@packages/playwright-drupal'</span><span class="p">;</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">clearState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">forcePseudoState</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="s1">'.main-menu__trigger'</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">'hover'</span><span class="p">]);</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">takeAccessibleScreenshot</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="nx">testInfo</span><span class="p">);</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">clearState</span><span class="p">();</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>As with masks, a custom test function passed to <code>config.describe()</code> bypasses
+automatic interaction-state and pseudo-state handling. It can call
+<code>defaultTestFunction()</code>, pass locators to <code>takeAccessibleScreenshot()</code>, or use
+the lower-level forced-state helper directly.</p>
 <h2 id="running-and-regenerating-snapshots">Running and Regenerating Snapshots</h2>
 <p>Two tasks cover the day-to-day work, and both run only the tests that have a
 <code>-snapshots</code> directory next to them:</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="go">ddev task playwright:visualdiff</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="go">ddev task playwright:regenerate</span>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="go">ddev task playwright:visualdiff</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="go">ddev task playwright:regenerate</span>
 </span></code></pre></div>
 <p><code>playwright:regenerate</code> deletes every existing snapshot before rerunning with
 <code>--update-snapshots</code>, so that a test whose snapshot filenames changed does not
 leave the old files behind. Pass <code>delete=0</code> to keep them.</p>
 <p>Arguments after <code>--</code> are forwarded to <code>playwright test</code>:</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="go">ddev task playwright:visualdiff -- --project chromium</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="go">ddev task playwright:regenerate delete=0 -- --grep 'Front.page'</span>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="go">ddev task playwright:visualdiff -- --project chromium</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="go">ddev task playwright:regenerate delete=0 -- --grep 'Front.page'</span>
 </span></code></pre></div>
 <p>A filtered regeneration requires an explicit <code>delete</code>, because deleting every
 snapshot and then regenerating only the ones that matched would leave the rest

@@ -1187,6 +1187,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#forcepseudostate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        forcePseudoState()
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1976,6 +1987,17 @@
     <span class="md-ellipsis">
       
         clearHover()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#forcepseudostate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        forcePseudoState()
       
     </span>
   </a>
@@ -2781,6 +2803,48 @@
 </tbody>
 </table>
 <p>Moves the pointer onto a temporary transparent viewport shield so stale pointer activity cannot leave unrelated page content in its <code>:hover</code> state. Returns an idempotent cleanup function that removes the shield and restores normal pointer hit testing. <a href="../accessibility-tests/#takeaccessiblescreenshot"><code>takeAccessibleScreenshot()</code></a> calls and cleans this up automatically unless <code>clearHover: false</code> is passed.</p>
+<h3 id="forcepseudostate">forcePseudoState()</h3>
+<p><code>forcePseudoState(page: Page, selector: string, pseudoClasses: ForcedPseudoClass[]): Promise&lt;() =&gt; Promise&lt;void&gt;&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>selector</code></td>
+<td><em>(required)</em></td>
+<td>CSS selector whose first matching element receives the forced state.</td>
+</tr>
+<tr>
+<td><code>pseudoClasses</code></td>
+<td><em>(required)</em></td>
+<td>One or more of <code>active</code>, <code>focus</code>, <code>focus-visible</code>, <code>focus-within</code>, <code>hover</code>, or <code>target</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Uses Chromium's <code>CSS.forcePseudoState</code> DevTools command to hold interaction CSS
+in a deterministic state. It is Chromium-only and throws when the selector has
+no match. The returned cleanup function clears the forced classes, detaches the
+DevTools session, and is safe to call more than once.</p>
+<p>For ordinary cross-browser hover and focus testing, prefer the
+<a href="../accessibility-tests/#screenshotoptions"><code>interactionStates</code></a> option. It uses
+real Playwright interactions and keeps them active through the screenshot and
+accessibility scan.</p>
+<p>Forced pseudo-states are independent of real pointer hover and DOM focus, so
+<a href="../accessibility-tests/#takeaccessiblescreenshot"><code>takeAccessibleScreenshot()</code></a>
+can still clear those incidental states while preserving the requested styling
+through both the screenshot and accessibility scan. See <a href="../visual-comparisons/#testing-hover-and-focus-states">Testing Hover and
+Focus States</a> for the
+declarative visual-diff configuration and a custom-test example.</p>
 <h2 id="fallback-selectors">Fallback selectors</h2>
 <p>Use these only when Playwright's human-focused locators (<code>getByRole</code>, <code>getByLabel</code>, <code>getByText</code>, etc.) cannot target the element. CSS/ID selectors are brittle and harder to maintain; prefer semantic locators wherever possible.</p>
 <div class="language-typescript highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">idPrefixSelector</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@packages/playwright-drupal'</span><span class="p">;</span>
