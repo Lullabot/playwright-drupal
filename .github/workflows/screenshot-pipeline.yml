@@ -2,9 +2,10 @@ name: Screenshot Pipeline
 
 # Our own suite is green, so it never produces a failing screenshot and never
 # exercises uploading or rendering. Two bugs reached us that way. This makes a
-# comparison fail on purpose, runs the shipped action over the result, and then
-# checks that the images actually resolved — the endpoint is undocumented, so
-# "it uploaded" is not the same as "it displays".
+# comparison fail and another test flake on purpose, runs the shipped action
+# over the result, and then checks that both are reported and the images
+# actually resolved — the endpoint is undocumented, so "it uploaded" is not
+# the same as "it displays".
 
 on:
   pull_request:
@@ -22,7 +23,7 @@ permissions:
 
 jobs:
   verify:
-    name: Verify screenshots reach the comment
+    name: Verify screenshots and flakes reach the comment
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -49,6 +50,7 @@ jobs:
 
           export default defineConfig({
             testDir: '.',
+            retries: 1,
             reporter: [['json', { outputFile: 'results.json' }]],
             projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
           })
@@ -72,6 +74,12 @@ jobs:
             `)
             await expect(page).toHaveScreenshot('styleguide.png', { maxDiffPixels: 0 })
           })
+
+          // Fail the first attempt and pass the retry so the real JSON
+          // reporter records the outcome as flaky.
+          test('the checkout recovers from a transient failure', async ({}, testInfo) => {
+            expect(testInfo.retry).toBe(1)
+          })
           SPEC
 
       - name: Record the baseline
@@ -80,7 +88,7 @@ jobs:
           CHECK_COLOUR: '#ef4444'
         run: npx playwright test --update-snapshots
 
-      - name: Break it on purpose
+      - name: Fail and flake on purpose
         working-directory: screenshot-check
         env:
           CHECK_COLOUR: '#3b82f6'
@@ -139,6 +147,21 @@ jobs:
           fi
           echo "Check comment: ${id}"
 
+          if ! gh api "repos/${GITHUB_REPOSITORY}/issues/comments/${id}" --jq '.body' > comment.md; then
+            echo 'Could not read the raw comment.' >&2
+            exit 1
+          fi
+          if ! grep -Fq ':warning: **1** flaky test(s)' comment.md; then
+            echo 'The comment did not report exactly one flaky test.' >&2
+            cat comment.md >&2
+            exit 1
+          fi
+          if ! grep -Fq '`flaky` the checkout recovers from a transient failure' comment.md; then
+            echo 'The fake flake was missing from the comment.' >&2
+            cat comment.md >&2
+            exit 1
+          fi
+
           if ! gh api "repos/${GITHUB_REPOSITORY}/issues/comments/${id}" \
             -H 'Accept: application/vnd.github.html+json' --jq '.body_html' > rendered.html; then
             echo 'Could not read the rendered comment.' >&2
@@ -154,6 +177,7 @@ jobs:
           {
             echo '## Screenshot pipeline check'
             echo
+            echo '- Flaky test reported: yes'
             echo "- Images resolved to signed URLs: ${resolved}"
             echo "- Attachment URLs left unresolved: ${unresolved}"
           } >> "${GITHUB_STEP_SUMMARY}"
