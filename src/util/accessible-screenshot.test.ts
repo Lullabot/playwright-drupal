@@ -386,7 +386,7 @@ describe('takeAccessibleScreenshot hover handling', () => {
 
     expect(mockClearHover).not.toHaveBeenCalled()
     expect(mockRemoveHoverShield).not.toHaveBeenCalled()
-    expect(mockToHaveScreenshot).toHaveBeenCalledWith({ clearHover: false, timeout: 10000 })
+    expect(mockToHaveScreenshot).toHaveBeenCalledWith({ timeout: 10000 })
   })
 
   it('removes the shield when capture throws', async () => {
@@ -398,5 +398,92 @@ describe('takeAccessibleScreenshot hover handling', () => {
 
     expect(mockRemoveHoverShield).toHaveBeenCalledOnce()
     expect(mockRestoreVideoPlayback).toHaveBeenCalledWith(page)
+  })
+
+  it('applies real hover and focus after settling and keeps them through the accessibility scan', async () => {
+    const initialShieldCleanup = vi.fn()
+    const interactionShieldCleanup = vi.fn()
+    mockClearHover
+      .mockResolvedValueOnce(initialShieldCleanup)
+      .mockResolvedValueOnce(interactionShieldCleanup)
+    const hoverLocator = {hover: vi.fn()}
+    const focusLocator = {focus: vi.fn()}
+    const page = {} as any
+    const testInfo = makeTestInfo()
+
+    await takeAccessibleScreenshot(page, testInfo as any, {
+      interactionStates: [
+        {locator: hoverLocator as any, states: ['hover']},
+        {locator: focusLocator as any, states: ['focus']},
+      ],
+    })
+
+    expect(initialShieldCleanup).toHaveBeenCalledOnce()
+    expect(hoverLocator.hover).toHaveBeenCalledOnce()
+    expect(focusLocator.focus).toHaveBeenCalledOnce()
+    expect(mockToHaveScreenshot).toHaveBeenCalledWith({timeout: 10000})
+    expect(initialShieldCleanup.mock.invocationCallOrder[0])
+      .toBeGreaterThan(mockWaitForVideos.mock.invocationCallOrder[0])
+    expect(hoverLocator.hover.mock.invocationCallOrder[0])
+      .toBeLessThan(focusLocator.focus.mock.invocationCallOrder[0])
+    expect(focusLocator.focus.mock.invocationCallOrder[0])
+      .toBeLessThan(mockToHaveScreenshot.mock.invocationCallOrder[0])
+    expect(mockBlurActiveElement).toHaveBeenCalledTimes(2)
+    expect(mockBlurActiveElement.mock.invocationCallOrder[1])
+      .toBeGreaterThan(mockAnalyze.mock.invocationCallOrder.at(-1)!)
+    expect(interactionShieldCleanup.mock.invocationCallOrder[0])
+      .toBeGreaterThan(mockAnalyze.mock.invocationCallOrder.at(-1)!)
+  })
+
+  it('cleans up real states when the accessibility scan throws', async () => {
+    const initialShieldCleanup = vi.fn()
+    const interactionShieldCleanup = vi.fn()
+    mockClearHover
+      .mockResolvedValueOnce(initialShieldCleanup)
+      .mockResolvedValueOnce(interactionShieldCleanup)
+    const locator = {hover: vi.fn(), focus: vi.fn()}
+    mockAnalyze.mockRejectedValueOnce(new Error('scan failed'))
+
+    await expect(takeAccessibleScreenshot({} as any, makeTestInfo() as any, {
+      interactionStates: [{locator: locator as any, states: ['hover', 'focus']}],
+    })).rejects.toThrow('scan failed')
+
+    expect(mockBlurActiveElement).toHaveBeenCalledTimes(2)
+    expect(interactionShieldCleanup).toHaveBeenCalledOnce()
+  })
+
+  it('cleans up when applying a real interaction state throws', async () => {
+    const initialShieldCleanup = vi.fn()
+    const interactionShieldCleanup = vi.fn()
+    mockClearHover
+      .mockResolvedValueOnce(initialShieldCleanup)
+      .mockResolvedValueOnce(interactionShieldCleanup)
+    const locator = {
+      hover: vi.fn().mockRejectedValue(new Error('hover failed')),
+      focus: vi.fn(),
+    }
+
+    await expect(takeAccessibleScreenshot({} as any, makeTestInfo() as any, {
+      interactionStates: [{locator: locator as any, states: ['hover', 'focus']}],
+    })).rejects.toThrow('hover failed')
+
+    expect(locator.focus).not.toHaveBeenCalled()
+    expect(interactionShieldCleanup).toHaveBeenCalledOnce()
+  })
+
+  it('rejects interaction states that a real pointer cannot hold simultaneously', async () => {
+    const first = {hover: vi.fn()}
+    const second = {hover: vi.fn()}
+
+    await expect(takeAccessibleScreenshot({} as any, makeTestInfo() as any, {
+      interactionStates: [
+        {locator: first as any, states: ['hover']},
+        {locator: second as any, states: ['hover']},
+      ],
+    })).rejects.toThrow('can hover at most one locator')
+
+    expect(mockClearHover).not.toHaveBeenCalled()
+    expect(first.hover).not.toHaveBeenCalled()
+    expect(second.hover).not.toHaveBeenCalled()
   })
 })

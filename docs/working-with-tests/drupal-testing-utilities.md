@@ -416,6 +416,11 @@ in a deterministic state. It is Chromium-only and throws when the selector has
 no match. The returned cleanup function clears the forced classes, detaches the
 DevTools session, and is safe to call more than once.
 
+For ordinary cross-browser hover and focus testing, prefer the
+[`interactionStates`](accessibility-tests.md#screenshotoptions) option. It uses
+real Playwright interactions and keeps them active through the screenshot and
+accessibility scan.
+
 Forced pseudo-states are independent of real pointer hover and DOM focus, so
 [`takeAccessibleScreenshot()`](accessibility-tests.md#takeaccessiblescreenshot)
 can still clear those incidental states while preserving the requested styling

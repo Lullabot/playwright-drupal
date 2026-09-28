@@ -319,9 +319,9 @@ Selectors that don't match any element on the page are silently ignored — no e
 
 ## Testing Hover and Focus States
 
-Visual-diff test cases can force Chromium CSS pseudo-classes without moving the
-real pointer or DOM focus. This makes interaction states deterministic and keeps
-them active for both the screenshot and its accessibility scan.
+Use `interactionStates` to exercise real hover and focus behavior in Chromium,
+Firefox, and WebKit. The actions run after the page has settled and remain active
+for both the screenshot and its accessibility scan.
 
 ```typescript
 import { defineVisualDiffConfig } from '@packages/playwright-drupal';
@@ -335,8 +335,8 @@ export const config = defineVisualDiffConfig({
         {
           name: "Expanded navigation",
           path: "/",
-          pseudoStates: [
-            { selector: '.main-menu__trigger', pseudoClasses: ['hover', 'focus-visible'] },
+          interactionStates: [
+            { selector: '.main-menu__trigger', states: ['hover', 'focus'] },
           ],
         },
       ],
@@ -345,20 +345,57 @@ export const config = defineVisualDiffConfig({
 });
 ```
 
-Like masks, `pseudoStates` from the top-level config, group, and test case are
-merged. Each selector must match an element; a stale selector fails the test
-instead of silently producing a screenshot of the wrong state.
+Like masks, `interactionStates` from the top-level config, group, and test case
+are merged. Because these represent real browser state, at most one locator may
+receive `hover` and at most one may receive `focus` after merging. One locator
+can receive both, or hover and focus can target different locators. A stale or
+ambiguous selector fails through Playwright's normal locator checks.
 
-This feature uses Chromium's `CSS.forcePseudoState` DevTools command, so tests
-that declare `pseudoStates` must run in a Chromium project. Supported values are
-`active`, `focus`, `focus-visible`, `focus-within`, `hover`, and `target`.
+Custom tests can pass semantic Playwright locators directly:
 
-`takeAccessibleScreenshot()` still blurs real DOM focus and clears incidental
-pointer hover by default. Those stability steps do not affect forced CSS states,
-so no `blur: false` or `clearHover: false` override is needed.
+```typescript
+await takeAccessibleScreenshot(page, testInfo, {
+  interactionStates: [
+    {
+      locator: page.getByRole('button', { name: 'Menu' }),
+      states: ['hover', 'focus'],
+    },
+  ],
+});
+```
 
-Custom tests can use the lower-level helper and keep the state active around the
-entire screenshot/accessibility operation:
+There is no need to set `blur: false` or `clearHover: false`; the helper first
+clears incidental states, applies the requested interactions at the correct
+point in the capture lifecycle, and cleans them up after axe finishes. Real
+focus also updates the accessibility tree, and real hover runs the same pointer
+handlers as a user interaction.
+
+### Chromium-only forced pseudo-states
+
+Use `pseudoStates` when a Chromium test needs synthetic CSS state without real
+DOM focus or pointer events, needs pseudo-classes that have no portable action,
+or needs to force the same state on multiple elements:
+
+```typescript
+{
+  name: 'Forced navigation states',
+  path: '/',
+  pseudoStates: [
+    { selector: '.main-menu__trigger', pseudoClasses: ['hover', 'focus-visible'] },
+  ],
+}
+```
+
+`pseudoStates` are also merged across config, group, and test-case levels. They
+use Chromium's `CSS.forcePseudoState` DevTools command, so tests that declare
+them must run in a Chromium project. Supported values are `active`, `focus`,
+`focus-visible`, `focus-within`, `hover`, and `target`.
+
+Forced states are CSS-only and do not update DOM focus or the accessibility
+tree. The normal blur and hover-clearing stability steps do not affect them.
+
+Custom Chromium tests can use the lower-level helper and keep the state active
+around the entire screenshot/accessibility operation:
 
 ```typescript
 import { forcePseudoState, takeAccessibleScreenshot } from '@packages/playwright-drupal';
@@ -372,8 +409,9 @@ try {
 ```
 
 As with masks, a custom test function passed to `config.describe()` bypasses
-automatic pseudo-state handling. It can call `defaultTestFunction()` or use the
-lower-level helper directly.
+automatic interaction-state and pseudo-state handling. It can call
+`defaultTestFunction()`, pass locators to `takeAccessibleScreenshot()`, or use
+the lower-level forced-state helper directly.
 
 ## Running and Regenerating Snapshots
 

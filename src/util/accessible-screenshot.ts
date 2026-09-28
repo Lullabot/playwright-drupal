@@ -20,6 +20,15 @@ import {
 
 let a11yActionHintShown = false;
 
+/** Real browser interaction states supported consistently by Playwright. */
+export type InteractionState = 'hover' | 'focus'
+
+/** A locator and the real browser interaction states to apply to it. */
+export interface ScreenshotInteractionState {
+  locator: Locator
+  states: InteractionState[]
+}
+
 export interface ScreenshotOptions {
   /**
    * When set to `"disabled"`, stops CSS animations, CSS transitions and Web Animations. Animations get different
@@ -53,6 +62,14 @@ export interface ScreenshotOptions {
    * intentionally captures a hovered state.
    */
   clearHover?: boolean;
+
+  /**
+   * Real hover and focus states to apply after the page has settled. These are
+   * supported in Chromium, Firefox, and WebKit and remain active through both
+   * the screenshot and accessibility scan. At most one locator may receive
+   * each state, matching what a real pointer and keyboard can do.
+   */
+  interactionStates?: ScreenshotInteractionState[];
 
   /**
    * An object specifying the page area to capture, in CSS pixels.
@@ -546,6 +563,19 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
     options.threshold = 0.8;
   }
 
+  const interactionStates = options.interactionStates ?? []
+  validateInteractionStates(interactionStates)
+
+  // Do not pass playwright-drupal's custom options to Playwright's screenshot
+  // matcher.
+  const {
+    accessibility: _accessibility,
+    blur: _blur,
+    clearHover: _clearHover,
+    interactionStates: _interactionStates,
+    ...playwrightScreenshotOptions
+  } = options
+
   // Blur any focused element so a stray focus ring does not make the screenshot
   // non-deterministic, unless the caller is intentionally capturing focus. Do
   // this before the load/stability waits so that any layout change a blur
@@ -555,7 +585,10 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
     await blurActiveElement(page);
   }
 
-  const removeHoverShield = options.clearHover === false ? undefined : await clearHover(page);
+  let removeHoverShield = options.clearHover === false ? undefined : await clearHover(page);
+  let videoPlaybackRestored = false
+  let hoverApplied = false
+  let focusApplied = false
 
   try {
     await waitForFrames(page);
@@ -573,22 +606,80 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
       await scrollLocator.scrollIntoViewIfNeeded();
     }
 
+    // A hover action cannot hit its target through the transparent shield used
+    // to clear incidental hover. Remove it only after all stability waits, then
+    // apply real hover before real focus so focusing cannot disturb the pointer.
+    const hoverTargets = interactionStates.filter(({states}) => states.includes('hover'))
+    const focusTargets = interactionStates.filter(({states}) => states.includes('focus'))
+    if (hoverTargets.length > 0) {
+      await removeHoverShield?.()
+      removeHoverShield = undefined
+      hoverApplied = true
+      await hoverTargets[0].locator.hover()
+    }
+    if (focusTargets.length > 0) {
+      focusApplied = true
+      await focusTargets[0].locator.focus()
+    }
+
     let locatorToScreenshot: Page|Locator = page;
     if (locator) {
       locatorToScreenshot = locator;
     }
     // Soft failure here so we can get accessibility violations too.
-    await expect.soft(locatorToScreenshot).toHaveScreenshot(options);
-  } finally {
-    await removeHoverShield?.();
+    await expect.soft(locatorToScreenshot).toHaveScreenshot(playwrightScreenshotOptions);
 
     // Settling a video pauses it, clears `autoplay` and rewinds it. That is only
     // wanted for the duration of the capture: a test that screenshots a page and
     // then asserts that a video is playing should still pass.
     await restoreVideoPlayback(page);
-  }
+    videoPlaybackRestored = true
 
-  return checkAccessibility(page, testInfo, options.accessibility)
+    await removeHoverShield?.()
+    removeHoverShield = undefined
+
+    return await checkAccessibility(page, testInfo, options.accessibility)
+  } finally {
+    // Nest cleanup so a failure in one operation cannot prevent the remaining
+    // browser state from being restored.
+    try {
+      await removeHoverShield?.();
+    } finally {
+      try {
+        if (!videoPlaybackRestored) {
+          await restoreVideoPlayback(page);
+        }
+      } finally {
+        try {
+          if (focusApplied) {
+            await blurActiveElement(page)
+          }
+        } finally {
+          if (hoverApplied) {
+            const removeInteractionShield = await clearHover(page)
+            await removeInteractionShield()
+          }
+        }
+      }
+    }
+  }
+}
+
+function validateInteractionStates(interactionStates: ScreenshotInteractionState[]): void {
+  const hoverTargets = interactionStates.filter(({states}) => states.includes('hover'))
+  const focusTargets = interactionStates.filter(({states}) => states.includes('focus'))
+
+  if (hoverTargets.length > 1) {
+    throw new Error('interactionStates can hover at most one locator at a time.')
+  }
+  if (focusTargets.length > 1) {
+    throw new Error('interactionStates can focus at most one locator at a time.')
+  }
+  for (const {states} of interactionStates) {
+    if (new Set(states).size !== states.length) {
+      throw new Error('interactionStates cannot repeat a state for the same locator.')
+    }
+  }
 }
 
 /**
