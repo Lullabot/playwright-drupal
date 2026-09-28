@@ -1,8 +1,8 @@
-name: Playwright failure summary
+name: Playwright failure and flake summary
 description: >-
-  Write a job summary of Playwright failures, with the screenshots embedded when
-  an upload token is available, and optionally a body for a sticky pull request
-  comment.
+  Write a job summary of Playwright failures and flakes, and optionally a body
+  for a sticky pull request comment with screenshots when an upload token is
+  available.
 
 inputs:
   report-path:
@@ -62,7 +62,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Write the failure summary
+    - name: Write the failure and flake summary
       shell: bash
       env:
         SCREENSHOT_GITHUB_TOKEN: ${{ inputs.token }}

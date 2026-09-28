@@ -4,11 +4,12 @@ When a visual comparison or an accessibility check fails, Playwright captures
 exactly what you need to see: a diff image for the comparison, and for
 accessibility a full-page screenshot with the violating elements outlined. By
 default those end up zipped inside an artifact that has to be downloaded and
-unpacked before anyone can look at them.
+unpacked before anyone can look at them. Tests that fail and then pass on retry
+are reported as flaky, with the failed attempt's error and screenshots retained.
 
 This package can put them in a pull request comment instead, where they can be
 looked at without downloading anything, and write a job summary saying what
-failed.
+failed or flaked.
 
 !!! note "The images go in the comment, not the job summary"
 
@@ -27,9 +28,9 @@ failed.
 
 ## The quickest version
 
-Two actions ship with the package. The first writes the job summary and a
-comment body for a job, and the second turns whatever the jobs produced into a
-single pull request comment:
+Two actions ship with the package. The first writes the failures and flakes to
+the job summary and a comment body for a job, and the second turns whatever the
+jobs produced into a single pull request comment:
 
 ```yaml
 jobs:
@@ -37,7 +38,7 @@ jobs:
     steps:
       # ... run your Playwright tests ...
 
-      - name: Failure summary
+      - name: Failure and flake summary
         if: always()
         uses: Lullabot/playwright-drupal/.github/actions/failure-summary@main
         with:
@@ -67,6 +68,12 @@ Without `SCREENSHOT_GITHUB_TOKEN` both the summary and the comment are still
 written — they just point at the Playwright artifact rather than showing the
 images. That is also what happens on pull requests from forks, which never
 receive secrets.
+
+The sticky comment remains present when any matrix job has either a failure or
+a flaky test. It is removed only after all jobs report neither. A test is flaky
+when an earlier attempt fails and its final retry passes, so configure
+Playwright's [`retries`](../getting-started/playwright-configuration.md) option
+in CI if you want flakes to be detected.
 
 ## Or call the command directly
 

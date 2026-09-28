@@ -24,11 +24,16 @@ afterEach(() => {
   fs.rmSync(tmpDir, { recursive: true, force: true })
 })
 
-interface TestCase {
-  title?: string
+interface TestResultCase {
   status?: string
   attachments?: any[]
   error?: { message: string }
+}
+
+interface TestCase extends TestResultCase {
+  title?: string
+  outcome?: string
+  results?: TestResultCase[]
 }
 
 /** Build a minimal Playwright JSON report and write it to disk. */
@@ -41,7 +46,8 @@ function writeReport(cases: TestCase[]): string {
         title: testCase.title ?? `case ${index}`,
         line: 10 + index,
         tests: [{
-          results: [{
+          status: testCase.outcome,
+          results: testCase.results ?? [{
             status: testCase.status ?? 'failed',
             attachments: testCase.attachments ?? [],
             error: testCase.error,
@@ -72,6 +78,35 @@ describe('parseFailures', () => {
     expect(report.tests).toHaveLength(1)
     expect(report.tests[0].title).toBe('homepage matches')
     expect(report.totalFailed).toBe(1)
+    expect(report.totalFlaky).toBe(0)
+    expect(report.totalImages).toBe(1)
+  })
+
+  it('collects a test that passes on retry as flaky', () => {
+    const reportPath = writeReport([{
+      title: 'homepage eventually matches',
+      outcome: 'flaky',
+      results: [
+        {
+          status: 'failed',
+          error: { message: 'Screenshot comparison failed' },
+          attachments: [image('homepage-diff.png')],
+        },
+        { status: 'passed' },
+      ],
+    }])
+
+    const report = parseFailures(reportPath)
+
+    expect(report.tests).toHaveLength(1)
+    expect(report.tests[0]).toMatchObject({
+      title: 'homepage eventually matches',
+      status: 'flaky',
+      error: 'Screenshot comparison failed',
+    })
+    expect(report.tests[0].images.map(i => i.kind)).toEqual(['diff'])
+    expect(report.totalFailed).toBe(0)
+    expect(report.totalFlaky).toBe(1)
     expect(report.totalImages).toBe(1)
   })
 
@@ -152,6 +187,7 @@ describe('generateSummary', () => {
         images: [{ name: 'homepage-diff.png', contentType: 'image/png', kind: 'diff', url }],
       }],
       totalFailed: 1,
+      totalFlaky: 0,
       totalImages: 1,
     }
   }
@@ -210,6 +246,7 @@ describe('generateSummary', () => {
         images: [{ name: 'a11y-violation-screenshot', contentType: 'image/png', kind: 'a11y' }],
       }],
       totalFailed: 0,
+      totalFlaky: 0,
       totalImages: 1,
     })
 
@@ -219,8 +256,28 @@ describe('generateSummary', () => {
     expect(summary).toContain('## Test Screenshots')
   })
 
+  it('calls out flakes when retries recover every failure', () => {
+    const summary = generateSummary({
+      tests: [{
+        title: 'homepage eventually matches',
+        file: 'tests/visual.spec.ts',
+        line: 10,
+        status: 'flaky',
+        error: 'Screenshot comparison failed',
+        images: [],
+      }],
+      totalFailed: 0,
+      totalFlaky: 1,
+      totalImages: 0,
+    })
+
+    expect(summary).toContain('## Test Flakes')
+    expect(summary).toContain('No failing tests · :warning: **1** flaky test(s)')
+    expect(summary).toContain('`tests/visual.spec.ts:10` — flaky')
+  })
+
   it('says so plainly when there is nothing to report', () => {
-    const summary = generateSummary({ tests: [], totalFailed: 0, totalImages: 0 })
+    const summary = generateSummary({ tests: [], totalFailed: 0, totalFlaky: 0, totalImages: 0 })
 
     expect(summary).toContain('No failing tests')
     expect(summary).not.toContain('<details>')
@@ -250,6 +307,7 @@ describe('generateComment', () => {
       images: [{ name: 'homepage-diff.png', contentType: 'image/png', kind: 'diff' }],
     }],
     totalFailed: 1,
+    totalFlaky: 0,
     totalImages: 1,
   }
 
@@ -313,14 +371,39 @@ describe('generateComment', () => {
     expect(comment).not.toContain('<details>')
   })
 
-  it('marks the failure count for a workflow to read', () => {
+  it('marks the failure and flake counts for a workflow to read', () => {
     // The empty-state sentence contains the words "failing test", so anything
     // grepping the prose would treat a green run as a failure.
     expect(generateComment(report)).toContain('<!-- playwright-drupal-failures: 1 -->')
+    expect(generateComment(report)).toContain('<!-- playwright-drupal-flakes: 0 -->')
 
-    const green = generateComment({ tests: [], totalFailed: 0, totalImages: 0 })
+    const green = generateComment({ tests: [], totalFailed: 0, totalFlaky: 0, totalImages: 0 })
     expect(green).toContain('<!-- playwright-drupal-failures: 0 -->')
+    expect(green).toContain('<!-- playwright-drupal-flakes: 0 -->')
     expect(green).toMatch(/No failing tests/)
+  })
+
+  it('reports flaky tests and marks the comment as worth posting', () => {
+    const flaky: FailureReport = {
+      tests: [{
+        title: 'homepage eventually matches',
+        file: 'tests/visual.spec.ts',
+        line: 10,
+        status: 'flaky',
+        error: 'Screenshot comparison failed',
+        images: [],
+      }],
+      totalFailed: 0,
+      totalFlaky: 1,
+      totalImages: 0,
+    }
+
+    const comment = generateComment(flaky)
+
+    expect(comment).toContain(':warning: **1** flaky test(s)')
+    expect(comment).toContain('`flaky` homepage eventually matches')
+    expect(comment).toContain('<!-- playwright-drupal-failures: 0 -->')
+    expect(comment).toContain('<!-- playwright-drupal-flakes: 1 -->')
   })
 
   it('truncates a long list rather than posting a wall of text', () => {
@@ -333,6 +416,7 @@ describe('generateComment', () => {
         images: [],
       })),
       totalFailed: 12,
+      totalFlaky: 0,
       totalImages: 0,
     }
 
@@ -464,6 +548,7 @@ describe('uploadImages', () => {
         }],
       }],
       totalFailed: 0,
+      totalFlaky: 0,
       totalImages: 1,
     }
 
@@ -496,6 +581,7 @@ describe('uploadImages', () => {
         ],
       }],
       totalFailed: 1,
+      totalFlaky: 0,
       totalImages: 3,
     }
 
@@ -529,6 +615,7 @@ describe('uploadImages', () => {
         ],
       }],
       totalFailed: 1,
+      totalFlaky: 0,
       totalImages: 2,
     }
 
