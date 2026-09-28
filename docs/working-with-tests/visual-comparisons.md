@@ -317,6 +317,64 @@ Selectors that don't match any element on the page are silently ignored — no e
 
 **Note:** When using a custom test function via `config.describe(myTestFunction)`, automatic mask merging is bypassed. Your custom function is responsible for applying masks itself.
 
+## Testing Hover and Focus States
+
+Visual-diff test cases can force Chromium CSS pseudo-classes without moving the
+real pointer or DOM focus. This makes interaction states deterministic and keeps
+them active for both the screenshot and its accessibility scan.
+
+```typescript
+import { defineVisualDiffConfig } from '@packages/playwright-drupal';
+
+export const config = defineVisualDiffConfig({
+  name: "MySite Visual Diffs",
+  groups: [
+    {
+      name: "Navigation",
+      testCases: [
+        {
+          name: "Expanded navigation",
+          path: "/",
+          pseudoStates: [
+            { selector: '.main-menu__trigger', pseudoClasses: ['hover', 'focus-visible'] },
+          ],
+        },
+      ],
+    },
+  ],
+});
+```
+
+Like masks, `pseudoStates` from the top-level config, group, and test case are
+merged. Each selector must match an element; a stale selector fails the test
+instead of silently producing a screenshot of the wrong state.
+
+This feature uses Chromium's `CSS.forcePseudoState` DevTools command, so tests
+that declare `pseudoStates` must run in a Chromium project. Supported values are
+`active`, `focus`, `focus-visible`, `focus-within`, `hover`, and `target`.
+
+`takeAccessibleScreenshot()` still blurs real DOM focus and clears incidental
+pointer hover by default. Those stability steps do not affect forced CSS states,
+so no `blur: false` or `clearHover: false` override is needed.
+
+Custom tests can use the lower-level helper and keep the state active around the
+entire screenshot/accessibility operation:
+
+```typescript
+import { forcePseudoState, takeAccessibleScreenshot } from '@packages/playwright-drupal';
+
+const clearState = await forcePseudoState(page, '.main-menu__trigger', ['hover']);
+try {
+  await takeAccessibleScreenshot(page, testInfo);
+} finally {
+  await clearState();
+}
+```
+
+As with masks, a custom test function passed to `config.describe()` bypasses
+automatic pseudo-state handling. It can call `defaultTestFunction()` or use the
+lower-level helper directly.
+
 ## Running and Regenerating Snapshots
 
 Two tasks cover the day-to-day work, and both run only the tests that have a

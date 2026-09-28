@@ -3,8 +3,10 @@ import { defaultTestFunction, VisualDiff, VisualDiffGroup, VisualDiffUrlConfig }
 
 // Mock takeAccessibleScreenshot to capture the options passed to it.
 const mockTakeAccessibleScreenshot = vi.fn()
+const mockForcePseudoState = vi.fn()
 vi.mock('../util', () => ({
   takeAccessibleScreenshot: (...args: any[]) => mockTakeAccessibleScreenshot(...args),
+  forcePseudoState: (...args: any[]) => mockForcePseudoState(...args),
 }))
 
 function makeTestCase(overrides?: Partial<VisualDiff>): VisualDiff {
@@ -58,6 +60,7 @@ async function runDefaultTestFunction(
 describe('defaultTestFunction mask merging', () => {
   beforeEach(() => {
     mockTakeAccessibleScreenshot.mockReset()
+    mockForcePseudoState.mockReset()
   })
 
   it('merges masks from all three levels', async () => {
@@ -151,5 +154,59 @@ describe('defaultTestFunction mask merging', () => {
 
     const options = mockTakeAccessibleScreenshot.mock.calls[0][2]
     expect(options.maskColor).toBeUndefined()
+  })
+})
+
+describe('defaultTestFunction pseudo-state handling', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockForcePseudoState.mockImplementation(async () => vi.fn())
+  })
+
+  it('merges pseudo-states from all three levels and keeps them through the scan', async () => {
+    const clearConfigState = vi.fn()
+    const clearGroupState = vi.fn()
+    const clearTestState = vi.fn()
+    mockForcePseudoState
+      .mockResolvedValueOnce(clearConfigState)
+      .mockResolvedValueOnce(clearGroupState)
+      .mockResolvedValueOnce(clearTestState)
+    const config = makeConfig({
+      pseudoStates: [{selector: '.nav', pseudoClasses: ['hover']}],
+    })
+    const group = makeGroup({
+      pseudoStates: [{selector: '.menu', pseudoClasses: ['focus-within']}],
+    })
+    const testCase = makeTestCase({
+      pseudoStates: [{selector: '.link', pseudoClasses: ['focus-visible']}],
+    })
+
+    const {mockPage} = await runDefaultTestFunction(testCase, group, config)
+
+    expect(mockForcePseudoState.mock.calls).toEqual([
+      [mockPage, '.nav', ['hover']],
+      [mockPage, '.menu', ['focus-within']],
+      [mockPage, '.link', ['focus-visible']],
+    ])
+    expect(mockTakeAccessibleScreenshot).toHaveBeenCalledOnce()
+    expect(clearTestState.mock.invocationCallOrder[0])
+      .toBeGreaterThan(mockTakeAccessibleScreenshot.mock.invocationCallOrder[0])
+    expect(clearTestState.mock.invocationCallOrder[0])
+      .toBeLessThan(clearGroupState.mock.invocationCallOrder[0])
+    expect(clearGroupState.mock.invocationCallOrder[0])
+      .toBeLessThan(clearConfigState.mock.invocationCallOrder[0])
+  })
+
+  it('clears forced states when the screenshot or accessibility scan fails', async () => {
+    const clearState = vi.fn()
+    mockForcePseudoState.mockResolvedValueOnce(clearState)
+    mockTakeAccessibleScreenshot.mockRejectedValueOnce(new Error('scan failed'))
+    const testCase = makeTestCase({
+      pseudoStates: [{selector: 'button', pseudoClasses: ['focus']}],
+    })
+
+    await expect(runDefaultTestFunction(testCase, makeGroup())).rejects.toThrow('scan failed')
+
+    expect(clearState).toHaveBeenCalledOnce()
   })
 })

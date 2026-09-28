@@ -1,6 +1,11 @@
 import {Page, test, WebError} from '@playwright/test';
 
-import {takeAccessibleScreenshot, AccessibilityBaseline} from "../util";
+import {
+  takeAccessibleScreenshot,
+  AccessibilityBaseline,
+  forcePseudoState,
+  ForcedPseudoState,
+} from "../util";
 
 export function defineVisualDiffConfig(cases: VisualDiffUrlConfig) {
   return new VisualDiffTestCases(cases);
@@ -64,7 +69,30 @@ export function defaultTestFunction(testCase: VisualDiff, group: VisualDiffGroup
       screenshotOptions.accessibility = { baseline: config.a11yBaseline }
     }
 
-    await takeAccessibleScreenshot(page, testInfo, screenshotOptions);
+    // Force declared interaction states after navigation and keep them active
+    // through both the screenshot and the accessibility scan. These synthetic
+    // states are unaffected by takeAccessibleScreenshot() clearing incidental
+    // pointer hover and DOM focus.
+    const pseudoStates: ForcedPseudoState[] = [
+      ...(config?.pseudoStates ?? []),
+      ...(group.pseudoStates ?? []),
+      ...(testCase.pseudoStates ?? []),
+    ];
+    const clearPseudoStates: Array<() => Promise<void>> = [];
+    try {
+      for (const pseudoState of pseudoStates) {
+        clearPseudoStates.push(await forcePseudoState(
+          page,
+          pseudoState.selector,
+          pseudoState.pseudoClasses,
+        ));
+      }
+      await takeAccessibleScreenshot(page, testInfo, screenshotOptions);
+    } finally {
+      for (const clearPseudoState of clearPseudoStates.reverse()) {
+        await clearPseudoState();
+      }
+    }
   };
 }
 
@@ -91,8 +119,8 @@ export class VisualDiffTestCases {
    * Describe, execute, and skip test cases
    *
    * @param overriddenTestFunction An optional custom test function. Note: when
-   *   using a custom test function, automatic mask merging from config, group,
-   *   and test-case levels is bypassed. You must handle mask application yourself.
+   *   using a custom test function, automatic mask and pseudo-state handling is
+   *   bypassed. You must apply them yourself.
    */
   public describe(overriddenTestFunction?: (testCase: VisualDiff, group: VisualDiffGroup) => Function | void) {
     // Handle skipping of test cases, either based on a simple boolean or a callback.
@@ -165,6 +193,11 @@ export type VisualDiffUrlConfig = {
    * toMatchSnapshot() is skipped in favour of baseline-driven assertions.
    */
   a11yBaseline?: AccessibilityBaseline,
+  /**
+   * Chromium-only pseudo-states to force for every test case. These are merged
+   * with group-level and test-case-level pseudo-states.
+   */
+  pseudoStates?: ForcedPseudoState[],
 }
 
 /**
@@ -211,6 +244,11 @@ export type BaseVisualDiff = {
    * Overrides the mask color set at less-specific levels (config or group).
    */
   maskColor?: string,
+  /**
+   * Chromium-only pseudo-states to force while capturing the screenshot and
+   * running its accessibility scan.
+   */
+  pseudoStates?: ForcedPseudoState[],
 }
 
 /**
