@@ -206,10 +206,10 @@ graph TD
 **Parallel Tasks:**
 - ✔️ Task 001: Establish the npm workspace and generic package shell
 
-### Phase 2: Independent Generic Foundations
+### ✅ Phase 2: Independent Generic Foundations
 **Parallel Tasks:**
-- Task 002: Extract neutral screenshot stabilization (depends on: 001)
-- Task 005: Extract the GitHub reporting entry point (depends on: 001)
+- ✔️ Task 002: Extract neutral screenshot stabilization (depends on: 001)
+- ✔️ Task 005: Extract the GitHub reporting entry point (depends on: 001)
 
 ### Phase 3: Accessibility Core
 **Parallel Tasks:**

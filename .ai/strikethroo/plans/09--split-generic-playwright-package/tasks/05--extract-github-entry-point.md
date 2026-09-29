@@ -2,7 +2,7 @@
 id: 5
 group: "generic-extraction"
 dependencies: [1]
-status: "pending"
+status: "completed"
 created: 2026-09-29
 skills:
   - github-actions-reporting
@@ -46,3 +46,5 @@ Generic GitHub source, tests, secondary entry point, and package-owned reporting
 5. Run focused tests plus a dry-run pack listing. Leave existing root exports/bins untouched until task 6.
 </details>
 
+## Noteworthy Events
+- [2026-09-29] Task 5's 86 focused GitHub/reporting tests, workspace build, secondary-entry-point import probe, executable help checks, and dry-run package listing all passed. An additional full-workspace test run encountered unrelated failures in concurrently edited Task 2 stabilization files; those files were left to their assigned worker.
