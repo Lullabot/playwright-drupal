@@ -2,7 +2,7 @@
 id: 3
 group: "generic-extraction"
 dependencies: [2]
-status: "pending"
+status: "completed"
 created: 2026-09-29
 skills:
   - accessibility-testing
@@ -47,4 +47,3 @@ Generic accessibility modules, exported public types/functions, and focused base
 5. Keep violation screenshots highlighted, attached, and cleaned up without permanently altering the page. Ensure stable screenshots wait for fonts/images/frames/videos, clear incidental hover/focus, apply declared interaction states, capture, scan, and restore.
 6. Update tests to assert neutral defaults and explicit configured exclusions. Do not duplicate Task 2's low-level utility tests.
 </details>
-

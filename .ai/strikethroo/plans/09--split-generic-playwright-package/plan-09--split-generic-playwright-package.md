@@ -211,9 +211,9 @@ graph TD
 - ✔️ Task 002: Extract neutral screenshot stabilization (depends on: 001)
 - ✔️ Task 005: Extract the GitHub reporting entry point (depends on: 001)
 
-### Phase 3: Accessibility Core
+### ✅ Phase 3: Accessibility Core
 **Parallel Tasks:**
-- Task 003: Extract the accessibility core and baselines (depends on: 002)
+- ✔️ Task 003: Extract the accessibility core and baselines (depends on: 002)
 
 ### Phase 4: Visual Definitions
 **Parallel Tasks:**

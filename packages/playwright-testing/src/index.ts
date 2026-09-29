@@ -1,4 +1,7 @@
 export * from './focus.js'
+export * from './accessibility-baseline.js'
+export * from './accessibility-baseline-file.js'
+export * from './accessible-screenshot.js'
 export * from './fonts.js'
 export * from './frames.js'
 export * from './hover.js'
