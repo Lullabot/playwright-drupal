@@ -11,10 +11,15 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
+    "bin/",
     "lib/",
     "src/",
     "README.md"
   ],
+  "bin": {
+    "playwright-testing-a11y-summary": "./bin/github-a11y-summary",
+    "playwright-testing-failure-summary": "./bin/github-failure-summary"
+  },
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",

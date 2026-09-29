@@ -2,7 +2,7 @@
 id: 2
 group: "generic-extraction"
 dependencies: [1]
-status: "pending"
+status: "completed"
 created: 2026-09-29
 skills:
   - playwright-browser-automation
@@ -47,4 +47,3 @@ Generic stabilization modules, public exports, configuration points needed by a 
 5. Move or adapt the existing tests. Prefer browser-facing orchestration behavior and error cleanup over tests of trivial forwarding functions.
 6. Export the public utilities from the generic package root. Do not change root Drupal exports yet; task 6 owns compatibility wiring.
 </details>
-
