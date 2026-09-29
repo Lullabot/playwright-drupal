@@ -80,6 +80,39 @@ function slugifyTitle(testInfo: Pick<TestInfo, 'titlePath' | 'title'>): string {
 }
 
 /**
+ * Reproduce the stem Playwright uses for auto-named snapshot files: the
+ * title path (minus the spec file) joined with spaces, with every run of
+ * control/punctuation characters collapsed to a single hyphen. Unlike
+ * `slugifyTitle()` this preserves case and does not trim hyphens, so it
+ * matches committed snapshot filenames exactly. Mirrors Playwright's
+ * `sanitizeForFilePath()`. Very long titles, which Playwright truncates
+ * and hashes, are not handled.
+ */
+function playwrightSnapshotStem(testInfo: Pick<TestInfo, 'titlePath' | 'title'>): string {
+  const segments = testInfo.titlePath?.slice(1) ?? []
+  const raw = segments.length > 0 ? segments.join(' ') : testInfo.title
+  let out = ''
+  let lastWasReplaced = false
+  for (let i = 0; i < raw.length; i++) {
+    const code = raw.charCodeAt(i)
+    const replaced =
+      code <= 0x2c ||
+      (code >= 0x2e && code <= 0x2f) ||
+      (code >= 0x3a && code <= 0x40) ||
+      (code >= 0x5b && code <= 0x60) ||
+      (code >= 0x7b && code <= 0x7f)
+    if (replaced) {
+      if (!lastWasReplaced) out += '-'
+      lastWasReplaced = true
+    } else {
+      out += raw[i]
+      lastWasReplaced = false
+    }
+  }
+  return out
+}
+
+/**
  * Build the on-disk baseline file path for a single scan call.
  *
  * Playwright exposes `testInfo.snapshotPath(...name)` as the public way to
@@ -120,8 +153,16 @@ export async function snapshotExists(
     if (err?.code === 'ENOENT') return false
     throw err
   }
-  const slug = slugifyTitle(testInfo)
-  return entries.some(name => name.startsWith(`${slug}-`) && name.endsWith('.txt'))
+  // Playwright names snapshots `<stem>-<counter>[-<project>-<platform>].txt`.
+  // Require the counter so a title that merely extends this one (e.g.
+  // "Video" vs "Video Promo") is not mistaken for this test's snapshot.
+  const prefix = `${playwrightSnapshotStem(testInfo)}-`
+  return entries.some(name => {
+    if (!name.startsWith(prefix) || !name.endsWith('.txt')) return false
+    let i = prefix.length
+    while (i < name.length && name.charCodeAt(i) >= 48 && name.charCodeAt(i) <= 57) i++
+    return i > prefix.length && (name[i] === '-' || name[i] === '.')
+  })
 }
 
 export async function readBaselineFile(filePath: string): Promise<OnDiskBaselineFile | null> {
