@@ -2,7 +2,7 @@
 id: 4
 group: "generic-extraction"
 dependencies: [2, 3]
-status: "pending"
+status: "completed"
 created: 2026-09-29
 skills:
   - playwright-test-design
@@ -45,4 +45,3 @@ Generic visual-definition and mock modules, exports, and integration-focused tes
 4. Move `YoutubeMock` only if its implementation has no Drupal runtime assumption; otherwise isolate the generic portion and leave a Drupal wrapper.
 5. Move/adapt tests for skip semantics, merged configuration, state application, cleanup, and mock routing. Avoid testing Playwright framework behavior itself.
 </details>
-

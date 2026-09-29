@@ -215,9 +215,9 @@ graph TD
 **Parallel Tasks:**
 - ✔️ Task 003: Extract the accessibility core and baselines (depends on: 002)
 
-### Phase 4: Visual Definitions
+### ✅ Phase 4: Visual Definitions
 **Parallel Tasks:**
-- Task 004: Extract visual test definitions and mocks (depends on: 002, 003)
+- ✔️ Task 004: Extract visual test definitions and mocks (depends on: 002, 003)
 
 ### Phase 5: Drupal Integration
 **Parallel Tasks:**
