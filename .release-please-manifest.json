@@ -1,3 +1,4 @@
 {
-  ".": "1.13.0"
+  ".": "1.13.0",
+  "packages/playwright-testing": "0.1.0"
 }

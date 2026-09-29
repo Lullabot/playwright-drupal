@@ -18,6 +18,10 @@
         { "type": "ci", "section": "Continuous Integration", "hidden": true },
         { "type": "style", "section": "Styles", "hidden": true }
       ]
+    },
+    "packages/playwright-testing": {
+      "component": "playwright-testing",
+      "package-name": "@lullabot/playwright-testing"
     }
   }
 }

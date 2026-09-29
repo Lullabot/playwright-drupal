@@ -1,0 +1,42 @@
+{
+  "name": "@lullabot/playwright-testing",
+  "version": "0.1.0",
+  "description": "Framework-neutral Playwright testing utilities",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lullabot/playwright-drupal.git",
+    "directory": "packages/playwright-testing"
+  },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/",
+    "src/",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./github": {
+      "types": "./lib/github/index.d.ts",
+      "default": "./lib/github/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepack": "npm run build",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.8.5",
+    "@playwright/test": "^1.39.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.2.2 || ^6.0.0 || ^7.0.0",
+    "vitest": "^5.0.0"
+  }
+}

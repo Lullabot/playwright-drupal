@@ -2,6 +2,9 @@
   "name": "@lullabot/playwright-drupal",
   "version": "1.13.0",
   "description": "Playwright / Drupal integration, supporting fast parallel tests and visual comparisons",
+  "workspaces": [
+    "packages/*"
+  ],
   "files": [
     "lib/",
     "src/",
@@ -12,9 +15,11 @@
   ],
   "scripts": {
     "build": "tsc",
+    "build:all": "npm run build && npm run build --workspaces --if-present",
     "prepack": "npm run build",
     "prepare": "husky || true",
     "test": "npm run test:unit && npm run test:bats",
+    "test:all": "npm test && npm test --workspaces --if-present",
     "test:unit": "vitest run",
     "test:bats": "bats test/",
     "docs:dev": "uvx --with-requirements docs/requirements.txt mkdocs@1.6.1 serve",
