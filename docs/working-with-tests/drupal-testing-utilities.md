@@ -389,7 +389,7 @@ Scrolls every `<iframe>` into view and waits for each one to have loaded a URL. 
 |---|---|---|
 | `page` | *(required)* | The Playwright page object. |
 
-Removes keyboard focus from a genuinely focused control so its focus ring does not appear in only some screenshot runs. Returns `true` if an element was blurred, `false` if nothing was focused (the `<body>`/`<html>` fallback is left alone). [`takeAccessibleScreenshot()`](accessibility-tests.md#takeaccessiblescreenshot) calls this for you unless `blur: false` is passed.
+Removes keyboard focus from a genuinely focused control so its focus ring does not appear in only some screenshot runs. Returns `true` if an element was blurred, `false` if nothing was focused (the `<body>`/`<html>` fallback is left alone). [`takeAccessibleScreenshot()`](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#capture-one-page-or-element) calls this for you unless `blur: false` is passed.
 
 ### clearHover()
 
@@ -399,7 +399,7 @@ Removes keyboard focus from a genuinely focused control so its focus ring does n
 |---|---|---|
 | `page` | *(required)* | The Playwright page object. |
 
-Moves the pointer onto a temporary transparent viewport shield so stale pointer activity cannot leave unrelated page content in its `:hover` state. Returns an idempotent cleanup function that removes the shield and restores normal pointer hit testing. [`takeAccessibleScreenshot()`](accessibility-tests.md#takeaccessiblescreenshot) calls and cleans this up automatically unless `clearHover: false` is passed.
+Moves the pointer onto a temporary transparent viewport shield so stale pointer activity cannot leave unrelated page content in its `:hover` state. Returns an idempotent cleanup function that removes the shield and restores normal pointer hit testing. [`takeAccessibleScreenshot()`](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#capture-one-page-or-element) calls and cleans this up automatically unless `clearHover: false` is passed.
 
 ### forcePseudoState()
 
@@ -417,15 +417,15 @@ no match. The returned cleanup function clears the forced classes, detaches the
 DevTools session, and is safe to call more than once.
 
 For ordinary cross-browser hover and focus testing, prefer the
-[`interactionStates`](accessibility-tests.md#screenshotoptions) option. It uses
+[`interactionStates`](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#capture-one-page-or-element) option. It uses
 real Playwright interactions and keeps them active through the screenshot and
 accessibility scan.
 
 Forced pseudo-states are independent of real pointer hover and DOM focus, so
-[`takeAccessibleScreenshot()`](accessibility-tests.md#takeaccessiblescreenshot)
+[`takeAccessibleScreenshot()`](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#capture-one-page-or-element)
 can still clear those incidental states while preserving the requested styling
 through both the screenshot and accessibility scan. See [Testing Hover and
-Focus States](visual-comparisons.md#testing-hover-and-focus-states) for the
+Focus States](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#capture-one-page-or-element) for the
 declarative visual-diff configuration and a custom-test example.
 
 ## Fallback selectors

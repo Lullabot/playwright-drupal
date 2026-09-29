@@ -1,507 +1,110 @@
-# Visual Comparisons (Diffs)
+# Visual Comparisons in Drupal
 
-Playwright Visual Comparisons are a great way to add additional assertions to your tests. Since visual comparisons are integrated into the testing system, developers can compare all aspects of a site - including content forms or other authenticated content.
+Stable capture and URL-driven visual comparison behavior is documented in the
+generic package's canonical
+[screenshots and visual comparisons guide](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md).
 
-We've found that taking a screenshot for a visual comparison is a great point to check for accessibility issues. Unlike other steps in a test, a visual comparison is specifically declaring that the page is ready for human consumption.
-
-![Playwright HTML report showing a failed visual comparison with the Diff/Actual/Expected/Side by side/Slider pane selector at the top, image dimensions, and red diff highlighting over the rendered page below](../images/visual-diff-failure.webp)
-
-The `takeAccessibleScreenshot()` method will:
-
-1. Ensure that complex pages like node forms have time to stabilize before taking screenshots.
-2. Handle browsers that have non-deterministic rendering of images (in particular, WebP) and allow for minute pixel differences in images that are not observable by a human.
-3. Automatically trigger loading of all lazy-loaded images.
-4. Recover images that errored (a 404, or a Stage File Proxy URL that 503s while it fetches the original on demand) by re-requesting them, instead of capturing them broken.
-5. Automatically trigger loading of all lazy-loaded iframes.
-6. Wait for web fonts to finish loading so text is not captured with fallback-font metrics on the first attempt.
-7. Blur any focused element so a stray focus ring does not produce a flaky, human-invisible diff (pass `blur: false` to keep an intentionally focused state).
-8. Move the pointer onto a temporary transparent shield so stale pointer activity does not leave unrelated content hovered (pass `clearHover: false` to capture an intentional hover state).
-9. Settle every `<video>`, in every frame: pause it, bring it on screen once so it loads and Chromium composites its first frame, wait for that frame, and rewind to the start. Playback is restored once the screenshot is taken, so a test can still assert that a video is playing.
-10. Generate an accessibility report of the element being tested.
-
-Each accessibility scan is asserted against an on-disk JSON baseline — see [Accessibility Tests](accessibility-tests.md) for the schema, auto-seeding behaviour, and the CI vs. local workflow.
-
-## Visual Comparisons for Static Content
-
-The above workflow is great for testing after creating or editing content. However, teams may also want visual comparisons purely of the front-end. In that case, there's no concurrency issues (every request can use the same Drupal database), and often the content itself comes from a test website whose database has been copied down.
-
-The `VisualDiffTestCases` class scaffolds out support for this use case, including:
-
-- The ability to define a configuration file of URLs to test.
-- Grouping of related tests for better reporting.
-- The ability to skip specific tests. This is useful when a test is added and later determined to be flaky.
-- Links to related content, such as a link to a production URL similar to the tested content, or a ticket for fixing the underlying reason behind a skipped test.
-
-To set up visual comparisons this way:
-
-1. Create a file at `test/playwright/src/visualdiff-urls.ts` to hold pages to compare. Here is an example using the Drupal Umami install profile.
+`@lullabot/playwright-drupal` re-exports those APIs for compatibility. Its
+`takeAccessibleScreenshot()`, `defineVisualDiffConfig()`,
+`defaultTestFunction()`, and `VisualDiffTestCases` entry points apply the
+Drupal preset: toolbar settling, Stage File Proxy-friendly image recovery,
+Drupal axe exclusions, and the legacy browser thresholds.
 
 ```typescript
 import { defineVisualDiffConfig } from '@packages/playwright-drupal';
 
 export const config = defineVisualDiffConfig({
-  name: "Umami Visual Diffs",
-  description: "Execute a series of visual diffs against the Umami site.",
+  name: 'Drupal visual comparisons',
   groups: [
     {
-      name: "Landing Pages",
-      description: "Pages built with Layout Builder and Views.",
-      // There isn't a stable link to a running copy of the Umami profile, but
-      // imagine this goes to a production website.
-      representativeUrl: "https://drupal.org/...",
+      name: 'Landing pages',
       testCases: [
-        {
-          name: "Home Page",
-          path: "/",
-        },
-        {
-          name: "Articles",
-          path: "/en/articles",
-        },
-        {
-          name: "Recipes",
-          path: "/en/recipes",
-        },
-        {
-          name: "Alternate Recipe View",
-          path: "/en/recipes-alt",
-          skip: {
-            reason: "The recipes are listed in random order",
-            willBeFixedIn: "https://drupal.org/node/12345",
-          }
-        }
-      ]
-    }
-  ],
-});
-```
-
-2. Create a test file at `test/playwright/tests/visualdiff/visualdiffs.spec.ts`:
-
-```typescript
-import {config} from '~/visualdiff-urls';
-
-config.describe();
-```
-
-3. Update the Playwright configuration to skip these tests in normal functional tests, and skip normal functional tests when running these tests.
-
-For all existing tests, add `testIgnore` like so:
-
-```typescript
-{
-  name: 'desktop chrome',
-  testIgnore: '/visualdiff/*',
-  use: { ...devices['Desktop Chrome'] },
-},
-```
-
-Then, add the following as projects to run the new visual diffs, editing as needed.
-
-```typescript
-{
-  name: 'visualdiff-desktop',
-  testMatch: '/visualdiff/*',
-  use: { baseURL: "https://<MYPROJECT>.ddev.site/", ...devices['Desktop Chrome'] },
-},
-{
-  name: 'visualdiff-tablet',
-  testMatch: '/visualdiff/*',
-  use: { baseURL: "https://<MYPROJECT>.ddev.site/", ...devices['Galaxy Tab S4'] },
-},
-{
-  name: 'visualdiff-phone',
-  testMatch: '/visualdiff/*',
-  use: { baseURL: "https://<MYPROJECT>.ddev.site/", ...devices['Pixel 5'] },
-},
-```
-Now, you can run just these tests with a command like:
-
-```console
-# Run all visual diff tests, using path matching.
-ddev playwright test -- tests/visualdiff
-```
-
-```console
-# Run all tests, but only at desktop.
-ddev playwright --project 'visualdiff-desktop'
-```
-
-## Including the Visual Comparison Drupal Database as a Fixture
-
-It's important that the database with the content is tied to version control somehow. Otherwise, changes to content will yield false failures and developer tears. Since every site is different, we don't automatically set this up in this project. However, if you are using [lullabot/drainpipe](https://github.com/lullabot/drainpipe), you likely already have much of this wired up. Otherwise, consider adding something like the following to the end of your `playwright:install:hook` task:
-
-```yaml
-# Now set up the Visual Comparison database.
-unset PLAYWRIGHT_SETUP
-
-# Remove any old databases from prior checkouts.
-rm -f .private/databases/MYSITE-live_*_database.sql.gz
-
-# Create the directory for first-runs.
-mkdir -p ./private/databases
-
-# Copy the database to the expected location before refreshing the site.
-cp ./test/playwright/tests/visualdiff/fixtures/MYSITE-live_*_database.sql.gz ./private/databases/
-
-# Restore the database, but don't download a new one, and don't enable
-# development dependencies.
-# "refresh" should be the command that imports the database, runs database
-# updates, and so on.
-task refresh site=@mysite no_fetch=1 production_mode=1
-
-# Enable Stage File Proxy for images.
-./vendor/bin/drush @mysite -y en stage_file_proxy
-```
-
-## Replacing the Test Case With Your Own
-
-The describe() function can optionally take a replacement test function. This is useful if you need to mock HTTP responses or add other custom logic.
-
-```typescript
-import {config} from '~/visualdiff-urls';
-import {defaultTestFunction, VisualDiff, VisualDiffGroup} from "@packages/playwright-drupal";
-import {test, TestInfo} from "@playwright/test";
-
-/**
- * Skips Firefox on /en/articles.
- */
-const skipFirefox = function (testCase: VisualDiff, group: VisualDiffGroup) {
-  const defaultFunction = defaultTestFunction(testCase, group);
-  return async ({page, context, browserName}, testInfo: TestInfo) => {
-    test.skip(browserName == 'firefox' && testCase.path == '/en/articles', 'Skip Firefox as we are trying to save CI budget.');
-    await defaultFunction({page, context}, testInfo);
-  };
-}
-
-config.describe(skipFirefox);
-```
-
-```typescript
-import {config} from '~/visualdiff-urls';
-import {defaultTestFunction, VisualDiff, VisualDiffGroup} from "@packages/playwright-drupal";
-import {TestInfo} from "@playwright/test";
-
-/**
- * Mirror all console messages to the Playwright console, even if they aren't
- * errors.
- */
-const consoleLoggingTestFunction = function (testCase: VisualDiff, group: VisualDiffGroup) {
-  const defaultFunction = defaultTestFunction(testCase, group);
-  return async ({page, context}, testInfo: TestInfo) => {
-    context.on('console', (message) => {
-      console.log(message.text());
-    });
-
-    await defaultFunction({page, context}, testInfo);
-  };
-}
-
-config.describe(consoleLoggingTestFunction);
-```
-
-## Mocking Iframe Content
-
-External iframes (such as YouTube embeds) load third-party content that changes independently of your site, causing non-deterministic screenshots in visual diff tests. The `mockClass` property on test cases allows you to intercept and replace these requests with stable placeholder content.
-
-### Using the Built-in YouTube Mock
-
-```typescript
-import { defineVisualDiffConfig } from '@packages/playwright-drupal';
-import { YoutubeMock } from '@packages/playwright-drupal';
-
-export const config = defineVisualDiffConfig({
-  name: "MySite Visual Diffs",
-  groups: [
-    {
-      name: "Landing Pages",
-      testCases: [
-        {
-          name: "About Us",
-          path: "/about-us",
-          mockClass: YoutubeMock,
-        }
-      ]
-    }
-  ],
-});
-```
-
-When `mockClass` is set, the mock's `mock(page)` method is called before the page navigates to the test URL. `YoutubeMock` intercepts all requests to `www.youtube.com` and returns a simple HTML placeholder, ensuring consistent screenshots regardless of YouTube's actual content.
-
-### Creating a Custom Mock
-
-Any class implementing the `Mockable` interface can be used with `mockClass`. The interface requires a single method:
-
-```typescript
-import { Page } from '@playwright/test';
-import { Mockable } from '@packages/playwright-drupal';
-
-export class VimeoMock implements Mockable {
-  public async mock(page: Page): Promise<void> {
-    await page.route(/player\.vimeo\.com/i, async route => {
-      await route.fulfill({
-        contentType: 'text/html',
-        body: '<html><body><div>Vimeo Mock</div></body></html>',
-      });
-    });
-  }
-}
-```
-
-Use Playwright's [`page.route()`](https://playwright.dev/docs/api/class-page#page-route) to intercept requests matching a URL pattern and return deterministic content via `route.fulfill()`.
-
-## Masking Dynamic Elements
-
-Some elements change over time independently of your code — copyright years, timestamps, or live counters. These cause false snapshot failures. You can mask such elements by providing CSS selectors at any level of the visual diff configuration. Masked elements are covered with an overlay box (pink `#FF00FF` by default) in the screenshot.
-
-![Rendered Umami home page with a bright pink #FF00FF mask overlay box covering the site branding element](../images/visual-diff-mask-overlay.webp)
-
-Masks defined at multiple levels are merged together, so you can set global masks on the config and add more at the group or test-case level.
-
-```typescript
-import { defineVisualDiffConfig } from '@packages/playwright-drupal';
-
-export const config = defineVisualDiffConfig({
-  name: "MySite Visual Diffs",
-  // Global masks applied to every screenshot.
-  mask: ['.footer__copyright-year'],
-  groups: [
-    {
-      name: "Landing Pages",
-      // Additional masks for this group, merged with the global masks.
-      mask: ['.live-counter'],
-      testCases: [
-        {
-          name: "Home Page",
-          path: "/",
-        },
-        {
-          name: "Events",
-          path: "/events",
-          // Test-case masks are also merged with config and group masks.
-          mask: ['.event-countdown'],
-        },
-      ]
-    }
-  ],
-});
-```
-
-In this example, the "Events" screenshot will mask `.footer__copyright-year`, `.live-counter`, and `.event-countdown`. The "Home Page" screenshot will mask `.footer__copyright-year` and `.live-counter`.
-
-You can also override the mask overlay color at any level. The most specific level wins (test case > group > config):
-
-```typescript
-{
-  name: "MySite Visual Diffs",
-  mask: ['.copyright-year'],
-  maskColor: '#000000',  // Black overlay globally
-  groups: [
-    {
-      name: "Landing Pages",
-      maskColor: '#333333',  // Dark gray for this group
-      testCases: [
-        {
-          name: "Home Page",
-          path: "/",
-          maskColor: '#666666',  // Lighter gray for this specific test
-        },
-      ]
-    }
-  ],
-}
-```
-
-Selectors that don't match any element on the page are silently ignored — no error is thrown.
-
-**Note:** When using a custom test function via `config.describe(myTestFunction)`, automatic mask merging is bypassed. Your custom function is responsible for applying masks itself.
-
-## Testing Hover and Focus States
-
-Use `interactionStates` to exercise real hover and focus behavior in Chromium,
-Firefox, and WebKit. The actions run after the page has settled and remain active
-for both the screenshot and its accessibility scan.
-
-```typescript
-import { defineVisualDiffConfig } from '@packages/playwright-drupal';
-
-export const config = defineVisualDiffConfig({
-  name: "MySite Visual Diffs",
-  groups: [
-    {
-      name: "Navigation",
-      testCases: [
-        {
-          name: "Expanded navigation",
-          path: "/",
-          interactionStates: [
-            { selector: '.main-menu__trigger', states: ['hover', 'focus'] },
-          ],
-        },
+        { name: 'Home', path: '/' },
+        { name: 'Articles', path: '/en/articles' },
       ],
     },
   ],
 });
 ```
 
-Like masks, `interactionStates` from the top-level config, group, and test case
-are merged. Because these represent real browser state, at most one locator may
-receive `hover` and at most one may receive `focus` after merging. One locator
-can receive both, or hover and focus can target different locators. A stale or
-ambiguous selector fails through Playwright's normal locator checks.
-
-Custom tests can pass semantic Playwright locators directly:
+Register the generated tests as usual:
 
 ```typescript
-await takeAccessibleScreenshot(page, testInfo, {
-  interactionStates: [
-    {
-      locator: page.getByRole('button', { name: 'Menu' }),
-      states: ['hover', 'focus'],
-    },
-  ],
-});
+import { config } from '~/visualdiff-urls';
+
+config.describe();
 ```
 
-There is no need to set `blur: false` or `clearHover: false`; the helper first
-clears incidental states, applies the requested interactions at the correct
-point in the capture lifecycle, and cleans them up after axe finishes. Real
-focus also updates the accessibility tree, and real hover runs the same pointer
-handlers as a user interaction.
+Masks, accessibility baselines, mocks, real interaction states, Chromium
+pseudo-states, and custom test functions work as described in the generic
+guide. Existing Drupal imports do not need to change.
 
-### Chromium-only forced pseudo-states
+## Direct generic imports
 
-Use `pseudoStates` when a Chromium test needs synthetic CSS state without real
-DOM focus or pointer events, needs pseudo-classes that have no portable action,
-or needs to force the same state on multiple elements:
+Use the generic package directly when a Drupal project deliberately wants
+framework-neutral defaults:
 
 ```typescript
-{
-  name: 'Forced navigation states',
-  path: '/',
-  pseudoStates: [
-    { selector: '.main-menu__trigger', pseudoClasses: ['hover', 'focus-visible'] },
-  ],
-}
+import { defineVisualDiffConfig } from '@lullabot/playwright-testing';
 ```
 
-`pseudoStates` are also merged across config, group, and test-case levels. They
-use Chromium's `CSS.forcePseudoState` DevTools command, so tests that declare
-them must run in a Chromium project. Supported values are `active`, `focus`,
-`focus-visible`, `focus-within`, `hover`, and `target`.
+This bypasses the Drupal preset. Database isolation, the Drupal test fixture,
+Drush helpers, and DDEV commands remain available only from
+`@lullabot/playwright-drupal`.
 
-Forced states are CSS-only and do not update DOM focus or the accessibility
-tree. The normal blur and hover-clearing stability steps do not affect them.
+## Including a Drupal database fixture
 
-Custom Chromium tests can use the lower-level helper and keep the state active
-around the entire screenshot/accessibility operation:
+Visual snapshots are only meaningful when the underlying content is stable.
+Tie the database fixture to version control or an immutable artifact. Every
+site has a different refresh process, so the package does not automate this.
+For a project using `lullabot/drainpipe`, a `playwright:install:hook` could
+finish with steps like these:
 
-```typescript
-import { forcePseudoState, takeAccessibleScreenshot } from '@packages/playwright-drupal';
+```yaml
+# Switch from per-test setup to the visual-comparison fixture.
+unset PLAYWRIGHT_SETUP
 
-const clearState = await forcePseudoState(page, '.main-menu__trigger', ['hover']);
-try {
-  await takeAccessibleScreenshot(page, testInfo);
-} finally {
-  await clearState();
-}
+# Remove old fixtures, then place the committed fixture where refresh expects it.
+rm -f .private/databases/MYSITE-live_*_database.sql.gz
+mkdir -p ./private/databases
+cp ./test/playwright/tests/visualdiff/fixtures/MYSITE-live_*_database.sql.gz ./private/databases/
+
+# Import and update the fixture without fetching a newer database.
+task refresh site=@mysite no_fetch=1 production_mode=1
+
+# Fetch missing public files consistently during capture.
+./vendor/bin/drush @mysite -y en stage_file_proxy
 ```
 
-As with masks, a custom test function passed to `config.describe()` bypasses
-automatic interaction-state and pseudo-state handling. It can call
-`defaultTestFunction()`, pass locators to `takeAccessibleScreenshot()`, or use
-the lower-level forced-state helper directly.
+Adapt paths and the refresh command to your project. The important constraint
+is that every local and CI run starts from the same content state.
 
-## Running and Regenerating Snapshots
+## Running and regenerating snapshots
 
-Two tasks cover the day-to-day work, and both run only the tests that have a
-`-snapshots` directory next to them:
+The Drupal task collection provides two commands. Both target tests that have a
+`-snapshots` directory beside them:
 
 ```console
 ddev task playwright:visualdiff
 ddev task playwright:regenerate
 ```
 
-`playwright:regenerate` deletes every existing snapshot before rerunning with
-`--update-snapshots`, so that a test whose snapshot filenames changed does not
-leave the old files behind. Pass `delete=0` to keep them.
-
-Arguments after `--` are forwarded to `playwright test`:
+`playwright:regenerate` deletes existing snapshots before running with
+`--update-snapshots`. Pass `delete=0` to keep existing files. Arguments after
+`--` are forwarded to Playwright:
 
 ```console
 ddev task playwright:visualdiff -- --project chromium
 ddev task playwright:regenerate delete=0 -- --grep 'Front.page'
 ```
 
-A filtered regeneration requires an explicit `delete`, because deleting every
-snapshot and then regenerating only the ones that matched would leave the rest
-missing — a regeneration that looks like it worked until the next full run.
+When filtering regeneration, always set `delete` explicitly so unmatched
+snapshots are not deleted. Commit snapshots, use Git LFS, or configure a
+snapshot service according to the repository's storage needs.
 
-Note that these arguments are forwarded as a single string and re-split on
-spaces, so a pattern containing a space needs to avoid one: prefer
-`--grep 'Front.page'` over `--grep 'Front page'`.
+## Locator-derived page clips
 
-## Snapshot Storage
-
-Commiting screenshots to your project repository is the easiest way to save and compare them. However, projects with many snapshots or design changes may lead to significant churn on the snapshots, which can cause [git repository size to grow significantly](https://www.lullabot.com/articles/how-calculate-git-repository-growth-over-time). Instead of committing snapshots directly to your project, consider:
-
-- Using [git-lfs](https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage) to store snapshots (and even static assets like databases and images).
-- Using a third-party service integrated with Playwright to upload snapshots for storage and comparison.
-
-### Locator-derived page clips
-
-Use `clipLocator` when you want a locator's bounds to select the region of a
-**page** screenshot, with coordinates and dimensions rounded to integer CSS
-pixels:
-
-```typescript
-await takeAccessibleScreenshot(page, testInfo, {
-  clipLocator: page.locator('main'),
-  fullPage: true,
-});
-```
-
-This extends the existing helper. Raw `clip` and the fifth-argument locator
-screenshot remain available. `clipLocator` cannot be combined with either raw
-`clip` or a locator screenshot target, and must belong to the supplied page.
-The `a11y.screenshot()` fixture accepts the same option.
-
-The helper runs its existing frame, image, font, and video readiness waits,
-performs any requested `scrollLocator` scrolling and interaction states, then
-scrolls the clip locator into view. It waits for fonts and two animation frames
-before reading its bounding box. Each of x, y, width, and height uses
-`Math.round()` in CSS pixels. The crop is measured once before Playwright's
-screenshot assertion retries; retries do not remeasure it.
-
-For an ordinary capture, coordinates are relative to the main page viewport.
-The rounded region must fit within that viewport. Use `fullPage: true` for a
-target larger than the viewport: the helper adds the main page scroll offsets
-to obtain document coordinates, and Playwright crops its full-page capture to
-that region. `fullPage` does not ignore the clip. Bounding boxes for frame
-locators are already relative to the main viewport. Missing bounds, dimensions
-that round to zero, and negative rounded origins produce an error. The helper
-leaves the page at the resulting scroll position, as with the existing scroll
-locator behavior.
-
-Accessibility checks still scan the whole page, with the existing accessibility
-options and exclusions. The screenshot crop introduces no axe include or
-exclude selectors. Fixed capture heights, toolbar styles, and project-specific
-exclusions belong in project configuration.
-
-Rounding reduces crop-size differences caused by fractional bounds and pixel
-enclosure. It is not a guarantee of stable rendering: text, borders, transforms,
-scroll handlers, sticky elements, and responsive layout can still render
-differently. Rounding can omit part of an edge pixel or include surrounding
-pixels; changes smaller than half a CSS pixel can be lost in the crop geometry.
-`scale: 'device'` still rounds geometry in CSS pixels. Clip-only comparisons
-also cannot reliably detect a translation of the entire target when the crop
-moves with it; retain a page screenshot when placement relative to surrounding
-content matters. Content changes and layout changes *inside* the crop remain
-subject to the normal visual assertion thresholds.
-
-Screenshot-only `stylePath` rules and Playwright's animation disabling run after
-measurement. Avoid rules or animations that change target geometry during
-capture; explicitly settle those in the test before calling the helper. Two
-paint frames cannot guarantee an application has finished asynchronous layout
-work, so retain application-specific readiness checks where needed.
+Use `clipLocator` to capture a page region derived from a locator's bounds.
+The option is supported by `takeAccessibleScreenshot()` and the Drupal
+`a11y.screenshot()` fixture. See the [locator-derived page clips guide](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#locator-derived-page-clips)
+for coordinates, readiness waits, and capture limitations.

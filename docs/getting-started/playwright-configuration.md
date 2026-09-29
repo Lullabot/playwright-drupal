@@ -2,6 +2,11 @@
 
 The `definePlaywrightDrupalConfig()` function returns a complete Playwright configuration with sensible defaults for Drupal testing. It wraps Playwright's `defineConfig()` and applies the following defaults:
 
+This configuration helper, the Drupal test fixture, database lifecycle, and
+DDEV behavior remain exclusive to `@lullabot/playwright-drupal`. The generic
+`@lullabot/playwright-testing` package provides utilities rather than a
+replacement Playwright configuration.
+
 | Setting | Default |
 |---|---|
 | `use.baseURL` | `process.env.DDEV_PRIMARY_URL` |

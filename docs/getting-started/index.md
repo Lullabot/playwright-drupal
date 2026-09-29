@@ -2,6 +2,17 @@
 
 playwright-drupal includes an extended version of Playwright's `test` function that sets up and tears down isolated Drupal sites. Each test gets its own copy of a base [SQLite database](https://sqlite.org/), whether that database was created by a fresh site install or [converted from an existing MySQL/MariaDB database](https://github.com/techouse/mysql-to-sqlite3).
 
+This repository is an npm workspace with two independently released packages.
+`@lullabot/playwright-testing` owns the framework-neutral accessibility,
+screenshot, visual-comparison, and GitHub-reporting implementation.
+`@lullabot/playwright-drupal` depends on it, preserves existing imports, and
+adds the Drupal test fixture, DDEV and database integration, Drush helpers, and
+a Drupal screenshot/accessibility preset.
+
+Drupal consumers should continue installing `@lullabot/playwright-drupal`.
+Non-Drupal consumers, or Drupal code that deliberately needs neutral defaults,
+can install and import `@lullabot/playwright-testing` directly.
+
 Test requests from the web browser are directed to the right database though `settings.php` additions. The library [provides a settings file](https://github.com/Lullabot/playwright-drupal/blob/main/settings/settings.playwright.php) to include from your own Drupal settings file.
 
 Drush commands also work within each test site instance, letting tests scaffold data or make changes to the specific Drupal instance being tested without going through the administration UI.
