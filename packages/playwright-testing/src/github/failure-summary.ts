@@ -470,9 +470,19 @@ function renderImageBlock(test: FailedTest): string[] {
  * signed URLs behind these images expire minutes later, so the images will be
  * broken in the email even though they are fine on the web.
  */
+export interface FailureCommentOptions {
+  summaryUrl?: string
+  title?: string
+  uploadReason?: string
+  /** Adapter namespace for the machine-readable failure marker. */
+  failureMarkerPrefix?: string
+  /** Adapter namespace for the machine-readable flaky-test marker. */
+  flakeMarkerPrefix?: string
+}
+
 export function generateComment(
   report: FailureReport,
-  options: { summaryUrl?: string; title?: string; uploadReason?: string } = {},
+  options: FailureCommentOptions = {},
 ): string {
   const heading = options.title ?? 'Playwright results'
   const lines: string[] = [`### ${heading}\n`, `${headline(report)}\n`]
@@ -511,8 +521,8 @@ export function generateComment(
   // A machine-readable count, so a workflow assembling several of these can
   // decide whether to post at all without grepping prose — the empty-state
   // sentence contains the words "failing test" too.
-  lines.push(`${FAILURE_MARKER_PREFIX}${report.totalFailed} -->\n`)
-  lines.push(`${FLAKE_MARKER_PREFIX}${report.totalFlaky} -->\n`)
+  lines.push(`${options.failureMarkerPrefix ?? FAILURE_MARKER_PREFIX}${report.totalFailed} -->\n`)
+  lines.push(`${options.flakeMarkerPrefix ?? FLAKE_MARKER_PREFIX}${report.totalFlaky} -->\n`)
 
   return lines.join('\n')
 }
@@ -607,10 +617,19 @@ export function uploaderFromEnvironment(
  * CLI entry point. Runs once and writes both outputs, so images are never
  * uploaded twice for the same run.
  */
-export async function main(args: string[] = process.argv.slice(2)): Promise<void> {
+export interface FailureSummaryMainOptions {
+  commandName?: string
+  failureMarkerPrefix?: string
+  flakeMarkerPrefix?: string
+}
+
+export async function main(
+  args: string[] = process.argv.slice(2),
+  adapter: FailureSummaryMainOptions = {},
+): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
     process.stdout.write(
-      'Usage: playwright-testing-failure-summary [options]\n\n' +
+      `Usage: ${adapter.commandName ?? 'playwright-testing-failure-summary'} [options]\n\n` +
       'Options:\n' +
       '  --report-path=PATH       Playwright JSON report (default: test-results/results.json)\n' +
       '  --comment-path=PATH      Write a pull request comment body\n' +
@@ -684,6 +703,8 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
       summaryUrl: summaryUrl(),
       title: options.title,
       uploadReason,
+      failureMarkerPrefix: adapter.failureMarkerPrefix,
+      flakeMarkerPrefix: adapter.flakeMarkerPrefix,
     })
     fs.writeFileSync(path.resolve(options.commentPath), comment)
     console.error(`Comment body written to ${options.commentPath}`)

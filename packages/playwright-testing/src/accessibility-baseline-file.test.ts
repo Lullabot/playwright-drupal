@@ -86,6 +86,46 @@ describe('accessibility-baseline-file', () => {
     })
   })
 
+  describe('snapshotExists with Playwright-named snapshots', () => {
+    const touch = (name: string) => fs.writeFile(path.join(tmpDir, name), 'data')
+
+    it('matches a capitalised title with punctuation and project suffix', async () => {
+      await touch('Test-error-pages-ID-3303-2-desktop-chrome-linux.txt')
+      const ti = makeTestInfo({ dir: tmpDir, title: 'Test error pages: ID 3303' })
+      expect(await snapshotExists(ti)).toBe(true)
+    })
+
+    it('matches with different project suffixes', async () => {
+      await touch('Login-Works-1-mobile-safari-darwin.txt')
+      const ti = makeTestInfo({ dir: tmpDir, title: 'Login Works' })
+      expect(await snapshotExists(ti)).toBe(true)
+    })
+
+    it('does not match a title that differs only by case', async () => {
+      await touch('login-works-1-desktop-chrome-linux.txt')
+      const ti = makeTestInfo({ dir: tmpDir, title: 'Login Works' })
+      expect(await snapshotExists(ti)).toBe(false)
+    })
+
+    it('returns false when nothing matches', async () => {
+      await touch('Other-Test-1-desktop-chrome-linux.txt')
+      const ti = makeTestInfo({ dir: tmpDir, title: 'Login Works' })
+      expect(await snapshotExists(ti)).toBe(false)
+    })
+
+    it('ignores a matching .png without a .txt', async () => {
+      await touch('Login-Works-1-desktop-chrome-linux.png')
+      const ti = makeTestInfo({ dir: tmpDir, title: 'Login Works' })
+      expect(await snapshotExists(ti)).toBe(false)
+    })
+
+    it('does not match a different test whose title extends this one', async () => {
+      await touch('CRUD-tests-Video-Promo-1-desktop-chrome-linux.txt')
+      const ti = makeTestInfo({ dir: tmpDir, title: 'CRUD tests - Video' })
+      expect(await snapshotExists(ti)).toBe(false)
+    })
+  })
+
   describe('readBaselineFile / writeBaselineFile', () => {
     it('round-trips object schema with note and violations', async () => {
       const file = path.join(tmpDir, 'rt.a11y-baseline.json')

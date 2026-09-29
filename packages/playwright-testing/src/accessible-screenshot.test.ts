@@ -535,3 +535,63 @@ describe('takeAccessibleScreenshot hover handling', () => {
     expect(second.hover).not.toHaveBeenCalled()
   })
 })
+
+describe('locator-derived clip', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockAnalyze.mockResolvedValue(makeAxeResults())
+    mockClearHover.mockResolvedValue(mockRemoveHoverShield)
+  })
+
+  function fixture() {
+    const page = {evaluate: vi.fn().mockResolvedValueOnce(undefined).mockResolvedValue({x: 100, y: 800, width: 640, height: 480})}
+    const locator = {page: () => page, scrollIntoViewIfNeeded: vi.fn(), boundingBox: vi.fn().mockResolvedValue({x: 10.2, y: 20.3, width: 200.4, height: 100.2})}
+    return {page, locator}
+  }
+
+  for (const fullPage of [false, true]) {
+    it(`measures after readiness and scroll, with fullPage=${fullPage}`, async () => {
+      const {page, locator} = fixture()
+      await takeAccessibleScreenshot(page as any, makeTestInfo() as any, {clipLocator: locator as any, fullPage})
+      expect(mockToHaveScreenshot).toHaveBeenCalledWith({timeout: 10000, fullPage, clip: {x: fullPage ? 110 : 10, y: fullPage ? 820 : 20, width: 200, height: 100}})
+      expect(mockExpectSoft).toHaveBeenCalledWith(page)
+      expect(locator.scrollIntoViewIfNeeded.mock.invocationCallOrder[0]).toBeGreaterThan(mockWaitForVideos.mock.invocationCallOrder[0])
+      expect(locator.boundingBox.mock.invocationCallOrder[0]).toBeGreaterThan(locator.scrollIntoViewIfNeeded.mock.invocationCallOrder[0])
+      expect(mockAnalyze).toHaveBeenCalledTimes(2)
+    })
+  }
+
+  it('rejects conflicting capture modes before readiness', async () => {
+    const {page, locator} = fixture()
+    await expect(takeAccessibleScreenshot(page as any, makeTestInfo() as any, {clipLocator: locator as any, clip: {x: 0, y: 0, width: 1, height: 1}})).rejects.toThrow('cannot be combined')
+    await expect(takeAccessibleScreenshot(page as any, makeTestInfo() as any, {clipLocator: locator as any}, undefined, locator as any)).rejects.toThrow('cannot be combined')
+    expect(mockWaitForFrames).not.toHaveBeenCalled()
+  })
+
+  it('preserves existing raw clip and locator screenshot paths', async () => {
+    const page = {} as any
+    const locator = {} as any
+    const clip = {x: 5, y: 10, width: 100, height: 80}
+    await takeAccessibleScreenshot(page, makeTestInfo() as any, {clip})
+    expect(mockToHaveScreenshot).toHaveBeenLastCalledWith({timeout: 10000, clip})
+    await takeAccessibleScreenshot(page, makeTestInfo() as any, {}, undefined, locator)
+    expect(mockExpectSoft).toHaveBeenCalledWith(locator)
+    expect(mockToHaveScreenshot).toHaveBeenLastCalledWith({timeout: 10000})
+  })
+
+  it('rejects a clip locator from a different page', async () => {
+    const {locator} = fixture()
+    await expect(takeAccessibleScreenshot({} as any, makeTestInfo() as any, {clipLocator: locator as any})).rejects.toThrow('must belong')
+    expect(mockWaitForFrames).not.toHaveBeenCalled()
+  })
+
+  it('rejects missing and zero-sized bounds and restores capture state', async () => {
+    for (const bounds of [null, {x: 0, y: 0, width: 0.2, height: 1}]) {
+      const {page, locator} = fixture()
+      locator.boundingBox.mockResolvedValue(bounds as any)
+      await expect(takeAccessibleScreenshot(page as any, makeTestInfo() as any, {clipLocator: locator as any})).rejects.toThrow(/bounding box|positive rounded/)
+    }
+    expect(mockRestoreVideoPlayback).toHaveBeenCalledTimes(2)
+    expect(mockToHaveScreenshot).not.toHaveBeenCalled()
+  })
+})

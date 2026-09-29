@@ -14,12 +14,13 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "npm run build --workspace=@lullabot/playwright-testing && tsc",
     "build:all": "npm run build && npm run build --workspaces --if-present",
     "prepack": "npm run build",
     "prepare": "husky || true",
     "test": "npm run test:unit && npm run test:bats",
     "test:all": "npm test && npm test --workspaces --if-present",
+    "pretest:unit": "npm run build --workspace=@lullabot/playwright-testing",
     "test:unit": "vitest run",
     "test:bats": "bats test/",
     "docs:dev": "uvx --with-requirements docs/requirements.txt mkdocs@1.6.1 serve",
@@ -62,6 +63,7 @@
     }
   },
   "dependencies": {
+    "@lullabot/playwright-testing": "0.1.0",
     "@axe-core/playwright": "^4.8.5",
     "@playwright/test": "^1.39.0",
     "@types/node": "^24.0.0",
