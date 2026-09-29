@@ -170,7 +170,25 @@ DOCKERFILE
     TARBALL_PATH="$REPO_ROOT/$(ls -t lullabot-playwright-drupal-*.tgz | head -n 1)"
   fi
 
+  # The Drupal package now depends on the unpublished workspace package while
+  # this monorepo change is under test. Pack that workspace too so npm never
+  # falls back to the public registry when installing the Drupal tarball.
+  if [[ -n "${PLAYWRIGHT_TESTING_TARBALL:-}" && -f "$PLAYWRIGHT_TESTING_TARBALL" ]]; then
+    echo "--- Using pre-built generic tarball: $PLAYWRIGHT_TESTING_TARBALL" >&3
+    TESTING_TARBALL_PATH="$PLAYWRIGHT_TESTING_TARBALL"
+  else
+    cd "$REPO_ROOT"
+    if [[ ! -x node_modules/.bin/tsc ]]; then
+      echo "--- npm install (generic package build dependencies)" >&3
+      npm install >&3 2>&3
+    fi
+    echo "--- npm pack @lullabot/playwright-testing" >&3
+    npm pack --workspace=@lullabot/playwright-testing >&3 2>&3
+    TESTING_TARBALL_PATH="$REPO_ROOT/$(ls -t lullabot-playwright-testing-*.tgz | head -n 1)"
+  fi
+
   TARBALL="$(basename "$TARBALL_PATH")"
+  TESTING_TARBALL="$(basename "$TESTING_TARBALL_PATH")"
 
   # Copy the tarball into test/playwright, which is bind-mounted under
   # /var/www/html inside the DDEV container.
@@ -183,6 +201,7 @@ DOCKERFILE
   # "file:../../lullabot-playwright-drupal-x.y.z.tgz", which resolves outside
   # the staged directory, so the build's npm install would fail with ENOENT.
   cp "$TARBALL_PATH" "$PROJECT_DIR/test/playwright/"
+  cp "$TESTING_TARBALL_PATH" "$PROJECT_DIR/test/playwright/"
   echo "--- Waiting for mutagen..." >&3
   # On macOS with mutagen enabled, sync so the tarball is visible inside the
   # container immediately. On Linux (no mutagen), this is a no-op.
@@ -191,12 +210,15 @@ DOCKERFILE
   # Install the tarball inside the DDEV container. Passing the bare filename
   # makes npm record "file:<tarball>", relative to test/playwright.
   cd "$PROJECT_DIR"
-  echo "--- npm install @lullabot/playwright-drupal" >&3
-  ddev exec -d /var/www/html/test/playwright npm install "./$TARBALL" >&3 2>&3
+  echo "--- npm install @lullabot/playwright-testing and @lullabot/playwright-drupal" >&3
+  ddev exec -d /var/www/html/test/playwright npm install "./$TESTING_TARBALL" "./$TARBALL" >&3 2>&3
 
   # Clean up the tarball from the repo root (only if we built it).
   if [[ -z "${PLAYWRIGHT_DRUPAL_TARBALL:-}" ]]; then
     rm -f "$TARBALL_PATH"
+  fi
+  if [[ -z "${PLAYWRIGHT_TESTING_TARBALL:-}" ]]; then
+    rm -f "$TESTING_TARBALL_PATH"
   fi
 
   # Install Playwright browsers via the DDEV add-on command.

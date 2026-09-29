@@ -219,9 +219,9 @@ graph TD
 **Parallel Tasks:**
 - ✔️ Task 004: Extract visual test definitions and mocks (depends on: 002, 003)
 
-### Phase 5: Drupal Integration
+### ✅ Phase 5: Drupal Integration
 **Parallel Tasks:**
-- Task 006: Wire the Drupal preset and compatibility adapter (depends on: 003, 004, 005)
+- ✔️ Task 006: Wire the Drupal preset and compatibility adapter (depends on: 003, 004, 005)
 
 ### Phase 6: Release Readiness
 **Parallel Tasks:**

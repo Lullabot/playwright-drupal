@@ -24,6 +24,8 @@ export type {
   FailedTest,
   FailureImage,
   FailureReport,
+  FailureCommentOptions,
+  FailureSummaryMainOptions,
   ImageKind,
   IncludeMode,
   PathResolutionSummary,

@@ -98,6 +98,14 @@ export interface ScreenshotOptions {
   fullPage?: boolean;
 
   /**
+   * Derive a page screenshot clip from this locator after readiness waits and
+   * scrolling. Round x, y, width and height to integer CSS pixels without
+   * modifying rendering. Mutually exclusive with clip and a locator target.
+   * Use fullPage for targets larger than the viewport.
+   */
+  clipLocator?: Locator;
+
+  /**
    * Specify locators that should be masked when the screenshot is taken. Masked elements will be overlaid with a pink
    * box `#FF00FF` (customized by `maskColor`) that completely covers its bounding box.
    */
@@ -550,6 +558,13 @@ async function assertSnapshot(ctx: ScanContext) {
 export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, options?: ScreenshotOptions, scrollLocator?: Locator, locator?: Locator|Page)  {
   const screenshotOptions = options ?? {}
 
+  if (screenshotOptions.clipLocator && (screenshotOptions.clip || (locator && locator !== page))) {
+    throw new Error('clipLocator cannot be combined with clip or a locator screenshot target.')
+  }
+  if (screenshotOptions.clipLocator && screenshotOptions.clipLocator.page() !== page) {
+    throw new Error('clipLocator must belong to the screenshot page.')
+  }
+
   // The default is 5 seconds. However, even on a fast machine it can take
   // longer than 5 seconds for large pages like node forms to stabilize. This
   // doesn't affect end users because the page still being rendered is
@@ -561,6 +576,7 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
 
   // Do not pass package-specific orchestration options to Playwright's matcher.
   const {
+    clipLocator: _clipLocator,
     accessibility: _accessibility,
     blur: _blur,
     clearHover: _clearHover,
@@ -622,6 +638,38 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
     let locatorToScreenshot: Page|Locator = page;
     if (locator) {
       locatorToScreenshot = locator;
+    }
+    if (screenshotOptions.clipLocator) {
+      await screenshotOptions.clipLocator.scrollIntoViewIfNeeded()
+      // Scrolling can expose lazy content. Await fonts and two paint frames
+      // before measuring; the existing waits have already loaded page media.
+      await waitForFonts(page)
+      await page.evaluate(() => new Promise<void>(resolve =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))))
+      const bounds = await screenshotOptions.clipLocator.boundingBox()
+      if (!bounds) throw new Error('clipLocator has no visible bounding box.')
+      // boundingBox is in main-frame viewport coordinates, including for
+      // locators inside frames. Read scroll offsets from the main page.
+      const geometry = await page.evaluate(() => ({
+        x: window.scrollX, y: window.scrollY,
+        width: window.innerWidth, height: window.innerHeight,
+      }))
+      const clip = {
+        x: Math.round(bounds.x + (screenshotOptions.fullPage ? geometry.x : 0)),
+        y: Math.round(bounds.y + (screenshotOptions.fullPage ? geometry.y : 0)),
+        width: Math.round(bounds.width),
+        height: Math.round(bounds.height),
+      }
+      if (clip.width <= 0 || clip.height <= 0) {
+        throw new Error('clipLocator must have positive rounded dimensions.')
+      }
+      if (!screenshotOptions.fullPage && (clip.x < 0 || clip.y < 0 || clip.x + clip.width > geometry.width || clip.y + clip.height > geometry.height)) {
+        throw new Error('clipLocator does not fit in the viewport; use fullPage: true to capture the whole target.')
+      }
+      if (clip.x < 0 || clip.y < 0) {
+        throw new Error('clipLocator must have non-negative document coordinates.')
+      }
+      playwrightScreenshotOptions.clip = clip
     }
     // Soft failure here so we can get accessibility violations too.
     await expect.soft(locatorToScreenshot).toHaveScreenshot(playwrightScreenshotOptions);

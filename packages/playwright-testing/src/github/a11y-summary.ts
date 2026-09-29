@@ -348,10 +348,13 @@ export function generateAnnotations(report: A11yReport): string {
  * (e.g. `node lib/github/a11y-summary.js`), or can be imported and
  * called from the bin wrapper.
  */
-export function main(args: string[] = process.argv.slice(2)): void {
+export function main(
+  args: string[] = process.argv.slice(2),
+  adapter: { commandName?: string } = {},
+): void {
   if (args.includes('--help') || args.includes('-h')) {
     process.stdout.write(
-      'Usage: playwright-testing-a11y-summary [options]\n\n' +
+      `Usage: ${adapter.commandName ?? 'playwright-testing-a11y-summary'} [options]\n\n` +
       'Options:\n' +
       '  --report-path=PATH       Playwright JSON report (default: test-results/results.json)\n' +
       '  --mode=summary           Write a Markdown accessibility summary (default)\n' +
