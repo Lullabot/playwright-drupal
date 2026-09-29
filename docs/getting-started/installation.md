@@ -42,6 +42,11 @@ ddev exec -d /var/www/html/test/playwright npx playwright test
 ddev exec -d /var/www/html/test/playwright npm i @lullabot/playwright-drupal@latest
 ```
 
+This installs `@lullabot/playwright-testing` transitively. The Drupal package
+re-exports its generic APIs and applies Drupal-specific defaults, so existing
+projects do not need to add or change imports. Add the generic package as a
+direct dependency only when project code imports it directly.
+
 ## Configure Playwright
 
 Set the following in `test/playwright/tsconfig.json`, merging with any existing configuration:

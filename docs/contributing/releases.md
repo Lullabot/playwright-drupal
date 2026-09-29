@@ -1,62 +1,67 @@
 # Releases
 
-## Versioned Deployment
+`@lullabot/playwright-drupal` and `@lullabot/playwright-testing` are versioned
+and published independently from the same repository. Release Please tracks
+the root package and `packages/playwright-testing` separately; a release for
+one package does not require a version bump or npm publication of the other.
 
-Docs are deployed automatically when a release tag matching `playwright-drupal-*` is pushed (e.g. `playwright-drupal-1.5.1`). The GitHub Actions workflow strips the `playwright-drupal-` prefix and runs `mike deploy --push --update-aliases 1.5.1 latest`, committing versioned docs to the `gh-pages` branch. Deployed docs are available at `https://lullabot.github.io/playwright-drupal/1.5.1/` and `https://lullabot.github.io/playwright-drupal/latest/`.
+The release workflow publishes:
 
-## One-Time GitHub Pages Setup
+- the root directory when a Drupal package release is created; and
+- `packages/playwright-testing` when a generic package release is created.
 
-Before the first versioned deployment, change the GitHub Pages source from "GitHub Actions" to "Deploy from a branch":
+Both publications use npm trusted publishing. Before merging a release, verify
+the package-specific changelog and run the workspace build, tests, and dry-run
+pack commands from the [development guide](development.md).
 
-1. Go to **Settings → Pages**
-2. Under **Source**, select **Deploy from a branch**
-3. Set branch to **`gh-pages`** and folder to **`/ (root)`**
-4. Save
+## Versioned documentation
 
-The `gh-pages` branch is created automatically by `mike` on first deployment.
+The deployed MkDocs site is the Drupal package's documentation. It is deployed
+when a tag matching `playwright-drupal-*` is pushed, for example
+`playwright-drupal-1.5.1`. The workflow strips the prefix and runs `mike deploy`
+with the version and `latest` alias. Generic package guides remain canonical in
+`packages/playwright-testing/docs` and are linked from the Drupal site.
 
-## Publishing a One-Off Alpha Release
+Before the first versioned deployment, configure GitHub Pages to deploy the
+`gh-pages` branch from `/ (root)`. The branch is created by `mike` on the first
+deployment.
 
-Stable releases are handled automatically by [release-please](https://github.com/googleapis/release-please) from `main`. To publish a one-off prerelease (e.g. to let someone test an unreleased change) without disturbing the `latest` dist-tag, publish manually from your workstation.
+## One-off alpha releases
 
-**Prerequisites:**
+Stable releases are handled by Release Please. A maintainer can publish an
+unreleased build under the `alpha` dist-tag without changing `latest`.
 
-- Push access to the `@lullabot/playwright-drupal` npm package.
-- A granular access token from [npmjs.com](https://www.npmjs.com/) with publish permission on the package.
-
-**1. Authenticate npm with your token:**
+Authenticate npm using a granular token with publish access:
 
 ```console
 npm config set //registry.npmjs.org/:_authToken <your-token>
 npm whoami
 ```
 
-This writes the token to `~/.npmrc`. `npm login` is now interactive/browser-based and won't accept a token directly, so setting `_authToken` is the standard path for automation-style tokens.
-
-**2. Check out a clean `main` and bump the version locally:**
-
-```console
-git checkout main
-git pull
-npm version 1.6.0-alpha.0 --no-git-tag-version
-```
-
-Do **not** commit or push the version bump — release-please manages versions in the repo. The bump only needs to exist in the working copy for `npm publish` to read.
-
-**3. Publish under the `alpha` dist-tag:**
+From a clean, up-to-date `main`, bump only the package being tested. Do not
+commit or push this version change.
 
 ```console
-ddev exec npm ci
-ddev exec npm publish --tag alpha --access public
+# Drupal adapter
+npm version 1.13.0-alpha.0 --no-git-tag-version
+npm publish --tag alpha --access public
+
+# Generic package
+npm version 0.2.0-alpha.0 \
+  --workspace=@lullabot/playwright-testing \
+  --no-git-tag-version
+npm publish --workspace=@lullabot/playwright-testing \
+  --tag alpha \
+  --access public
 ```
 
-`prepack` runs `npm run build` automatically, so no separate build step is required. The `--tag alpha` flag is critical: without it, the prerelease would replace `latest` and become the default install.
-
-**4. Verify and clean up:**
+Each package's `prepack` builds that package. The root Drupal build also builds
+the generic dependency. Verify the dist-tags and then restore the manifest and
+lockfile changes using your normal Git workflow:
 
 ```console
 npm dist-tag ls @lullabot/playwright-drupal
-git checkout -- package.json package-lock.json
+npm dist-tag ls @lullabot/playwright-testing
 ```
 
-Consumers install the prerelease with `npm install @lullabot/playwright-drupal@alpha`.
+Consumers install a prerelease with the corresponding `@alpha` package spec.

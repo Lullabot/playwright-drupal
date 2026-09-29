@@ -2,7 +2,7 @@
 id: 7
 group: "release-readiness"
 dependencies: [6]
-status: "pending"
+status: "completed"
 created: 2026-09-29
 skills:
   - technical-documentation
@@ -49,3 +49,10 @@ Updated generic and Drupal documentation, validated pack manifests, consumer-pro
 6. Run `npm test`, the aggregate build command, and `npm run docs:build`. Fix package boundary or documentation errors within scope.
 7. Testing philosophy: write a few tests, mostly integration. Test custom behavior, critical workflows, data transformations, core edge/error cases, integration points, and complex validation. Do not test third-party framework behavior, trivial getters/setters, static configuration, or obvious forwarding. Combine related scenarios and favor packed-consumer and critical-path coverage.
 </details>
+
+## Noteworthy Events
+- [2026-09-29] Added canonical framework-neutral accessibility, screenshot/visual-comparison, and GitHub reporting guides inside `packages/playwright-testing`; refocused the Drupal guides on the adapter preset, compatibility imports and executables, DDEV, and database fixtures; and linked the package-owned guides from MkDocs without duplicating them.
+- [2026-09-29] Updated the release workflow so root and `packages/playwright-testing` Release Please outputs independently gate publication from the correct package directory. The workflow YAML parsed successfully and its path-prefixed generic release output matches Release Please's documented monorepo contract.
+- [2026-09-29] Verified dry-run packs (158 Drupal files and 82 generic files) contain every manifest entry point, executable, matching declaration, README, and required source without cross-workspace or repository-only paths. Actual tarballs installed into an empty temporary consumer and imported the generic root/`./github`, Drupal root, and all legacy GitHub subpaths; both generic and both legacy reporting executable help paths ran successfully.
+- [2026-09-29] Reviewed the generic neutrality audit. Runtime and executable sources contain no Drupal selectors, state keys, package names, URLs, or project defaults. Remaining matches are intentional repository/migration documentation, required repository metadata, and a regression test proving an old project name has no generic effect.
+- [2026-09-29] Final verification passed: aggregate TypeScript builds, strict MkDocs build, 208 Drupal unit tests, 243 generic tests, all 89 Bats integration checks, whitespace/diff validation, and release-workflow YAML assertions. Documentation-only changes did not warrant additional unit tests; packed-consumer and full integration checks supplied the task's required behavioral coverage.

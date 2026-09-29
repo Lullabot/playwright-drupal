@@ -1,5 +1,10 @@
 # Debugging Tests
 
+For stable screenshot behavior and CI report artifacts, see the generic
+[screenshots and visual comparisons](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md)
+and [GitHub reporting](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/github-reporting.md)
+guides. This page covers the Drupal and DDEV-specific debugging workflow.
+
 ## Capturing Traces
 
 Traces record every step, network request, DOM snapshot, and console message from a test run, and are the best place to start when a test fails unexpectedly. To always record a trace, run tests with:
