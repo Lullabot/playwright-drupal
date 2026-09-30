@@ -140,6 +140,7 @@ A superset of Playwright's [`toHaveScreenshot()` options](https://playwright.dev
 
 | Field | Default | Description |
 |---|---|---|
+| `clipLocator` | `undefined` | Derive an integer CSS-pixel page clip after readiness and scrolling. See [locator-derived page clips](visual-comparisons.md#locator-derived-page-clips) for coordinates and tradeoffs. |
 | `accessibility` | `undefined` | [AccessibilityOptions](#accessibilityoptions) passed through to [`checkAccessibility`](#checkaccessibility). |
 | `blur` | `true` | Blurs the active element before capturing so a stray focus ring left over from earlier test interactions does not appear in only some runs. Set to `false` when the screenshot intentionally captures a focused state. |
 | `clearHover` | `true` | Moves the pointer onto a temporary transparent shield before capturing so stale pointer activity does not leave unrelated content hovered. Set to `false` when the screenshot intentionally captures a hovered state. |
