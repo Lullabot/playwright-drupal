@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.12.0...playwright-drupal-1.12.1) (2026-09-30)
+
+
+### Bug Fixes
+
+* **a11y:** match legacy snapshots case-sensitively in snapshotExists ([d3ea560](https://github.com/Lullabot/playwright-drupal/commit/d3ea5603882f6900ddd27c1fa6a73ed420b4d8bc))
+
 ## [1.12.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.11.0...playwright-drupal-1.12.0) (2026-09-28)
 
 
