@@ -140,3 +140,6 @@ lib/
 
 # MkDocs
 site/
+
+# Browser test artifacts
+test-results/
