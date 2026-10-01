@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.14.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.13.0...playwright-drupal-1.14.0) (2026-10-01)
+
+
+### Features
+
+* add Drupal compatibility adapter ([13768b3](https://github.com/Lullabot/playwright-drupal/commit/13768b31963a2ada743506c00c975c8fad9433df))
+* extract generic accessibility core ([f3cb708](https://github.com/Lullabot/playwright-drupal/commit/f3cb708ed5da4f3d6d8ac7e0cada69ca99704895))
+* extract generic playwright foundations ([370fbf0](https://github.com/Lullabot/playwright-drupal/commit/370fbf0fce58420786248006e7130c15732884da))
+* extract generic visual test definitions ([4613d1e](https://github.com/Lullabot/playwright-drupal/commit/4613d1e42d12dd129954788af8838680ce0fe7a1))
+* release @lullabot/playwright-testing as 1.0.0 ([cf878e6](https://github.com/Lullabot/playwright-drupal/commit/cf878e6e8b692baaaf37304296238fef25bfec7e))
+
+
+### Documentation
+
+* document generic Playwright package ([31732bc](https://github.com/Lullabot/playwright-drupal/commit/31732bceed557bbcc5de549217b861a1a019ba49))
+
 ## [1.13.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.12.1...playwright-drupal-1.13.0) (2026-10-01)
 
 
