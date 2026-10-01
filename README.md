@@ -37,3 +37,20 @@ The generic package has canonical guides for
 [accessibility testing](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/accessibility.md),
 [screenshots and visual comparisons](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md),
 and [GitHub reporting](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/github-reporting.md).
+
+## Development
+
+Run these commands from the repository root for both packages:
+
+```console
+npm ci
+npm run lint
+npm run format:check
+```
+
+Use `npm run lint:fix` to apply automatic lint fixes and `npm run format` to
+format JavaScript and TypeScript. ESLint uses the upstream recommended configs,
+and Prettier uses its default formatting, including semicolons and double quotes.
+CI checks both. Build output and bundled agent tooling are excluded.
+The lint config allows existing `any` types and fields omitted with rest
+destructuring; other recommended rules retain their defaults.

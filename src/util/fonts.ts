@@ -1,1 +1,1 @@
-export { waitForFonts } from '@lullabot/playwright-testing'
+export { waitForFonts } from "@lullabot/playwright-testing";

@@ -1,6 +1,6 @@
-import { quote as shellQuote } from 'shell-quote';
-import { execDrushInTestSite } from '../testcase/test';
-import { isModuleEnabled } from './modules';
+import { quote as shellQuote } from "shell-quote";
+import { execDrushInTestSite } from "../testcase/test";
+import { isModuleEnabled } from "./modules";
 
 /**
  * Drupal `dblog` (database log) utilities, driven via Drush.
@@ -19,14 +19,14 @@ import { isModuleEnabled } from './modules';
  * Severity levels, matching Drupal's RfcLogLevel names (lowercase).
  */
 export enum DblogSeverity {
-  EMERGENCY = 'emergency',
-  ALERT = 'alert',
-  CRITICAL = 'critical',
-  ERROR = 'error',
-  WARNING = 'warning',
-  NOTICE = 'notice',
-  INFO = 'info',
-  DEBUG = 'debug',
+  EMERGENCY = "emergency",
+  ALERT = "alert",
+  CRITICAL = "critical",
+  ERROR = "error",
+  WARNING = "warning",
+  NOTICE = "notice",
+  INFO = "info",
+  DEBUG = "debug",
 }
 
 /**
@@ -74,14 +74,14 @@ const DRUSH_FETCH_COUNT_CAP = 10_000;
  * Check whether the `dblog` module is enabled on the test site.
  */
 export async function isDblogEnabled(): Promise<boolean> {
-  return isModuleEnabled('dblog');
+  return isModuleEnabled("dblog");
 }
 
 /**
  * Delete all watchdog messages on the test site.
  */
 export async function truncateDblog(): Promise<void> {
-  await execDrushInTestSite('watchdog:delete all -y');
+  await execDrushInTestSite("watchdog:delete all -y");
 }
 
 /**
@@ -102,15 +102,15 @@ export async function fetchDblogEntries(
 
   const parsed = JSON.parse(stdout) as Record<string, Record<string, string>>;
   return Object.values(parsed).map((entry) => ({
-    wid: entry.wid ?? '',
-    type: entry.type ?? '',
-    message: entry.message ?? '',
-    severity: (entry.severity ?? '').toLowerCase(),
-    location: entry.location ?? '',
-    hostname: entry.hostname ?? '',
-    date: entry.date ?? '',
-    username: entry.username ?? '',
-    uid: entry.uid ?? '',
+    wid: entry.wid ?? "",
+    type: entry.type ?? "",
+    message: entry.message ?? "",
+    severity: (entry.severity ?? "").toLowerCase(),
+    location: entry.location ?? "",
+    hostname: entry.hostname ?? "",
+    date: entry.date ?? "",
+    username: entry.username ?? "",
+    uid: entry.uid ?? "",
   }));
 }
 
@@ -132,12 +132,12 @@ export async function checkDblogForErrors(
  */
 export function formatLogErrors(entries: DblogEntry[]): string {
   if (entries.length === 0) {
-    return 'No errors found';
+    return "No errors found";
   }
 
   const lines = entries.map((entry, index) => {
-    return `${index + 1}. [${entry.severity.toUpperCase()}] ${entry.type}\n   Message: ${entry.message}\n   Time: ${entry.date || 'N/A'}`;
+    return `${index + 1}. [${entry.severity.toUpperCase()}] ${entry.type}\n   Message: ${entry.message}\n   Time: ${entry.date || "N/A"}`;
   });
 
-  return `Found ${entries.length} critical/error log entries:\n\n${lines.join('\n\n')}`;
+  return `Found ${entries.length} critical/error log entries:\n\n${lines.join("\n\n")}`;
 }

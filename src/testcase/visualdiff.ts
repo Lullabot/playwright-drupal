@@ -5,9 +5,9 @@ import {
   type VisualDiffGroup,
   type VisualDiffPreset,
   type VisualDiffUrlConfig,
-} from '@lullabot/playwright-testing'
+} from "@lullabot/playwright-testing";
 
-import { createDrupalScreenshotOptions } from '../drupal-preset'
+import { createDrupalScreenshotOptions } from "../drupal-preset";
 
 export type {
   BaseVisualDiff,
@@ -20,15 +20,15 @@ export type {
   VisualDiffInteractionState,
   VisualDiffPreset,
   VisualDiffUrlConfig,
-} from '@lullabot/playwright-testing'
+} from "@lullabot/playwright-testing";
 
 /** Drupal behavior injected without changing the generic visual defaults. */
 export const drupalVisualDiffPreset: VisualDiffPreset = {
   screenshotOptions: ({ testInfo }) => createDrupalScreenshotOptions(testInfo),
-}
+};
 
 export function defineVisualDiffConfig(cases: VisualDiffUrlConfig) {
-  return new VisualDiffTestCases(cases)
+  return new VisualDiffTestCases(cases);
 }
 
 export function defaultTestFunction(
@@ -36,12 +36,17 @@ export function defaultTestFunction(
   group: VisualDiffGroup,
   config?: VisualDiffUrlConfig,
 ) {
-  return genericDefaultTestFunction(testCase, group, config, drupalVisualDiffPreset)
+  return genericDefaultTestFunction(
+    testCase,
+    group,
+    config,
+    drupalVisualDiffPreset,
+  );
 }
 
 /** Legacy class name backed by the generic implementation and Drupal preset. */
 export class VisualDiffTestCases extends GenericVisualDiffTestCases {
   constructor(config: VisualDiffUrlConfig) {
-    super(config, drupalVisualDiffPreset)
+    super(config, drupalVisualDiffPreset);
   }
 }

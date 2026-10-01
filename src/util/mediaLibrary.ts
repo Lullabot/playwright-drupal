@@ -1,5 +1,5 @@
-import { Page } from '@playwright/test';
-import { waitForAjax } from './forms';
+import { Page } from "@playwright/test";
+import { waitForAjax } from "./forms";
 
 /**
  * Drupal media_library widget automation.
@@ -37,44 +37,52 @@ export async function selectFirstMediaFromLibrary(
 ): Promise<void> {
   const wrapper = page.locator(wrapperSelector);
   const openBtn = wrapper
-    .locator('.js-media-library-open-button, [name*="media-library-open-button"], [id*="media-library-open-button"]')
+    .locator(
+      '.js-media-library-open-button, [name*="media-library-open-button"], [id*="media-library-open-button"]',
+    )
     .first();
   await openBtn.scrollIntoViewIfNeeded();
   await openBtn.click();
 
   const dialog = page
-    .locator('.ui-dialog:visible')
+    .locator(".ui-dialog:visible")
     .filter({ has: page.locator('[class*="media-library"]') })
     .first();
-  await dialog.waitFor({ state: 'visible' });
+  await dialog.waitFor({ state: "visible" });
   await waitForAjax(page);
 
   const existingItemCount = await dialog
-    .locator('.media-library-item input[type=checkbox], .media-library-item input[type=radio]')
+    .locator(
+      ".media-library-item input[type=checkbox], .media-library-item input[type=radio]",
+    )
     .count();
 
   if (existingItemCount === 0) {
     if (!opts.uploadFixturePath) {
-      throw new Error('Media library is empty and no uploadFixturePath was supplied');
+      throw new Error(
+        "Media library is empty and no uploadFixturePath was supplied",
+      );
     }
-    const fileInput = dialog.locator('input[type=file]').first();
+    const fileInput = dialog.locator("input[type=file]").first();
     if ((await fileInput.count()) === 0) {
-      throw new Error('Media library modal has no existing items and no upload input');
+      throw new Error(
+        "Media library modal has no existing items and no upload input",
+      );
     }
     await fileInput.setInputFiles(opts.uploadFixturePath);
     await waitForAjax(page);
 
     const postUploadRequired = dialog.locator(
-      'input[type=text][required]:visible, textarea[required]:visible',
+      "input[type=text][required]:visible, textarea[required]:visible",
     );
     const n = await postUploadRequired.count();
     for (let i = 0; i < n; i++) {
       const el = postUploadRequired.nth(i);
-      const existing = await el.inputValue().catch(() => '');
-      if (!existing) await el.fill('Auto-generated test value');
+      const existing = await el.inputValue().catch(() => "");
+      if (!existing) await el.fill("Auto-generated test value");
     }
 
-    const saveBtn = dialog.getByRole('button', { name: /^Save$/i }).first();
+    const saveBtn = dialog.getByRole("button", { name: /^Save$/i }).first();
     if ((await saveBtn.count()) > 0) {
       await saveBtn.click();
       await waitForAjax(page);
@@ -82,17 +90,22 @@ export async function selectFirstMediaFromLibrary(
   }
 
   const firstCard = dialog
-    .locator('.js-click-to-select-checkbox, .media-library-item__click-to-select-checkbox')
+    .locator(
+      ".js-click-to-select-checkbox, .media-library-item__click-to-select-checkbox",
+    )
     .first();
-  await firstCard.waitFor({ state: 'visible' });
+  await firstCard.waitFor({ state: "visible" });
   await firstCard.click();
 
-  const insertByText = dialog.getByRole('button', { name: /^Insert/i }).first();
-  const insertInput = dialog.locator('input[type=submit][value^="Insert"]').first();
-  const insertBtn = (await insertByText.count()) > 0 ? insertByText : insertInput;
+  const insertByText = dialog.getByRole("button", { name: /^Insert/i }).first();
+  const insertInput = dialog
+    .locator('input[type=submit][value^="Insert"]')
+    .first();
+  const insertBtn =
+    (await insertByText.count()) > 0 ? insertByText : insertInput;
   await insertBtn.click();
 
-  await dialog.waitFor({ state: 'hidden' });
+  await dialog.waitFor({ state: "hidden" });
   await waitForAjax(page);
 }
 
@@ -107,7 +120,9 @@ export async function findMediaIdFromListing(
   name: string,
 ): Promise<string | undefined> {
   await page.goto(`${baseUrl}/admin/content/media`);
-  const link = page.locator('table a', { hasText: name }).first();
-  const href = await link.getAttribute('href', { timeout: 10000 }).catch(() => null);
+  const link = page.locator("table a", { hasText: name }).first();
+  const href = await link
+    .getAttribute("href", { timeout: 10000 })
+    .catch(() => null);
   return href?.match(/\/media\/(\d+)/)?.[1];
 }

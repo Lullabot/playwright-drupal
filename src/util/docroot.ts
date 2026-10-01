@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import * as fs from "fs";
 
 /**
  * Get the Drupal docroot directory name from composer.json.
@@ -11,19 +11,22 @@ import * as fs from 'fs';
  *   `../../composer.json` (relative to `test/playwright/` cwd).
  * @returns The docroot directory name without a trailing slash (e.g. `web` or `docroot`).
  */
-export function getDocroot(composerJsonPath: string = '../../composer.json'): string {
-  const defaultDocroot = 'web';
+export function getDocroot(
+  composerJsonPath: string = "../../composer.json",
+): string {
+  const defaultDocroot = "web";
 
   try {
-    const composerJson = JSON.parse(fs.readFileSync(composerJsonPath, 'utf-8'));
-    const webRoot: unknown = composerJson?.extra?.['drupal-scaffold']?.locations?.['web-root'];
+    const composerJson = JSON.parse(fs.readFileSync(composerJsonPath, "utf-8"));
+    const webRoot: unknown =
+      composerJson?.extra?.["drupal-scaffold"]?.locations?.["web-root"];
 
-    if (typeof webRoot !== 'string' || webRoot.length === 0) {
+    if (typeof webRoot !== "string" || webRoot.length === 0) {
       return defaultDocroot;
     }
 
     // Strip trailing slash(es).
-    return webRoot.replace(/\/+$/, '') || defaultDocroot;
+    return webRoot.replace(/\/+$/, "") || defaultDocroot;
   } catch {
     return defaultDocroot;
   }

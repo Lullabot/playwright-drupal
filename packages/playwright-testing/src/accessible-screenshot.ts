@@ -1,22 +1,31 @@
-import AxeBuilder from '@axe-core/playwright';
-import {expect, type Locator, type Page, type TestInfo} from "@playwright/test";
-import {waitForAllImages, type WaitForImagesOptions} from "./images.js";
-import {waitForFrames} from "./frames.js"
-import {waitForFonts} from "./fonts.js";
-import {restoreVideoPlayback, waitForVideos, type WaitForVideosOptions} from "./videos.js";
-import {blurActiveElement} from "./focus.js";
-import {clearHover} from "./hover.js";
+import AxeBuilder from "@axe-core/playwright";
+import {
+  expect,
+  type Locator,
+  type Page,
+  type TestInfo,
+} from "@playwright/test";
+import { waitForAllImages, type WaitForImagesOptions } from "./images.js";
+import { waitForFrames } from "./frames.js";
+import { waitForFonts } from "./fonts.js";
+import {
+  restoreVideoPlayback,
+  waitForVideos,
+  type WaitForVideosOptions,
+} from "./videos.js";
+import { blurActiveElement } from "./focus.js";
+import { clearHover } from "./hover.js";
 import {
   applyInteractionStates,
   validateInteractionStates,
   type ScreenshotInteractionState,
-} from './interaction-states.js'
-import axe from 'axe-core';
+} from "./interaction-states.js";
+import axe from "axe-core";
 import {
   type AccessibilityBaseline,
   type AccessibilityBaselineEntry,
   validateAccessibilityBaseline,
-} from './accessibility-baseline.js'
+} from "./accessibility-baseline.js";
 import {
   baselineFilePath,
   buildSeed,
@@ -25,15 +34,18 @@ import {
   ScanKind,
   snapshotExists,
   writeBaselineFile,
-} from './accessibility-baseline-file.js'
+} from "./accessibility-baseline-file.js";
 
 let a11yActionHintShown = false;
 
-export type {InteractionState, ScreenshotInteractionState} from './interaction-states.js'
+export type {
+  InteractionState,
+  ScreenshotInteractionState,
+} from "./interaction-states.js";
 
 export interface ScreenshotStabilizationOptions {
-  images?: WaitForImagesOptions
-  videos?: WaitForVideosOptions
+  images?: WaitForImagesOptions;
+  videos?: WaitForVideosOptions;
 }
 
 export interface ScreenshotOptions {
@@ -170,16 +182,16 @@ export interface ScreenshotOptions {
 
 export interface AccessibilityOptions {
   /** axe tags for WCAG scan. Default: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] */
-  wcagTags?: string[]
+  wcagTags?: string[];
 
   /** Additional CSS selectors to exclude from both scans. */
-  exclude?: string[]
+  exclude?: string[];
 
   /** CSS selectors to exclude only from the best-practice scan. */
-  bestPracticeExclude?: string[]
+  bestPracticeExclude?: string[];
 
   /** CSS selectors to exclude only from the WCAG scan. */
-  wcagExclude?: string[]
+  wcagExclude?: string[];
 
   /**
    * Best-practice scan mode.
@@ -187,20 +199,20 @@ export interface AccessibilityOptions {
    * - 'hard': uses expect() — test fails immediately on violations
    * - 'off': skips best-practice scan entirely
    */
-  bestPracticeMode?: 'soft' | 'hard' | 'off'
+  bestPracticeMode?: "soft" | "hard" | "off";
 
   /** Additional axe rules to enable/disable. */
-  rules?: Record<string, { enabled: boolean }>
+  rules?: Record<string, { enabled: boolean }>;
 
   /** Baseline of known violations. When provided, violations matching the baseline are suppressed and toMatchSnapshot() is skipped. */
-  baseline?: AccessibilityBaseline
+  baseline?: AccessibilityBaseline;
 
   /**
    * When true, captures a full-page screenshot with violating elements
    * highlighted (red outline) and attaches it to the test report.
    * Default: true.
    */
-  screenshotViolations?: boolean
+  screenshotViolations?: boolean;
 }
 
 /**
@@ -213,70 +225,82 @@ export interface AccessibilityOptions {
  * @param testInfo The testInfo object from the test.
  * @param options Accessibility options to customise the scan.
  */
-export async function checkAccessibility(page: Page, testInfo: TestInfo, options?: AccessibilityOptions) {
+export async function checkAccessibility(
+  page: Page,
+  testInfo: TestInfo,
+  options?: AccessibilityOptions,
+) {
   const {
-    wcagTags = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
+    wcagTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"],
     exclude = [],
     bestPracticeExclude = [],
     wcagExclude = [],
-    bestPracticeMode = 'soft',
+    bestPracticeMode = "soft",
     rules,
     baseline,
     screenshotViolations = true,
-  } = options ?? {}
+  } = options ?? {};
 
   if (process.env.CI && !a11yActionHintShown) {
-    console.log('Tip: Use @lullabot/playwright-testing/github to surface accessibility violations in pull requests.')
-    a11yActionHintShown = true
+    console.log(
+      "Tip: Use @lullabot/playwright-testing/github to surface accessibility violations in pull requests.",
+    );
+    a11yActionHintShown = true;
   }
 
   // Add @a11y annotation (deduplicated).
-  if (!testInfo.annotations.some(a => a.type === '@a11y')) {
-    testInfo.annotations.push({ type: '@a11y' })
+  if (!testInfo.annotations.some((a) => a.type === "@a11y")) {
+    testInfo.annotations.push({ type: "@a11y" });
   }
 
-  if (bestPracticeMode !== 'off') {
+  if (bestPracticeMode !== "off") {
     const bpResults = await runBestPracticeScan(page, testInfo, {
       exclude: [...exclude, ...bestPracticeExclude],
       rules,
-    })
+    });
     // Best-practice always uses expect.soft() so the WCAG scan below runs
     // even when best-practice violations exist. `bestPracticeMode === 'hard'`
     // is preserved as a marker but does not change soft-vs-hard here.
-    await dispatchAssertion({
-      testInfo,
-      results: bpResults,
-      scan: 'best-practice',
-      expectFn: expect.soft,
-      scanLabel: 'Best-practice scan',
-    }, baseline)
+    await dispatchAssertion(
+      {
+        testInfo,
+        results: bpResults,
+        scan: "best-practice",
+        expectFn: expect.soft,
+        scanLabel: "Best-practice scan",
+      },
+      baseline,
+    );
   }
 
   const wcagScanResults = await runWcagScan(page, testInfo, {
     wcagTags,
     exclude: [...exclude, ...wcagExclude],
     rules,
-  })
+  });
 
   if (screenshotViolations && wcagScanResults.violations.length > 0) {
-    await screenshotViolatingElements(page, testInfo, wcagScanResults)
+    await screenshotViolatingElements(page, testInfo, wcagScanResults);
   }
 
-  await dispatchAssertion({
-    testInfo,
-    results: wcagScanResults,
-    scan: 'wcag',
-    expectFn: expect,
-    scanLabel: 'WCAG scan',
-  }, baseline)
+  await dispatchAssertion(
+    {
+      testInfo,
+      results: wcagScanResults,
+      scan: "wcag",
+      expectFn: expect,
+      scanLabel: "WCAG scan",
+    },
+    baseline,
+  );
 }
 
 interface ScanContext {
-  testInfo: TestInfo
-  results: axe.AxeResults
-  scan: ScanKind
-  expectFn: typeof expect | typeof expect.soft
-  scanLabel: string
+  testInfo: TestInfo;
+  results: axe.AxeResults;
+  scan: ScanKind;
+  expectFn: typeof expect | typeof expect.soft;
+  scanLabel: string;
 }
 
 /**
@@ -294,55 +318,59 @@ interface ScanContext {
  *    test (matching Playwright's missing-snapshot behaviour); locally,
  *    seeding passes so the first run is green.
  */
-async function dispatchAssertion(ctx: ScanContext, inCodeBaseline?: AccessibilityBaseline): Promise<void> {
+async function dispatchAssertion(
+  ctx: ScanContext,
+  inCodeBaseline?: AccessibilityBaseline,
+): Promise<void> {
   if (inCodeBaseline) {
-    return assertBaseline(ctx, inCodeBaseline)
+    return assertBaseline(ctx, inCodeBaseline);
   }
 
   if (await snapshotExists(ctx.testInfo)) {
-    return assertSnapshot(ctx)
+    return assertSnapshot(ctx);
   }
 
-  const update = ctx.testInfo.config?.updateSnapshots
-  if (update === 'all' || update === 'changed') {
-    return assertSnapshot(ctx)
+  const update = ctx.testInfo.config?.updateSnapshots;
+  if (update === "all" || update === "changed") {
+    return assertSnapshot(ctx);
   }
 
-  const callCount = nextAccessibilityScanCount(ctx.testInfo, ctx.scan)
-  const filePath = baselineFilePath(ctx.testInfo, ctx.scan, callCount)
+  const callCount = nextAccessibilityScanCount(ctx.testInfo, ctx.scan);
+  const filePath = baselineFilePath(ctx.testInfo, ctx.scan, callCount);
 
-  const existing = await readBaselineFile(filePath)
+  const existing = await readBaselineFile(filePath);
   if (existing) {
-    return assertBaseline(ctx, existing.violations)
+    return assertBaseline(ctx, existing.violations);
   }
 
   // Seed and either pass (local) or fail (CI).
-  const normalized = extractNormalizedViolations(ctx.results)
-  const seedViolations: AccessibilityBaselineEntry[] = normalized.map(v => ({
+  const normalized = extractNormalizedViolations(ctx.results);
+  const seedViolations: AccessibilityBaselineEntry[] = normalized.map((v) => ({
     rule: v.rule,
     targets: v.targets,
-    reason: 'TODO',
-    willBeFixedIn: 'TODO',
-  }))
-  const seed = buildSeed(seedViolations)
-  await writeBaselineFile(filePath, seed)
+    reason: "TODO",
+    willBeFixedIn: "TODO",
+  }));
+  const seed = buildSeed(seedViolations);
+  await writeBaselineFile(filePath, seed);
   await ctx.testInfo.attach(`a11y-${ctx.scan}-baseline-seed`, {
     path: filePath,
-    contentType: 'application/json',
-  })
+    contentType: "application/json",
+  });
 
   if (process.env.CI) {
-    const message = `${ctx.scanLabel}: a11y baseline file was missing for this test. Seeded to ${filePath} — download the attached file from CI artifacts (or re-run locally) and commit it before merging.`
-    ctx.expectFn(null, message).toBe('a11y baseline file present')
-    return
+    const message = `${ctx.scanLabel}: a11y baseline file was missing for this test. Seeded to ${filePath} — download the attached file from CI artifacts (or re-run locally) and commit it before merging.`;
+    ctx.expectFn(null, message).toBe("a11y baseline file present");
+    return;
   }
 
   ctx.testInfo.annotations.push({
-    type: 'Accessibility',
-    description: seed.violations.length === 0
-      ? `${ctx.scanLabel}: a11y baseline seeded at ${filePath} (no violations).`
-      : `${ctx.scanLabel}: a11y baseline seeded at ${filePath} with ${seed.violations.length} entries — fill in reason/willBeFixedIn before committing.`,
-  })
+    type: "Accessibility",
+    description:
+      seed.violations.length === 0
+        ? `${ctx.scanLabel}: a11y baseline seeded at ${filePath} (no violations).`
+        : `${ctx.scanLabel}: a11y baseline seeded at ${filePath} with ${seed.violations.length} entries — fill in reason/willBeFixedIn before committing.`,
+  });
   // A local seed is deliberately permissive and contains TODO metadata. The
   // next run validates the committed file before treating entries as waivers.
 }
@@ -357,34 +385,33 @@ async function runBestPracticeScan(
   page: Page,
   testInfo: TestInfo,
   opts: {
-    exclude: string[]
-    rules?: Record<string, { enabled: boolean }>
+    exclude: string[];
+    rules?: Record<string, { enabled: boolean }>;
   },
 ): Promise<axe.AxeResults> {
-  const builder = new AxeBuilder({ page })
-    .withTags(['best-practice'])
+  const builder = new AxeBuilder({ page }).withTags(["best-practice"]);
 
   for (const selector of opts.exclude) {
-    builder.exclude(selector)
+    builder.exclude(selector);
   }
 
   if (opts.rules) {
-    builder.options({ rules: opts.rules })
+    builder.options({ rules: opts.rules });
   }
 
-  const results = await builder.analyze()
+  const results = await builder.analyze();
 
-  await testInfo.attach('a11y-best-practice-scan-results', {
+  await testInfo.attach("a11y-best-practice-scan-results", {
     body: JSON.stringify(results, null, 2),
-    contentType: 'application/json'
-  })
+    contentType: "application/json",
+  });
 
   testInfo.annotations.push({
-    type: 'Accessibility',
-    description: `Best-practice scan: ${results.violations.length} violations (${results.passes.length} rules passed)`
-  })
+    type: "Accessibility",
+    description: `Best-practice scan: ${results.violations.length} violations (${results.passes.length} rules passed)`,
+  });
 
-  return results
+  return results;
 }
 
 /**
@@ -394,68 +421,76 @@ async function runWcagScan(
   page: Page,
   testInfo: TestInfo,
   opts: {
-    wcagTags: string[]
-    exclude: string[]
-    rules?: Record<string, { enabled: boolean }>
+    wcagTags: string[];
+    exclude: string[];
+    rules?: Record<string, { enabled: boolean }>;
   },
 ): Promise<axe.AxeResults> {
-  const builder = new AxeBuilder({ page })
-    .withTags(opts.wcagTags)
+  const builder = new AxeBuilder({ page }).withTags(opts.wcagTags);
 
   for (const selector of opts.exclude) {
-    builder.exclude(selector)
+    builder.exclude(selector);
   }
 
   if (opts.rules) {
-    builder.options({ rules: opts.rules })
+    builder.options({ rules: opts.rules });
   }
 
-  const results = await builder.analyze()
+  const results = await builder.analyze();
 
-  await testInfo.attach('a11y-wcag-scan-results', {
+  await testInfo.attach("a11y-wcag-scan-results", {
     body: JSON.stringify(results, null, 2),
-    contentType: 'application/json'
-  })
+    contentType: "application/json",
+  });
 
-  return results
+  return results;
 }
 
 /**
  * Take a full-page screenshot with violating elements highlighted and
  * attach it to the test report.
  */
-async function screenshotViolatingElements(page: Page, testInfo: TestInfo, results: axe.AxeResults) {
+async function screenshotViolatingElements(
+  page: Page,
+  testInfo: TestInfo,
+  results: axe.AxeResults,
+) {
   // Collect all raw CSS selectors from violation nodes.
   const selectors = results.violations
-    .flatMap(v => v.nodes)
-    .flatMap(n => n.target)
-    .filter((t): t is string => typeof t === 'string')
+    .flatMap((v) => v.nodes)
+    .flatMap((n) => n.target)
+    .filter((t): t is string => typeof t === "string");
 
-  if (selectors.length === 0) return
+  if (selectors.length === 0) return;
 
   // Inject highlight outlines on all violating elements.
   await page.evaluate((sels) => {
-    const style = document.createElement('style')
-    style.setAttribute('data-a11y-highlight', 'true')
+    const style = document.createElement("style");
+    style.setAttribute("data-a11y-highlight", "true");
     // Use a CSS rule for each selector so the outline persists even if
     // elements are repositioned during the screenshot.
-    const rules = sels.map(s => `${s} { outline: 3px solid #e53e3e !important; outline-offset: 2px !important; }`).join('\n')
-    style.textContent = rules
-    document.head.appendChild(style)
-  }, selectors)
+    const rules = sels
+      .map(
+        (s) =>
+          `${s} { outline: 3px solid #e53e3e !important; outline-offset: 2px !important; }`,
+      )
+      .join("\n");
+    style.textContent = rules;
+    document.head.appendChild(style);
+  }, selectors);
 
   try {
-    const screenshot = await page.screenshot({ fullPage: true })
+    const screenshot = await page.screenshot({ fullPage: true });
 
-    await testInfo.attach('a11y-violation-screenshot', {
+    await testInfo.attach("a11y-violation-screenshot", {
       body: screenshot,
-      contentType: 'image/png',
-    })
+      contentType: "image/png",
+    });
   } finally {
     // Remove the injected styles even if capture or report attachment fails.
     await page.evaluate(() => {
-      document.querySelector('style[data-a11y-highlight]')?.remove()
-    })
+      document.querySelector("style[data-a11y-highlight]")?.remove();
+    });
   }
 }
 
@@ -463,30 +498,32 @@ async function screenshotViolatingElements(page: Page, testInfo: TestInfo, resul
  * Assert violations against a baseline allowlist (in-code or on-disk).
  */
 function assertBaseline(ctx: ScanContext, baseline: AccessibilityBaseline) {
-  validateAccessibilityBaseline(baseline)
-  const { testInfo, results, scanLabel, expectFn } = ctx
-  const allViolations = extractNormalizedViolations(results)
-  const matchedBaselineIndices = new Set<number>()
-  const unmatchedViolations: typeof allViolations = []
+  validateAccessibilityBaseline(baseline);
+  const { testInfo, results, scanLabel, expectFn } = ctx;
+  const allViolations = extractNormalizedViolations(results);
+  const matchedBaselineIndices = new Set<number>();
+  const unmatchedViolations: typeof allViolations = [];
 
   for (const violation of allViolations) {
     const baselineIndex = baseline.findIndex((entry) => {
-      if (entry.rule !== violation.rule) return false
+      if (entry.rule !== violation.rule) return false;
       // Check for at least one overlapping normalized target.
-      return entry.targets.some(baselineTarget =>
-        violation.targets.some(violationTarget => violationTarget === baselineTarget)
-      )
-    })
+      return entry.targets.some((baselineTarget) =>
+        violation.targets.some(
+          (violationTarget) => violationTarget === baselineTarget,
+        ),
+      );
+    });
 
     if (baselineIndex >= 0) {
-      matchedBaselineIndices.add(baselineIndex)
-      const entry = baseline[baselineIndex]
+      matchedBaselineIndices.add(baselineIndex);
+      const entry = baseline[baselineIndex];
       testInfo.annotations.push({
-        type: 'Baselined a11y violation',
+        type: "Baselined a11y violation",
         description: `${entry.rule}: ${entry.reason} — ${entry.willBeFixedIn}`,
-      })
+      });
     } else {
-      unmatchedViolations.push(violation)
+      unmatchedViolations.push(violation);
     }
   }
 
@@ -494,23 +531,23 @@ function assertBaseline(ctx: ScanContext, baseline: AccessibilityBaseline) {
   baseline.forEach((entry, idx) => {
     if (!matchedBaselineIndices.has(idx)) {
       testInfo.annotations.push({
-        type: 'Stale a11y baseline entry',
-        description: `${entry.rule} on ${entry.targets.join(', ')} — no longer detected`,
-      })
+        type: "Stale a11y baseline entry",
+        description: `${entry.rule} on ${entry.targets.join(", ")} — no longer detected`,
+      });
     }
-  })
+  });
 
   // Summary annotation for baseline mode.
-  const baselinedCount = matchedBaselineIndices.size
+  const baselinedCount = matchedBaselineIndices.size;
   testInfo.annotations.push({
-    type: 'Accessibility',
+    type: "Accessibility",
     description: `${scanLabel}: ${unmatchedViolations.length} new violations (${baselinedCount} baselined)`,
-  })
+  });
 
   // Fail on unmatched violations with detailed output.
   if (unmatchedViolations.length > 0) {
-    const details = formatViolationDetails(results, unmatchedViolations)
-    expectFn(null, details).toBe('no accessibility violations')
+    const details = formatViolationDetails(results, unmatchedViolations);
+    expectFn(null, details).toBe("no accessibility violations");
   }
 }
 
@@ -518,32 +555,35 @@ function assertBaseline(ctx: ScanContext, baseline: AccessibilityBaseline) {
  * Assert via snapshot comparison (legacy mode for tests with committed snapshots).
  */
 async function assertSnapshot(ctx: ScanContext) {
-  const { testInfo, results, scan, expectFn } = ctx
+  const { testInfo, results, scan, expectFn } = ctx;
 
   // Match the legacy summary annotation phrasing for WCAG; best-practice's
   // pre-existing summary annotation is emitted in runBestPracticeScan.
-  if (scan === 'wcag') {
+  if (scan === "wcag") {
     testInfo.annotations.push({
-      type: 'Accessibility',
-      description: `WCAG scan: ${results.violations.length} violations (${results.passes.length} rules passed)`
-    })
+      type: "Accessibility",
+      description: `WCAG scan: ${results.violations.length} violations (${results.passes.length} rules passed)`,
+    });
 
     // If there are violations, attach baseline suggestions and push annotation.
     if (results.violations.length > 0) {
-      const allViolations = extractNormalizedViolations(results)
-      const suggestions = allViolations.map(v => formatBaselineSuggestion(v)).join('\n')
-      await testInfo.attach('a11y-baseline-suggestions', {
+      const allViolations = extractNormalizedViolations(results);
+      const suggestions = allViolations
+        .map((v) => formatBaselineSuggestion(v))
+        .join("\n");
+      await testInfo.attach("a11y-baseline-suggestions", {
         body: suggestions,
-        contentType: 'text/plain',
-      })
+        contentType: "text/plain",
+      });
       testInfo.annotations.push({
-        type: 'Accessibility',
-        description: 'To manage violations explicitly, switch to baseline mode. See a11y-baseline-suggestions attachment.',
-      })
+        type: "Accessibility",
+        description:
+          "To manage violations explicitly, switch to baseline mode. See a11y-baseline-suggestions attachment.",
+      });
     }
   }
 
-  return expectFn(violationFingerprints(results)).toMatchSnapshot()
+  return expectFn(violationFingerprints(results)).toMatchSnapshot();
 }
 
 /**
@@ -555,14 +595,28 @@ async function assertSnapshot(ctx: ScanContext) {
  * @param scrollLocator A locator to ensure is visible before taking the screenshot.
  * @param locator A specific locator to take the screenshot of. aXe still checks the whole page.
  */
-export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, options?: ScreenshotOptions, scrollLocator?: Locator, locator?: Locator|Page)  {
-  const screenshotOptions = options ?? {}
+export async function takeAccessibleScreenshot(
+  page: Page,
+  testInfo: TestInfo,
+  options?: ScreenshotOptions,
+  scrollLocator?: Locator,
+  locator?: Locator | Page,
+) {
+  const screenshotOptions = options ?? {};
 
-  if (screenshotOptions.clipLocator && (screenshotOptions.clip || (locator && locator !== page))) {
-    throw new Error('clipLocator cannot be combined with clip or a locator screenshot target.')
+  if (
+    screenshotOptions.clipLocator &&
+    (screenshotOptions.clip || (locator && locator !== page))
+  ) {
+    throw new Error(
+      "clipLocator cannot be combined with clip or a locator screenshot target.",
+    );
   }
-  if (screenshotOptions.clipLocator && screenshotOptions.clipLocator.page() !== page) {
-    throw new Error('clipLocator must belong to the screenshot page.')
+  if (
+    screenshotOptions.clipLocator &&
+    screenshotOptions.clipLocator.page() !== page
+  ) {
+    throw new Error("clipLocator must belong to the screenshot page.");
   }
 
   // The default is 5 seconds. However, even on a fast machine it can take
@@ -571,8 +625,8 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
   // typically below the viewport, and it's loaded by the time they scroll.
   // So, we set this to at least 10 seconds, unless it's already larger.
   // To test changing this, try running this command and see if it times out:
-  const interactionStates = screenshotOptions.interactionStates ?? []
-  validateInteractionStates(interactionStates)
+  const interactionStates = screenshotOptions.interactionStates ?? [];
+  validateInteractionStates(interactionStates);
 
   // Do not pass package-specific orchestration options to Playwright's matcher.
   const {
@@ -583,11 +637,11 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
     interactionStates: _interactionStates,
     stabilization,
     ...nativeScreenshotOptions
-  } = screenshotOptions
+  } = screenshotOptions;
   const playwrightScreenshotOptions = {
     ...nativeScreenshotOptions,
     timeout: Math.max(nativeScreenshotOptions.timeout ?? 0, 10000),
-  }
+  };
 
   // Blur any focused element so a stray focus ring does not make the screenshot
   // non-deterministic, unless the caller is intentionally capturing focus. Do
@@ -598,9 +652,10 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
     await blurActiveElement(page);
   }
 
-  let removeHoverShield = screenshotOptions.clearHover === false ? undefined : await clearHover(page);
-  let videoPlaybackRestored = false
-  let cleanupInteractionStates: (() => Promise<void>) | undefined
+  let removeHoverShield =
+    screenshotOptions.clearHover === false ? undefined : await clearHover(page);
+  let videoPlaybackRestored = false;
+  let cleanupInteractionStates: (() => Promise<void>) | undefined;
 
   try {
     await waitForFrames(page);
@@ -621,69 +676,96 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
     // A hover action cannot hit its target through the transparent shield used
     // to clear incidental hover. Remove it only after all stability waits, then
     // apply real hover before real focus so focusing cannot disturb the pointer.
-    const hasHover = interactionStates.some(({states}) => states.includes('hover'))
+    const hasHover = interactionStates.some(({ states }) =>
+      states.includes("hover"),
+    );
     if (hasHover) {
-      await removeHoverShield?.()
-      removeHoverShield = undefined
+      await removeHoverShield?.();
+      removeHoverShield = undefined;
     }
     if (interactionStates.length > 0) {
-      cleanupInteractionStates = await applyInteractionStates(interactionStates, {
-        clearHover: async () => {
-          const removeInteractionShield = await clearHover(page)
-          await removeInteractionShield()
+      cleanupInteractionStates = await applyInteractionStates(
+        interactionStates,
+        {
+          clearHover: async () => {
+            const removeInteractionShield = await clearHover(page);
+            await removeInteractionShield();
+          },
         },
-      })
+      );
     }
 
-    let locatorToScreenshot: Page|Locator = page;
+    let locatorToScreenshot: Page | Locator = page;
     if (locator) {
       locatorToScreenshot = locator;
     }
     if (screenshotOptions.clipLocator) {
-      await screenshotOptions.clipLocator.scrollIntoViewIfNeeded()
+      await screenshotOptions.clipLocator.scrollIntoViewIfNeeded();
       // Scrolling can expose lazy content. Await fonts and two paint frames
       // before measuring; the existing waits have already loaded page media.
-      await waitForFonts(page)
-      await page.evaluate(() => new Promise<void>(resolve =>
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))))
-      const bounds = await screenshotOptions.clipLocator.boundingBox()
-      if (!bounds) throw new Error('clipLocator has no visible bounding box.')
+      await waitForFonts(page);
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+          ),
+      );
+      const bounds = await screenshotOptions.clipLocator.boundingBox();
+      if (!bounds) throw new Error("clipLocator has no visible bounding box.");
       // boundingBox is in main-frame viewport coordinates, including for
       // locators inside frames. Read scroll offsets from the main page.
       const geometry = await page.evaluate(() => ({
-        x: window.scrollX, y: window.scrollY,
-        width: window.innerWidth, height: window.innerHeight,
-      }))
+        x: window.scrollX,
+        y: window.scrollY,
+        width: window.innerWidth,
+        height: window.innerHeight,
+      }));
       const clip = {
         x: Math.round(bounds.x + (screenshotOptions.fullPage ? geometry.x : 0)),
         y: Math.round(bounds.y + (screenshotOptions.fullPage ? geometry.y : 0)),
         width: Math.round(bounds.width),
         height: Math.round(bounds.height),
-      }
+      };
       if (clip.width <= 0 || clip.height <= 0) {
-        throw new Error('clipLocator must have positive rounded dimensions.')
+        throw new Error("clipLocator must have positive rounded dimensions.");
       }
-      if (!screenshotOptions.fullPage && (clip.x < 0 || clip.y < 0 || clip.x + clip.width > geometry.width || clip.y + clip.height > geometry.height)) {
-        throw new Error('clipLocator does not fit in the viewport; use fullPage: true to capture the whole target.')
+      if (
+        !screenshotOptions.fullPage &&
+        (clip.x < 0 ||
+          clip.y < 0 ||
+          clip.x + clip.width > geometry.width ||
+          clip.y + clip.height > geometry.height)
+      ) {
+        throw new Error(
+          "clipLocator does not fit in the viewport; use fullPage: true to capture the whole target.",
+        );
       }
       if (clip.x < 0 || clip.y < 0) {
-        throw new Error('clipLocator must have non-negative document coordinates.')
+        throw new Error(
+          "clipLocator must have non-negative document coordinates.",
+        );
       }
-      playwrightScreenshotOptions.clip = clip
+      playwrightScreenshotOptions.clip = clip;
     }
     // Soft failure here so we can get accessibility violations too.
-    await expect.soft(locatorToScreenshot).toHaveScreenshot(playwrightScreenshotOptions);
+    await expect
+      .soft(locatorToScreenshot)
+      .toHaveScreenshot(playwrightScreenshotOptions);
 
     // Settling a video pauses it, clears `autoplay` and rewinds it. That is only
     // wanted for the duration of the capture: a test that screenshots a page and
     // then asserts that a video is playing should still pass.
     await restoreVideoPlayback(page);
-    videoPlaybackRestored = true
+    videoPlaybackRestored = true;
 
-    await removeHoverShield?.()
-    removeHoverShield = undefined
+    await removeHoverShield?.();
+    removeHoverShield = undefined;
 
-    return await checkAccessibility(page, testInfo, screenshotOptions.accessibility)
+    return await checkAccessibility(
+      page,
+      testInfo,
+      screenshotOptions.accessibility,
+    );
   } finally {
     // Nest cleanup so a failure in one operation cannot prevent the remaining
     // browser state from being restored.
@@ -695,7 +777,7 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
           await restoreVideoPlayback(page);
         }
       } finally {
-        await cleanupInteractionStates?.()
+        await cleanupInteractionStates?.();
       }
     }
   }
@@ -709,37 +791,40 @@ export async function takeAccessibleScreenshot(page: Page, testInfo: TestInfo, o
  * deterministic across runs.
  */
 export function normalizeTarget(target: string | string[]): string | string[] {
-  const uniqueHtmlID = /(#[^#]*)--\d+/
-  const ariaLabelledById = /(aria-labelledby="[^"]+)--\d+"/
-  if (typeof target === 'string') {
+  const uniqueHtmlID = /(#[^#]*)--\d+/;
+  const ariaLabelledById = /(aria-labelledby="[^"]+)--\d+"/;
+  if (typeof target === "string") {
     return target
-      .replace(uniqueHtmlID, '$1--UNIQUE-ID')
-      .replace(ariaLabelledById, '$1--UNIQUE-ID"')
+      .replace(uniqueHtmlID, "$1--UNIQUE-ID")
+      .replace(ariaLabelledById, '$1--UNIQUE-ID"');
   }
-  return target
+  return target;
 }
 
 interface NormalizedViolation {
-  rule: string
-  targets: string[]
-  description: string
-  impact: string
-  helpUrl: string
+  rule: string;
+  targets: string[];
+  description: string;
+  impact: string;
+  helpUrl: string;
 }
 
 /**
  * Extract violations from axe results and normalize their targets into
  * flat, deduplicated CSS selector strings.
  */
-function extractNormalizedViolations(results: axe.AxeResults): NormalizedViolation[] {
-  return results.violations.map(violation => {
-    const flatTargets: string[] = []
+function extractNormalizedViolations(
+  results: axe.AxeResults,
+): NormalizedViolation[] {
+  return results.violations.map((violation) => {
+    const flatTargets: string[] = [];
     for (const node of violation.nodes) {
       for (const target of node.target) {
-        const normalized = normalizeTarget(target)
-        const str = typeof normalized === 'string' ? normalized : normalized.join(' ')
+        const normalized = normalizeTarget(target);
+        const str =
+          typeof normalized === "string" ? normalized : normalized.join(" ");
         if (!flatTargets.includes(str)) {
-          flatTargets.push(str)
+          flatTargets.push(str);
         }
       }
     }
@@ -747,43 +832,46 @@ function extractNormalizedViolations(results: axe.AxeResults): NormalizedViolati
       rule: violation.id,
       targets: flatTargets,
       description: violation.description,
-      impact: violation.impact ?? 'unknown',
+      impact: violation.impact ?? "unknown",
       helpUrl: violation.helpUrl,
-    }
-  })
+    };
+  });
 }
 
 /**
  * Format a single violation as a copy-pasteable baseline entry.
  */
 function formatBaselineSuggestion(violation: NormalizedViolation): string {
-  const targetsStr = violation.targets.map(t => `'${t}'`).join(', ')
+  const targetsStr = violation.targets.map((t) => `'${t}'`).join(", ");
   return `{
   rule: '${violation.rule}',
   targets: [${targetsStr}],
   reason: '',  // TODO: explain why this is accepted
   willBeFixedIn: '',  // TODO: link to tracking ticket
-},`
+},`;
 }
 
 /**
  * Format detailed failure output for unmatched violations, including
  * copy-pasteable baseline entries.
  */
-function formatViolationDetails(results: axe.AxeResults, violations: NormalizedViolation[]): string {
-  const lines: string[] = []
+function formatViolationDetails(
+  results: axe.AxeResults,
+  violations: NormalizedViolation[],
+): string {
+  const lines: string[] = [];
   for (const v of violations) {
-    const targetsStr = JSON.stringify(v.targets)
-    lines.push(`Accessibility violation (${v.impact}): ${v.rule}`)
-    lines.push(`  ${v.description}`)
-    lines.push(`  Help: ${v.helpUrl}`)
-    lines.push(`  Targets: ${targetsStr}`)
-    lines.push('')
-    lines.push('  Add to your baseline to accept this violation:')
-    lines.push('  ' + formatBaselineSuggestion(v).split('\n').join('\n  '))
-    lines.push('')
+    const targetsStr = JSON.stringify(v.targets);
+    lines.push(`Accessibility violation (${v.impact}): ${v.rule}`);
+    lines.push(`  ${v.description}`);
+    lines.push(`  Help: ${v.helpUrl}`);
+    lines.push(`  Targets: ${targetsStr}`);
+    lines.push("");
+    lines.push("  Add to your baseline to accept this violation:");
+    lines.push("  " + formatBaselineSuggestion(v).split("\n").join("\n  "));
+    lines.push("");
   }
-  return lines.join('\n')
+  return lines.join("\n");
 }
 
 /**
@@ -795,15 +883,16 @@ function formatViolationDetails(results: axe.AxeResults, violations: NormalizedV
  * @param accessibilityScanResults
  */
 function violationFingerprints(accessibilityScanResults: axe.AxeResults) {
-  const violationFps = accessibilityScanResults.violations.map(violation => ({
+  const violationFps = accessibilityScanResults.violations.map((violation) => ({
     rule: violation.id,
     // These are CSS selectors which uniquely identify each element with
     // a violation of the rule in question.
-    targets: violation.nodes.map(node => node.target.map((target) => {
-      return normalizeTarget(target)
-    })),
+    targets: violation.nodes.map((node) =>
+      node.target.map((target) => {
+        return normalizeTarget(target);
+      }),
+    ),
   }));
 
   return JSON.stringify(violationFps, null, 2);
-
 }

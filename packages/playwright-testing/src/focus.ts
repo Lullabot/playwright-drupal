@@ -1,4 +1,4 @@
-import {Page} from "@playwright/test";
+import { Page } from "@playwright/test";
 
 /**
  * Remove keyboard focus from the active element.
@@ -18,7 +18,12 @@ export async function blurActiveElement(page: Page): Promise<boolean> {
     // `document.activeElement` falls back to `<body>`/`<html>` when nothing is
     // focused. Blurring that paints no focus ring but can still fire `focusout`
     // handlers, so skip it and only blur a genuinely focused control.
-    if (!el || el === document.body || el === document.documentElement || typeof el.blur !== "function") {
+    if (
+      !el ||
+      el === document.body ||
+      el === document.documentElement ||
+      typeof el.blur !== "function"
+    ) {
       return false;
     }
     el.blur();

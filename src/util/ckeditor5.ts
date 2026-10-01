@@ -1,4 +1,4 @@
-import { FrameLocator, Page } from '@playwright/test';
+import { FrameLocator, Page } from "@playwright/test";
 
 /**
  * Return the select-all modifier key for a given platform.
@@ -6,8 +6,10 @@ import { FrameLocator, Page } from '@playwright/test';
  * Exported so unit tests can cover the platform branch without mocking
  * `process.platform`. Defaults to the current platform.
  */
-export function selectAllModifier(platform: NodeJS.Platform = process.platform): 'Meta' | 'Control' {
-  return platform === 'darwin' ? 'Meta' : 'Control';
+export function selectAllModifier(
+  platform: NodeJS.Platform = process.platform,
+): "Meta" | "Control" {
+  return platform === "darwin" ? "Meta" : "Control";
 }
 
 /**
@@ -67,13 +69,15 @@ export class Ckeditor5 {
    * regardless of whether the field was empty.
    */
   public async fill(text: string): Promise<void> {
-    const editable = this.root.locator(this.selector).locator('.ck-editor__editable');
-    await editable.waitFor({ state: 'visible', timeout: 15000 });
+    const editable = this.root
+      .locator(this.selector)
+      .locator(".ck-editor__editable");
+    await editable.waitFor({ state: "visible", timeout: 15000 });
     // Click places the caret inside the editable so the keyboard events
     // below land in CKEditor rather than the outer document.
     await editable.click();
     await this.page.keyboard.press(`${selectAllModifier()}+A`);
-    await this.page.keyboard.press('Backspace');
+    await this.page.keyboard.press("Backspace");
     // keyboard.type fires keydown/keypress/input events that CKEditor 5's
     // event pipeline processes. locator.fill() would set the DOM directly
     // and can be silently dropped on the next model re-render.

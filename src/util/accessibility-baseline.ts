@@ -1,7 +1,5 @@
-export {
-  defineAccessibilityBaseline,
-} from '@lullabot/playwright-testing'
+export { defineAccessibilityBaseline } from "@lullabot/playwright-testing";
 export type {
   AccessibilityBaseline,
   AccessibilityBaselineEntry,
-} from '@lullabot/playwright-testing'
+} from "@lullabot/playwright-testing";

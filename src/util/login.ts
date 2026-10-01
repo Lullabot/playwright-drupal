@@ -1,6 +1,6 @@
-import { Page } from '@playwright/test';
-import { execDrushInTestSite } from '../testcase/test';
-import { quote as shellQuote } from 'shell-quote';
+import { Page } from "@playwright/test";
+import { execDrushInTestSite } from "../testcase/test";
+import { quote as shellQuote } from "shell-quote";
 
 /**
  * Log in to Drupal using a one-time login link.
@@ -14,12 +14,12 @@ import { quote as shellQuote } from 'shell-quote';
  *   username (`--name=`); a number is treated as a user ID (`--uid=`).
  *   Defaults to the "admin" username.
  */
-export async function login(page: Page, user: string | number = 'admin') {
+export async function login(page: Page, user: string | number = "admin") {
   // Generate a one-time login link for the user. Numbers map to --uid so
   // callers that already have a uid from a prior Drush call can pass it
   // directly instead of round-tripping through a name lookup.
   const flag =
-    typeof user === 'number'
+    typeof user === "number"
       ? `--uid=${shellQuote([String(user)])}`
       : `--name=${shellQuote([user])}`;
   const result = await execDrushInTestSite(`user:login ${flag}`);
@@ -34,8 +34,10 @@ export async function login(page: Page, user: string | number = 'admin') {
   // (SSESS* for HTTPS, SESS* for HTTP). This is theme-independent and
   // unaffected by login redirect modules that change the destination URL.
   const cookies = await page.context().cookies();
-  const hasSession = cookies.some(c => /^S?SESS/.test(c.name));
+  const hasSession = cookies.some((c) => /^S?SESS/.test(c.name));
   if (!hasSession) {
-    throw new Error('Login failed: no Drupal session cookie found after one-time login.');
+    throw new Error(
+      "Login failed: no Drupal session cookie found after one-time login.",
+    );
   }
 }

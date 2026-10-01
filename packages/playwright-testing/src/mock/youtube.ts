@@ -1,12 +1,11 @@
-import type {Page} from '@playwright/test';
-import type {Mockable} from "../visualdiff.js";
+import type { Page } from "@playwright/test";
+import type { Mockable } from "../visualdiff.js";
 
 export class YoutubeMock implements Mockable {
-
   public async mock(page: Page): Promise<void> {
-    await page.route(/www\.youtube\.com/i, async route => {
+    await page.route(/www\.youtube\.com/i, async (route) => {
       await route.fulfill({
-        contentType: 'text/html',
+        contentType: "text/html",
         body: `
 <html>
 <head>
@@ -35,5 +34,4 @@ export class YoutubeMock implements Mockable {
       });
     });
   }
-
 }

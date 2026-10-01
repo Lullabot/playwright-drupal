@@ -1,4 +1,4 @@
-import {exec, execSync} from "./exec";
+import { exec, execSync } from "./exec";
 
 /**
  * Run task either inside of the web container or from the host.
@@ -7,7 +7,7 @@ import {exec, execSync} from "./exec";
  * @param options
  */
 export function taskSync(command: string, options?: any) {
-  return execSync('task', command, options);
+  return execSync("task", command, options);
 }
 
 /**
@@ -16,5 +16,5 @@ export function taskSync(command: string, options?: any) {
  * @param command
  */
 export function task(command: string) {
-  return exec('task', command);
+  return exec("task", command);
 }

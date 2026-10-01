@@ -1,16 +1,16 @@
-import { promises as fs } from 'fs'
-import path from 'path'
-import type { TestInfo } from '@playwright/test'
-import type { AccessibilityBaselineEntry } from './accessibility-baseline.js'
+import { promises as fs } from "fs";
+import path from "path";
+import type { TestInfo } from "@playwright/test";
+import type { AccessibilityBaselineEntry } from "./accessibility-baseline.js";
 
-export type ScanKind = 'wcag' | 'best-practice'
+export type ScanKind = "wcag" | "best-practice";
 
 export interface OnDiskBaselineFile {
-  note: string
-  violations: AccessibilityBaselineEntry[]
+  note: string;
+  violations: AccessibilityBaselineEntry[];
 }
 
-const scanInvocationCounters = new WeakMap<object, Map<ScanKind, number>>()
+const scanInvocationCounters = new WeakMap<object, Map<ScanKind, number>>();
 
 /**
  * Increment and return the 1-indexed invocation number for this scan kind
@@ -26,22 +26,22 @@ const scanInvocationCounters = new WeakMap<object, Map<ScanKind, number>>()
  * suite that reuses a mocked TestInfo.
  */
 export function nextAccessibilityScanCount(
-  testInfo: Pick<TestInfo, 'testId'> | object,
+  testInfo: Pick<TestInfo, "testId"> | object,
   scan: ScanKind,
 ): number {
-  const key = testInfo as object
-  let counts = scanInvocationCounters.get(key)
+  const key = testInfo as object;
+  let counts = scanInvocationCounters.get(key);
   if (!counts) {
-    counts = new Map()
-    scanInvocationCounters.set(key, counts)
+    counts = new Map();
+    scanInvocationCounters.set(key, counts);
   }
-  const n = (counts.get(scan) ?? 0) + 1
-  counts.set(scan, n)
-  return n
+  const n = (counts.get(scan) ?? 0) + 1;
+  counts.set(scan, n);
+  return n;
 }
 
 export function resetAccessibilityScanCounts(testInfo: object): void {
-  scanInvocationCounters.delete(testInfo)
+  scanInvocationCounters.delete(testInfo);
 }
 
 /**
@@ -53,30 +53,30 @@ export function resetAccessibilityScanCounts(testInfo: object): void {
  * polynomial backtracking on library-supplied input (CodeQL
  * js/polynomial-redos).
  */
-function slugifyTitle(testInfo: Pick<TestInfo, 'titlePath' | 'title'>): string {
-  const segments = testInfo.titlePath?.slice(1) ?? []
-  const raw = segments.length > 0 ? segments.join(' ') : testInfo.title
-  let out = ''
-  let lastWasHyphen = true // suppresses leading hyphen
+function slugifyTitle(testInfo: Pick<TestInfo, "titlePath" | "title">): string {
+  const segments = testInfo.titlePath?.slice(1) ?? [];
+  const raw = segments.length > 0 ? segments.join(" ") : testInfo.title;
+  let out = "";
+  let lastWasHyphen = true; // suppresses leading hyphen
   for (let i = 0; i < raw.length; i++) {
-    const code = raw.charCodeAt(i)
-    const isLowerAlpha = code >= 97 && code <= 122 // a-z
-    const isUpperAlpha = code >= 65 && code <= 90 // A-Z
-    const isDigit = code >= 48 && code <= 57 // 0-9
+    const code = raw.charCodeAt(i);
+    const isLowerAlpha = code >= 97 && code <= 122; // a-z
+    const isUpperAlpha = code >= 65 && code <= 90; // A-Z
+    const isDigit = code >= 48 && code <= 57; // 0-9
     if (isLowerAlpha || isDigit) {
-      out += raw[i]
-      lastWasHyphen = false
+      out += raw[i];
+      lastWasHyphen = false;
     } else if (isUpperAlpha) {
-      out += String.fromCharCode(code + 32)
-      lastWasHyphen = false
+      out += String.fromCharCode(code + 32);
+      lastWasHyphen = false;
     } else if (!lastWasHyphen) {
-      out += '-'
-      lastWasHyphen = true
+      out += "-";
+      lastWasHyphen = true;
     }
   }
   // Trim trailing hyphen.
-  if (out.endsWith('-')) out = out.slice(0, -1)
-  return out
+  if (out.endsWith("-")) out = out.slice(0, -1);
+  return out;
 }
 
 /**
@@ -88,28 +88,30 @@ function slugifyTitle(testInfo: Pick<TestInfo, 'titlePath' | 'title'>): string {
  * `sanitizeForFilePath()`. Very long titles, which Playwright truncates
  * and hashes, are not handled.
  */
-function playwrightSnapshotStem(testInfo: Pick<TestInfo, 'titlePath' | 'title'>): string {
-  const segments = testInfo.titlePath?.slice(1) ?? []
-  const raw = segments.length > 0 ? segments.join(' ') : testInfo.title
-  let out = ''
-  let lastWasReplaced = false
+function playwrightSnapshotStem(
+  testInfo: Pick<TestInfo, "titlePath" | "title">,
+): string {
+  const segments = testInfo.titlePath?.slice(1) ?? [];
+  const raw = segments.length > 0 ? segments.join(" ") : testInfo.title;
+  let out = "";
+  let lastWasReplaced = false;
   for (let i = 0; i < raw.length; i++) {
-    const code = raw.charCodeAt(i)
+    const code = raw.charCodeAt(i);
     const replaced =
       code <= 0x2c ||
       (code >= 0x2e && code <= 0x2f) ||
       (code >= 0x3a && code <= 0x40) ||
       (code >= 0x5b && code <= 0x60) ||
-      (code >= 0x7b && code <= 0x7f)
+      (code >= 0x7b && code <= 0x7f);
     if (replaced) {
-      if (!lastWasReplaced) out += '-'
-      lastWasReplaced = true
+      if (!lastWasReplaced) out += "-";
+      lastWasReplaced = true;
     } else {
-      out += raw[i]
-      lastWasReplaced = false
+      out += raw[i];
+      lastWasReplaced = false;
     }
   }
-  return out
+  return out;
 }
 
 /**
@@ -127,13 +129,14 @@ function playwrightSnapshotStem(testInfo: Pick<TestInfo, 'titlePath' | 'title'>)
  * for its auto-counter naming — so we build the stem ourselves.
  */
 export function baselineFilePath(
-  testInfo: Pick<TestInfo, 'snapshotPath' | 'titlePath' | 'title'>,
+  testInfo: Pick<TestInfo, "snapshotPath" | "titlePath" | "title">,
   scan: ScanKind,
   callCount: number,
 ): string {
-  const slug = slugifyTitle(testInfo)
-  const suffix = scan === 'wcag' ? 'a11y-baseline' : 'a11y-baseline-best-practice'
-  return testInfo.snapshotPath(`${slug}-${callCount}.${suffix}.json`)
+  const slug = slugifyTitle(testInfo);
+  const suffix =
+    scan === "wcag" ? "a11y-baseline" : "a11y-baseline-best-practice";
+  return testInfo.snapshotPath(`${slug}-${callCount}.${suffix}.json`);
 }
 
 /**
@@ -143,66 +146,87 @@ export function baselineFilePath(
  * defaulting new (snapshotless) tests into on-disk baseline mode.
  */
 export async function snapshotExists(
-  testInfo: Pick<TestInfo, 'snapshotPath' | 'titlePath' | 'title'>,
+  testInfo: Pick<TestInfo, "snapshotPath" | "titlePath" | "title">,
 ): Promise<boolean> {
-  const dir = path.dirname(testInfo.snapshotPath('a11y-baseline-probe'))
-  let entries: string[]
+  const dir = path.dirname(testInfo.snapshotPath("a11y-baseline-probe"));
+  let entries: string[];
   try {
-    entries = await fs.readdir(dir)
+    entries = await fs.readdir(dir);
   } catch (err: any) {
-    if (err?.code === 'ENOENT') return false
-    throw err
+    if (err?.code === "ENOENT") return false;
+    throw err;
   }
   // Playwright names snapshots `<stem>-<counter>[-<project>-<platform>].txt`.
   // Require the counter so a title that merely extends this one (e.g.
   // "Video" vs "Video Promo") is not mistaken for this test's snapshot.
-  const prefix = `${playwrightSnapshotStem(testInfo)}-`
-  return entries.some(name => {
-    if (!name.startsWith(prefix) || !name.endsWith('.txt')) return false
-    let i = prefix.length
-    while (i < name.length && name.charCodeAt(i) >= 48 && name.charCodeAt(i) <= 57) i++
-    return i > prefix.length && (name[i] === '-' || name[i] === '.')
-  })
+  const prefix = `${playwrightSnapshotStem(testInfo)}-`;
+  return entries.some((name) => {
+    if (!name.startsWith(prefix) || !name.endsWith(".txt")) return false;
+    let i = prefix.length;
+    while (
+      i < name.length &&
+      name.charCodeAt(i) >= 48 &&
+      name.charCodeAt(i) <= 57
+    )
+      i++;
+    return i > prefix.length && (name[i] === "-" || name[i] === ".");
+  });
 }
 
-export async function readBaselineFile(filePath: string): Promise<OnDiskBaselineFile | null> {
-  let raw: string
+export async function readBaselineFile(
+  filePath: string,
+): Promise<OnDiskBaselineFile | null> {
+  let raw: string;
   try {
-    raw = await fs.readFile(filePath, 'utf8')
+    raw = await fs.readFile(filePath, "utf8");
   } catch (err: any) {
-    if (err?.code === 'ENOENT') return null
-    throw err
+    if (err?.code === "ENOENT") return null;
+    throw err;
   }
   try {
-    const parsed = JSON.parse(raw)
-    if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.violations)) {
-      throw new Error('expected an object with a "violations" array')
+    const parsed = JSON.parse(raw);
+    if (
+      !parsed ||
+      typeof parsed !== "object" ||
+      !Array.isArray(parsed.violations)
+    ) {
+      throw new Error('expected an object with a "violations" array');
     }
     return {
-      note: typeof parsed.note === 'string' ? parsed.note : '',
+      note: typeof parsed.note === "string" ? parsed.note : "",
       violations: parsed.violations as AccessibilityBaselineEntry[],
-    }
+    };
   } catch (err) {
-    throw new Error(`Malformed baseline file at ${filePath}: ${(err as Error).message}`)
+    throw new Error(
+      `Malformed baseline file at ${filePath}: ${(err as Error).message}`,
+      { cause: err },
+    );
   }
 }
 
-export async function writeBaselineFile(filePath: string, data: OnDiskBaselineFile): Promise<void> {
-  await fs.mkdir(path.dirname(filePath), { recursive: true })
+export async function writeBaselineFile(
+  filePath: string,
+  data: OnDiskBaselineFile,
+): Promise<void> {
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
   try {
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2) + '\n', { flag: 'wx' })
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2) + "\n", {
+      flag: "wx",
+    });
   } catch (err: any) {
-    if (err?.code === 'EEXIST') return
-    throw err
+    if (err?.code === "EEXIST") return;
+    throw err;
   }
 }
 
-export function buildSeed(violations: AccessibilityBaselineEntry[]): OnDiskBaselineFile {
+export function buildSeed(
+  violations: AccessibilityBaselineEntry[],
+): OnDiskBaselineFile {
   if (violations.length === 0) {
-    return { note: 'No accessibility violations found', violations: [] }
+    return { note: "No accessibility violations found", violations: [] };
   }
   return {
-    note: 'TODO: fill in reason and willBeFixedIn for each entry before committing.',
+    note: "TODO: fill in reason and willBeFixedIn for each entry before committing.",
     violations,
-  }
+  };
 }

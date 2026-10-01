@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Page } from "@playwright/test";
 
 /**
  * Entity-ID resolution that survives path-aliased save redirects.
@@ -28,7 +28,9 @@ export async function extractEntityIdFromPage(
   if (directMatch) return directMatch;
   const currentPath = await page
     .evaluate(() => {
-      const w = window as unknown as { drupalSettings?: { path?: { currentPath?: string } } };
+      const w = window as unknown as {
+        drupalSettings?: { path?: { currentPath?: string } };
+      };
       return w.drupalSettings?.path?.currentPath ?? null;
     })
     .catch(() => null);
@@ -37,7 +39,7 @@ export async function extractEntityIdFromPage(
   const editHref = await page
     .locator(`a[href*="/${entityType}/"][href*="/edit"]`)
     .first()
-    .getAttribute('href')
+    .getAttribute("href")
     .catch(() => null);
   return editHref?.match(pattern)?.[1];
 }

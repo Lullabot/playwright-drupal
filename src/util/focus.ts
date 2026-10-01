@@ -1,1 +1,1 @@
-export { blurActiveElement } from '@lullabot/playwright-testing'
+export { blurActiveElement } from "@lullabot/playwright-testing";

@@ -1,4 +1,4 @@
-import {exec, execSync} from "./exec";
+import { exec, execSync } from "./exec";
 
 /**
  * Run task either inside of the web container or from the host.
@@ -7,7 +7,7 @@ import {exec, execSync} from "./exec";
  * @param options
  */
 export function drushSync(command: string, options?: any) {
-  return execSync('drush', command, options);
+  return execSync("drush", command, options);
 }
 
 /**
@@ -16,6 +16,5 @@ export function drushSync(command: string, options?: any) {
  * @param command
  */
 export function drush(command: string) {
-  return exec('drush', command);
+  return exec("drush", command);
 }
-

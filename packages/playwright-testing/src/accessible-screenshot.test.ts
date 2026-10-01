@@ -1,52 +1,65 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock AxeBuilder — must be hoisted since vi.mock is hoisted
-const { mockWithTags, mockExclude, mockOptions, mockAnalyze, MockAxeBuilder } = vi.hoisted(() => {
-  const mockWithTags = vi.fn().mockReturnThis()
-  const mockExclude = vi.fn().mockReturnThis()
-  const mockOptions = vi.fn().mockReturnThis()
-  const mockAnalyze = vi.fn()
+const { mockWithTags, mockExclude, mockOptions, mockAnalyze, MockAxeBuilder } =
+  vi.hoisted(() => {
+    const mockWithTags = vi.fn().mockReturnThis();
+    const mockExclude = vi.fn().mockReturnThis();
+    const mockOptions = vi.fn().mockReturnThis();
+    const mockAnalyze = vi.fn();
 
-  class MockAxeBuilder {
-    withTags = mockWithTags
-    exclude = mockExclude
-    options = mockOptions
-    analyze = mockAnalyze
-    constructor(_args: any) {}
-  }
+    class MockAxeBuilder {
+      withTags = mockWithTags;
+      exclude = mockExclude;
+      options = mockOptions;
+      analyze = mockAnalyze;
+    }
 
-  return { mockWithTags, mockExclude, mockOptions, mockAnalyze, MockAxeBuilder }
-})
+    return {
+      mockWithTags,
+      mockExclude,
+      mockOptions,
+      mockAnalyze,
+      MockAxeBuilder,
+    };
+  });
 
-vi.mock('@axe-core/playwright', () => ({
+vi.mock("@axe-core/playwright", () => ({
   default: MockAxeBuilder,
-}))
+}));
 
 // Mock @playwright/test — use vi.hoisted to define values before the hoisted vi.mock call
-const { mockToMatchSnapshot, mockToHaveScreenshot, mockExpectSoft, mockExpectHard } = vi.hoisted(() => {
-  const mockToMatchSnapshot = vi.fn()
-  const mockToHaveScreenshot = vi.fn()
-  const mockExpectSoft = vi.fn(() => ({
-    toMatchSnapshot: mockToMatchSnapshot,
-    toHaveScreenshot: mockToHaveScreenshot,
-  }))
-  const mockExpectHard = vi.fn(() => ({
-    toMatchSnapshot: mockToMatchSnapshot,
-  }))
-  return { mockToMatchSnapshot, mockToHaveScreenshot, mockExpectSoft, mockExpectHard }
-})
+const { mockToHaveScreenshot, mockExpectSoft, mockExpectHard } = vi.hoisted(
+  () => {
+    const mockToMatchSnapshot = vi.fn();
+    const mockToHaveScreenshot = vi.fn();
+    const mockExpectSoft = vi.fn(() => ({
+      toMatchSnapshot: mockToMatchSnapshot,
+      toHaveScreenshot: mockToHaveScreenshot,
+    }));
+    const mockExpectHard = vi.fn(() => ({
+      toMatchSnapshot: mockToMatchSnapshot,
+    }));
+    return {
+      mockToMatchSnapshot,
+      mockToHaveScreenshot,
+      mockExpectSoft,
+      mockExpectHard,
+    };
+  },
+);
 
-vi.mock('@playwright/test', () => {
+vi.mock("@playwright/test", () => {
   const expectFn = Object.assign(mockExpectHard, {
     soft: mockExpectSoft,
-  })
+  });
   return {
     expect: expectFn,
     Locator: {},
     Page: {},
     TestInfo: {},
-  }
-})
+  };
+});
 
 const {
   mockWaitForAllImages,
@@ -66,532 +79,647 @@ const {
   mockBlurActiveElement: vi.fn(),
   mockClearHover: vi.fn(),
   mockRemoveHoverShield: vi.fn(),
-}))
+}));
 
-vi.mock('./images', () => ({ waitForAllImages: mockWaitForAllImages }))
-vi.mock('./frames', () => ({ waitForFrames: mockWaitForFrames }))
-vi.mock('./fonts', () => ({ waitForFonts: mockWaitForFonts }))
-vi.mock('./videos', () => ({
+vi.mock("./images", () => ({ waitForAllImages: mockWaitForAllImages }));
+vi.mock("./frames", () => ({ waitForFrames: mockWaitForFrames }));
+vi.mock("./fonts", () => ({ waitForFonts: mockWaitForFonts }));
+vi.mock("./videos", () => ({
   waitForVideos: mockWaitForVideos,
   restoreVideoPlayback: mockRestoreVideoPlayback,
-}))
-vi.mock('./focus', () => ({ blurActiveElement: mockBlurActiveElement }))
-vi.mock('./hover', () => ({ clearHover: mockClearHover }))
+}));
+vi.mock("./focus", () => ({ blurActiveElement: mockBlurActiveElement }));
+vi.mock("./hover", () => ({ clearHover: mockClearHover }));
 
-import { checkAccessibility, takeAccessibleScreenshot } from './accessible-screenshot'
-import AxeBuilder from '@axe-core/playwright'
+import {
+  checkAccessibility,
+  takeAccessibleScreenshot,
+} from "./accessible-screenshot";
 
-function makeAxeResults(overrides?: Partial<{ violations: any[], passes: any[] }>) {
+function makeAxeResults(
+  overrides?: Partial<{ violations: any[]; passes: any[] }>,
+) {
   return {
     violations: [],
     passes: [],
     incomplete: [],
     inapplicable: [],
     ...overrides,
-  }
+  };
 }
 
 function makeTestInfo() {
   return {
     testId: `mocked-${Math.random()}`,
-    title: 'mocked test',
-    titlePath: ['file.spec.ts', 'mocked test'],
-    annotations: [] as Array<{ type: string, description?: string }>,
+    title: "mocked test",
+    titlePath: ["file.spec.ts", "mocked test"],
+    annotations: [] as Array<{ type: string; description?: string }>,
     attach: vi.fn().mockResolvedValue(undefined),
-    snapshotPath: (...segs: string[]) => `/tmp/__a11y_test_snapshots__/${segs.join('/')}`,
-    config: { updateSnapshots: 'all' as const },
-    project: { name: 'desktop chromium' },
-  }
+    snapshotPath: (...segs: string[]) =>
+      `/tmp/__a11y_test_snapshots__/${segs.join("/")}`,
+    config: { updateSnapshots: "all" as const },
+    project: { name: "desktop chromium" },
+  };
 }
 
-describe('checkAccessibility', () => {
+describe("checkAccessibility", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    mockAnalyze.mockResolvedValue(makeAxeResults())
-    mockClearHover.mockResolvedValue(mockRemoveHoverShield)
-  })
+    vi.clearAllMocks();
+    mockAnalyze.mockResolvedValue(makeAxeResults());
+    mockClearHover.mockResolvedValue(mockRemoveHoverShield);
+  });
 
-  it('uses default WCAG tags when none provided', async () => {
-    const testInfo = makeTestInfo()
-    await checkAccessibility({} as any, testInfo as any)
+  it("uses default WCAG tags when none provided", async () => {
+    const testInfo = makeTestInfo();
+    await checkAccessibility({} as any, testInfo as any);
 
-    expect(mockWithTags).toHaveBeenCalledWith(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-  })
+    expect(mockWithTags).toHaveBeenCalledWith([
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa",
+    ]);
+  });
 
-  it('respects custom wcagTags', async () => {
-    const testInfo = makeTestInfo()
+  it("respects custom wcagTags", async () => {
+    const testInfo = makeTestInfo();
     await checkAccessibility({} as any, testInfo as any, {
-      wcagTags: ['wcag22aa'],
-    })
+      wcagTags: ["wcag22aa"],
+    });
 
-    expect(mockWithTags).toHaveBeenCalledWith(['wcag22aa'])
-  })
+    expect(mockWithTags).toHaveBeenCalledWith(["wcag22aa"]);
+  });
 
-  it('respects exclude option — adds extra .exclude() calls', async () => {
-    const testInfo = makeTestInfo()
+  it("respects exclude option — adds extra .exclude() calls", async () => {
+    const testInfo = makeTestInfo();
     await checkAccessibility({} as any, testInfo as any, {
-      exclude: ['.my-selector', '#another'],
-    })
+      exclude: [".my-selector", "#another"],
+    });
 
-    expect(mockExclude).toHaveBeenCalledWith('.my-selector')
-    expect(mockExclude).toHaveBeenCalledWith('#another')
-  })
+    expect(mockExclude).toHaveBeenCalledWith(".my-selector");
+    expect(mockExclude).toHaveBeenCalledWith("#another");
+  });
 
-  it('skips best-practice scan when bestPracticeMode is off', async () => {
-    const testInfo = makeTestInfo()
+  it("skips best-practice scan when bestPracticeMode is off", async () => {
+    const testInfo = makeTestInfo();
     await checkAccessibility({} as any, testInfo as any, {
-      bestPracticeMode: 'off',
-    })
+      bestPracticeMode: "off",
+    });
 
     // withTags should only be called once (for the WCAG scan, not best-practice)
-    expect(mockWithTags).toHaveBeenCalledTimes(1)
-    expect(mockWithTags).not.toHaveBeenCalledWith(['best-practice'])
-    expect(mockWithTags).toHaveBeenCalledWith(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-  })
+    expect(mockWithTags).toHaveBeenCalledTimes(1);
+    expect(mockWithTags).not.toHaveBeenCalledWith(["best-practice"]);
+    expect(mockWithTags).toHaveBeenCalledWith([
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa",
+    ]);
+  });
 
-  it('always uses expect.soft() for best-practice so WCAG scan runs even in hard mode', async () => {
-    const testInfo = makeTestInfo()
+  it("always uses expect.soft() for best-practice so WCAG scan runs even in hard mode", async () => {
+    const testInfo = makeTestInfo();
     await checkAccessibility({} as any, testInfo as any, {
-      bestPracticeMode: 'hard',
-    })
+      bestPracticeMode: "hard",
+    });
 
     // Best-practice always uses expect.soft() so the WCAG scan is never blocked
-    expect(mockExpectSoft).toHaveBeenCalled()
+    expect(mockExpectSoft).toHaveBeenCalled();
     // WCAG uses expect() (hard)
-    expect(mockExpectHard).toHaveBeenCalled()
-  })
+    expect(mockExpectHard).toHaveBeenCalled();
+  });
 
-  it('uses expect.soft() when bestPracticeMode is soft (default)', async () => {
-    const testInfo = makeTestInfo()
-    await checkAccessibility({} as any, testInfo as any)
+  it("uses expect.soft() when bestPracticeMode is soft (default)", async () => {
+    const testInfo = makeTestInfo();
+    await checkAccessibility({} as any, testInfo as any);
 
     // Best-practice scan should use expect.soft()
-    expect(mockExpectSoft).toHaveBeenCalled()
-  })
+    expect(mockExpectSoft).toHaveBeenCalled();
+  });
 
-  it('has no framework-specific exclusions by default', async () => {
-    const testInfo = makeTestInfo()
-    await checkAccessibility({} as any, testInfo as any)
+  it("has no framework-specific exclusions by default", async () => {
+    const testInfo = makeTestInfo();
+    await checkAccessibility({} as any, testInfo as any);
 
-    expect(mockExclude).not.toHaveBeenCalled()
-  })
+    expect(mockExclude).not.toHaveBeenCalled();
+  });
 
-  it('supports scan-specific explicit exclusions', async () => {
-    const testInfo = makeTestInfo()
+  it("supports scan-specific explicit exclusions", async () => {
+    const testInfo = makeTestInfo();
     await checkAccessibility({} as any, testInfo as any, {
-      bestPracticeExclude: ['.best-practice-only'],
-      wcagExclude: ['.wcag-only'],
-    })
+      bestPracticeExclude: [".best-practice-only"],
+      wcagExclude: [".wcag-only"],
+    });
 
-    expect(mockExclude).toHaveBeenCalledWith('.best-practice-only')
-    expect(mockExclude).toHaveBeenCalledWith('.wcag-only')
-  })
+    expect(mockExclude).toHaveBeenCalledWith(".best-practice-only");
+    expect(mockExclude).toHaveBeenCalledWith(".wcag-only");
+  });
 
-  it('passes rules to AxeBuilder .options()', async () => {
-    const testInfo = makeTestInfo()
-    const rules = { 'color-contrast': { enabled: false } }
-    await checkAccessibility({} as any, testInfo as any, { rules })
+  it("passes rules to AxeBuilder .options()", async () => {
+    const testInfo = makeTestInfo();
+    const rules = { "color-contrast": { enabled: false } };
+    await checkAccessibility({} as any, testInfo as any, { rules });
 
-    expect(mockOptions).toHaveBeenCalledWith({ rules })
+    expect(mockOptions).toHaveBeenCalledWith({ rules });
     // Called twice: once for best-practice, once for WCAG
-    expect(mockOptions).toHaveBeenCalledTimes(2)
-  })
+    expect(mockOptions).toHaveBeenCalledTimes(2);
+  });
 
-  it('pushes @a11y annotation and deduplicates on second call', async () => {
-    const testInfo = makeTestInfo()
+  it("pushes @a11y annotation and deduplicates on second call", async () => {
+    const testInfo = makeTestInfo();
 
-    await checkAccessibility({} as any, testInfo as any)
-    const a11yAnnotations = testInfo.annotations.filter((a: any) => a.type === '@a11y')
-    expect(a11yAnnotations).toHaveLength(1)
+    await checkAccessibility({} as any, testInfo as any);
+    const a11yAnnotations = testInfo.annotations.filter(
+      (a: any) => a.type === "@a11y",
+    );
+    expect(a11yAnnotations).toHaveLength(1);
 
     // Call again — should not duplicate
-    await checkAccessibility({} as any, testInfo as any)
-    const a11yAnnotationsAfter = testInfo.annotations.filter((a: any) => a.type === '@a11y')
-    expect(a11yAnnotationsAfter).toHaveLength(1)
-  })
+    await checkAccessibility({} as any, testInfo as any);
+    const a11yAnnotationsAfter = testInfo.annotations.filter(
+      (a: any) => a.type === "@a11y",
+    );
+    expect(a11yAnnotationsAfter).toHaveLength(1);
+  });
 
-  it('pushes summary annotations after each scan', async () => {
+  it("pushes summary annotations after each scan", async () => {
     const bestPracticeResults = makeAxeResults({
-      violations: [{ id: 'rule1', nodes: [] }],
-      passes: [{ id: 'rule2' }, { id: 'rule3' }],
-    })
+      violations: [{ id: "rule1", nodes: [] }],
+      passes: [{ id: "rule2" }, { id: "rule3" }],
+    });
     const wcagResults = makeAxeResults({
       violations: [],
-      passes: [{ id: 'rule4' }],
-    })
+      passes: [{ id: "rule4" }],
+    });
 
     mockAnalyze
       .mockResolvedValueOnce(bestPracticeResults)
-      .mockResolvedValueOnce(wcagResults)
+      .mockResolvedValueOnce(wcagResults);
 
-    const testInfo = makeTestInfo()
-    await checkAccessibility({} as any, testInfo as any)
+    const testInfo = makeTestInfo();
+    await checkAccessibility({} as any, testInfo as any);
 
-    const accessibilityAnnotations = testInfo.annotations.filter((a: any) => a.type === 'Accessibility')
-    expect(accessibilityAnnotations).toHaveLength(2)
-    expect(accessibilityAnnotations[0].description).toBe('Best-practice scan: 1 violations (2 rules passed)')
-    expect(accessibilityAnnotations[1].description).toBe('WCAG scan: 0 violations (1 rules passed)')
-  })
+    const accessibilityAnnotations = testInfo.annotations.filter(
+      (a: any) => a.type === "Accessibility",
+    );
+    expect(accessibilityAnnotations).toHaveLength(2);
+    expect(accessibilityAnnotations[0].description).toBe(
+      "Best-practice scan: 1 violations (2 rules passed)",
+    );
+    expect(accessibilityAnnotations[1].description).toBe(
+      "WCAG scan: 0 violations (1 rules passed)",
+    );
+  });
 
-  it('skips best-practice summary annotation when bestPracticeMode is off', async () => {
-    const testInfo = makeTestInfo()
+  it("skips best-practice summary annotation when bestPracticeMode is off", async () => {
+    const testInfo = makeTestInfo();
     await checkAccessibility({} as any, testInfo as any, {
-      bestPracticeMode: 'off',
-    })
+      bestPracticeMode: "off",
+    });
 
-    const accessibilityAnnotations = testInfo.annotations.filter((a: any) => a.type === 'Accessibility')
-    expect(accessibilityAnnotations).toHaveLength(1)
-    expect(accessibilityAnnotations[0].description).toContain('WCAG scan')
-  })
+    const accessibilityAnnotations = testInfo.annotations.filter(
+      (a: any) => a.type === "Accessibility",
+    );
+    expect(accessibilityAnnotations).toHaveLength(1);
+    expect(accessibilityAnnotations[0].description).toContain("WCAG scan");
+  });
 
-  it('attaches a violation screenshot when screenshotViolations is true and violations exist', async () => {
+  it("attaches a violation screenshot when screenshotViolations is true and violations exist", async () => {
     const wcagResults = makeAxeResults({
-      violations: [{
-        id: 'color-contrast',
-        description: 'test',
-        impact: 'serious',
-        helpUrl: 'https://example.com',
-        nodes: [{ target: ['.bad-element'] }],
-      }],
-    })
+      violations: [
+        {
+          id: "color-contrast",
+          description: "test",
+          impact: "serious",
+          helpUrl: "https://example.com",
+          nodes: [{ target: [".bad-element"] }],
+        },
+      ],
+    });
 
     mockAnalyze
       .mockResolvedValueOnce(makeAxeResults()) // best-practice
-      .mockResolvedValueOnce(wcagResults)       // WCAG
+      .mockResolvedValueOnce(wcagResults); // WCAG
 
     const mockPage = {
       evaluate: vi.fn().mockResolvedValue(undefined),
-      screenshot: vi.fn().mockResolvedValue(Buffer.from('fake-png')),
-    }
-    const testInfo = makeTestInfo()
+      screenshot: vi.fn().mockResolvedValue(Buffer.from("fake-png")),
+    };
+    const testInfo = makeTestInfo();
 
     await checkAccessibility(mockPage as any, testInfo as any, {
       screenshotViolations: true,
-    })
+    });
 
     // Should have injected highlight styles and then removed them.
-    expect(mockPage.evaluate).toHaveBeenCalledTimes(2)
+    expect(mockPage.evaluate).toHaveBeenCalledTimes(2);
     // Should have taken a full-page screenshot.
-    expect(mockPage.screenshot).toHaveBeenCalledWith({ fullPage: true })
+    expect(mockPage.screenshot).toHaveBeenCalledWith({ fullPage: true });
     // Should have attached the screenshot.
-    expect(testInfo.attach).toHaveBeenCalledWith('a11y-violation-screenshot', {
-      body: Buffer.from('fake-png'),
-      contentType: 'image/png',
-    })
-  })
+    expect(testInfo.attach).toHaveBeenCalledWith("a11y-violation-screenshot", {
+      body: Buffer.from("fake-png"),
+      contentType: "image/png",
+    });
+  });
 
-  it('removes violation highlights when attaching the screenshot fails', async () => {
+  it("removes violation highlights when attaching the screenshot fails", async () => {
     const wcagResults = makeAxeResults({
-      violations: [{
-        id: 'image-alt',
-        description: 'test',
-        impact: 'serious',
-        helpUrl: 'https://example.com',
-        nodes: [{target: ['img']}],
-      }],
-    })
+      violations: [
+        {
+          id: "image-alt",
+          description: "test",
+          impact: "serious",
+          helpUrl: "https://example.com",
+          nodes: [{ target: ["img"] }],
+        },
+      ],
+    });
     mockAnalyze
       .mockResolvedValueOnce(makeAxeResults())
-      .mockResolvedValueOnce(wcagResults)
+      .mockResolvedValueOnce(wcagResults);
     const page = {
       evaluate: vi.fn().mockResolvedValue(undefined),
-      screenshot: vi.fn().mockResolvedValue(Buffer.from('fake-png')),
-    }
-    const testInfo = makeTestInfo()
+      screenshot: vi.fn().mockResolvedValue(Buffer.from("fake-png")),
+    };
+    const testInfo = makeTestInfo();
     testInfo.attach.mockImplementation((name: string) =>
-      name === 'a11y-violation-screenshot'
-        ? Promise.reject(new Error('attach failed'))
-        : Promise.resolve()
-    )
+      name === "a11y-violation-screenshot"
+        ? Promise.reject(new Error("attach failed"))
+        : Promise.resolve(),
+    );
 
-    await expect(checkAccessibility(page as any, testInfo as any)).rejects.toThrow('attach failed')
+    await expect(
+      checkAccessibility(page as any, testInfo as any),
+    ).rejects.toThrow("attach failed");
 
-    expect(page.evaluate).toHaveBeenCalledTimes(2)
-  })
+    expect(page.evaluate).toHaveBeenCalledTimes(2);
+  });
 
-  it('does not take a screenshot when screenshotViolations is true but no violations', async () => {
+  it("does not take a screenshot when screenshotViolations is true but no violations", async () => {
     const mockPage = {
       evaluate: vi.fn(),
       screenshot: vi.fn(),
-    }
-    const testInfo = makeTestInfo()
+    };
+    const testInfo = makeTestInfo();
 
     await checkAccessibility(mockPage as any, testInfo as any, {
       screenshotViolations: true,
-    })
+    });
 
-    expect(mockPage.screenshot).not.toHaveBeenCalled()
-  })
+    expect(mockPage.screenshot).not.toHaveBeenCalled();
+  });
 
-  it('takes a screenshot by default when violations exist', async () => {
+  it("takes a screenshot by default when violations exist", async () => {
     const wcagResults = makeAxeResults({
-      violations: [{
-        id: 'color-contrast',
-        description: 'test',
-        impact: 'serious',
-        helpUrl: 'https://example.com',
-        nodes: [{ target: ['.bad-element'] }],
-      }],
-    })
+      violations: [
+        {
+          id: "color-contrast",
+          description: "test",
+          impact: "serious",
+          helpUrl: "https://example.com",
+          nodes: [{ target: [".bad-element"] }],
+        },
+      ],
+    });
 
     mockAnalyze
       .mockResolvedValueOnce(makeAxeResults()) // best-practice
-      .mockResolvedValueOnce(wcagResults)       // WCAG
+      .mockResolvedValueOnce(wcagResults); // WCAG
 
     const mockPage = {
       evaluate: vi.fn().mockResolvedValue(undefined),
-      screenshot: vi.fn().mockResolvedValue(Buffer.from('fake-png')),
-    }
-    const testInfo = makeTestInfo()
+      screenshot: vi.fn().mockResolvedValue(Buffer.from("fake-png")),
+    };
+    const testInfo = makeTestInfo();
 
-    await checkAccessibility(mockPage as any, testInfo as any)
+    await checkAccessibility(mockPage as any, testInfo as any);
 
-    expect(mockPage.screenshot).toHaveBeenCalledWith({ fullPage: true })
-  })
+    expect(mockPage.screenshot).toHaveBeenCalledWith({ fullPage: true });
+  });
 
-  it('does not take a screenshot when screenshotViolations is explicitly false', async () => {
+  it("does not take a screenshot when screenshotViolations is explicitly false", async () => {
     const wcagResults = makeAxeResults({
-      violations: [{
-        id: 'color-contrast',
-        description: 'test',
-        impact: 'serious',
-        helpUrl: 'https://example.com',
-        nodes: [{ target: ['.bad-element'] }],
-      }],
-    })
+      violations: [
+        {
+          id: "color-contrast",
+          description: "test",
+          impact: "serious",
+          helpUrl: "https://example.com",
+          nodes: [{ target: [".bad-element"] }],
+        },
+      ],
+    });
 
     mockAnalyze
       .mockResolvedValueOnce(makeAxeResults()) // best-practice
-      .mockResolvedValueOnce(wcagResults)       // WCAG
+      .mockResolvedValueOnce(wcagResults); // WCAG
 
     const mockPage = {
       evaluate: vi.fn(),
       screenshot: vi.fn(),
-    }
-    const testInfo = makeTestInfo()
+    };
+    const testInfo = makeTestInfo();
 
     await checkAccessibility(mockPage as any, testInfo as any, {
       screenshotViolations: false,
-    })
+    });
 
-    expect(mockPage.screenshot).not.toHaveBeenCalled()
-  })
-})
+    expect(mockPage.screenshot).not.toHaveBeenCalled();
+  });
+});
 
-describe('takeAccessibleScreenshot hover handling', () => {
+describe("takeAccessibleScreenshot hover handling", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    mockAnalyze.mockResolvedValue(makeAxeResults())
-    mockClearHover.mockResolvedValue(mockRemoveHoverShield)
-  })
+    vi.clearAllMocks();
+    mockAnalyze.mockResolvedValue(makeAxeResults());
+    mockClearHover.mockResolvedValue(mockRemoveHoverShield);
+  });
 
-  it('clears hover by default and removes the shield after capture', async () => {
-    const page = {} as any
-    const testInfo = makeTestInfo()
+  it("clears hover by default and removes the shield after capture", async () => {
+    const page = {} as any;
+    const testInfo = makeTestInfo();
 
-    await takeAccessibleScreenshot(page, testInfo as any)
+    await takeAccessibleScreenshot(page, testInfo as any);
 
-    expect(mockClearHover).toHaveBeenCalledWith(page)
-    expect(mockToHaveScreenshot).toHaveBeenCalledWith({ timeout: 10000 })
-    expect(mockRemoveHoverShield).toHaveBeenCalledOnce()
-    expect(mockRestoreVideoPlayback).toHaveBeenCalledWith(page)
-    expect(mockRemoveHoverShield.mock.invocationCallOrder[0])
-      .toBeGreaterThan(mockToHaveScreenshot.mock.invocationCallOrder[0])
-    expect(mockRemoveHoverShield.mock.invocationCallOrder[0])
-      .toBeLessThan(mockAnalyze.mock.invocationCallOrder[0])
-  })
+    expect(mockClearHover).toHaveBeenCalledWith(page);
+    expect(mockToHaveScreenshot).toHaveBeenCalledWith({ timeout: 10000 });
+    expect(mockRemoveHoverShield).toHaveBeenCalledOnce();
+    expect(mockRestoreVideoPlayback).toHaveBeenCalledWith(page);
+    expect(mockRemoveHoverShield.mock.invocationCallOrder[0]).toBeGreaterThan(
+      mockToHaveScreenshot.mock.invocationCallOrder[0],
+    );
+    expect(mockRemoveHoverShield.mock.invocationCallOrder[0]).toBeLessThan(
+      mockAnalyze.mock.invocationCallOrder[0],
+    );
+  });
 
-  it('preserves an intentional hover state when clearHover is false', async () => {
-    const page = {} as any
-    const testInfo = makeTestInfo()
+  it("preserves an intentional hover state when clearHover is false", async () => {
+    const page = {} as any;
+    const testInfo = makeTestInfo();
 
-    await takeAccessibleScreenshot(page, testInfo as any, { clearHover: false })
+    await takeAccessibleScreenshot(page, testInfo as any, {
+      clearHover: false,
+    });
 
-    expect(mockClearHover).not.toHaveBeenCalled()
-    expect(mockRemoveHoverShield).not.toHaveBeenCalled()
-    expect(mockToHaveScreenshot).toHaveBeenCalledWith({ timeout: 10000 })
-  })
+    expect(mockClearHover).not.toHaveBeenCalled();
+    expect(mockRemoveHoverShield).not.toHaveBeenCalled();
+    expect(mockToHaveScreenshot).toHaveBeenCalledWith({ timeout: 10000 });
+  });
 
-  it('does not infer screenshot thresholds from project names', async () => {
-    const testInfo = makeTestInfo()
-    testInfo.project.name = 'desktop safari'
+  it("does not infer screenshot thresholds from project names", async () => {
+    const testInfo = makeTestInfo();
+    testInfo.project.name = "desktop safari";
 
-    await takeAccessibleScreenshot({} as any, testInfo as any)
+    await takeAccessibleScreenshot({} as any, testInfo as any);
 
-    expect(mockToHaveScreenshot).toHaveBeenCalledWith({timeout: 10000})
-  })
+    expect(mockToHaveScreenshot).toHaveBeenCalledWith({ timeout: 10000 });
+  });
 
-  it('passes explicit stabilization configuration to image and video waits', async () => {
-    const page = {} as any
-    const images = {recoverErroredImages: true}
-    const videos = {timeoutMs: 1234}
+  it("passes explicit stabilization configuration to image and video waits", async () => {
+    const page = {} as any;
+    const images = { recoverErroredImages: true };
+    const videos = { timeoutMs: 1234 };
 
     await takeAccessibleScreenshot(page, makeTestInfo() as any, {
-      stabilization: {images, videos},
-    })
+      stabilization: { images, videos },
+    });
 
-    expect(mockWaitForAllImages).toHaveBeenCalledWith(page, images)
-    expect(mockWaitForVideos).toHaveBeenCalledWith(page, videos)
-    expect(mockToHaveScreenshot).toHaveBeenCalledWith({timeout: 10000})
-  })
+    expect(mockWaitForAllImages).toHaveBeenCalledWith(page, images);
+    expect(mockWaitForVideos).toHaveBeenCalledWith(page, videos);
+    expect(mockToHaveScreenshot).toHaveBeenCalledWith({ timeout: 10000 });
+  });
 
-  it('removes the shield when capture throws', async () => {
-    const page = {} as any
-    const testInfo = makeTestInfo()
-    mockToHaveScreenshot.mockRejectedValueOnce(new Error('capture failed'))
+  it("removes the shield when capture throws", async () => {
+    const page = {} as any;
+    const testInfo = makeTestInfo();
+    mockToHaveScreenshot.mockRejectedValueOnce(new Error("capture failed"));
 
-    await expect(takeAccessibleScreenshot(page, testInfo as any)).rejects.toThrow('capture failed')
+    await expect(
+      takeAccessibleScreenshot(page, testInfo as any),
+    ).rejects.toThrow("capture failed");
 
-    expect(mockRemoveHoverShield).toHaveBeenCalledOnce()
-    expect(mockRestoreVideoPlayback).toHaveBeenCalledWith(page)
-  })
+    expect(mockRemoveHoverShield).toHaveBeenCalledOnce();
+    expect(mockRestoreVideoPlayback).toHaveBeenCalledWith(page);
+  });
 
-  it('applies real hover and focus after settling and keeps them through the accessibility scan', async () => {
-    const initialShieldCleanup = vi.fn()
-    const interactionShieldCleanup = vi.fn()
+  it("applies real hover and focus after settling and keeps them through the accessibility scan", async () => {
+    const initialShieldCleanup = vi.fn();
+    const interactionShieldCleanup = vi.fn();
     mockClearHover
       .mockResolvedValueOnce(initialShieldCleanup)
-      .mockResolvedValueOnce(interactionShieldCleanup)
-    const hoverLocator = {hover: vi.fn()}
-    const focusLocator = {focus: vi.fn(), blur: vi.fn()}
-    const page = {} as any
-    const testInfo = makeTestInfo()
+      .mockResolvedValueOnce(interactionShieldCleanup);
+    const hoverLocator = { hover: vi.fn() };
+    const focusLocator = { focus: vi.fn(), blur: vi.fn() };
+    const page = {} as any;
+    const testInfo = makeTestInfo();
 
     await takeAccessibleScreenshot(page, testInfo as any, {
       interactionStates: [
-        {locator: hoverLocator as any, states: ['hover']},
-        {locator: focusLocator as any, states: ['focus']},
+        { locator: hoverLocator as any, states: ["hover"] },
+        { locator: focusLocator as any, states: ["focus"] },
       ],
-    })
+    });
 
-    expect(initialShieldCleanup).toHaveBeenCalledOnce()
-    expect(hoverLocator.hover).toHaveBeenCalledOnce()
-    expect(focusLocator.focus).toHaveBeenCalledOnce()
-    expect(mockToHaveScreenshot).toHaveBeenCalledWith({timeout: 10000})
-    expect(initialShieldCleanup.mock.invocationCallOrder[0])
-      .toBeGreaterThan(mockWaitForVideos.mock.invocationCallOrder[0])
-    expect(hoverLocator.hover.mock.invocationCallOrder[0])
-      .toBeLessThan(focusLocator.focus.mock.invocationCallOrder[0])
-    expect(focusLocator.focus.mock.invocationCallOrder[0])
-      .toBeLessThan(mockToHaveScreenshot.mock.invocationCallOrder[0])
-    expect(mockBlurActiveElement).toHaveBeenCalledOnce()
-    expect(focusLocator.blur).toHaveBeenCalledOnce()
-    expect(focusLocator.blur.mock.invocationCallOrder[0])
-      .toBeGreaterThan(mockAnalyze.mock.invocationCallOrder.at(-1)!)
-    expect(interactionShieldCleanup.mock.invocationCallOrder[0])
-      .toBeGreaterThan(mockAnalyze.mock.invocationCallOrder.at(-1)!)
-  })
+    expect(initialShieldCleanup).toHaveBeenCalledOnce();
+    expect(hoverLocator.hover).toHaveBeenCalledOnce();
+    expect(focusLocator.focus).toHaveBeenCalledOnce();
+    expect(mockToHaveScreenshot).toHaveBeenCalledWith({ timeout: 10000 });
+    expect(initialShieldCleanup.mock.invocationCallOrder[0]).toBeGreaterThan(
+      mockWaitForVideos.mock.invocationCallOrder[0],
+    );
+    expect(hoverLocator.hover.mock.invocationCallOrder[0]).toBeLessThan(
+      focusLocator.focus.mock.invocationCallOrder[0],
+    );
+    expect(focusLocator.focus.mock.invocationCallOrder[0]).toBeLessThan(
+      mockToHaveScreenshot.mock.invocationCallOrder[0],
+    );
+    expect(mockBlurActiveElement).toHaveBeenCalledOnce();
+    expect(focusLocator.blur).toHaveBeenCalledOnce();
+    expect(focusLocator.blur.mock.invocationCallOrder[0]).toBeGreaterThan(
+      mockAnalyze.mock.invocationCallOrder.at(-1)!,
+    );
+    expect(
+      interactionShieldCleanup.mock.invocationCallOrder[0],
+    ).toBeGreaterThan(mockAnalyze.mock.invocationCallOrder.at(-1)!);
+  });
 
-  it('cleans up real states when the accessibility scan throws', async () => {
-    const initialShieldCleanup = vi.fn()
-    const interactionShieldCleanup = vi.fn()
+  it("cleans up real states when the accessibility scan throws", async () => {
+    const initialShieldCleanup = vi.fn();
+    const interactionShieldCleanup = vi.fn();
     mockClearHover
       .mockResolvedValueOnce(initialShieldCleanup)
-      .mockResolvedValueOnce(interactionShieldCleanup)
-    const locator = {hover: vi.fn(), focus: vi.fn(), blur: vi.fn()}
-    mockAnalyze.mockRejectedValueOnce(new Error('scan failed'))
+      .mockResolvedValueOnce(interactionShieldCleanup);
+    const locator = { hover: vi.fn(), focus: vi.fn(), blur: vi.fn() };
+    mockAnalyze.mockRejectedValueOnce(new Error("scan failed"));
 
-    await expect(takeAccessibleScreenshot({} as any, makeTestInfo() as any, {
-      interactionStates: [{locator: locator as any, states: ['hover', 'focus']}],
-    })).rejects.toThrow('scan failed')
+    await expect(
+      takeAccessibleScreenshot({} as any, makeTestInfo() as any, {
+        interactionStates: [
+          { locator: locator as any, states: ["hover", "focus"] },
+        ],
+      }),
+    ).rejects.toThrow("scan failed");
 
-    expect(mockBlurActiveElement).toHaveBeenCalledOnce()
-    expect(locator.blur).toHaveBeenCalledOnce()
-    expect(interactionShieldCleanup).toHaveBeenCalledOnce()
-  })
+    expect(mockBlurActiveElement).toHaveBeenCalledOnce();
+    expect(locator.blur).toHaveBeenCalledOnce();
+    expect(interactionShieldCleanup).toHaveBeenCalledOnce();
+  });
 
-  it('cleans up when applying a real interaction state throws', async () => {
-    const initialShieldCleanup = vi.fn()
-    const interactionShieldCleanup = vi.fn()
+  it("cleans up when applying a real interaction state throws", async () => {
+    const initialShieldCleanup = vi.fn();
+    const interactionShieldCleanup = vi.fn();
     mockClearHover
       .mockResolvedValueOnce(initialShieldCleanup)
-      .mockResolvedValueOnce(interactionShieldCleanup)
+      .mockResolvedValueOnce(interactionShieldCleanup);
     const locator = {
-      hover: vi.fn().mockRejectedValue(new Error('hover failed')),
+      hover: vi.fn().mockRejectedValue(new Error("hover failed")),
       focus: vi.fn(),
-    }
+    };
 
-    await expect(takeAccessibleScreenshot({} as any, makeTestInfo() as any, {
-      interactionStates: [{locator: locator as any, states: ['hover', 'focus']}],
-    })).rejects.toThrow('hover failed')
+    await expect(
+      takeAccessibleScreenshot({} as any, makeTestInfo() as any, {
+        interactionStates: [
+          { locator: locator as any, states: ["hover", "focus"] },
+        ],
+      }),
+    ).rejects.toThrow("hover failed");
 
-    expect(locator.focus).not.toHaveBeenCalled()
-    expect(interactionShieldCleanup).toHaveBeenCalledOnce()
-  })
+    expect(locator.focus).not.toHaveBeenCalled();
+    expect(interactionShieldCleanup).toHaveBeenCalledOnce();
+  });
 
-  it('rejects interaction states that a real pointer cannot hold simultaneously', async () => {
-    const first = {hover: vi.fn()}
-    const second = {hover: vi.fn()}
+  it("rejects interaction states that a real pointer cannot hold simultaneously", async () => {
+    const first = { hover: vi.fn() };
+    const second = { hover: vi.fn() };
 
-    await expect(takeAccessibleScreenshot({} as any, makeTestInfo() as any, {
-      interactionStates: [
-        {locator: first as any, states: ['hover']},
-        {locator: second as any, states: ['hover']},
-      ],
-    })).rejects.toThrow('can hover at most one locator')
+    await expect(
+      takeAccessibleScreenshot({} as any, makeTestInfo() as any, {
+        interactionStates: [
+          { locator: first as any, states: ["hover"] },
+          { locator: second as any, states: ["hover"] },
+        ],
+      }),
+    ).rejects.toThrow("can hover at most one locator");
 
-    expect(mockClearHover).not.toHaveBeenCalled()
-    expect(first.hover).not.toHaveBeenCalled()
-    expect(second.hover).not.toHaveBeenCalled()
-  })
-})
+    expect(mockClearHover).not.toHaveBeenCalled();
+    expect(first.hover).not.toHaveBeenCalled();
+    expect(second.hover).not.toHaveBeenCalled();
+  });
+});
 
-describe('locator-derived clip', () => {
+describe("locator-derived clip", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    mockAnalyze.mockResolvedValue(makeAxeResults())
-    mockClearHover.mockResolvedValue(mockRemoveHoverShield)
-  })
+    vi.clearAllMocks();
+    mockAnalyze.mockResolvedValue(makeAxeResults());
+    mockClearHover.mockResolvedValue(mockRemoveHoverShield);
+  });
 
   function fixture() {
-    const page = {evaluate: vi.fn().mockResolvedValueOnce(undefined).mockResolvedValue({x: 100, y: 800, width: 640, height: 480})}
-    const locator = {page: () => page, scrollIntoViewIfNeeded: vi.fn(), boundingBox: vi.fn().mockResolvedValue({x: 10.2, y: 20.3, width: 200.4, height: 100.2})}
-    return {page, locator}
+    const page = {
+      evaluate: vi
+        .fn()
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValue({ x: 100, y: 800, width: 640, height: 480 }),
+    };
+    const locator = {
+      page: () => page,
+      scrollIntoViewIfNeeded: vi.fn(),
+      boundingBox: vi
+        .fn()
+        .mockResolvedValue({ x: 10.2, y: 20.3, width: 200.4, height: 100.2 }),
+    };
+    return { page, locator };
   }
 
   for (const fullPage of [false, true]) {
     it(`measures after readiness and scroll, with fullPage=${fullPage}`, async () => {
-      const {page, locator} = fixture()
-      await takeAccessibleScreenshot(page as any, makeTestInfo() as any, {clipLocator: locator as any, fullPage})
-      expect(mockToHaveScreenshot).toHaveBeenCalledWith({timeout: 10000, fullPage, clip: {x: fullPage ? 110 : 10, y: fullPage ? 820 : 20, width: 200, height: 100}})
-      expect(mockExpectSoft).toHaveBeenCalledWith(page)
-      expect(locator.scrollIntoViewIfNeeded.mock.invocationCallOrder[0]).toBeGreaterThan(mockWaitForVideos.mock.invocationCallOrder[0])
-      expect(locator.boundingBox.mock.invocationCallOrder[0]).toBeGreaterThan(locator.scrollIntoViewIfNeeded.mock.invocationCallOrder[0])
-      expect(mockAnalyze).toHaveBeenCalledTimes(2)
-    })
+      const { page, locator } = fixture();
+      await takeAccessibleScreenshot(page as any, makeTestInfo() as any, {
+        clipLocator: locator as any,
+        fullPage,
+      });
+      expect(mockToHaveScreenshot).toHaveBeenCalledWith({
+        timeout: 10000,
+        fullPage,
+        clip: {
+          x: fullPage ? 110 : 10,
+          y: fullPage ? 820 : 20,
+          width: 200,
+          height: 100,
+        },
+      });
+      expect(mockExpectSoft).toHaveBeenCalledWith(page);
+      expect(
+        locator.scrollIntoViewIfNeeded.mock.invocationCallOrder[0],
+      ).toBeGreaterThan(mockWaitForVideos.mock.invocationCallOrder[0]);
+      expect(locator.boundingBox.mock.invocationCallOrder[0]).toBeGreaterThan(
+        locator.scrollIntoViewIfNeeded.mock.invocationCallOrder[0],
+      );
+      expect(mockAnalyze).toHaveBeenCalledTimes(2);
+    });
   }
 
-  it('rejects conflicting capture modes before readiness', async () => {
-    const {page, locator} = fixture()
-    await expect(takeAccessibleScreenshot(page as any, makeTestInfo() as any, {clipLocator: locator as any, clip: {x: 0, y: 0, width: 1, height: 1}})).rejects.toThrow('cannot be combined')
-    await expect(takeAccessibleScreenshot(page as any, makeTestInfo() as any, {clipLocator: locator as any}, undefined, locator as any)).rejects.toThrow('cannot be combined')
-    expect(mockWaitForFrames).not.toHaveBeenCalled()
-  })
+  it("rejects conflicting capture modes before readiness", async () => {
+    const { page, locator } = fixture();
+    await expect(
+      takeAccessibleScreenshot(page as any, makeTestInfo() as any, {
+        clipLocator: locator as any,
+        clip: { x: 0, y: 0, width: 1, height: 1 },
+      }),
+    ).rejects.toThrow("cannot be combined");
+    await expect(
+      takeAccessibleScreenshot(
+        page as any,
+        makeTestInfo() as any,
+        { clipLocator: locator as any },
+        undefined,
+        locator as any,
+      ),
+    ).rejects.toThrow("cannot be combined");
+    expect(mockWaitForFrames).not.toHaveBeenCalled();
+  });
 
-  it('preserves existing raw clip and locator screenshot paths', async () => {
-    const page = {} as any
-    const locator = {} as any
-    const clip = {x: 5, y: 10, width: 100, height: 80}
-    await takeAccessibleScreenshot(page, makeTestInfo() as any, {clip})
-    expect(mockToHaveScreenshot).toHaveBeenLastCalledWith({timeout: 10000, clip})
-    await takeAccessibleScreenshot(page, makeTestInfo() as any, {}, undefined, locator)
-    expect(mockExpectSoft).toHaveBeenCalledWith(locator)
-    expect(mockToHaveScreenshot).toHaveBeenLastCalledWith({timeout: 10000})
-  })
+  it("preserves existing raw clip and locator screenshot paths", async () => {
+    const page = {} as any;
+    const locator = {} as any;
+    const clip = { x: 5, y: 10, width: 100, height: 80 };
+    await takeAccessibleScreenshot(page, makeTestInfo() as any, { clip });
+    expect(mockToHaveScreenshot).toHaveBeenLastCalledWith({
+      timeout: 10000,
+      clip,
+    });
+    await takeAccessibleScreenshot(
+      page,
+      makeTestInfo() as any,
+      {},
+      undefined,
+      locator,
+    );
+    expect(mockExpectSoft).toHaveBeenCalledWith(locator);
+    expect(mockToHaveScreenshot).toHaveBeenLastCalledWith({ timeout: 10000 });
+  });
 
-  it('rejects a clip locator from a different page', async () => {
-    const {locator} = fixture()
-    await expect(takeAccessibleScreenshot({} as any, makeTestInfo() as any, {clipLocator: locator as any})).rejects.toThrow('must belong')
-    expect(mockWaitForFrames).not.toHaveBeenCalled()
-  })
+  it("rejects a clip locator from a different page", async () => {
+    const { locator } = fixture();
+    await expect(
+      takeAccessibleScreenshot({} as any, makeTestInfo() as any, {
+        clipLocator: locator as any,
+      }),
+    ).rejects.toThrow("must belong");
+    expect(mockWaitForFrames).not.toHaveBeenCalled();
+  });
 
-  it('rejects missing and zero-sized bounds and restores capture state', async () => {
-    for (const bounds of [null, {x: 0, y: 0, width: 0.2, height: 1}]) {
-      const {page, locator} = fixture()
-      locator.boundingBox.mockResolvedValue(bounds as any)
-      await expect(takeAccessibleScreenshot(page as any, makeTestInfo() as any, {clipLocator: locator as any})).rejects.toThrow(/bounding box|positive rounded/)
+  it("rejects missing and zero-sized bounds and restores capture state", async () => {
+    for (const bounds of [null, { x: 0, y: 0, width: 0.2, height: 1 }]) {
+      const { page, locator } = fixture();
+      locator.boundingBox.mockResolvedValue(bounds as any);
+      await expect(
+        takeAccessibleScreenshot(page as any, makeTestInfo() as any, {
+          clipLocator: locator as any,
+        }),
+      ).rejects.toThrow(/bounding box|positive rounded/);
     }
-    expect(mockRestoreVideoPlayback).toHaveBeenCalledTimes(2)
-    expect(mockToHaveScreenshot).not.toHaveBeenCalled()
-  })
-})
+    expect(mockRestoreVideoPlayback).toHaveBeenCalledTimes(2);
+    expect(mockToHaveScreenshot).not.toHaveBeenCalled();
+  });
+});

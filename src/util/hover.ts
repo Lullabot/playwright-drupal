@@ -1,1 +1,1 @@
-export { clearHover } from '@lullabot/playwright-testing'
+export { clearHover } from "@lullabot/playwright-testing";

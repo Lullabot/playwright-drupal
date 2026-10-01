@@ -1,5 +1,5 @@
-import { Page } from '@playwright/test';
-import { waitForAjax } from './forms';
+import { Page } from "@playwright/test";
+import { waitForAjax } from "./forms";
 
 /**
  * Fill a Drupal oEmbed URL field, blur to trigger validation, and warn if
@@ -12,18 +12,25 @@ import { waitForAjax } from './forms';
  * URLs are common during fixture generation, and callers who want a hard
  * failure can check `.messages--error` themselves or use `waitForSaveOutcome`.
  */
-export async function fillOembedUrl(page: Page, selector: string, url: string): Promise<void> {
+export async function fillOembedUrl(
+  page: Page,
+  selector: string,
+  url: string,
+): Promise<void> {
   const input = page.locator(selector);
   await input.fill(url);
-  await input.press('Tab');
+  await input.press("Tab");
   await waitForAjax(page);
 
   const errorLocator = page
-    .locator('[data-drupal-messages] .messages--error, .messages--error')
+    .locator("[data-drupal-messages] .messages--error, .messages--error")
     .first();
   const visible = await errorLocator.isVisible().catch(() => false);
   if (visible) {
-    const errorText = (await errorLocator.textContent().catch(() => null))?.trim() ?? '';
-    console.warn(`fillOembedUrl: Drupal rejected the URL "${url}": ${errorText}`);
+    const errorText =
+      (await errorLocator.textContent().catch(() => null))?.trim() ?? "";
+    console.warn(
+      `fillOembedUrl: Drupal rejected the URL "${url}": ${errorText}`,
+    );
   }
 }
