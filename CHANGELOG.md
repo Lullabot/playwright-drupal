@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.14.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.14.0...playwright-drupal-1.14.1) (2026-10-01)
+
+
+### Bug Fixes
+
+* normalize package binary paths ([fb0b5f6](https://github.com/Lullabot/playwright-drupal/commit/fb0b5f692320278684cd3326d3c0654e8e48a747))
+* sync workspace dependency and release configuration ([#349](https://github.com/Lullabot/playwright-drupal/issues/349)) ([a387f32](https://github.com/Lullabot/playwright-drupal/commit/a387f329d54052bc4ad278ba96df6fb52d24af10))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @lullabot/playwright-testing bumped from 0.1.0 to 1.0.1
+
 ## [1.14.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.13.0...playwright-drupal-1.14.0) (2026-10-01)
 
 
