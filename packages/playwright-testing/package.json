@@ -17,8 +17,8 @@
     "README.md"
   ],
   "bin": {
-    "playwright-testing-a11y-summary": "./bin/github-a11y-summary",
-    "playwright-testing-failure-summary": "./bin/github-failure-summary"
+    "playwright-testing-a11y-summary": "bin/github-a11y-summary",
+    "playwright-testing-failure-summary": "bin/github-failure-summary"
   },
   "exports": {
     ".": {
