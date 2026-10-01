@@ -771,6 +771,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Snapshot Storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#locator-derived-page-clips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locator-derived page clips
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1199,6 +1216,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Snapshot Storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#locator-derived-page-clips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locator-derived page clips
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1587,6 +1621,53 @@ spaces, so a pattern containing a space needs to avoid one: prefer
 <li>Using <a href="https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage">git-lfs</a> to store snapshots (and even static assets like databases and images).</li>
 <li>Using a third-party service integrated with Playwright to upload snapshots for storage and comparison.</li>
 </ul>
+<h3 id="locator-derived-page-clips">Locator-derived page clips</h3>
+<p>Use <code>clipLocator</code> when you want a locator's bounds to select the region of a
+<strong>page</strong> screenshot, with coordinates and dimensions rounded to integer CSS
+pixels:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">await</span><span class="w"> </span><span class="nx">takeAccessibleScreenshot</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="nx">testInfo</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">  </span><span class="nx">clipLocator</span><span class="o">:</span><span class="w"> </span><span class="kt">page.locator</span><span class="p">(</span><span class="s1">'main'</span><span class="p">),</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">  </span><span class="nx">fullPage</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="p">});</span>
+</span></code></pre></div>
+<p>This extends the existing helper. Raw <code>clip</code> and the fifth-argument locator
+screenshot remain available. <code>clipLocator</code> cannot be combined with either raw
+<code>clip</code> or a locator screenshot target, and must belong to the supplied page.
+The <code>a11y.screenshot()</code> fixture accepts the same option.</p>
+<p>The helper runs its existing frame, image, font, and video readiness waits,
+performs any requested <code>scrollLocator</code> scrolling and interaction states, then
+scrolls the clip locator into view. It waits for fonts and two animation frames
+before reading its bounding box. Each of x, y, width, and height uses
+<code>Math.round()</code> in CSS pixels. The crop is measured once before Playwright's
+screenshot assertion retries; retries do not remeasure it.</p>
+<p>For an ordinary capture, coordinates are relative to the main page viewport.
+The rounded region must fit within that viewport. Use <code>fullPage: true</code> for a
+target larger than the viewport: the helper adds the main page scroll offsets
+to obtain document coordinates, and Playwright crops its full-page capture to
+that region. <code>fullPage</code> does not ignore the clip. Bounding boxes for frame
+locators are already relative to the main viewport. Missing bounds, dimensions
+that round to zero, and negative rounded origins produce an error. The helper
+leaves the page at the resulting scroll position, as with the existing scroll
+locator behavior.</p>
+<p>Accessibility checks still scan the whole page, with the existing accessibility
+options and exclusions. The screenshot crop introduces no axe include or
+exclude selectors. Fixed capture heights, toolbar styles, and project-specific
+exclusions belong in project configuration.</p>
+<p>Rounding reduces crop-size differences caused by fractional bounds and pixel
+enclosure. It is not a guarantee of stable rendering: text, borders, transforms,
+scroll handlers, sticky elements, and responsive layout can still render
+differently. Rounding can omit part of an edge pixel or include surrounding
+pixels; changes smaller than half a CSS pixel can be lost in the crop geometry.
+<code>scale: 'device'</code> still rounds geometry in CSS pixels. Clip-only comparisons
+also cannot reliably detect a translation of the entire target when the crop
+moves with it; retain a page screenshot when placement relative to surrounding
+content matters. Content changes and layout changes <em>inside</em> the crop remain
+subject to the normal visual assertion thresholds.</p>
+<p>Screenshot-only <code>stylePath</code> rules and Playwright's animation disabling run after
+measurement. Avoid rules or animations that change target geometry during
+capture; explicitly settle those in the test before calling the helper. Two
+paint frames cannot guarantee an application has finished asynchronous layout
+work, so retain application-specific readiness checks where needed.</p>
 
 
 
