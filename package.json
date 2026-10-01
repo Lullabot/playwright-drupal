@@ -63,7 +63,7 @@
     }
   },
   "dependencies": {
-    "@lullabot/playwright-testing": "0.1.0",
+    "@lullabot/playwright-testing": "^1.0.0",
     "@axe-core/playwright": "^4.8.5",
     "@playwright/test": "^1.39.0",
     "@types/node": "^24.0.0",
