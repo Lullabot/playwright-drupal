@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-testing-1.0.0...playwright-testing-1.0.1) (2026-10-01)
+
+
+### Bug Fixes
+
+* normalize package binary paths ([fb0b5f6](https://github.com/Lullabot/playwright-drupal/commit/fb0b5f692320278684cd3326d3c0654e8e48a747))
+
 ## [1.0.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-testing-0.1.0...playwright-testing-1.0.0) (2026-10-01)
 
 
