@@ -40,9 +40,9 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "bin": {
-    "playwright-drupal-a11y-summary": "./bin/github-a11y-summary",
-    "playwright-drupal-mutex": "./bin/playwright-mutex",
-    "playwright-drupal-failure-summary": "./bin/github-failure-summary"
+    "playwright-drupal-a11y-summary": "bin/github-a11y-summary",
+    "playwright-drupal-mutex": "bin/playwright-mutex",
+    "playwright-drupal-failure-summary": "bin/github-failure-summary"
   },
   "exports": {
     ".": {
