@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.12.1...playwright-drupal-1.13.0) (2026-10-01)
+
+
+### Features
+
+* add opt-in locator-derived screenshot clips ([27c3dbc](https://github.com/Lullabot/playwright-drupal/commit/27c3dbccdda6482b3d5b04e9615af38b49e53cd9))
+
 ## [1.12.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.12.0...playwright-drupal-1.12.1) (2026-09-30)
 
 
