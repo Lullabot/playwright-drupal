@@ -6,8 +6,8 @@ export {
   resetAccessibilityScanCounts,
   snapshotExists,
   writeBaselineFile,
-} from '@lullabot/playwright-testing'
+} from "@lullabot/playwright-testing";
 export type {
   OnDiskBaselineFile,
   ScanKind,
-} from '@lullabot/playwright-testing'
+} from "@lullabot/playwright-testing";

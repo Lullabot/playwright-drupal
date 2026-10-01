@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
-const { main } = require('../lib/github/a11y-summary.js');
+const { main } = require("../lib/github/a11y-summary.js");
 main();

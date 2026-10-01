@@ -1,1 +1,1 @@
-export { YoutubeMock } from '@lullabot/playwright-testing'
+export { YoutubeMock } from "@lullabot/playwright-testing";

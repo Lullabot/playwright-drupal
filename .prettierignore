@@ -1,0 +1,5 @@
+.agents/
+.ai/
+.claude/
+.codex/
+**/playwright-report/

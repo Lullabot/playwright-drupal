@@ -1,13 +1,13 @@
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from "fs";
+import * as path from "path";
 
 /** Annotation types that identify accessibility-relevant test data. */
 const A11Y_ANNOTATION_TYPES = new Set([
-  '@a11y',
-  'Accessibility',
-  'Baselined a11y violation',
-  'Stale a11y baseline entry',
-])
+  "@a11y",
+  "Accessibility",
+  "Baselined a11y violation",
+  "Stale a11y baseline entry",
+]);
 
 /**
  * Escape a string for use inside a GitHub Actions workflow-command message
@@ -17,9 +17,9 @@ const A11Y_ANNOTATION_TYPES = new Set([
  */
 function escapeWorkflowCommand(value: string): string {
   return String(value)
-    .replace(/%/g, '%25')
-    .replace(/\r/g, '%0D')
-    .replace(/\n/g, '%0A')
+    .replace(/%/g, "%25")
+    .replace(/\r/g, "%0D")
+    .replace(/\n/g, "%0A");
 }
 
 /**
@@ -28,9 +28,7 @@ function escapeWorkflowCommand(value: string): string {
  * escaping of `:` and `,` on top of the message-body escapes.
  */
 function escapeWorkflowCommandProperty(value: string): string {
-  return escapeWorkflowCommand(value)
-    .replace(/:/g, '%3A')
-    .replace(/,/g, '%2C')
+  return escapeWorkflowCommand(value).replace(/:/g, "%3A").replace(/,/g, "%2C");
 }
 
 /**
@@ -40,9 +38,9 @@ function escapeWorkflowCommandProperty(value: string): string {
  */
 function escapeMarkdownTableCell(value: string): string {
   return String(value)
-    .replace(/\\/g, '\\\\')
-    .replace(/\|/g, '\\|')
-    .replace(/\r?\n/g, ' ')
+    .replace(/\\/g, "\\\\")
+    .replace(/\|/g, "\\|")
+    .replace(/\r?\n/g, " ");
 }
 
 /**
@@ -52,39 +50,39 @@ function escapeMarkdownTableCell(value: string): string {
  * with spaces, which is the standard CommonMark escape for code spans.
  */
 function escapeMarkdownCodeSpan(value: string): string {
-  const s = String(value).replace(/\r?\n/g, ' ')
-  if (!s.includes('`')) return `\`${s}\``
-  return `\`\` ${s.replace(/``/g, '` `')} \`\``
+  const s = String(value).replace(/\r?\n/g, " ");
+  if (!s.includes("`")) return `\`${s}\``;
+  return `\`\` ${s.replace(/``/g, "` `")} \`\``;
 }
 
 /** A test that has accessibility-related annotations and/or attachments. */
 export interface A11yTestResult {
   /** Test title path, e.g. "a11y > homepage has accessibility violations" */
-  title: string
+  title: string;
   /** Source file, e.g. "tests/a11y.spec.ts" */
-  file: string
+  file: string;
   /** Line number in the source file. */
-  line: number
+  line: number;
   /** Accessibility annotations from testInfo.annotations. */
-  annotations: Array<{ type: string; description?: string }>
+  annotations: Array<{ type: string; description?: string }>;
   /** Parsed WCAG scan violations (from a11y-wcag-scan-results attachment). */
-  violations: NormalizedViolation[]
+  violations: NormalizedViolation[];
 }
 
 interface NormalizedViolation {
-  rule: string
-  impact: string
-  description: string
-  helpUrl: string
-  targets: string[]
+  rule: string;
+  impact: string;
+  description: string;
+  helpUrl: string;
+  targets: string[];
 }
 
 /** Parsed report with only accessibility-relevant data. */
 export interface A11yReport {
-  tests: A11yTestResult[]
-  totalViolations: number
-  totalBaselined: number
-  totalStale: number
+  tests: A11yTestResult[];
+  totalViolations: number;
+  totalBaselined: number;
+  totalStale: number;
 }
 
 /**
@@ -94,27 +92,27 @@ export function parseA11yResults(reportPath: string): A11yReport {
   if (!fs.existsSync(reportPath)) {
     throw new Error(
       `Playwright JSON report not found at ${reportPath}. ` +
-      'Ensure the Playwright JSON reporter is enabled.'
-    )
+        "Ensure the Playwright JSON reporter is enabled.",
+    );
   }
 
-  const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'))
-  const tests: A11yTestResult[] = []
-  let totalViolations = 0
-  let totalBaselined = 0
-  let totalStale = 0
+  const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+  const tests: A11yTestResult[] = [];
+  let totalViolations = 0;
+  let totalBaselined = 0;
+  let totalStale = 0;
 
-  walkSuites(report.suites ?? [], '', tests)
+  walkSuites(report.suites ?? [], "", tests);
 
   for (const test of tests) {
     for (const ann of test.annotations) {
-      if (ann.type === 'Baselined a11y violation') totalBaselined++
-      if (ann.type === 'Stale a11y baseline entry') totalStale++
+      if (ann.type === "Baselined a11y violation") totalBaselined++;
+      if (ann.type === "Stale a11y baseline entry") totalStale++;
     }
-    totalViolations += test.violations.length
+    totalViolations += test.violations.length;
   }
 
-  return { tests, totalViolations, totalBaselined, totalStale }
+  return { tests, totalViolations, totalBaselined, totalStale };
 }
 
 /**
@@ -124,52 +122,55 @@ export function parseA11yResults(reportPath: string): A11yReport {
  * on `result.annotations`. checkAccessibility() uses the latter.
  */
 function collectAnnotations(test: any, lastResult: any): any[] {
-  return [
-    ...(test.annotations ?? []),
-    ...(lastResult?.annotations ?? []),
-  ]
+  return [...(test.annotations ?? []), ...(lastResult?.annotations ?? [])];
 }
 
 /** Read and parse the WCAG scan attachment, if present. */
 function parseWcagViolations(attachment: any): NormalizedViolation[] {
-  if (!attachment) return []
+  if (!attachment) return [];
   try {
     const raw = attachment.body
-      ? Buffer.from(attachment.body, 'base64').toString('utf8')
+      ? Buffer.from(attachment.body, "base64").toString("utf8")
       : attachment.path
-        ? fs.readFileSync(attachment.path, 'utf8')
-        : null
-    if (!raw) return []
-    const json = JSON.parse(raw)
-    if (!json?.violations) return []
+        ? fs.readFileSync(attachment.path, "utf8")
+        : null;
+    if (!raw) return [];
+    const json = JSON.parse(raw);
+    if (!json?.violations) return [];
     return json.violations.map((v: any) => ({
       rule: v.id,
-      impact: v.impact ?? 'unknown',
+      impact: v.impact ?? "unknown",
       description: v.description,
       helpUrl: v.helpUrl,
-      targets: v.nodes
-        ?.flatMap((n: any) => n.target)
-        .filter((t: any) => typeof t === 'string') ?? [],
-    }))
+      targets:
+        v.nodes
+          ?.flatMap((n: any) => n.target)
+          .filter((t: any) => typeof t === "string") ?? [],
+    }));
   } catch {
     // Parse errors are non-fatal — we'll just report without violation details.
-    return []
+    return [];
   }
 }
 
 /** Extract an A11yTestResult from a Playwright test, or null if not a11y-related. */
-function extractTestResult(spec: any, test: any, file: string): A11yTestResult | null {
-  const lastResult = test.results?.[test.results.length - 1]
-  const attachments = lastResult?.attachments ?? []
+function extractTestResult(
+  spec: any,
+  test: any,
+  file: string,
+): A11yTestResult | null {
+  const lastResult = test.results?.[test.results.length - 1];
+  const attachments = lastResult?.attachments ?? [];
 
-  const a11yAnnotations = collectAnnotations(test, lastResult)
-    .filter((a: any) => A11Y_ANNOTATION_TYPES.has(a.type))
+  const a11yAnnotations = collectAnnotations(test, lastResult).filter(
+    (a: any) => A11Y_ANNOTATION_TYPES.has(a.type),
+  );
 
-  if (a11yAnnotations.length === 0) return null
+  if (a11yAnnotations.length === 0) return null;
 
   const violations = parseWcagViolations(
-    attachments.find((a: any) => a.name === 'a11y-wcag-scan-results'),
-  )
+    attachments.find((a: any) => a.name === "a11y-wcag-scan-results"),
+  );
 
   return {
     title: spec.title,
@@ -177,66 +178,66 @@ function extractTestResult(spec: any, test: any, file: string): A11yTestResult |
     line: spec.line ?? 1,
     annotations: a11yAnnotations,
     violations,
-  }
+  };
 }
 
-function walkSuites(
-  suites: any[],
-  parentFile: string,
-  out: A11yTestResult[],
-) {
+function walkSuites(suites: any[], parentFile: string, out: A11yTestResult[]) {
   for (const suite of suites) {
-    const file = suite.file || parentFile
+    const file = suite.file || parentFile;
 
     for (const spec of suite.specs ?? []) {
       for (const test of spec.tests ?? []) {
-        const result = extractTestResult(spec, test, file)
-        if (result) out.push(result)
+        const result = extractTestResult(spec, test, file);
+        if (result) out.push(result);
       }
     }
 
     if (suite.suites) {
-      walkSuites(suite.suites, file, out)
+      walkSuites(suite.suites, file, out);
     }
   }
 }
 
 /** Headline with pass/fail counts. */
 function renderHeadline(report: A11yReport): string {
-  const hasViolations = report.totalViolations > 0
-  const hasBaselined = report.totalBaselined > 0
-  const hasStale = report.totalStale > 0
+  const hasViolations = report.totalViolations > 0;
+  const hasBaselined = report.totalBaselined > 0;
+  const hasStale = report.totalStale > 0;
 
   if (!hasViolations && !hasBaselined && !hasStale) {
-    return ':white_check_mark: All accessibility checks passed.\n'
+    return ":white_check_mark: All accessibility checks passed.\n";
   }
 
-  const parts: string[] = []
-  if (hasViolations) parts.push(`**${report.totalViolations}** violation(s)`)
-  if (hasBaselined) parts.push(`**${report.totalBaselined}** baselined`)
-  if (hasStale) parts.push(`**${report.totalStale}** stale baseline entries`)
-  return parts.join(' · ') + '\n'
+  const parts: string[] = [];
+  if (hasViolations) parts.push(`**${report.totalViolations}** violation(s)`);
+  if (hasBaselined) parts.push(`**${report.totalBaselined}** baselined`);
+  if (hasStale) parts.push(`**${report.totalStale}** stale baseline entries`);
+  return parts.join(" · ") + "\n";
 }
 
 /** Icon for an `Accessibility` annotation based on its violation count. */
 function iconForAccessibilityAnnotation(description: string): string {
   // Descriptions look like "WCAG scan: 0 violations ..." or "WCAG scan: 3 violations ...".
-  const colonIdx = description.lastIndexOf(': ')
-  const afterColon = colonIdx >= 0 ? description.substring(colonIdx + 2) : description
-  const violationCount = parseInt(afterColon, 10)
-  return violationCount > 0 ? ':x:' : ':white_check_mark:'
+  const colonIdx = description.lastIndexOf(": ");
+  const afterColon =
+    colonIdx >= 0 ? description.substring(colonIdx + 2) : description;
+  const violationCount = parseInt(afterColon, 10);
+  return violationCount > 0 ? ":x:" : ":white_check_mark:";
 }
 
-function iconForAnnotation(ann: { type: string; description?: string }): string {
+function iconForAnnotation(ann: {
+  type: string;
+  description?: string;
+}): string {
   switch (ann.type) {
-    case 'Baselined a11y violation':
-      return ':white_check_mark:'
-    case 'Stale a11y baseline entry':
-      return ':warning:'
-    case 'Accessibility':
-      return iconForAccessibilityAnnotation(ann.description ?? '')
+    case "Baselined a11y violation":
+      return ":white_check_mark:";
+    case "Stale a11y baseline entry":
+      return ":warning:";
+    case "Accessibility":
+      return iconForAccessibilityAnnotation(ann.description ?? "");
     default:
-      return ':information_source:'
+      return ":information_source:";
   }
 }
 
@@ -244,36 +245,39 @@ function iconForAnnotation(ann: { type: string; description?: string }): string 
 function renderAnnotations(
   annotations: Array<{ type: string; description?: string }>,
 ): string[] {
-  const lines: string[] = []
-  const seen = new Set<string>()
+  const lines: string[] = [];
+  const seen = new Set<string>();
   for (const ann of annotations) {
-    const key = `${ann.type}:${ann.description ?? ''}`
-    if (seen.has(key)) continue
-    seen.add(key)
-    lines.push(`${iconForAnnotation(ann)} **${ann.type}**: ${ann.description ?? ''}\n`)
+    const key = `${ann.type}:${ann.description ?? ""}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    lines.push(
+      `${iconForAnnotation(ann)} **${ann.type}**: ${ann.description ?? ""}\n`,
+    );
   }
-  return lines
+  return lines;
 }
 
 /** Render the violation table for a single test. */
 function renderViolationTable(violations: NormalizedViolation[]): string[] {
-  if (violations.length === 0) return []
+  if (violations.length === 0) return [];
   const lines: string[] = [
-    '| Rule | Impact | Description | Targets |',
-    '|------|--------|-------------|---------|',
-  ]
+    "| Rule | Impact | Description | Targets |",
+    "|------|--------|-------------|---------|",
+  ];
   for (const v of violations) {
-    const shown = v.targets.slice(0, 3).map(escapeMarkdownCodeSpan).join(', ')
-    const targets = v.targets.length > 3
-      ? `${shown}, +${v.targets.length - 3} more`
-      : shown
-    const rule = escapeMarkdownTableCell(v.rule)
-    const impact = escapeMarkdownTableCell(v.impact)
-    const description = escapeMarkdownTableCell(v.description)
-    lines.push(`| [${rule}](${v.helpUrl}) | ${impact} | ${description} | ${targets} |`)
+    const shown = v.targets.slice(0, 3).map(escapeMarkdownCodeSpan).join(", ");
+    const targets =
+      v.targets.length > 3 ? `${shown}, +${v.targets.length - 3} more` : shown;
+    const rule = escapeMarkdownTableCell(v.rule);
+    const impact = escapeMarkdownTableCell(v.impact);
+    const description = escapeMarkdownTableCell(v.description);
+    lines.push(
+      `| [${rule}](${v.helpUrl}) | ${impact} | ${description} | ${targets} |`,
+    );
   }
-  lines.push('')
-  return lines
+  lines.push("");
+  return lines;
 }
 
 /**
@@ -281,29 +285,32 @@ function renderViolationTable(violations: NormalizedViolation[]): string[] {
  */
 export function generateSummary(report: A11yReport): string {
   if (report.tests.length === 0) {
-    return '## Accessibility Results\n\nNo accessibility tests were found in the report.\n'
+    return "## Accessibility Results\n\nNo accessibility tests were found in the report.\n";
   }
 
-  const lines: string[] = ['## Accessibility Results\n', renderHeadline(report)]
-  const seenTitles = new Set<string>()
+  const lines: string[] = [
+    "## Accessibility Results\n",
+    renderHeadline(report),
+  ];
+  const seenTitles = new Set<string>();
 
   for (const test of report.tests) {
-    const testAnnotations = test.annotations.filter(a => a.type !== '@a11y')
-    const hasTestViolations = test.violations.length > 0
-    if (testAnnotations.length === 0 && !hasTestViolations) continue
+    const testAnnotations = test.annotations.filter((a) => a.type !== "@a11y");
+    const hasTestViolations = test.violations.length > 0;
+    if (testAnnotations.length === 0 && !hasTestViolations) continue;
 
     // Skip duplicate test titles (different browsers report the same spec).
-    if (seenTitles.has(test.title)) continue
-    seenTitles.add(test.title)
+    if (seenTitles.has(test.title)) continue;
+    seenTitles.add(test.title);
 
-    const testLines: string[] = [`### ${test.title}\n`]
-    testLines.push(...renderAnnotations(testAnnotations))
-    testLines.push(...renderViolationTable(test.violations))
+    const testLines: string[] = [`### ${test.title}\n`];
+    testLines.push(...renderAnnotations(testAnnotations));
+    testLines.push(...renderViolationTable(test.violations));
 
-    lines.push(...testLines)
+    lines.push(...testLines);
   }
 
-  return lines.join('\n')
+  return lines.join("\n");
 }
 
 /**
@@ -314,33 +321,35 @@ export function generateSummary(report: A11yReport): string {
  * that would otherwise let a crafted page forge additional workflow commands.
  */
 export function generateAnnotations(report: A11yReport): string {
-  const lines: string[] = []
+  const lines: string[] = [];
 
   for (const test of report.tests) {
-    const file = escapeWorkflowCommandProperty(test.file)
-    const line = escapeWorkflowCommandProperty(String(test.line))
+    const file = escapeWorkflowCommandProperty(test.file);
+    const line = escapeWorkflowCommandProperty(String(test.line));
 
     // Emit ::error for each violation.
     for (const v of test.violations) {
-      const targets = v.targets.slice(0, 3).join(', ')
-      const title = escapeWorkflowCommandProperty(`${v.rule} (${v.impact})`)
+      const targets = v.targets.slice(0, 3).join(", ");
+      const title = escapeWorkflowCommandProperty(`${v.rule} (${v.impact})`);
       const msg = escapeWorkflowCommand(
         `a11y: ${v.rule} (${v.impact}) — ${v.description}. Targets: ${targets}`,
-      )
-      lines.push(`::error file=${file},line=${line},title=${title}::${msg}`)
+      );
+      lines.push(`::error file=${file},line=${line},title=${title}::${msg}`);
     }
 
     // Emit ::warning for stale baseline entries.
     for (const ann of test.annotations) {
-      if (ann.type === 'Stale a11y baseline entry') {
-        const title = escapeWorkflowCommandProperty('Stale a11y baseline')
-        const msg = escapeWorkflowCommand(ann.description ?? '')
-        lines.push(`::warning file=${file},line=${line},title=${title}::${msg}`)
+      if (ann.type === "Stale a11y baseline entry") {
+        const title = escapeWorkflowCommandProperty("Stale a11y baseline");
+        const msg = escapeWorkflowCommand(ann.description ?? "");
+        lines.push(
+          `::warning file=${file},line=${line},title=${title}::${msg}`,
+        );
       }
     }
   }
 
-  return lines.join('\n')
+  return lines.join("\n");
 }
 
 /**
@@ -352,34 +361,35 @@ export function main(
   args: string[] = process.argv.slice(2),
   adapter: { commandName?: string } = {},
 ): void {
-  if (args.includes('--help') || args.includes('-h')) {
+  if (args.includes("--help") || args.includes("-h")) {
     process.stdout.write(
-      `Usage: ${adapter.commandName ?? 'playwright-testing-a11y-summary'} [options]\n\n` +
-      'Options:\n' +
-      '  --report-path=PATH       Playwright JSON report (default: test-results/results.json)\n' +
-      '  --mode=summary           Write a Markdown accessibility summary (default)\n' +
-      '  --mode=annotations       Write GitHub Actions annotations\n' +
-      '  -h, --help               Show this help\n',
-    )
-    return
+      `Usage: ${adapter.commandName ?? "playwright-testing-a11y-summary"} [options]\n\n` +
+        "Options:\n" +
+        "  --report-path=PATH       Playwright JSON report (default: test-results/results.json)\n" +
+        "  --mode=summary           Write a Markdown accessibility summary (default)\n" +
+        "  --mode=annotations       Write GitHub Actions annotations\n" +
+        "  -h, --help               Show this help\n",
+    );
+    return;
   }
 
-  let mode = 'summary'
-  let reportPath = 'test-results/results.json'
+  let mode = "summary";
+  let reportPath = "test-results/results.json";
 
   for (const arg of args) {
-    if (arg.startsWith('--mode=')) mode = arg.slice('--mode='.length)
-    if (arg.startsWith('--report-path=')) reportPath = arg.slice('--report-path='.length)
+    if (arg.startsWith("--mode=")) mode = arg.slice("--mode=".length);
+    if (arg.startsWith("--report-path="))
+      reportPath = arg.slice("--report-path=".length);
   }
 
-  const validModes = new Set(['summary', 'annotations'])
+  const validModes = new Set(["summary", "annotations"]);
   if (!validModes.has(mode)) {
-    console.error(`Unknown mode: ${mode}. Use summary or annotations.`)
-    process.exit(2)
+    console.error(`Unknown mode: ${mode}. Use summary or annotations.`);
+    process.exit(2);
   }
 
   // Resolve relative to cwd.
-  const resolvedPath = path.resolve(reportPath)
+  const resolvedPath = path.resolve(reportPath);
 
   // Missing reports are intentionally non-fatal — the JSON report may be
   // absent if no tests ran. Any other failure (parse error, permissions, etc.)
@@ -388,34 +398,34 @@ export function main(
   if (!fs.existsSync(resolvedPath)) {
     console.error(
       `Playwright JSON report not found at ${resolvedPath} — skipping a11y summary.`,
-    )
-    return
+    );
+    return;
   }
 
-  const report = parseA11yResults(resolvedPath)
+  const report = parseA11yResults(resolvedPath);
 
   switch (mode) {
-    case 'summary': {
-      const md = generateSummary(report)
-      const summaryFile = process.env.GITHUB_STEP_SUMMARY
+    case "summary": {
+      const md = generateSummary(report);
+      const summaryFile = process.env.GITHUB_STEP_SUMMARY;
       if (summaryFile) {
-        fs.appendFileSync(summaryFile, md)
-        console.log('Accessibility summary written to $GITHUB_STEP_SUMMARY')
+        fs.appendFileSync(summaryFile, md);
+        console.log("Accessibility summary written to $GITHUB_STEP_SUMMARY");
       } else {
         // Not in GitHub Actions — just print.
-        process.stdout.write(md)
+        process.stdout.write(md);
       }
-      break
+      break;
     }
-    case 'annotations': {
-      const output = generateAnnotations(report)
-      if (output) process.stdout.write(output + '\n')
-      break
+    case "annotations": {
+      const output = generateAnnotations(report);
+      if (output) process.stdout.write(output + "\n");
+      break;
     }
   }
 }
 
 // Auto-invoke when run directly (node lib/github/a11y-summary.js).
 if (require.main === module) {
-  main()
+  main();
 }

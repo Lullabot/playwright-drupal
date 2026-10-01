@@ -1,1 +1,1 @@
-export { YoutubeMock } from './youtube'
+export { YoutubeMock } from "./youtube";

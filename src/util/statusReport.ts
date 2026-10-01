@@ -1,4 +1,4 @@
-import { execDrushInTestSite } from '../testcase/test';
+import { execDrushInTestSite } from "../testcase/test";
 
 /**
  * Drupal status-report utilities, driven via Drush.
@@ -14,7 +14,7 @@ export interface StatusReportItem {
   /** Drupal's requirement machine name (e.g. `'cron'`, `'database_system'`). */
   id: string;
   title: string;
-  severity: 'error' | 'warning' | 'info' | 'ok';
+  severity: "error" | "warning" | "info" | "ok";
   description?: string;
   value?: string;
 }
@@ -38,16 +38,16 @@ export interface StatusReportConfig {
  * `"Info"`, `"Error"`) into our lowercased union. Unknown values fall
  * through as `'ok'` (they don't count toward any failure bucket).
  */
-function normaliseSeverity(raw: string): StatusReportItem['severity'] {
+function normaliseSeverity(raw: string): StatusReportItem["severity"] {
   switch (raw.toLowerCase()) {
-    case 'error':
-      return 'error';
-    case 'warning':
-      return 'warning';
-    case 'info':
-      return 'info';
+    case "error":
+      return "error";
+    case "warning":
+      return "warning";
+    case "info":
+      return "info";
     default:
-      return 'ok';
+      return "ok";
   }
 }
 
@@ -56,39 +56,49 @@ function normaliseSeverity(raw: string): StatusReportItem['severity'] {
  * by severity.
  */
 export async function getStatusReport(): Promise<StatusReportResult> {
-  const result: StatusReportResult = { errors: [], warnings: [], info: [], ok: [] };
+  const result: StatusReportResult = {
+    errors: [],
+    warnings: [],
+    info: [],
+    ok: [],
+  };
 
-  const { stdout } = await execDrushInTestSite('core:requirements --format=json');
+  const { stdout } = await execDrushInTestSite(
+    "core:requirements --format=json",
+  );
   const trimmed = stdout.trim();
   if (!trimmed) return result;
 
-  const parsed = JSON.parse(trimmed) as Record<string, {
-    title?: string;
-    severity?: string;
-    description?: string;
-    value?: string;
-  }>;
+  const parsed = JSON.parse(trimmed) as Record<
+    string,
+    {
+      title?: string;
+      severity?: string;
+      description?: string;
+      value?: string;
+    }
+  >;
 
   for (const [id, entry] of Object.entries(parsed)) {
-    const title = entry.title?.trim() || '';
+    const title = entry.title?.trim() || "";
     if (!title) continue;
 
     const item: StatusReportItem = {
       id,
       title,
-      severity: normaliseSeverity(entry.severity ?? ''),
+      severity: normaliseSeverity(entry.severity ?? ""),
       description: entry.description?.trim() || undefined,
       value: entry.value?.trim() || undefined,
     };
 
     switch (item.severity) {
-      case 'error':
+      case "error":
         result.errors.push(item);
         break;
-      case 'warning':
+      case "warning":
         result.warnings.push(item);
         break;
-      case 'info':
+      case "info":
         result.info.push(item);
         break;
       default:
@@ -113,7 +123,9 @@ export function filterStatusItems(
   }
   return items.filter((item) => {
     const lowerTitle = item.title.toLowerCase();
-    return !config.ignoreItems!.some((pattern) => lowerTitle.includes(pattern.toLowerCase()));
+    return !config.ignoreItems!.some((pattern) =>
+      lowerTitle.includes(pattern.toLowerCase()),
+    );
   });
 }
 
@@ -126,10 +138,13 @@ export function formatStatusItems(items: StatusReportItem[]): string {
     .map((item) => {
       let output = `• ${item.title}`;
       if (item.value && item.value !== item.title) {
-        const snippet = item.value.length > 200 ? `${item.value.substring(0, 200)}...` : item.value;
+        const snippet =
+          item.value.length > 200
+            ? `${item.value.substring(0, 200)}...`
+            : item.value;
         output += `\n  Details: ${snippet}`;
       }
       return output;
     })
-    .join('\n\n');
+    .join("\n\n");
 }

@@ -1,5 +1,5 @@
-import { Page } from '@playwright/test';
-import { clickSubmit } from './gin';
+import { Page } from "@playwright/test";
+import { clickSubmit } from "./gin";
 
 /**
  * Drupal form-interaction primitives.
@@ -36,19 +36,30 @@ export interface WaitForAjaxOptions {
  *
  * @see \Drupal\FunctionalJavascriptTests\JSWebAssert::assertWaitOnAjaxRequest()
  */
-export async function waitForAjax(page: Page, opts: WaitForAjaxOptions = {}): Promise<void> {
+export async function waitForAjax(
+  page: Page,
+  opts: WaitForAjaxOptions = {},
+): Promise<void> {
   const timeout = opts.timeout ?? 5_000;
-  await page.waitForFunction(() => {
-    const w = window as unknown as {
-      Drupal?: { ajax?: { instances?: Array<{ ajaxing?: boolean } | null> } };
-      jQuery?: ((selector: string) => { length: number }) & { active?: number };
-    };
-    const drupalIdle = !w.Drupal?.ajax?.instances ||
-      w.Drupal.ajax.instances.every((i) => !i || !i.ajaxing);
-    const jq = w.jQuery;
-    const jqIdle = !jq || ((jq.active ?? 0) === 0 && jq(':animated').length === 0);
-    return drupalIdle && jqIdle;
-  }, undefined, { timeout });
+  await page.waitForFunction(
+    () => {
+      const w = window as unknown as {
+        Drupal?: { ajax?: { instances?: Array<{ ajaxing?: boolean } | null> } };
+        jQuery?: ((selector: string) => { length: number }) & {
+          active?: number;
+        };
+      };
+      const drupalIdle =
+        !w.Drupal?.ajax?.instances ||
+        w.Drupal.ajax.instances.every((i) => !i || !i.ajaxing);
+      const jq = w.jQuery;
+      const jqIdle =
+        !jq || ((jq.active ?? 0) === 0 && jq(":animated").length === 0);
+      return drupalIdle && jqIdle;
+    },
+    undefined,
+    { timeout },
+  );
 }
 
 /**
@@ -61,7 +72,7 @@ export async function waitForAjax(page: Page, opts: WaitForAjaxOptions = {}): Pr
  */
 export async function openAllDetails(page: Page): Promise<void> {
   await page.evaluate(() => {
-    document.querySelectorAll('details:not([open])').forEach((d) => {
+    document.querySelectorAll("details:not([open])").forEach((d) => {
       (d as HTMLDetailsElement).open = true;
     });
   });
@@ -80,16 +91,19 @@ export async function openAllDetails(page: Page): Promise<void> {
  * Delegates to `clickSubmit` from `./gin` so every submit-style click in
  * this package funnels through the same sticky-header-safe idiom.
  */
-export async function clickSaveButton(page: Page, fallback: string): Promise<void> {
+export async function clickSaveButton(
+  page: Page,
+  fallback: string,
+): Promise<void> {
   const candidates = page.locator('input[type=submit][name="op"]');
   const total = await candidates.count();
   for (let i = 0; i < total; i++) {
     const btn = candidates.nth(i);
     if (!(await btn.isVisible().catch(() => false))) continue;
-    const value = (await btn.getAttribute('value')) || '';
-    if (!value.startsWith('Save')) continue;
-    const once = (await btn.getAttribute('data-once')) || '';
-    if (once.includes('autosave-form-input-monitor')) continue;
+    const value = (await btn.getAttribute("value")) || "";
+    if (!value.startsWith("Save")) continue;
+    const once = (await btn.getAttribute("data-once")) || "";
+    if (once.includes("autosave-form-input-monitor")) continue;
     await clickSubmit(btn);
     return;
   }
@@ -140,23 +154,25 @@ export interface SaveDrupalFormOptions extends WaitForSaveOutcomeOptions {
 export async function waitForSaveOutcome(
   page: Page,
   opts: WaitForSaveOutcomeOptions,
-): Promise<'ok' | 'error'> {
+): Promise<"ok" | "error"> {
   const timeout = opts.timeout ?? 30_000;
   try {
     return await Promise.race([
       page
-        .waitForURL((u) => !opts.addFormPathPattern.test(u.toString()), { timeout })
-        .then(() => 'ok' as const),
+        .waitForURL((u) => !opts.addFormPathPattern.test(u.toString()), {
+          timeout,
+        })
+        .then(() => "ok" as const),
       page
-        .locator('[data-drupal-messages] .messages--error, .messages--error')
+        .locator("[data-drupal-messages] .messages--error, .messages--error")
         .first()
-        .waitFor({ state: 'visible', timeout })
-        .then(() => 'error' as const),
+        .waitFor({ state: "visible", timeout })
+        .then(() => "error" as const),
     ]);
   } catch (err) {
     throw new Error(
       `waitForSaveOutcome: neither a URL change away from ${opts.addFormPathPattern} ` +
-      `nor a .messages--error appeared within ${timeout}ms. Did the form submit?`,
+        `nor a .messages--error appeared within ${timeout}ms. Did the form submit?`,
       { cause: err },
     );
   }
@@ -174,7 +190,7 @@ export async function waitForSaveOutcome(
 export async function saveDrupalForm(
   page: Page,
   opts: SaveDrupalFormOptions,
-): Promise<'ok' | 'error'> {
+): Promise<"ok" | "error"> {
   await waitForAjax(page, { timeout: opts.ajaxTimeout });
   await clickSaveButton(page, opts.fallback);
   return waitForSaveOutcome(page, opts);

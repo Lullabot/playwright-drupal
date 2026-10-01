@@ -1,5 +1,5 @@
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from "fs";
+import * as path from "path";
 
 /**
  * Translate the file paths a Playwright JSON report records into paths the
@@ -40,31 +40,31 @@ import * as path from 'path'
  * context makes a coincidence unlikely, and longer tails are tried first
  * regardless, so the most specific match always wins.
  */
-const MIN_TAIL_COMPONENTS = 2
+const MIN_TAIL_COMPONENTS = 2;
 
 export interface PathPrefix {
   /** Absolute path as recorded in the report — typically a container path. */
-  from: string
+  from: string;
   /** The same directory as seen from here. */
-  to: string
+  to: string;
 }
 
 export interface PathResolution {
   /** The path to read. Unchanged when the recorded one was already fine. */
-  path: string
+  path: string;
   /** Whether a readable file was found. */
-  found: boolean
+  found: boolean;
   /** The mapping that made it readable, when one was needed. */
-  prefix?: PathPrefix
+  prefix?: PathPrefix;
 }
 
 export interface PathResolverOptions {
   /** Where the JSON report was read from, on this side of the boundary. */
-  reportPath: string
+  reportPath: string;
   /** Explicit mappings. Tried before anything is worked out. */
-  prefixes?: PathPrefix[]
+  prefixes?: PathPrefix[];
   /** Existence check, injectable for tests. */
-  exists?: (filePath: string) => boolean
+  exists?: (filePath: string) => boolean;
 }
 
 /**
@@ -74,14 +74,14 @@ export interface PathResolverOptions {
  * contain one on Windows, whereas `FROM` comes from a container and will not.
  */
 export function parsePathPrefix(value: string): PathPrefix | null {
-  const separator = value.indexOf(':')
-  if (separator <= 0) return null
+  const separator = value.indexOf(":");
+  if (separator <= 0) return null;
 
-  const from = value.slice(0, separator).trim()
-  const to = value.slice(separator + 1).trim()
-  if (!from || !to) return null
+  const from = value.slice(0, separator).trim();
+  const to = value.slice(separator + 1).trim();
+  if (!from || !to) return null;
 
-  return { from, to }
+  return { from, to };
 }
 
 /**
@@ -95,64 +95,75 @@ export function parsePathPrefix(value: string): PathPrefix | null {
 export function createPathResolver(
   options: PathResolverOptions,
 ): (filePath: string) => PathResolution {
-  const exists = options.exists ?? ((filePath: string) => fs.existsSync(filePath))
-  const explicit = options.prefixes ?? []
-  const searchRoots = ancestors(path.dirname(path.resolve(options.reportPath)))
-  const learned: PathPrefix[] = []
+  const exists =
+    options.exists ?? ((filePath: string) => fs.existsSync(filePath));
+  const explicit = options.prefixes ?? [];
+  const searchRoots = ancestors(path.dirname(path.resolve(options.reportPath)));
+  const learned: PathPrefix[] = [];
 
   /** Hang tails of the recorded path off each directory around the report. */
   function search(filePath: string): PathResolution | null {
-    const target = splitPath(filePath)
+    const target = splitPath(filePath);
 
     // Longest tail first, so the most specific match wins. Stop one short of
     // the whole path: something has to be left to rewrite.
-    for (let length = target.components.length - 1; length >= MIN_TAIL_COMPONENTS; length--) {
-      const tail = target.components.slice(target.components.length - length).join('/')
+    for (
+      let length = target.components.length - 1;
+      length >= MIN_TAIL_COMPONENTS;
+      length--
+    ) {
+      const tail = target.components
+        .slice(target.components.length - length)
+        .join("/");
 
       for (const root of searchRoots) {
-        const candidate = `${trimTrailingSeparators(root)}/${tail}`
-        if (!exists(candidate)) continue
+        const candidate = `${trimTrailingSeparators(root)}/${tail}`;
+        if (!exists(candidate)) continue;
 
         return {
           path: candidate,
           found: true,
-          prefix: { from: joinPath(target, target.components.length - length), to: root },
-        }
+          prefix: {
+            from: joinPath(target, target.components.length - length),
+            to: root,
+          },
+        };
       }
     }
 
-    return null
+    return null;
   }
 
   return (filePath: string): PathResolution => {
-    if (exists(filePath)) return { path: filePath, found: true }
+    if (exists(filePath)) return { path: filePath, found: true };
 
     for (const prefix of [...explicit, ...learned]) {
-      const rewritten = applyPrefix(filePath, prefix)
-      if (rewritten && exists(rewritten)) return { path: rewritten, found: true, prefix }
+      const rewritten = applyPrefix(filePath, prefix);
+      if (rewritten && exists(rewritten))
+        return { path: rewritten, found: true, prefix };
     }
 
-    const discovered = search(filePath)
-    if (!discovered) return { path: filePath, found: false }
+    const discovered = search(filePath);
+    if (!discovered) return { path: filePath, found: false };
 
-    if (discovered.prefix) learned.push(discovered.prefix)
-    return discovered
-  }
+    if (discovered.prefix) learned.push(discovered.prefix);
+    return discovered;
+  };
 }
 
 /** Swap one prefix for another, or null when the path is not under it. */
 function applyPrefix(filePath: string, prefix: PathPrefix): string | null {
-  const from = splitPath(prefix.from)
-  const target = splitPath(filePath)
+  const from = splitPath(prefix.from);
+  const target = splitPath(filePath);
 
-  if (target.components.length < from.components.length) return null
+  if (target.components.length < from.components.length) return null;
   for (let index = 0; index < from.components.length; index++) {
-    if (target.components[index] !== from.components[index]) return null
+    if (target.components[index] !== from.components[index]) return null;
   }
 
-  const rest = target.components.slice(from.components.length)
-  const to = trimTrailingSeparators(prefix.to)
-  return rest.length === 0 ? to : `${to}/${rest.join('/')}`
+  const rest = target.components.slice(from.components.length);
+  const to = trimTrailingSeparators(prefix.to);
+  return rest.length === 0 ? to : `${to}/${rest.join("/")}`;
 }
 
 /**
@@ -163,15 +174,15 @@ function applyPrefix(filePath: string, prefix: PathPrefix): string | null {
  * out of a report this package did not write.
  */
 function trimTrailingSeparators(value: string): string {
-  let end = value.length
-  while (end > 0 && (value[end - 1] === '/' || value[end - 1] === '\\')) end--
-  return value.slice(0, end)
+  let end = value.length;
+  while (end > 0 && (value[end - 1] === "/" || value[end - 1] === "\\")) end--;
+  return value.slice(0, end);
 }
 
 interface SplitPath {
   /** `/`, `C:/`, or empty for a relative path. */
-  root: string
-  components: string[]
+  root: string;
+  components: string[];
 }
 
 /**
@@ -181,28 +192,31 @@ interface SplitPath {
  * recorded paths come from a report rather than from this platform.
  */
 function splitPath(value: string): SplitPath {
-  const match = /^([A-Za-z]:[\\/]|[\\/])?/.exec(value)
-  const prefix = match?.[1] ?? ''
+  const match = /^([A-Za-z]:[\\/]|[\\/])?/.exec(value);
+  const prefix = match?.[1] ?? "";
   return {
-    root: prefix.replace(/\\/g, '/'),
-    components: value.slice(prefix.length).split(/[\\/]+/).filter(Boolean),
-  }
+    root: prefix.replace(/\\/g, "/"),
+    components: value
+      .slice(prefix.length)
+      .split(/[\\/]+/)
+      .filter(Boolean),
+  };
 }
 
 /** Rebuild a path from its first `count` components. */
 function joinPath(split: SplitPath, count: number): string {
-  return split.root + split.components.slice(0, count).join('/')
+  return split.root + split.components.slice(0, count).join("/");
 }
 
 /** A directory and every directory above it. */
 function ancestors(directory: string): string[] {
-  const out: string[] = []
-  let current = directory
+  const out: string[] = [];
+  let current = directory;
 
   for (;;) {
-    out.push(current)
-    const parent = path.dirname(current)
-    if (parent === current) return out
-    current = parent
+    out.push(current);
+    const parent = path.dirname(current);
+    if (parent === current) return out;
+    current = parent;
   }
 }

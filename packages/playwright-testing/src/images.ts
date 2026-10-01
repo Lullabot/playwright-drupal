@@ -1,4 +1,4 @@
-import {Page} from "@playwright/test";
+import { Page } from "@playwright/test";
 
 export interface WaitForImagesOptions {
   /** How long to wait for visible images to decode. */
@@ -36,13 +36,15 @@ export async function waitForImages(
     for (const l of await locators.all()) {
       // Ensure images are connected to the DOM before trying to scroll to them.
       // https://github.com/microsoft/playwright/issues/23758
-      if (await l.evaluate(image => image.isConnected)) {
+      if (await l.evaluate((image) => image.isConnected)) {
         await l.scrollIntoViewIfNeeded();
       }
     }
 
     // Make sure all images have loaded.
-    const promises = (await locators.all()).map(locator => locator.evaluate(settleImage));
+    const promises = (await locators.all()).map((locator) =>
+      locator.evaluate(settleImage),
+    );
     await Promise.all(promises);
 
     // The wait above treats an errored image as "loaded". Decode each visible
@@ -59,16 +61,16 @@ export async function waitForImages(
       window.scroll({
         top: 0,
         left: 0,
-        behavior: 'instant',
-      })
+        behavior: "instant",
+      }),
     );
 
     // window.scroll is async and doesn't return a promise, so wait until the
     // browser confirms we are at the top again.
-    const scrollState = {forced: false};
-    await page.waitForFunction(state => {
+    const scrollState = { forced: false };
+    await page.waitForFunction((state) => {
       if (window.scrollY !== 0 && !state.forced) {
-        window.scroll({top: 0, left: 0, behavior: 'instant'});
+        window.scroll({ top: 0, left: 0, behavior: "instant" });
         state.forced = true;
       }
       return window.scrollY === 0;
@@ -111,7 +113,7 @@ export function settleImage(image: HTMLImageElement): void | Promise<void> {
   if ((image.width <= 1 && image.height <= 1) || image.complete) {
     return;
   }
-  return new Promise<void>(resolve => {
+  return new Promise<void>((resolve) => {
     const settled = () => {
       image.removeEventListener("load", settled);
       image.removeEventListener("error", settled);
@@ -131,7 +133,7 @@ export async function waitForAllImages(
   page: Page,
   options: WaitForImagesOptions = {},
 ): Promise<void> {
-  await waitForImages(page, 'img:visible', options);
+  await waitForImages(page, "img:visible", options);
 }
 
 /**
@@ -167,14 +169,12 @@ export async function waitForAllImages(
  *   rewritten and re-requested. Defaults to false.
  * @returns The URLs of the images that never decoded. Empty when they all did.
  */
-export async function decodeVisibleImages(
-  options: {
-    timeoutMs: number,
-    pollMs?: number,
-    reloadIntervalMs?: number,
-    recoverErroredImages?: boolean,
-  }
-): Promise<string[]> {
+export async function decodeVisibleImages(options: {
+  timeoutMs: number;
+  pollMs?: number;
+  reloadIntervalMs?: number;
+  recoverErroredImages?: boolean;
+}): Promise<string[]> {
   const timeoutMs = options.timeoutMs;
   const pollMs = options.pollMs ?? 250;
   const reloadIntervalMs = options.reloadIntervalMs ?? 2000;
@@ -204,7 +204,7 @@ export async function decodeVisibleImages(
       // one fetched, instead of re-running srcset selection.
       const picture = img.closest("picture");
       if (picture) {
-        picture.querySelectorAll("source").forEach(source => source.remove());
+        picture.querySelectorAll("source").forEach((source) => source.remove());
       }
       img.removeAttribute("srcset");
       img.src = url.href;
@@ -220,31 +220,37 @@ export async function decodeVisibleImages(
     const candidates = Array.from(document.images).filter(isCandidate);
     // Collect the verdicts positionally rather than pushing as each check
     // settles, so anything reported below stays in document order.
-    const verdicts = await Promise.all(candidates.map(async img => {
-      if (img.complete && img.naturalWidth > 0) {
-        return "loaded"; // Loaded with intrinsic dimensions.
-      }
-      if (!img.complete) {
-        return "loading";
-      }
-      // Complete with a zero naturalWidth is ambiguous: a genuine load error
-      // (404/503) rejects decode(), while a valid but dimensionless image
-      // (such as an SVG with no intrinsic size) resolves it. Only the former
-      // should be re-requested; the latter is already settled.
-      try {
-        await img.decode();
-        return "loaded";
-      } catch {
-        return "errored";
-      }
-    }));
-    const pending = candidates.filter((img, index) => verdicts[index] !== "loaded");
-    const errored = candidates.filter((img, index) => verdicts[index] === "errored");
+    const verdicts = await Promise.all(
+      candidates.map(async (img) => {
+        if (img.complete && img.naturalWidth > 0) {
+          return "loaded"; // Loaded with intrinsic dimensions.
+        }
+        if (!img.complete) {
+          return "loading";
+        }
+        // Complete with a zero naturalWidth is ambiguous: a genuine load error
+        // (404/503) rejects decode(), while a valid but dimensionless image
+        // (such as an SVG with no intrinsic size) resolves it. Only the former
+        // should be re-requested; the latter is already settled.
+        try {
+          await img.decode();
+          return "loaded";
+        } catch {
+          return "errored";
+        }
+      }),
+    );
+    const pending = candidates.filter(
+      (img, index) => verdicts[index] !== "loaded",
+    );
+    const errored = candidates.filter(
+      (img, index) => verdicts[index] === "errored",
+    );
     if (pending.length === 0) {
       return [];
     }
     if (Date.now() >= deadline) {
-      return pending.map(img => {
+      return pending.map((img) => {
         const src = img.currentSrc || img.src;
         try {
           // Report the URL as the page authored it, without the cache-busting
@@ -262,7 +268,7 @@ export async function decodeVisibleImages(
       lastReload = Date.now();
       errored.forEach(reload);
     }
-    await new Promise(resolve => setTimeout(resolve, pollMs));
+    await new Promise((resolve) => setTimeout(resolve, pollMs));
   }
 }
 
@@ -289,10 +295,13 @@ export async function waitForImagesToDecode(
   timeoutMs = 15000,
   recoverErroredImages = false,
 ): Promise<string[]> {
-  const undecoded = await page.evaluate(decodeVisibleImages, {timeoutMs, recoverErroredImages});
+  const undecoded = await page.evaluate(decodeVisibleImages, {
+    timeoutMs,
+    recoverErroredImages,
+  });
   if (undecoded.length > 0) {
     console.warn(
-      `waitForImagesToDecode: ${undecoded.length} image(s) did not finish loading within ${timeoutMs}ms and may be captured as broken: ${undecoded.join(', ')}`
+      `waitForImagesToDecode: ${undecoded.length} image(s) did not finish loading within ${timeoutMs}ms and may be captured as broken: ${undecoded.join(", ")}`,
     );
   }
   return undecoded;

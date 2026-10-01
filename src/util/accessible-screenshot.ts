@@ -1,23 +1,23 @@
-import type { Locator, Page, TestInfo } from '@playwright/test'
+import type { Locator, Page, TestInfo } from "@playwright/test";
 import {
   checkAccessibility as checkGenericAccessibility,
   normalizeTarget,
   takeAccessibleScreenshot as takeGenericAccessibleScreenshot,
-} from '@lullabot/playwright-testing'
+} from "@lullabot/playwright-testing";
 
 import {
   createDrupalScreenshotOptions,
   type AccessibilityOptions,
   type ScreenshotOptions,
-} from '../drupal-preset'
+} from "../drupal-preset";
 
-export type { AccessibilityOptions, ScreenshotOptions } from '../drupal-preset'
+export type { AccessibilityOptions, ScreenshotOptions } from "../drupal-preset";
 export type {
   InteractionState,
   ScreenshotInteractionState,
   ScreenshotStabilizationOptions,
-} from '@lullabot/playwright-testing'
-export { normalizeTarget }
+} from "@lullabot/playwright-testing";
+export { normalizeTarget };
 
 /** Run the generic axe checks with the legacy Drupal exclusions applied. */
 export async function checkAccessibility(
@@ -25,8 +25,10 @@ export async function checkAccessibility(
   testInfo: TestInfo,
   options?: AccessibilityOptions,
 ) {
-  const configured = createDrupalScreenshotOptions(testInfo, { accessibility: options })
-  return checkGenericAccessibility(page, testInfo, configured.accessibility)
+  const configured = createDrupalScreenshotOptions(testInfo, {
+    accessibility: options,
+  });
+  return checkGenericAccessibility(page, testInfo, configured.accessibility);
 }
 
 /** Capture through the generic implementation with Drupal stabilization defaults. */
@@ -43,5 +45,5 @@ export async function takeAccessibleScreenshot(
     createDrupalScreenshotOptions(testInfo, options),
     scrollLocator,
     locator,
-  )
+  );
 }

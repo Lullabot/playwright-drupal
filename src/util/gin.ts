@@ -1,4 +1,4 @@
-import { Locator } from '@playwright/test';
+import { Locator } from "@playwright/test";
 
 /**
  * Workarounds for the [Gin](https://www.drupal.org/project/gin) admin theme.

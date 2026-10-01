@@ -1,13 +1,13 @@
-import { defineConfig, PlaywrightTestConfig } from '@playwright/test';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
+import { defineConfig, PlaywrightTestConfig } from "@playwright/test";
+import fs from "fs";
+import path from "path";
+import os from "os";
 
 // Browser profiles contain many small files. When the ddev-playwright add-on's
 // tmpfs is available, keep those files in memory so parallel workers do not
 // contend on the host-backed filesystem.
-if (process.env.DDEV_HOSTNAME && fs.existsSync('/tmp/ddev-playwright')) {
-  const browserTmp = '/tmp/ddev-playwright/playwright';
+if (process.env.DDEV_HOSTNAME && fs.existsSync("/tmp/ddev-playwright")) {
+  const browserTmp = "/tmp/ddev-playwright/playwright";
   fs.mkdirSync(browserTmp, { recursive: true });
   process.env.TMPDIR = browserTmp;
 }
@@ -16,21 +16,23 @@ if (process.env.DDEV_HOSTNAME && fs.existsSync('/tmp/ddev-playwright')) {
 // file. The barrel (index.ts) re-exports config before testcase, so this check
 // fires before testcase/test.ts tries to call test.afterEach() — which would
 // otherwise produce a confusing Playwright error.
-if (__dirname.includes(path.sep + 'packages' + path.sep + 'playwright-drupal')) {
-  const stack = new Error().stack || '';
+if (
+  __dirname.includes(path.sep + "packages" + path.sep + "playwright-drupal")
+) {
+  const stack = new Error().stack || "";
   if (/playwright\.config\.[tj]s/.test(stack)) {
     throw new Error(
       [
-        'Wrong import path in playwright.config.ts.',
-        '',
-        'You are importing from the packages/ directory, which is a runtime',
-        'copy intended only for test files.',
-        '',
-        'In your playwright.config.ts, change:',
-        '  import { definePlaywrightDrupalConfig } from \'@packages/playwright-drupal\';',
-        'to:',
-        '  import { definePlaywrightDrupalConfig } from \'@lullabot/playwright-drupal/config\';',
-      ].join('\n')
+        "Wrong import path in playwright.config.ts.",
+        "",
+        "You are importing from the packages/ directory, which is a runtime",
+        "copy intended only for test files.",
+        "",
+        "In your playwright.config.ts, change:",
+        "  import { definePlaywrightDrupalConfig } from '@packages/playwright-drupal';",
+        "to:",
+        "  import { definePlaywrightDrupalConfig } from '@lullabot/playwright-drupal/config';",
+      ].join("\n"),
     );
   }
 }
@@ -59,16 +61,26 @@ if (__dirname.includes(path.sep + 'packages' + path.sep + 'playwright-drupal')) 
  *   using the machine - so a project setting must not silently win over it.
  *   Playwright's own `--workers` flag still overrides both.
  */
-export function definePlaywrightDrupalConfig(overrides: PlaywrightTestConfig = {}): PlaywrightTestConfig {
+export function definePlaywrightDrupalConfig(
+  overrides: PlaywrightTestConfig = {},
+): PlaywrightTestConfig {
   const isCI = !!process.env.CI;
 
   const defaults: PlaywrightTestConfig = {
     fullyParallel: true,
     workers: Math.max(2, os.cpus().length - 2),
     reporter: isCI
-      ? [['line'], ['html'], ['json', { outputFile: 'test-results/results.json' }]]
-      : [['html', { host: '0.0.0.0', port: 9323 }], ['list'], ['json', { outputFile: 'test-results/results.json' }]],
-    globalSetup: path.resolve(__dirname, 'setup', 'global-setup.js'),
+      ? [
+          ["line"],
+          ["html"],
+          ["json", { outputFile: "test-results/results.json" }],
+        ]
+      : [
+          ["html", { host: "0.0.0.0", port: 9323 }],
+          ["list"],
+          ["json", { outputFile: "test-results/results.json" }],
+        ],
+    globalSetup: path.resolve(__dirname, "setup", "global-setup.js"),
     use: {
       baseURL: process.env.DDEV_PRIMARY_URL,
     },
@@ -108,15 +120,18 @@ function workersFromEnvironment(): number | string | undefined {
   }
 
   throw new Error(
-    `PLAYWRIGHT_WORKERS must be a positive integer or a percentage such as '50%', got '${raw}'.`
+    `PLAYWRIGHT_WORKERS must be a positive integer or a percentage such as '50%', got '${raw}'.`,
   );
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function deepMerge(target: Record<string, any>, source: Record<string, any>): Record<string, any> {
+function deepMerge(
+  target: Record<string, any>,
+  source: Record<string, any>,
+): Record<string, any> {
   const result: Record<string, any> = { ...target, ...source };
   for (const key of Object.keys(target)) {
     if (isPlainObject(target[key]) && isPlainObject(source[key])) {

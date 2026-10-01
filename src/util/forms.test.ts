@@ -1,11 +1,11 @@
-import { describe, it, expect, vi } from 'vitest';
-import { clickSaveButton, saveDrupalForm, waitForSaveOutcome } from './forms';
+import { describe, it, expect, vi } from "vitest";
+import { clickSaveButton, saveDrupalForm, waitForSaveOutcome } from "./forms";
 
-describe('clickSaveButton', () => {
+describe("clickSaveButton", () => {
   function makeBtn({
     visible = true,
-    value = '',
-    dataOnce = '',
+    value = "",
+    dataOnce = "",
   }: {
     visible?: boolean;
     value?: string;
@@ -14,8 +14,8 @@ describe('clickSaveButton', () => {
     return {
       isVisible: vi.fn().mockResolvedValue(visible),
       getAttribute: vi.fn().mockImplementation((name: string) => {
-        if (name === 'value') return Promise.resolve(value);
-        if (name === 'data-once') return Promise.resolve(dataOnce);
+        if (name === "value") return Promise.resolve(value);
+        if (name === "data-once") return Promise.resolve(dataOnce);
         return Promise.resolve(null);
       }),
       scrollIntoViewIfNeeded: vi.fn().mockResolvedValue(undefined),
@@ -23,7 +23,10 @@ describe('clickSaveButton', () => {
     };
   }
 
-  function makePage(candidates: ReturnType<typeof makeBtn>[], fallbackBtn: ReturnType<typeof makeBtn>) {
+  function makePage(
+    candidates: ReturnType<typeof makeBtn>[],
+    fallbackBtn: ReturnType<typeof makeBtn>,
+  ) {
     const locators: Record<string, unknown> = {
       'input[type=submit][name="op"]': {
         count: () => Promise.resolve(candidates.length),
@@ -38,12 +41,18 @@ describe('clickSaveButton', () => {
     } as never;
   }
 
-  it('skips buttons carrying the autosave_form once-marker and clicks the real Save', async () => {
-    const autosaveBtn = makeBtn({ value: 'Save', dataOnce: 'autosave-form-input-monitor' });
-    const realSaveBtn = makeBtn({ value: 'Save' });
-    const fallbackBtn = makeBtn({ value: 'Fallback' });
+  it("skips buttons carrying the autosave_form once-marker and clicks the real Save", async () => {
+    const autosaveBtn = makeBtn({
+      value: "Save",
+      dataOnce: "autosave-form-input-monitor",
+    });
+    const realSaveBtn = makeBtn({ value: "Save" });
+    const fallbackBtn = makeBtn({ value: "Fallback" });
 
-    await clickSaveButton(makePage([autosaveBtn, realSaveBtn], fallbackBtn), '#fallback');
+    await clickSaveButton(
+      makePage([autosaveBtn, realSaveBtn], fallbackBtn),
+      "#fallback",
+    );
 
     expect(autosaveBtn.click).not.toHaveBeenCalled();
     expect(realSaveBtn.click).toHaveBeenCalledWith({ force: true });
@@ -51,38 +60,41 @@ describe('clickSaveButton', () => {
   });
 
   it('matches "Save as" buttons (Thunder moderation)', async () => {
-    const saveAsBtn = makeBtn({ value: 'Save as' });
-    const fallbackBtn = makeBtn({ value: 'Fallback' });
+    const saveAsBtn = makeBtn({ value: "Save as" });
+    const fallbackBtn = makeBtn({ value: "Fallback" });
 
-    await clickSaveButton(makePage([saveAsBtn], fallbackBtn), '#fallback');
+    await clickSaveButton(makePage([saveAsBtn], fallbackBtn), "#fallback");
 
     expect(saveAsBtn.click).toHaveBeenCalledWith({ force: true });
   });
 
   it('skips buttons whose value does not start with "Save"', async () => {
-    const deleteBtn = makeBtn({ value: 'Delete' });
-    const previewBtn = makeBtn({ value: 'Preview' });
-    const fallbackBtn = makeBtn({ value: 'Fallback' });
+    const deleteBtn = makeBtn({ value: "Delete" });
+    const previewBtn = makeBtn({ value: "Preview" });
+    const fallbackBtn = makeBtn({ value: "Fallback" });
 
-    await clickSaveButton(makePage([deleteBtn, previewBtn], fallbackBtn), '#fallback');
+    await clickSaveButton(
+      makePage([deleteBtn, previewBtn], fallbackBtn),
+      "#fallback",
+    );
 
     expect(deleteBtn.click).not.toHaveBeenCalled();
     expect(previewBtn.click).not.toHaveBeenCalled();
     expect(fallbackBtn.click).toHaveBeenCalledWith({ force: true });
   });
 
-  it('falls back when no candidates are visible', async () => {
-    const hiddenBtn = makeBtn({ visible: false, value: 'Save' });
-    const fallbackBtn = makeBtn({ value: 'Fallback' });
+  it("falls back when no candidates are visible", async () => {
+    const hiddenBtn = makeBtn({ visible: false, value: "Save" });
+    const fallbackBtn = makeBtn({ value: "Fallback" });
 
-    await clickSaveButton(makePage([hiddenBtn], fallbackBtn), '#fallback');
+    await clickSaveButton(makePage([hiddenBtn], fallbackBtn), "#fallback");
 
     expect(hiddenBtn.click).not.toHaveBeenCalled();
     expect(fallbackBtn.click).toHaveBeenCalledWith({ force: true });
   });
 });
 
-describe('waitForSaveOutcome', () => {
+describe("waitForSaveOutcome", () => {
   function makePage({
     urlChanges,
     errorAppears,
@@ -94,13 +106,19 @@ describe('waitForSaveOutcome', () => {
   }) {
     return {
       waitForURL: vi.fn().mockImplementation(() => {
-        if (rejectAll || !urlChanges) return new Promise((_res, rej) => setTimeout(() => rej(new Error('url timeout')), 5));
+        if (rejectAll || !urlChanges)
+          return new Promise((_res, rej) =>
+            setTimeout(() => rej(new Error("url timeout")), 5),
+          );
         return Promise.resolve();
       }),
       locator: () => ({
         first: () => ({
           waitFor: vi.fn().mockImplementation(() => {
-            if (rejectAll || !errorAppears) return new Promise((_res, rej) => setTimeout(() => rej(new Error('locator timeout')), 5));
+            if (rejectAll || !errorAppears)
+              return new Promise((_res, rej) =>
+                setTimeout(() => rej(new Error("locator timeout")), 5),
+              );
             return Promise.resolve();
           }),
         }),
@@ -109,63 +127,75 @@ describe('waitForSaveOutcome', () => {
   }
 
   it('returns "ok" when the URL changes away from the add-form', async () => {
-    const result = await waitForSaveOutcome(
-      makePage({ urlChanges: true }),
-      { addFormPathPattern: /\/node\/add\//, timeout: 50 },
-    );
-    expect(result).toBe('ok');
+    const result = await waitForSaveOutcome(makePage({ urlChanges: true }), {
+      addFormPathPattern: /\/node\/add\//,
+      timeout: 50,
+    });
+    expect(result).toBe("ok");
   });
 
   it('returns "error" when the error message appears first', async () => {
-    const result = await waitForSaveOutcome(
-      makePage({ errorAppears: true }),
-      { addFormPathPattern: /\/node\/add\//, timeout: 50 },
-    );
-    expect(result).toBe('error');
+    const result = await waitForSaveOutcome(makePage({ errorAppears: true }), {
+      addFormPathPattern: /\/node\/add\//,
+      timeout: 50,
+    });
+    expect(result).toBe("error");
   });
 
-  it('throws a descriptive error when neither outcome occurs within the timeout', async () => {
+  it("throws a descriptive error when neither outcome occurs within the timeout", async () => {
     await expect(
-      waitForSaveOutcome(
-        makePage({ rejectAll: true }),
-        { addFormPathPattern: /\/node\/add\//, timeout: 20 },
-      ),
+      waitForSaveOutcome(makePage({ rejectAll: true }), {
+        addFormPathPattern: /\/node\/add\//,
+        timeout: 20,
+      }),
     ).rejects.toThrow(/neither a URL change.*nor a \.messages--error appeared/);
   });
 });
 
-describe('saveDrupalForm', () => {
-  it('waits for AJAX, submits once, and waits for navigation', async () => {
+describe("saveDrupalForm", () => {
+  it("waits for AJAX, submits once, and waits for navigation", async () => {
     const calls: string[] = [];
     const saveBtn = {
       isVisible: vi.fn().mockResolvedValue(true),
-      getAttribute: vi.fn().mockImplementation((name: string) =>
-        Promise.resolve(name === 'value' ? 'Save' : ''),
-      ),
-      scrollIntoViewIfNeeded: vi.fn().mockImplementation(async () => { calls.push('scroll'); }),
-      click: vi.fn().mockImplementation(async () => { calls.push('click'); }),
+      getAttribute: vi
+        .fn()
+        .mockImplementation((name: string) =>
+          Promise.resolve(name === "value" ? "Save" : ""),
+        ),
+      scrollIntoViewIfNeeded: vi.fn().mockImplementation(async () => {
+        calls.push("scroll");
+      }),
+      click: vi.fn().mockImplementation(async () => {
+        calls.push("click");
+      }),
     };
     const page = {
-      waitForFunction: vi.fn().mockImplementation(async () => { calls.push('ajax'); }),
-      waitForURL: vi.fn().mockImplementation(async () => { calls.push('outcome'); }),
+      waitForFunction: vi.fn().mockImplementation(async () => {
+        calls.push("ajax");
+      }),
+      waitForURL: vi.fn().mockImplementation(async () => {
+        calls.push("outcome");
+      }),
       locator: vi.fn().mockImplementation((selector: string) => {
         if (selector === 'input[type=submit][name="op"]') {
           return { count: async () => 1, nth: () => saveBtn };
         }
-        if (selector.includes('.messages--error')) {
-          return { first: () => ({ waitFor: () => new Promise(() => undefined) }) };
+        if (selector.includes(".messages--error")) {
+          return {
+            first: () => ({ waitFor: () => new Promise(() => undefined) }),
+          };
         }
         return saveBtn;
       }),
     } as never;
 
     const result = await saveDrupalForm(page, {
-      fallback: '#edit-submit',
+      fallback: "#edit-submit",
       addFormPathPattern: /\/node\/add\//,
     });
 
-    expect(result).toBe('ok');
-    expect(calls).toEqual(['ajax', 'scroll', 'click', 'outcome']);
+    expect(result).toBe("ok");
+    expect(calls).toEqual(["ajax", "scroll", "click", "outcome"]);
     expect(saveBtn.click).toHaveBeenCalledTimes(1);
   });
 });

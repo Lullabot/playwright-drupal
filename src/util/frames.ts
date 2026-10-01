@@ -1,1 +1,1 @@
-export { waitForFrames } from '@lullabot/playwright-testing'
+export { waitForFrames } from "@lullabot/playwright-testing";
