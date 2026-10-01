@@ -21,7 +21,8 @@
     },
     "packages/playwright-testing": {
       "component": "playwright-testing",
-      "package-name": "@lullabot/playwright-testing"
+      "package-name": "@lullabot/playwright-testing",
+      "release-as": "1.0.0"
     }
   }
 }
