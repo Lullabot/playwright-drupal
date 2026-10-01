@@ -1,5 +1,5 @@
-import { Locator, Page } from '@playwright/test';
-import { waitForAjax } from './forms';
+import { Locator, Page } from "@playwright/test";
+import { waitForAjax } from "./forms";
 
 /**
  * Reliable `managed_file` upload that survives several cross-cutting Drupal
@@ -38,11 +38,14 @@ async function waitForFid(
   fieldSelector: string,
   maxPollMs: number,
 ): Promise<boolean> {
-  const fidInput = page.locator(fieldSelector).locator('input[type=hidden][name$="[fids]"]').first();
+  const fidInput = page
+    .locator(fieldSelector)
+    .locator('input[type=hidden][name$="[fids]"]')
+    .first();
   const deadline = Date.now() + maxPollMs;
   while (Date.now() < deadline) {
-    const value = await fidInput.inputValue().catch(() => '');
-    if (value && value.trim() !== '') return true;
+    const value = await fidInput.inputValue().catch(() => "");
+    if (value && value.trim() !== "") return true;
     await page.waitForTimeout(200);
   }
   return false;
@@ -88,7 +91,7 @@ export async function uploadManagedFile(
   opts: UploadManagedFileOptions = {},
 ): Promise<void> {
   const field = page.locator(fieldSelector);
-  const fileInput = field.locator('input[type=file]').first();
+  const fileInput = field.locator("input[type=file]").first();
   const uploadBtn = field.locator('[id$="-upload-button"]').first();
   const maxPollMs = opts.maxPollMs ?? DEFAULT_FID_POLL_MS;
 
@@ -113,16 +116,18 @@ export async function uploadManagedFile(
   }
 
   if (!ok) {
-    throw new Error(`uploadManagedFile: file ID never materialised for ${fieldSelector}`);
+    throw new Error(
+      `uploadManagedFile: file ID never materialised for ${fieldSelector}`,
+    );
   }
 
   const requiredAfterUpload = field.locator(
-    'input[type=text][required]:visible, textarea[required]:visible',
+    "input[type=text][required]:visible, textarea[required]:visible",
   );
   const n = await requiredAfterUpload.count();
   for (let i = 0; i < n; i++) {
     const el = requiredAfterUpload.nth(i);
-    const existing = await el.inputValue().catch(() => '');
-    if (!existing) await el.fill('Auto-generated test value');
+    const existing = await el.inputValue().catch(() => "");
+    if (!existing) await el.fill("Auto-generated test value");
   }
 }

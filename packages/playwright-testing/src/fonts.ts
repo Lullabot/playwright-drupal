@@ -1,4 +1,4 @@
-import {Page} from "@playwright/test";
+import { Page } from "@playwright/test";
 
 /**
  * Wait for all web fonts to finish loading.

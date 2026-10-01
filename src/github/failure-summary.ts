@@ -7,11 +7,11 @@ import {
   runFailureSummary,
   uploaderFromEnvironment,
   uploadImages,
-} from '@lullabot/playwright-testing/github'
+} from "@lullabot/playwright-testing/github";
 import type {
   FailureCommentOptions,
   FailureReport,
-} from '@lullabot/playwright-testing/github'
+} from "@lullabot/playwright-testing/github";
 
 export type {
   FailedTest,
@@ -21,7 +21,7 @@ export type {
   IncludeMode,
   PathResolutionSummary,
   SummaryOptions,
-} from '@lullabot/playwright-testing/github'
+} from "@lullabot/playwright-testing/github";
 
 export {
   defuseMaskTriggers,
@@ -30,10 +30,10 @@ export {
   resolveImagePaths,
   uploaderFromEnvironment,
   uploadImages,
-}
+};
 
-export const FAILURE_MARKER_PREFIX = '<!-- playwright-drupal-failures: '
-export const FLAKE_MARKER_PREFIX = '<!-- playwright-drupal-flakes: '
+export const FAILURE_MARKER_PREFIX = "<!-- playwright-drupal-failures: ";
+export const FLAKE_MARKER_PREFIX = "<!-- playwright-drupal-flakes: ";
 
 /** Preserve the legacy machine-readable comment markers. */
 export function generateComment(
@@ -44,22 +44,24 @@ export function generateComment(
     ...options,
     failureMarkerPrefix: options.failureMarkerPrefix ?? FAILURE_MARKER_PREFIX,
     flakeMarkerPrefix: options.flakeMarkerPrefix ?? FLAKE_MARKER_PREFIX,
-  })
+  });
 }
 
 /** Keep the Drupal-branded CLI and markers while delegating implementation. */
-export async function main(args: string[] = process.argv.slice(2)): Promise<void> {
+export async function main(
+  args: string[] = process.argv.slice(2),
+): Promise<void> {
   return runFailureSummary(args, {
-    commandName: 'playwright-drupal-failure-summary',
+    commandName: "playwright-drupal-failure-summary",
     failureMarkerPrefix: FAILURE_MARKER_PREFIX,
     flakeMarkerPrefix: FLAKE_MARKER_PREFIX,
-  })
+  });
 }
 
 // Preserve direct execution of the historical compiled module path.
 if (require.main === module) {
   main().catch((error: unknown) => {
-    console.error(error)
-    process.exit(1)
-  })
+    console.error(error);
+    process.exit(1);
+  });
 }

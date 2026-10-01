@@ -1,18 +1,13 @@
-import {Page} from '@playwright/test'
+import { Page } from "@playwright/test";
 
 /** Pseudo-classes supported by Chromium's CSS.forcePseudoState command. */
 export type ForcedPseudoClass =
-  | 'active'
-  | 'focus'
-  | 'focus-visible'
-  | 'focus-within'
-  | 'hover'
-  | 'target'
+  "active" | "focus" | "focus-visible" | "focus-within" | "hover" | "target";
 
 /** A CSS selector and the pseudo-classes to force on its first match. */
 export interface ForcedPseudoState {
-  selector: string
-  pseudoClasses: ForcedPseudoClass[]
+  selector: string;
+  pseudoClasses: ForcedPseudoClass[];
 }
 
 /**
@@ -28,42 +23,52 @@ export async function forcePseudoState(
   selector: string,
   pseudoClasses: ForcedPseudoClass[],
 ): Promise<() => Promise<void>> {
-  let session
+  let session;
   try {
-    session = await page.context().newCDPSession(page)
+    session = await page.context().newCDPSession(page);
   } catch (error) {
-    throw new Error('forcePseudoState() requires a Chromium browser project.', {cause: error})
+    throw new Error("forcePseudoState() requires a Chromium browser project.", {
+      cause: error,
+    });
   }
 
   try {
-    await session.send('DOM.enable')
-    await session.send('CSS.enable')
-    const {root} = await session.send('DOM.getDocument')
-    const {nodeId} = await session.send('DOM.querySelector', {
+    await session.send("DOM.enable");
+    await session.send("CSS.enable");
+    const { root } = await session.send("DOM.getDocument");
+    const { nodeId } = await session.send("DOM.querySelector", {
       nodeId: root.nodeId,
       selector,
-    })
+    });
 
     if (!nodeId) {
-      throw new Error(`forcePseudoState() could not find an element matching "${selector}".`)
+      throw new Error(
+        `forcePseudoState() could not find an element matching "${selector}".`,
+      );
     }
 
-    await session.send('CSS.forcePseudoState', {nodeId, forcedPseudoClasses: pseudoClasses})
+    await session.send("CSS.forcePseudoState", {
+      nodeId,
+      forcedPseudoClasses: pseudoClasses,
+    });
 
-    let cleared = false
+    let cleared = false;
     return async () => {
       if (cleared) {
-        return
+        return;
       }
-      cleared = true
+      cleared = true;
       try {
-        await session.send('CSS.forcePseudoState', {nodeId, forcedPseudoClasses: []})
+        await session.send("CSS.forcePseudoState", {
+          nodeId,
+          forcedPseudoClasses: [],
+        });
       } finally {
-        await session.detach()
+        await session.detach();
       }
-    }
+    };
   } catch (error) {
-    await session.detach()
-    throw error
+    await session.detach();
+    throw error;
   }
 }

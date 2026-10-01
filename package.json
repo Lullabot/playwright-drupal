@@ -25,7 +25,11 @@
     "test:bats": "bats test/",
     "docs:dev": "uvx --with-requirements docs/requirements.txt mkdocs@1.6.1 serve",
     "docs:build": "uvx --with-requirements docs/requirements.txt mkdocs@1.6.1 build --strict",
-    "docs:preview": "uvx --with-requirements docs/requirements.txt mkdocs@1.6.1 serve site/"
+    "docs:preview": "uvx --with-requirements docs/requirements.txt mkdocs@1.6.1 serve site/",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{js,mjs,cjs,ts}\" \"**/bin/github-*\"",
+    "format:check": "prettier --check \"**/*.{js,mjs,cjs,ts}\" \"**/bin/github-*\""
   },
   "author": "Andrew Berry <andrew.berry@lullabot.com>",
   "license": "Apache-2.0",
@@ -65,6 +69,7 @@
   "dependencies": {
     "@lullabot/playwright-testing": "^1.0.0",
     "@axe-core/playwright": "^4.8.5",
+    "@lullabot/playwright-testing": "0.1.0",
     "@playwright/test": "^1.39.0",
     "@types/node": "^24.0.0",
     "shell-quote": "^1.8.3"
@@ -72,10 +77,16 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.0",
     "@commitlint/config-conventional": "^21.0.0",
+    "@eslint/js": "^10.0.1",
     "@types/shell-quote": "^1.7.5",
+    "eslint": "^10.11.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.13.0",
     "husky": "^9.1.7",
+    "prettier": "3.9.9",
     "tsx": "^4.21.0",
     "typescript": "^5.2.2 || ^6.0.0 || ^7.0.0",
+    "typescript-eslint": "^8.71.0",
     "vitest": "^5.0.0"
   }
 }

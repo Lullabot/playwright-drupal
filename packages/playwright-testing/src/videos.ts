@@ -1,4 +1,4 @@
-import {Page} from "@playwright/test";
+import { Page } from "@playwright/test";
 
 /**
  * Settle every <video> on the page so a screenshot of it is reproducible.
@@ -79,9 +79,11 @@ import {Page} from "@playwright/test";
  * @returns The sources of the videos that never became ready, and whether the
  *   page was scrolled at all.
  */
-export async function settleVideos(
-  options: {timeoutMs: number, pollMs?: number, paintTimeoutMs?: number}
-): Promise<{notReady: string[], scrolled: boolean}> {
+export async function settleVideos(options: {
+  timeoutMs: number;
+  pollMs?: number;
+  paintTimeoutMs?: number;
+}): Promise<{ notReady: string[]; scrolled: boolean }> {
   const timeoutMs = options.timeoutMs;
   const pollMs = options.pollMs ?? 50;
   const paintTimeoutMs = options.paintTimeoutMs ?? 1000;
@@ -131,45 +133,59 @@ export async function settleVideos(
   // running animation frames for a page it is not rendering -- one behind
   // another tab of the same context, say -- and page.evaluate() has no timeout
   // of its own, so an unguarded wait here hangs the whole capture.
-  const nextPaint = () => new Promise<void>(resolve => {
-    const timer = setTimeout(resolve, paintTimeoutMs);
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      clearTimeout(timer);
-      resolve();
-    }));
-  });
+  const nextPaint = () =>
+    new Promise<void>((resolve) => {
+      const timer = setTimeout(resolve, paintTimeoutMs);
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          clearTimeout(timer);
+          resolve();
+        }),
+      );
+    });
 
   // Assigning `currentTime` only *starts* a seek: the browser still has to
   // decode the frame at the new position and present it, which lands several
   // frames later when the position is not a keyframe. Waiting for `seeked` is
   // what makes the rewind visible in the capture rather than a race.
-  const seeked = (video: HTMLVideoElement) => new Promise<void>(resolve => {
-    const done = () => {
-      clearTimeout(timer);
-      video.removeEventListener("seeked", done);
-      resolve();
-    };
-    const timer = setTimeout(done, paintTimeoutMs);
-    video.addEventListener("seeked", done);
-  });
+  const seeked = (video: HTMLVideoElement) =>
+    new Promise<void>((resolve) => {
+      const done = () => {
+        clearTimeout(timer);
+        video.removeEventListener("seeked", done);
+        resolve();
+      };
+      const timer = setTimeout(done, paintTimeoutMs);
+      video.addEventListener("seeked", done);
+    });
 
   // scrollIntoView() scrolls every scrollable ancestor, not just the window, so
   // record where each of them was. Without this a video inside a modal body, an
   // off-canvas tray or a carousel track leaves that region showing something
   // the baseline never had, and the pixel diff lands nowhere near the video.
   const ancestorScrolls = (video: HTMLVideoElement) => {
-    const saved: Array<{element: Element, top: number, left: number}> = [];
+    const saved: Array<{ element: Element; top: number; left: number }> = [];
     for (let node = video.parentElement; node; node = node.parentElement) {
-      if (node.scrollHeight > node.clientHeight || node.scrollWidth > node.clientWidth) {
-        saved.push({element: node, top: node.scrollTop, left: node.scrollLeft});
+      if (
+        node.scrollHeight > node.clientHeight ||
+        node.scrollWidth > node.clientWidth
+      ) {
+        saved.push({
+          element: node,
+          top: node.scrollTop,
+          left: node.scrollLeft,
+        });
       }
     }
     return saved;
   };
 
   const sourceOf = (video: HTMLVideoElement) => {
-    const src = video.currentSrc || video.src
-      || video.querySelector("source")?.getAttribute("src") || "";
+    const src =
+      video.currentSrc ||
+      video.src ||
+      video.querySelector("source")?.getAttribute("src") ||
+      "";
     try {
       return new URL(src, location.href).href;
     } catch {
@@ -177,9 +193,11 @@ export async function settleVideos(
     }
   };
 
-  const videos = Array.from(document.querySelectorAll("video")).filter(isCandidate);
+  const videos = Array.from(document.querySelectorAll("video")).filter(
+    isCandidate,
+  );
   if (videos.length === 0) {
-    return {notReady: [], scrolled: false};
+    return { notReady: [], scrolled: false };
   }
 
   const scrollX = window.scrollX;
@@ -187,12 +205,12 @@ export async function settleVideos(
   const notReady: string[] = [];
 
   const restoreWindowScroll = async () => {
-    window.scroll({top: scrollY, left: scrollX, behavior: "instant"});
+    window.scroll({ top: scrollY, left: scrollX, behavior: "instant" });
     await nextPaint();
     // window.scroll is async and can be dropped outright -- when application UI
     // has locked the body, for example -- so confirm it landed and ask once more.
     if (window.scrollX !== scrollX || window.scrollY !== scrollY) {
-      window.scroll({top: scrollY, left: scrollX, behavior: "instant"});
+      window.scroll({ top: scrollY, left: scrollX, behavior: "instant" });
       await nextPaint();
     }
   };
@@ -202,18 +220,22 @@ export async function settleVideos(
       remember(video);
       pin(video);
 
-    // Bringing the video on screen is both what starts a lazy load and what
-    // gives Chromium a reason to composite the first frame. Without it a
-    // full-page capture can raster the region before the frame is ready to
-    // paint.
+      // Bringing the video on screen is both what starts a lazy load and what
+      // gives Chromium a reason to composite the first frame. Without it a
+      // full-page capture can raster the region before the frame is ready to
+      // paint.
       const ancestors = ancestorScrolls(video);
       try {
-        video.scrollIntoView({block: "center", inline: "nearest", behavior: "instant"});
+        video.scrollIntoView({
+          block: "center",
+          inline: "nearest",
+          behavior: "instant",
+        });
         await nextPaint();
 
-    // `preload="none"` means the browser fetches nothing until playback is
-    // asked for, and nothing here ever asks. Scrolling alone does not override
-    // it, so say what is wanted and let the poll below wait for it.
+        // `preload="none"` means the browser fetches nothing until playback is
+        // asked for, and nothing here ever asks. Scrolling alone does not override
+        // it, so say what is wanted and let the poll below wait for it.
         if (video.readyState === HAVE_NOTHING) {
           video.preload = "auto";
           try {
@@ -229,7 +251,7 @@ export async function settleVideos(
         const deadline = Date.now() + timeoutMs;
         const readyBeforeWait = video.readyState >= HAVE_CURRENT_DATA;
         while (video.readyState < HAVE_CURRENT_DATA && Date.now() < deadline) {
-          await new Promise(resolve => setTimeout(resolve, pollMs));
+          await new Promise((resolve) => setTimeout(resolve, pollMs));
         }
         if (video.readyState < HAVE_CURRENT_DATA) {
           // Reported below, but still settled: a video that becomes ready between
@@ -256,7 +278,7 @@ export async function settleVideos(
           // Not seekable; whatever frame it is showing is the best available.
         }
       } finally {
-        for (const {element, top, left} of ancestors) {
+        for (const { element, top, left } of ancestors) {
           element.scrollTop = top;
           element.scrollLeft = left;
         }
@@ -266,7 +288,7 @@ export async function settleVideos(
     await restoreWindowScroll();
   }
 
-  return {notReady, scrolled: true};
+  return { notReady, scrolled: true };
 }
 
 /**
@@ -335,14 +357,16 @@ export async function waitForVideos(
   page: Page,
   options: number | WaitForVideosOptions = {},
 ): Promise<string[]> {
-  const timeoutMs = typeof options === "number" ? options : options.timeoutMs ?? 5000;
-  const afterScroll = typeof options === "number" ? undefined : options.afterScroll;
+  const timeoutMs =
+    typeof options === "number" ? options : (options.timeoutMs ?? 5000);
+  const afterScroll =
+    typeof options === "number" ? undefined : options.afterScroll;
   const notReady: string[] = [];
   let scrolled = false;
 
   for (const frame of page.frames()) {
     try {
-      const result = await frame.evaluate(settleVideos, {timeoutMs});
+      const result = await frame.evaluate(settleVideos, { timeoutMs });
       notReady.push(...result.notReady);
       scrolled = scrolled || result.scrolled;
     } catch {
@@ -362,7 +386,7 @@ export async function waitForVideos(
 
   if (notReady.length > 0) {
     console.warn(
-      `waitForVideos: ${notReady.length} video(s) had no frame available within ${timeoutMs}ms and may be captured as an empty box: ${notReady.join(', ')}`
+      `waitForVideos: ${notReady.length} video(s) had no frame available within ${timeoutMs}ms and may be captured as an empty box: ${notReady.join(", ")}`,
     );
   }
   return notReady;

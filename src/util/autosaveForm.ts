@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Page } from "@playwright/test";
 
 /**
  * Workarounds for Drupal sites that install the
@@ -15,7 +15,7 @@ import { Page } from '@playwright/test';
  * button. No-op when the dialog is absent.
  */
 export async function dismissAutosaveDraft(page: Page): Promise<void> {
-  const reject = page.locator('.autosave-form-reject-button').first();
+  const reject = page.locator(".autosave-form-reject-button").first();
   if (await reject.isVisible().catch(() => false)) {
     await reject.click();
   }

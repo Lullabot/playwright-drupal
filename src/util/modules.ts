@@ -1,5 +1,5 @@
-import { Page } from '@playwright/test';
-import { execDrushInTestSite } from '../testcase/test';
+import { Page } from "@playwright/test";
+import { execDrushInTestSite } from "../testcase/test";
 
 /**
  * Drupal module-enabled probes.
@@ -22,8 +22,13 @@ import { execDrushInTestSite } from '../testcase/test';
  * caveat above.
  */
 export async function isModuleEnabled(name: string): Promise<boolean> {
-  const result = await execDrushInTestSite('pm:list --status=enabled --field=name');
-  const names = result.stdout.split('\n').map((s: string) => s.trim()).filter(Boolean);
+  const result = await execDrushInTestSite(
+    "pm:list --status=enabled --field=name",
+  );
+  const names = result.stdout
+    .split("\n")
+    .map((s: string) => s.trim())
+    .filter(Boolean);
   return names.includes(name);
 }
 
@@ -39,18 +44,21 @@ export async function isModuleEnabledByPath(
   _moduleName: string,
   testPath: string,
 ): Promise<boolean> {
-  const response = await page.goto(testPath, { waitUntil: 'networkidle' });
+  const response = await page.goto(testPath, { waitUntil: "networkidle" });
   if (!response?.ok()) return false;
 
   const accessDenied = await page
-    .locator('text=/access denied/i, text=/you are not authorized/i')
+    .locator("text=/access denied/i, text=/you are not authorized/i")
     .count();
   if (accessDenied > 0) return false;
 
   const alertBox = page.locator('div[role="alert"]').first();
   if ((await alertBox.count()) > 0) {
-    const alertText = (await alertBox.textContent()) || '';
-    if (alertText.toLowerCase().includes('access') || alertText.toLowerCase().includes('denied')) {
+    const alertText = (await alertBox.textContent()) || "";
+    if (
+      alertText.toLowerCase().includes("access") ||
+      alertText.toLowerCase().includes("denied")
+    ) {
       return false;
     }
   }
@@ -62,16 +70,19 @@ export async function isModuleEnabledByPath(
  * Throw with a Drush remediation hint if any of the required modules are
  * not enabled.
  */
-export async function validateRequiredModules(_page: Page, names: string[]): Promise<void> {
+export async function validateRequiredModules(
+  _page: Page,
+  names: string[],
+): Promise<void> {
   const missing: string[] = [];
   for (const name of names) {
     if (!(await isModuleEnabled(name))) missing.push(name);
   }
   if (missing.length > 0) {
     throw new Error(
-      `Required Drupal modules are not enabled: ${missing.join(', ')}.\n` +
-      `  Via Drush: drush en ${missing.join(' ')} -y\n` +
-      `  Via Admin UI: /admin/modules`,
+      `Required Drupal modules are not enabled: ${missing.join(", ")}.\n` +
+        `  Via Drush: drush en ${missing.join(" ")} -y\n` +
+        `  Via Admin UI: /admin/modules`,
     );
   }
 }

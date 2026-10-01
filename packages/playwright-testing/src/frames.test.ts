@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from "vitest";
 
-import { waitForFrames } from './frames';
+import { waitForFrames } from "./frames";
 
 function makeLocator({
   connected = true,
@@ -39,8 +39,8 @@ function makePage(locators: ReturnType<typeof makeLocator>[]) {
   } as never;
 }
 
-describe('waitForFrames', () => {
-  it('waits for each visible frame URL and load state', async () => {
+describe("waitForFrames", () => {
+  it("waits for each visible frame URL and load state", async () => {
     const first = makeLocator();
     const second = makeLocator();
 
@@ -49,14 +49,16 @@ describe('waitForFrames', () => {
     for (const locator of [first, second]) {
       expect(locator.scrollIntoViewIfNeeded).toHaveBeenCalledTimes(2);
       expect(locator.element.contentFrame).toHaveBeenCalledOnce();
-      expect(locator.element.contentFrame.mock.results[0].value).toBeInstanceOf(Promise);
+      expect(locator.element.contentFrame.mock.results[0].value).toBeInstanceOf(
+        Promise,
+      );
       const frame = await locator.element.contentFrame.mock.results[0].value;
       expect(frame?.waitForURL).toHaveBeenCalledOnce();
-      expect(frame?.waitForLoadState).toHaveBeenCalledWith('load');
+      expect(frame?.waitForLoadState).toHaveBeenCalledWith("load");
     }
   });
 
-  it('ignores frames that are detached or hidden', async () => {
+  it("ignores frames that are detached or hidden", async () => {
     const detached = makeLocator({ connected: false });
     const hidden = makeLocator({ visible: false });
 
@@ -67,7 +69,7 @@ describe('waitForFrames', () => {
     expect(hidden.elementHandle).not.toHaveBeenCalled();
   });
 
-  it('tolerates an iframe that detaches before its content frame is resolved', async () => {
+  it("tolerates an iframe that detaches before its content frame is resolved", async () => {
     const locator = makeLocator({ frame: null });
 
     await expect(waitForFrames(makePage([locator]))).resolves.toBeUndefined();

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { main } = require('../lib/github/failure-summary.js');
+const { main } = require("../lib/github/failure-summary.js");
 
 main().catch((error) => {
   console.error(error);

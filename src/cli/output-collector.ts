@@ -18,7 +18,7 @@ export class OutputCollector {
   private webErrors: string[] = [];
 
   startCommand(label: string): void {
-    this.current = { label: sanitizeLabel(label), stdout: '', stderr: '' };
+    this.current = { label: sanitizeLabel(label), stdout: "", stderr: "" };
   }
 
   appendStdout(data: string): void {
@@ -60,7 +60,10 @@ export class OutputCollector {
 }
 
 export function isVerbose(): boolean {
-  return process.env.PLAYWRIGHT_DRUPAL_VERBOSE === '1' || process.env.PLAYWRIGHT_DRUPAL_VERBOSE === 'true';
+  return (
+    process.env.PLAYWRIGHT_DRUPAL_VERBOSE === "1" ||
+    process.env.PLAYWRIGHT_DRUPAL_VERBOSE === "true"
+  );
 }
 
 /**
@@ -68,9 +71,9 @@ export function isVerbose(): boolean {
  */
 export function sanitizeLabel(command: string): string {
   return command
-    .replace(/[^a-zA-Z0-9_-]/g, '-')
-    .replace(/-{2,}/g, '-')
-    .replace(/^-|-$/g, '')
+    .replace(/[^a-zA-Z0-9_-]/g, "-")
+    .replace(/-{2,}/g, "-")
+    .replace(/^-|-$/g, "")
     .toLowerCase()
     .slice(0, 80);
 }
