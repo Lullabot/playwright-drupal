@@ -278,6 +278,26 @@
     
     
       <li class="md-tabs__item">
+        <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/README.md" class="md-tabs__link">
+          
+  
+  
+  Generic Playwright Utilities
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
         <a href="../../contributing/development/" class="md-tabs__link">
           
   
@@ -1475,7 +1495,7 @@
   <span class="md-ellipsis">
     
   
-    Contributing
+    Generic Playwright Utilities
   
 
     
@@ -1488,6 +1508,175 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Generic Playwright Utilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/README.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/accessibility.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accessibility Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Screenshots and Visual Comparisons
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/github-reporting.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2783,7 +2972,7 @@
 </tr>
 </tbody>
 </table>
-<p>Removes keyboard focus from a genuinely focused control so its focus ring does not appear in only some screenshot runs. Returns <code>true</code> if an element was blurred, <code>false</code> if nothing was focused (the <code>&lt;body&gt;</code>/<code>&lt;html&gt;</code> fallback is left alone). <a href="../accessibility-tests/#takeaccessiblescreenshot"><code>takeAccessibleScreenshot()</code></a> calls this for you unless <code>blur: false</code> is passed.</p>
+<p>Removes keyboard focus from a genuinely focused control so its focus ring does not appear in only some screenshot runs. Returns <code>true</code> if an element was blurred, <code>false</code> if nothing was focused (the <code>&lt;body&gt;</code>/<code>&lt;html&gt;</code> fallback is left alone). <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#capture-one-page-or-element"><code>takeAccessibleScreenshot()</code></a> calls this for you unless <code>blur: false</code> is passed.</p>
 <h3 id="clearhover">clearHover()</h3>
 <p><code>clearHover(page: Page): Promise&lt;() =&gt; Promise&lt;void&gt;&gt;</code></p>
 <table>
@@ -2802,7 +2991,7 @@
 </tr>
 </tbody>
 </table>
-<p>Moves the pointer onto a temporary transparent viewport shield so stale pointer activity cannot leave unrelated page content in its <code>:hover</code> state. Returns an idempotent cleanup function that removes the shield and restores normal pointer hit testing. <a href="../accessibility-tests/#takeaccessiblescreenshot"><code>takeAccessibleScreenshot()</code></a> calls and cleans this up automatically unless <code>clearHover: false</code> is passed.</p>
+<p>Moves the pointer onto a temporary transparent viewport shield so stale pointer activity cannot leave unrelated page content in its <code>:hover</code> state. Returns an idempotent cleanup function that removes the shield and restores normal pointer hit testing. <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#capture-one-page-or-element"><code>takeAccessibleScreenshot()</code></a> calls and cleans this up automatically unless <code>clearHover: false</code> is passed.</p>
 <h3 id="forcepseudostate">forcePseudoState()</h3>
 <p><code>forcePseudoState(page: Page, selector: string, pseudoClasses: ForcedPseudoClass[]): Promise&lt;() =&gt; Promise&lt;void&gt;&gt;</code></p>
 <table>
@@ -2836,13 +3025,13 @@ in a deterministic state. It is Chromium-only and throws when the selector has
 no match. The returned cleanup function clears the forced classes, detaches the
 DevTools session, and is safe to call more than once.</p>
 <p>For ordinary cross-browser hover and focus testing, prefer the
-<a href="../accessibility-tests/#screenshotoptions"><code>interactionStates</code></a> option. It uses
+<a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#capture-one-page-or-element"><code>interactionStates</code></a> option. It uses
 real Playwright interactions and keeps them active through the screenshot and
 accessibility scan.</p>
 <p>Forced pseudo-states are independent of real pointer hover and DOM focus, so
-<a href="../accessibility-tests/#takeaccessiblescreenshot"><code>takeAccessibleScreenshot()</code></a>
+<a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#capture-one-page-or-element"><code>takeAccessibleScreenshot()</code></a>
 can still clear those incidental states while preserving the requested styling
-through both the screenshot and accessibility scan. See <a href="../visual-comparisons/#testing-hover-and-focus-states">Testing Hover and
+through both the screenshot and accessibility scan. See <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#capture-one-page-or-element">Testing Hover and
 Focus States</a> for the
 declarative visual-diff configuration and a custom-test example.</p>
 <h2 id="fallback-selectors">Fallback selectors</h2>

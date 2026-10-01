@@ -278,6 +278,26 @@
     
     
       <li class="md-tabs__item">
+        <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/README.md" class="md-tabs__link">
+          
+  
+  
+  Generic Playwright Utilities
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
         <a href="../contributing/development/" class="md-tabs__link">
           
   
@@ -863,7 +883,7 @@
   <span class="md-ellipsis">
     
   
-    Contributing
+    Generic Playwright Utilities
   
 
     
@@ -876,6 +896,175 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Generic Playwright Utilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/README.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/accessibility.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accessibility Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Screenshots and Visual Comparisons
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/github-reporting.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1032,6 +1221,15 @@
 
 <h1 id="about-playwright-drupal">About playwright-drupal</h1>
 <p>playwright-drupal includes an extended version of Playwright's <code>test</code> function that sets up and tears down isolated Drupal sites. Each test gets its own copy of a base <a href="https://sqlite.org/">SQLite database</a>, whether that database was created by a fresh site install or <a href="https://github.com/techouse/mysql-to-sqlite3">converted from an existing MySQL/MariaDB database</a>.</p>
+<p>This repository is an npm workspace with two independently released packages.
+<code>@lullabot/playwright-testing</code> owns the framework-neutral accessibility,
+screenshot, visual-comparison, and GitHub-reporting implementation.
+<code>@lullabot/playwright-drupal</code> depends on it, preserves existing imports, and
+adds the Drupal test fixture, DDEV and database integration, Drush helpers, and
+a Drupal screenshot/accessibility preset.</p>
+<p>Drupal consumers should continue installing <code>@lullabot/playwright-drupal</code>.
+Non-Drupal consumers, or Drupal code that deliberately needs neutral defaults,
+can install and import <code>@lullabot/playwright-testing</code> directly.</p>
 <p>Test requests from the web browser are directed to the right database though <code>settings.php</code> additions. The library <a href="https://github.com/Lullabot/playwright-drupal/blob/main/settings/settings.playwright.php">provides a settings file</a> to include from your own Drupal settings file.</p>
 <p>Drush commands also work within each test site instance, letting tests scaffold data or make changes to the specific Drupal instance being tested without going through the administration UI.</p>
 <p><a href="https://taskfile.dev">Task</a> is used as a task runner to install Drupal and set up the tests. This allows developers to easily run individual components of the test setup and teardown without having to step through JavaScript, or reuse them in other non-testing scenarios. Projects don't have to use Task as their primary build tool - feel free to call your own existing scripts as needed.</p>
