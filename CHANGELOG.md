@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.15.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.14.1...playwright-drupal-1.15.0) (2026-10-02)
+
+
+### Features
+
+* show a red X for failing test results ([#354](https://github.com/Lullabot/playwright-drupal/issues/354)) ([b3ddcc5](https://github.com/Lullabot/playwright-drupal/commit/b3ddcc5082bab4af394b936fe1233c5d9bff39ff))
+
+
+### Bug Fixes
+
+* report shared a11y baseline entries stale after both scans ([9725419](https://github.com/Lullabot/playwright-drupal/commit/9725419c464c5b95559934ac78d1d768da20d503)), closes [#353](https://github.com/Lullabot/playwright-drupal/issues/353)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @lullabot/playwright-testing bumped from 1.0.1 to 1.1.0
+
 ## [1.14.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.14.0...playwright-drupal-1.14.1) (2026-10-01)
 
 
