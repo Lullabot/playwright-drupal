@@ -382,7 +382,7 @@ function headline(report: FailureReport): string {
   const parts =
     report.totalFailed === 0
       ? [":white_check_mark: No failing tests"]
-      : [`**${report.totalFailed}** failing test(s)`];
+      : [`:x: **${report.totalFailed}** failing test(s)`];
 
   if (report.totalFlaky > 0)
     parts.push(`:warning: **${report.totalFlaky}** flaky test(s)`);

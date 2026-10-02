@@ -245,6 +245,7 @@ describe("generateSummary", () => {
     // attachment resolves, and that dead render is cached for good.
     const summary = generateSummary(reportWith("https://example.test/a"));
 
+    expect(summary).toContain(":x: **1** failing test(s)");
     expect(summary).not.toContain("<img");
     expect(summary).toContain(
       "1 screenshot(s) uploaded — see the pull request comment.",
@@ -396,7 +397,7 @@ describe("generateComment", () => {
       summaryUrl: "https://example.test/run/1",
     });
 
-    expect(comment).toContain("**1** failing test(s)");
+    expect(comment).toContain(":x: **1** failing test(s)");
     expect(comment).toContain("homepage matches");
     expect(comment).toContain("(https://example.test/run/1)");
   });
