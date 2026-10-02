@@ -76,6 +76,9 @@ Use `defineAccessibilityBaseline()` for a baseline shared by multiple tests or
 generated from test data. An explicit baseline takes precedence over a JSON
 file.
 
+For an in-code baseline, an entry is reported as stale once per check only
+when none of the enabled scans matches it.
+
 ```typescript
 import { test } from '@playwright/test';
 import {
