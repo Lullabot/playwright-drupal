@@ -305,6 +305,175 @@ describe("accessibility baseline", () => {
       expect(staleAnnotations[0].description).toContain("#old-element");
       expect(staleAnnotations[0].description).toContain("no longer detected");
     });
+
+    it.each([
+      { name: "best-practice", bp: ["page-has-heading-one"], wcag: [] },
+      { name: "WCAG", bp: [], wcag: ["image-alt"] },
+      { name: "both scans", bp: ["page-has-heading-one"], wcag: ["image-alt"] },
+    ])(
+      "does not mark entries matched by $name as stale",
+      async ({ bp, wcag }) => {
+        const rules = [...bp, ...wcag];
+        const baseline: AccessibilityBaseline = rules.map((rule) => ({
+          rule,
+          targets: ["#known"],
+          reason: "Known issue",
+          willBeFixedIn: "PROJ-353",
+        }));
+        mockAnalyze
+          .mockResolvedValueOnce(
+            makeAxeResults({
+              violations: bp.map((rule) => makeViolation(rule, [["#known"]])),
+            }),
+          )
+          .mockResolvedValueOnce(
+            makeAxeResults({
+              violations: wcag.map((rule) => makeViolation(rule, [["#known"]])),
+            }),
+          );
+
+        const testInfo = makeTestInfo();
+        await checkAccessibility(makePage() as any, testInfo as any, {
+          baseline,
+        });
+
+        expect(
+          testInfo.annotations.filter(
+            (a) => a.type === "Stale a11y baseline entry",
+          ),
+        ).toEqual([]);
+        expect(
+          testInfo.annotations.filter(
+            (a) => a.type === "Baselined a11y violation",
+          ),
+        ).toHaveLength(rules.length);
+        expect(
+          testInfo.annotations.filter((a) =>
+            a.description?.includes("new violations"),
+          ),
+        ).toEqual([
+          {
+            type: "Accessibility",
+            description: `Best-practice scan: 0 new violations (${bp.length} baselined)`,
+          },
+          {
+            type: "Accessibility",
+            description: `WCAG scan: 0 new violations (${wcag.length} baselined)`,
+          },
+        ]);
+        expect(mockToBe).not.toHaveBeenCalled();
+      },
+    );
+
+    it("reports entries unmatched by either scan only once", async () => {
+      const testInfo = makeTestInfo();
+      await checkAccessibility(makePage() as any, testInfo as any, {
+        baseline: [
+          {
+            rule: "page-has-heading-one",
+            targets: ["html"],
+            reason: "Was broken",
+            willBeFixedIn: "PROJ-353",
+          },
+        ],
+      });
+
+      expect(
+        testInfo.annotations.filter(
+          (a) => a.type === "Stale a11y baseline entry",
+        ),
+      ).toEqual([
+        {
+          type: "Stale a11y baseline entry",
+          description: "page-has-heading-one on html — no longer detected",
+        },
+      ]);
+    });
+
+    it("does not carry baseline matches into later checks in the same test", async () => {
+      const baseline: AccessibilityBaseline = [
+        {
+          rule: "page-has-heading-one",
+          targets: ["html"],
+          reason: "Known issue",
+          willBeFixedIn: "PROJ-353",
+        },
+      ];
+      mockAnalyze.mockResolvedValueOnce(
+        makeAxeResults({
+          violations: [makeViolation("page-has-heading-one", [["html"]])],
+        }),
+      );
+      const testInfo = makeTestInfo();
+      await checkAccessibility(makePage() as any, testInfo as any, {
+        baseline,
+      });
+      expect(
+        testInfo.annotations.filter(
+          (a) => a.type === "Stale a11y baseline entry",
+        ),
+      ).toEqual([]);
+
+      await checkAccessibility(makePage() as any, testInfo as any, {
+        baseline,
+      });
+      expect(
+        testInfo.annotations.filter(
+          (a) => a.type === "Stale a11y baseline entry",
+        ),
+      ).toHaveLength(1);
+    });
+
+    it("reports stale entries before an unmatched WCAG violation throws", async () => {
+      const baseline: AccessibilityBaseline = [
+        {
+          rule: "page-has-heading-one",
+          targets: ["html"],
+          reason: "Known issue",
+          willBeFixedIn: "PROJ-353",
+        },
+        {
+          rule: "heading-order",
+          targets: ["h3"],
+          reason: "Was broken",
+          willBeFixedIn: "PROJ-354",
+        },
+      ];
+      mockAnalyze
+        .mockResolvedValueOnce(
+          makeAxeResults({
+            violations: [makeViolation("page-has-heading-one", [["html"]])],
+          }),
+        )
+        .mockResolvedValueOnce(
+          makeAxeResults({
+            violations: [makeViolation("image-alt", [["img"]])],
+          }),
+        );
+      mockToBe.mockImplementationOnce(() => {
+        throw new Error("new WCAG violation");
+      });
+      const testInfo = makeTestInfo();
+
+      await expect(
+        checkAccessibility(makePage() as any, testInfo as any, { baseline }),
+      ).rejects.toThrow("new WCAG violation");
+
+      expect(
+        testInfo.annotations.filter(
+          (a) => a.type === "Stale a11y baseline entry",
+        ),
+      ).toEqual([
+        {
+          type: "Stale a11y baseline entry",
+          description: "heading-order on h3 — no longer detected",
+        },
+      ]);
+      expect(mockExpectHard).toHaveBeenCalledWith(
+        null,
+        expect.stringContaining("image-alt"),
+      );
+    });
   });
 
   describe("snapshot bypass", () => {
@@ -697,6 +866,73 @@ describe("accessibility baseline", () => {
           bestPracticeMode: "off",
         }),
       ).rejects.toThrow("requires a reason");
+    });
+
+    it("keeps stale detection independent for each scan-specific on-disk baseline", async () => {
+      const fs = await import("fs");
+      const path = await import("path");
+      await fs.promises.writeFile(
+        path.join(tmpDir, "separate-scans-1.a11y-baseline-best-practice.json"),
+        JSON.stringify({
+          note: "Known best-practice violation.",
+          violations: [
+            {
+              rule: "page-has-heading-one",
+              targets: ["html"],
+              reason: "Known",
+              willBeFixedIn: "PROJ-353",
+            },
+          ],
+        }),
+      );
+      await fs.promises.writeFile(
+        path.join(tmpDir, "separate-scans-1.a11y-baseline.json"),
+        JSON.stringify({
+          note: "Previously broken image.",
+          violations: [
+            {
+              rule: "image-alt",
+              targets: ["img"],
+              reason: "Was broken",
+              willBeFixedIn: "PROJ-354",
+            },
+          ],
+        }),
+      );
+      mockAnalyze.mockResolvedValueOnce(
+        makeAxeResults({
+          violations: [makeViolation("page-has-heading-one", [["html"]])],
+        }),
+      );
+
+      const testInfo = makeTestInfo({
+        updateSnapshots: "none",
+        snapshotsDir: tmpDir,
+        title: "separate scans",
+      });
+      await checkAccessibility(makePage() as any, testInfo as any);
+
+      expect(
+        testInfo.annotations.filter(
+          (a) => a.type === "Baselined a11y violation",
+        ),
+      ).toEqual([
+        {
+          type: "Baselined a11y violation",
+          description: "page-has-heading-one: Known — PROJ-353",
+        },
+      ]);
+      expect(
+        testInfo.annotations.filter(
+          (a) => a.type === "Stale a11y baseline entry",
+        ),
+      ).toEqual([
+        {
+          type: "Stale a11y baseline entry",
+          description: "image-alt on img — no longer detected",
+        },
+      ]);
+      expect(mockToBe).not.toHaveBeenCalled();
     });
 
     it("produces per-call counter files for multi-call tests", async () => {

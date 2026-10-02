@@ -253,6 +253,10 @@ export async function checkAccessibility(
     testInfo.annotations.push({ type: "@a11y" });
   }
 
+  // An in-code baseline is shared by both scans. Track matches across this
+  // check so that a rule detected by either scan is not reported as stale.
+  const sharedBaselineMatches = new Set<number>();
+
   if (bestPracticeMode !== "off") {
     const bpResults = await runBestPracticeScan(page, testInfo, {
       exclude: [...exclude, ...bestPracticeExclude],
@@ -270,6 +274,7 @@ export async function checkAccessibility(
         scanLabel: "Best-practice scan",
       },
       baseline,
+      sharedBaselineMatches,
     );
   }
 
@@ -292,6 +297,7 @@ export async function checkAccessibility(
       scanLabel: "WCAG scan",
     },
     baseline,
+    sharedBaselineMatches,
   );
 }
 
@@ -321,9 +327,10 @@ interface ScanContext {
 async function dispatchAssertion(
   ctx: ScanContext,
   inCodeBaseline?: AccessibilityBaseline,
+  sharedBaselineMatches?: Set<number>,
 ): Promise<void> {
   if (inCodeBaseline) {
-    return assertBaseline(ctx, inCodeBaseline);
+    return assertBaseline(ctx, inCodeBaseline, sharedBaselineMatches);
   }
 
   if (await snapshotExists(ctx.testInfo)) {
@@ -497,7 +504,11 @@ async function screenshotViolatingElements(
 /**
  * Assert violations against a baseline allowlist (in-code or on-disk).
  */
-function assertBaseline(ctx: ScanContext, baseline: AccessibilityBaseline) {
+function assertBaseline(
+  ctx: ScanContext,
+  baseline: AccessibilityBaseline,
+  sharedBaselineMatches?: Set<number>,
+) {
   validateAccessibilityBaseline(baseline);
   const { testInfo, results, scanLabel, expectFn } = ctx;
   const allViolations = extractNormalizedViolations(results);
@@ -517,6 +528,7 @@ function assertBaseline(ctx: ScanContext, baseline: AccessibilityBaseline) {
 
     if (baselineIndex >= 0) {
       matchedBaselineIndices.add(baselineIndex);
+      sharedBaselineMatches?.add(baselineIndex);
       const entry = baseline[baselineIndex];
       testInfo.annotations.push({
         type: "Baselined a11y violation",
@@ -527,15 +539,21 @@ function assertBaseline(ctx: ScanContext, baseline: AccessibilityBaseline) {
     }
   }
 
-  // Report stale baseline entries.
-  baseline.forEach((entry, idx) => {
-    if (!matchedBaselineIndices.has(idx)) {
-      testInfo.annotations.push({
-        type: "Stale a11y baseline entry",
-        description: `${entry.rule} on ${entry.targets.join(", ")} — no longer detected`,
-      });
-    }
-  });
+  // The WCAG scan always runs last, even when best-practice is disabled.
+  // Report shared entries once after both scans have contributed matches,
+  // before the hard assertion can throw. On-disk baselines belong to one
+  // scan and continue to report stale entries independently.
+  if (!sharedBaselineMatches || ctx.scan === "wcag") {
+    const matches = sharedBaselineMatches ?? matchedBaselineIndices;
+    baseline.forEach((entry, idx) => {
+      if (!matches.has(idx)) {
+        testInfo.annotations.push({
+          type: "Stale a11y baseline entry",
+          description: `${entry.rule} on ${entry.targets.join(", ")} — no longer detected`,
+        });
+      }
+    });
+  }
 
   // Summary annotation for baseline mode.
   const baselinedCount = matchedBaselineIndices.size;
