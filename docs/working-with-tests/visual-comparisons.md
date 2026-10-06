@@ -2,7 +2,7 @@
 
 Stable capture and URL-driven visual comparison behavior is documented in the
 generic package's canonical
-[screenshots and visual comparisons guide](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md).
+[screenshots and visual comparisons guide](../generic-playwright-utilities/screenshots-and-visual-comparisons.md).
 
 `@lullabot/playwright-drupal` re-exports those APIs for compatibility. Its
 `takeAccessibleScreenshot()`, `defineVisualDiffConfig()`,
@@ -106,5 +106,5 @@ snapshot service according to the repository's storage needs.
 
 Use `clipLocator` to capture a page region derived from a locator's bounds.
 The option is supported by `takeAccessibleScreenshot()` and the Drupal
-`a11y.screenshot()` fixture. See the [locator-derived page clips guide](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#locator-derived-page-clips)
+`a11y.screenshot()` fixture. See the [locator-derived page clips guide](../generic-playwright-utilities/screenshots-and-visual-comparisons.md#locator-derived-page-clips)
 for coordinates, readiness waits, and capture limitations.

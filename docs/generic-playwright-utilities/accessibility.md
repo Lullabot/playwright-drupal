@@ -1,0 +1,1 @@
+--8<-- "packages/playwright-testing/docs/accessibility.md"

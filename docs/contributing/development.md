@@ -77,8 +77,14 @@ than importing the worktree directly.
 The Drupal site uses [MkDocs](https://www.mkdocs.org/) with the Material theme
 and [`mike`](https://github.com/jimporter/mike) for versioned deployments. The
 canonical generic guides live beside their package in
-`packages/playwright-testing/docs`; MkDocs navigation links to those sources
-without maintaining duplicate copies.
+`packages/playwright-testing/docs`. Wrapper pages in
+`docs/generic-playwright-utilities` include those guides and the package README
+with `pymdownx.snippets`, so the site renders them without maintaining duplicate
+copies. Edit the package sources to update the content; the development server
+watches those files too. The overview wrapper overrides the README's guide
+reference links with local destinations so readers stay within the site while
+the standalone README keeps its GitHub links. Missing snippet files fail the
+build.
 
 Install [`uv`](https://docs.astral.sh/uv/) and run:
 

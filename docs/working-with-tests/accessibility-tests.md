@@ -1,7 +1,7 @@
 # Accessibility Tests in Drupal
 
 The accessibility implementation is owned by
-[`@lullabot/playwright-testing`](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/accessibility.md).
+[`@lullabot/playwright-testing`](../generic-playwright-utilities/accessibility.md).
 The Drupal package keeps the established imports and adds Drupal-specific
 defaults through its adapter.
 
@@ -64,7 +64,7 @@ The `a11y` fixture is Drupal-package functionality. It exposes:
 
 Baseline files, first-run seeding, accessibility annotations, violation
 screenshots, shared in-code baselines, and scan options behave as documented in
-the [canonical accessibility guide](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/accessibility.md).
+the [canonical accessibility guide](../generic-playwright-utilities/accessibility.md).
 The Drupal package re-exports `defineAccessibilityBaseline` and the associated
 types, so existing code does not need to change.
 
@@ -124,4 +124,4 @@ uses the same report implementation as
 The JSON reporter configured by `definePlaywrightDrupalConfig()` provides the
 input automatically. For command options, neutral library imports, and new
 non-Drupal workflows, see the canonical
-[GitHub reporting guide](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/github-reporting.md).
+[GitHub reporting guide](../generic-playwright-utilities/github-reporting.md).

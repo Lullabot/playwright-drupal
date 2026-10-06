@@ -47,9 +47,9 @@ test('home page', async ({ page }, testInfo) => {
 
 ## Guides
 
-- [Accessibility testing](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/accessibility.md)
-- [Stable screenshots and visual comparisons](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md)
-- [GitHub reporting](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/github-reporting.md)
+- [Accessibility testing][testing-accessibility]
+- [Stable screenshots and visual comparisons][testing-screenshots]
+- [GitHub reporting][testing-github-reporting]
 
 ## Drupal compatibility
 
@@ -59,3 +59,7 @@ visual-diff calls with its Drupal preset. New framework-neutral code can import
 this package directly; Drupal tests that depend on database isolation, Drush,
 login helpers, or the `a11y` fixture should continue importing the Drupal
 package.
+
+[testing-accessibility]: https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/accessibility.md
+[testing-screenshots]: https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md
+[testing-github-reporting]: https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/github-reporting.md

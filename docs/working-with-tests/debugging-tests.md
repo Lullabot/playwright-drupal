@@ -1,8 +1,8 @@
 # Debugging Tests
 
 For stable screenshot behavior and CI report artifacts, see the generic
-[screenshots and visual comparisons](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md)
-and [GitHub reporting](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/github-reporting.md)
+[screenshots and visual comparisons](../generic-playwright-utilities/screenshots-and-visual-comparisons.md)
+and [GitHub reporting](../generic-playwright-utilities/github-reporting.md)
 guides. This page covers the Drupal and DDEV-specific debugging workflow.
 
 ## Capturing Traces

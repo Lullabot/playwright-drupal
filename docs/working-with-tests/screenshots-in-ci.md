@@ -2,7 +2,7 @@
 
 The framework-neutral report commands and library API are documented in the
 canonical
-[GitHub reporting guide](https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/github-reporting.md).
+[GitHub reporting guide](../generic-playwright-utilities/github-reporting.md).
 The Drupal package preserves its original executable names and this repository
 continues to provide composite actions for Drupal/DDEV workflows.
 
