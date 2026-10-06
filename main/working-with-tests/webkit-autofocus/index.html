@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://lullabot.github.io/playwright-drupal/main/contributing/development/">
+        <link rel="canonical" href="https://lullabot.github.io/playwright-drupal/main/working-with-tests/webkit-autofocus/">
       
       
-        <link rel="prev" href="../../working-with-tests/drupal-testing-utilities/">
+        <link rel="prev" href="../debugging-tests/">
       
       
-        <link rel="next" href="../releases/">
+        <link rel="next" href="../running-tests-concurrently/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Development - playwright-drupal</title>
+        <title>WebKit Autofocus Workaround - playwright-drupal</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#development" class="md-skip">
+        <a href="#webkit-native-autofocus-workaround" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Development
+              WebKit Autofocus Workaround
             
           </span>
         </div>
@@ -252,11 +252,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../working-with-tests/writing-tests/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../writing-tests/" class="md-tabs__link">
           
   
   
@@ -292,13 +294,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../contributing/development/" class="md-tabs__link">
           
   
   
@@ -515,24 +515,29 @@
       
   
   
+    
   
   
+  
     
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -550,7 +555,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -568,7 +573,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../working-with-tests/writing-tests/" class="md-nav__link">
+      <a href="../writing-tests/" class="md-nav__link">
         
   
   
@@ -596,7 +601,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../working-with-tests/visual-comparisons/" class="md-nav__link">
+      <a href="../visual-comparisons/" class="md-nav__link">
         
   
   
@@ -624,7 +629,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../working-with-tests/accessibility-tests/" class="md-nav__link">
+      <a href="../accessibility-tests/" class="md-nav__link">
         
   
   
@@ -652,7 +657,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../working-with-tests/debugging-tests/" class="md-nav__link">
+      <a href="../debugging-tests/" class="md-nav__link">
         
   
   
@@ -677,10 +682,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../working-with-tests/webkit-autofocus/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebKit Autofocus Workaround
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -696,6 +728,92 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-changes-in-your-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What changes in your tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#opt-out-when-testing-autofocus-or-loading-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opt out when testing autofocus or loading behavior
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coverage-and-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coverage and limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-the-workaround-can-be-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When the workaround can be removed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation details
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -708,7 +826,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../working-with-tests/running-tests-concurrently/" class="md-nav__link">
+      <a href="../running-tests-concurrently/" class="md-nav__link">
         
   
   
@@ -736,7 +854,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../working-with-tests/screenshots-in-ci/" class="md-nav__link">
+      <a href="../screenshots-in-ci/" class="md-nav__link">
         
   
   
@@ -764,7 +882,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../working-with-tests/drupal-testing-utilities/" class="md-nav__link">
+      <a href="../drupal-testing-utilities/" class="md-nav__link">
         
   
   
@@ -965,29 +1083,24 @@
       
   
   
-    
   
   
-  
     
     
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -1005,7 +1118,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1020,37 +1133,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Development
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../contributing/development/" class="md-nav__link">
         
   
   
@@ -1066,81 +1152,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#build-and-unit-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Build and unit tests
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ddev-integration-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        DDEV integration tests
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#verify-package-contents" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Verify package contents
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Documentation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pull-request-commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pull request commands
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1153,7 +1164,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../releases/" class="md-nav__link">
+      <a href="../../contributing/releases/" class="md-nav__link">
         
   
   
@@ -1208,10 +1219,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#build-and-unit-tests" class="md-nav__link">
+  <a href="#what-changes-in-your-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Build and unit tests
+        What changes in your tests
       
     </span>
   </a>
@@ -1219,10 +1230,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#ddev-integration-tests" class="md-nav__link">
+  <a href="#opt-out-when-testing-autofocus-or-loading-behavior" class="md-nav__link">
     <span class="md-ellipsis">
       
-        DDEV integration tests
+        Opt out when testing autofocus or loading behavior
       
     </span>
   </a>
@@ -1230,10 +1241,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#verify-package-contents" class="md-nav__link">
+  <a href="#coverage-and-limitations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Verify package contents
+        Coverage and limitations
       
     </span>
   </a>
@@ -1241,10 +1252,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
+  <a href="#validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Documentation
+        Validation
       
     </span>
   </a>
@@ -1252,10 +1263,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#pull-request-commands" class="md-nav__link">
+  <a href="#when-the-workaround-can-be-removed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pull request commands
+        When the workaround can be removed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation details
       
     </span>
   </a>
@@ -1279,76 +1301,118 @@
 
 
 
-<h1 id="development">Development</h1>
-<p>This repository is an npm workspace monorepo:</p>
+<h1 id="webkit-native-autofocus-workaround">WebKit native autofocus workaround</h1>
+<p>Upstream reports: <a href="https://bugs.webkit.org/show_bug.cgi?id=308393">WebKit bug 308393</a>
+and <a href="https://github.com/microsoft/playwright/issues/43086">Playwright issue 43086</a>.
+See also the <a href="https://github.com/WebKit/WebKit/pull/75897">proposed WebKit fix</a> and
+<a href="https://github.com/deviantintegral/playwright-autofocus-repro">standalone reproduction</a>.</p>
+<p>Playwright's bundled WebKit can apply native HTML <code>autofocus</code> after another field
+has received focus. If this happens during <code>locator.fill()</code>, text can land in the
+wrong field. <code>@lullabot/playwright-drupal</code> enables a workaround by default when you
+use its shared <code>test</code> fixture. You can keep using Playwright's bundled browser.</p>
+<h2 id="what-changes-in-your-tests">What changes in your tests</h2>
+<p>Import the shared fixture as usual:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">expect</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@lullabot/playwright-drupal'</span><span class="p">;</span>
+</span></code></pre></div>
+<p>The fixture enables <code>webkitAutofocusWorkaround: true</code> for every project whose
+<code>browserName</code> is <code>webkit</code>, including desktop Safari and mobile device profiles.
+Project names do not affect selection. Chromium and Firefox retain their normal
+autofocus behavior. The workaround also runs with <code>PLAYWRIGHT_NO_TEST_ISOLATION=1</code>.</p>
+<p><strong>Native document autofocus is suppressed.</strong> Elements with <code>autofocus</code> briefly
+become unfocusable while WebKit discards their pending autofocus requests. Normal
+form controls become invisible but keep their layout boxes; other HTML candidates
+and their descendants temporarily leave layout. Their authored styles are restored
+afterward, and the <code>autofocus</code> attribute is retained.</p>
+<p>Ordinary Playwright actions wait for these elements to become visible. The
+workaround leaves <code>Locator.fill()</code>, focus methods, selection, keyboard input,
+input events, disabled/read-only checks and timeouts unchanged. However, application
+code that measures or focuses an affected element during loading can observe the
+temporary hiding. Slow stylesheets and background-page rendering can extend it.</p>
+<h2 id="opt-out-when-testing-autofocus-or-loading-behavior">Opt out when testing autofocus or loading behavior</h2>
+<p>Disable the workaround for tests that exercise native autofocus, dialog/popover
+autofocus, initial scripted focus, or layout while the page is loading:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">expect</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@lullabot/playwright-drupal'</span><span class="p">;</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nx">test</span><span class="p">.</span><span class="nx">describe</span><span class="p">(</span><span class="s1">'native autofocus behavior'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nx">test</span><span class="p">.</span><span class="nx">use</span><span class="p">({</span><span class="w"> </span><span class="nx">webkitAutofocusWorkaround</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nx">test</span><span class="p">(</span><span class="s1">'login field receives native focus'</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">'/user/login'</span><span class="p">);</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">.</span><span class="nx">getByLabel</span><span class="p">(</span><span class="s1">'Username'</span><span class="p">)).</span><span class="nx">toBeFocused</span><span class="p">();</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="p">});</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">});</span>
+</span></code></pre></div>
+<p>You can also disable it for an entire suite or set it in a project's <code>use</code> options:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">definePlaywrightDrupalConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@lullabot/playwright-drupal/config'</span><span class="p">;</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">definePlaywrightDrupalConfig</span><span class="p">({</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nx">use</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">webkitAutofocusWorkaround</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">});</span>
+</span></code></pre></div>
+<p>If you use Playwright's own configuration helper, use
+<code>defineConfig&lt;DrupalTestOptions&gt;</code> with a type-only import of <code>DrupalTestOptions</code>
+from <code>@lullabot/playwright-drupal</code>. Set the option before the browser context is
+created; changing it afterward cannot remove the installed workaround.</p>
+<h2 id="coverage-and-limitations">Coverage and limitations</h2>
+<p>The workaround protects standard light-DOM HTML forms in the fixture's browser
+context across navigations, reloads, popups, <code>context.newPage()</code>, same-origin frame
+navigations, <code>srcdoc</code>, and Drupal AJAX form insertion, replacement and reinsertion.
+It handles queued candidates even if application code removes their <code>autofocus</code>
+attribute or temporarily detaches them before the queue is processed.</p>
+<p>Keep these boundaries in mind when deciding whether a test should opt out:</p>
 <ul>
-<li>the repository root builds <code>@lullabot/playwright-drupal</code>; and</li>
-<li><code>packages/playwright-testing</code> builds <code>@lullabot/playwright-testing</code>.</li>
+<li>Contexts created separately with <code>browser.newContext()</code> do not inherit the
+  workaround. Tests using <code>test</code> directly from <code>@playwright/test</code> do not install it.</li>
+<li>Cross-origin frames are left alone because WebKit already rejects their native
+  document autofocus candidates.</li>
+<li>Application JavaScript can still steal focus during a fill. The reproduction's
+  controlled JavaScript focus-stealing case remains observable with the workaround
+  enabled; it is separate from the native autofocus race.</li>
+<li>SVG autofocus, shadow-root internals, synchronous dialog/popover focusing, and
+  CSS transitions or animations that keep a hidden candidate focusable are outside
+  the validated scope.</li>
+<li><code>force: true</code>, direct keyboard input and page scripts can bypass the visibility
+  wait. Wait for an autofocus candidate to become visible before using them.</li>
+<li>An application style change to exactly the temporary
+  <code>visibility: hidden !important</code> or <code>display: none !important</code> value cannot be
+  distinguished from the workaround's own value during that interval.</li>
 </ul>
-<p>One root lockfile covers both packages. Install dependencies from the
-repository root:</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="go">npm ci</span>
-</span></code></pre></div>
-<h2 id="build-and-unit-tests">Build and unit tests</h2>
-<p>Run coordinated checks from the root:</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="go">npm run build:all</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="go">npm run test:all</span>
-</span></code></pre></div>
-<p>The direct package commands are useful while developing one boundary:</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="gp"># </span>Generic<span class="w"> </span>package<span class="w"> </span>only
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="go">npm run build --workspace=@lullabot/playwright-testing</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="go">npm test --workspace=@lullabot/playwright-testing</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="gp"># </span>Drupal<span class="w"> </span>package<span class="w"> </span>unit<span class="w"> </span>tests<span class="w"> </span><span class="o">(</span>the<span class="w"> </span>pretest<span class="w"> </span>builds<span class="w"> </span>the<span class="w"> </span>generic<span class="w"> </span>dependency<span class="o">)</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="go">npm run build</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="go">npm run test:unit</span>
-</span></code></pre></div>
-<p>The generic workspace must not import files from the root Drupal package. The
-dependency direction is always Drupal to generic. Code that supplies Drupal
-selectors, toolbar behavior, DDEV paths, Drush integration, or database
-isolation belongs in the root adapter.</p>
-<h2 id="ddev-integration-tests">DDEV integration tests</h2>
-<p>The repository uses <a href="https://github.com/bats-core/bats-core">bats-core</a> for
-consumer-style Drupal integration tests. They create a fresh DDEV project,
-pack and install both local packages, and run the example Playwright tests.</p>
-<p>Prerequisites are <a href="https://ddev.readthedocs.io/en/stable/">DDEV</a> v1.25 or
-newer and <a href="https://bats-core.readthedocs.io/en/stable/installation.html">bats-core</a>.</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="go">npm run test:bats</span>
-</span></code></pre></div>
-<p>The suite can take 10–15 minutes because it provisions a complete Drupal
-environment.</p>
-<h2 id="verify-package-contents">Verify package contents</h2>
-<p>Both packages should be checked independently before release:</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="go">npm pack --dry-run --json</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="go">npm pack --dry-run --json --workspace=@lullabot/playwright-testing</span>
-</span></code></pre></div>
-<p>Confirm that every declared export and executable target, its JavaScript and
-declaration output, required runtime source, and README are present. The root
-tarball must not contain workspace files, and the generic tarball must not
-contain Drupal implementation or repository-only files.</p>
-<p>For the strongest boundary check, create tarballs in a temporary directory,
-install them into an empty package, and import the public entry points rather
-than importing the worktree directly.</p>
-<h2 id="documentation">Documentation</h2>
-<p>The Drupal site uses <a href="https://www.mkdocs.org/">MkDocs</a> with the Material theme
-and <a href="https://github.com/jimporter/mike"><code>mike</code></a> for versioned deployments. The
-canonical generic guides live beside their package in
-<code>packages/playwright-testing/docs</code>; MkDocs navigation links to those sources
-without maintaining duplicate copies.</p>
-<p>Install <a href="https://docs.astral.sh/uv/"><code>uv</code></a> and run:</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="go">npm run docs:dev      # live reload at http://localhost:8000</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="go">npm run docs:build    # strict static build</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="go">npm run docs:preview  # preview the built site</span>
-</span></code></pre></div>
-<h2 id="pull-request-commands">Pull request commands</h2>
-<p>Maintainers can post these comments on a pull request:</p>
-<ul>
-<li><strong><code>/fast-forward</code></strong> performs a true <code>git merge --ff-only</code>, preserving the
-  original commit SHAs. The branch must already be current with the base.</li>
-<li><strong><code>/rebase</code></strong> rebases the pull request branch onto the base and removes empty
-  commits created by the rebase. Only repository owners, members, and
-  collaborators can trigger it.</li>
-</ul>
+<h2 id="validation">Validation</h2>
+<p>The workaround was validated on Debian 13 with Playwright 1.63.0 and bundled
+WebKit 26.6 (build 2359). The standalone reproduction, using the shared fixture,
+completed 2,000 desktop native navigations without a wrong-field fill. The iPhone 13
+project also completed 2,000 native navigations. Both runs suppressed native
+autofocus before filling. Chromium and Firefox retained native autofocus and
+passed 300 repeated navigations each.</p>
+<p>The browser suite passed 44 tests covering navigation, frames, popups, dynamic
+forms, blocked stylesheets, authored styles, input behavior and opt-out. Native
+stress runs can also pass without the workaround because the race is intermittent;
+queue-specific regressions verify suppression separately. The controlled
+JavaScript route still produces Username <code>alicesecret</code> and an empty Password.</p>
+<p>Desktop Safari and iPhone 13 here use Playwright's Linux WebKit and device
+emulation. macOS, Windows, system Safari, physical iPhones and older Playwright
+bundles were not tested. Check your tests on the host and bundled browser versions
+you support when adopting the workaround or upgrading Playwright.</p>
+<h2 id="when-the-workaround-can-be-removed">When the workaround can be removed</h2>
+<p>Keep the workaround enabled until the WebKit bundled with your Playwright version
+includes the upstream fix and your native autofocus tests pass with
+<code>webkitAutofocusWorkaround: false</code>. A merged WebKit PR alone does not establish
+that your bundled browser is fixed.</p>
+<p>The package can remove the workaround once its minimum supported Playwright
+version includes the fix and native stress, focus-preservation, dynamic-form and
+frame tests pass without it on supported platforms and desktop/mobile profiles.</p>
+<h2 id="implementation-details">Implementation details</h2>
+<p>WebKit queues autofocus candidates on insertion and does not recheck the
+<code>autofocus</code> attribute when processing them. Removing the attribute in a
+MutationObserver therefore cannot reliably cancel the pending focus.</p>
+<p>The workaround instead temporarily makes candidates unfocusable so WebKit discards
+them. It restores their styles after the top document's <code>DOMContentLoaded</code> and an
+animation-frame callback: WebKit flushes autofocus before these callbacks, but a
+parser waiting for stylesheets can defer the flush. This uses investigated WebKit
+rendering order rather than assuming that a two-frame delay guarantees safety.
+Relevant source: <a href="https://github.com/WebKit/WebKit/blob/0971e7a2270b21f25bac302361018c20175f445e/Source/WebCore/dom/Element.cpp">candidate insertion</a>,
+<a href="https://github.com/WebKit/WebKit/blob/0971e7a2270b21f25bac302361018c20175f445e/Source/WebCore/dom/Document.cpp">queue processing</a>,
+and <a href="https://github.com/WebKit/WebKit/blob/0971e7a2270b21f25bac302361018c20175f445e/Source/WebCore/page/Page.cpp">rendering order</a>.</p>
 
 
 
