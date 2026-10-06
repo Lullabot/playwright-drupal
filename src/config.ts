@@ -2,6 +2,7 @@ import { defineConfig, PlaywrightTestConfig } from "@playwright/test";
 import fs from "fs";
 import path from "path";
 import os from "os";
+import type { DrupalTestOptions } from "./testcase/test";
 
 // Browser profiles contain many small files. When the ddev-playwright add-on's
 // tmpfs is available, keep those files in memory so parallel workers do not
@@ -62,11 +63,11 @@ if (
  *   Playwright's own `--workers` flag still overrides both.
  */
 export function definePlaywrightDrupalConfig(
-  overrides: PlaywrightTestConfig = {},
-): PlaywrightTestConfig {
+  overrides: PlaywrightTestConfig<DrupalTestOptions> = {},
+): PlaywrightTestConfig<DrupalTestOptions> {
   const isCI = !!process.env.CI;
 
-  const defaults: PlaywrightTestConfig = {
+  const defaults: PlaywrightTestConfig<DrupalTestOptions> = {
     fullyParallel: true,
     workers: Math.max(2, os.cpus().length - 2),
     reporter: isCI

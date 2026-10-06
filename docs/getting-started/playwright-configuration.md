@@ -7,6 +7,11 @@ DDEV behavior remain exclusive to `@lullabot/playwright-drupal`. The generic
 `@lullabot/playwright-testing` package provides utilities rather than a
 replacement Playwright configuration.
 
+The shared Drupal `test` fixture also enables `webkitAutofocusWorkaround` by
+default for `browserName === 'webkit'`, including desktop Safari and mobile
+projects. It suppresses queued native document autofocus to prevent wrong-field
+`fill()` calls. See [configuration, opt-out and limitations](../working-with-tests/webkit-autofocus.md).
+
 | Setting | Default |
 |---|---|
 | `use.baseURL` | `process.env.DDEV_PRIMARY_URL` |

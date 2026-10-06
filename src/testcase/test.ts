@@ -3,7 +3,6 @@ import {
   Locator,
   Page,
   test as base_test,
-  TestFixture,
   WebError,
 } from "@playwright/test";
 import { task, taskSync } from "../cli/task";
@@ -18,6 +17,12 @@ import { collector, isVerbose } from "../cli/output-collector";
 import * as fs from "fs";
 import * as util from "util";
 import child_process from "child_process";
+import { suppressWebKitAutofocus } from "./webkit-autofocus";
+
+export interface DrupalTestOptions {
+  /** Suppress queued native document autofocus in WebKit. Default: true. */
+  webkitAutofocusWorkaround: boolean;
+}
 
 /**
  * Keep a reference to the test ID, so we can use it to attach the error log.
@@ -75,8 +80,16 @@ export function waitForCleanup(
 /**
  * Set a simpletest cookie for routing the tests to a separate database.
  */
-const testBase = base_test.extend<TestFixture<any, any>>({
-  async context({ context }, use, testInfo) {
+const testBase = base_test.extend<DrupalTestOptions>({
+  webkitAutofocusWorkaround: [true, { option: true }],
+  async context(
+    { context, browserName, webkitAutofocusWorkaround },
+    use,
+    testInfo,
+  ) {
+    if (browserName === "webkit" && webkitAutofocusWorkaround) {
+      await context.addInitScript(suppressWebKitAutofocus);
+    }
     // Test against a single database in the default (typically mariadb) site.
     if (process.env.PLAYWRIGHT_NO_TEST_ISOLATION) {
       await use(context);
