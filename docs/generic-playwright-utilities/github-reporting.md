@@ -1,0 +1,1 @@
+--8<-- "packages/playwright-testing/docs/github-reporting.md"

@@ -37,7 +37,8 @@ The deployed MkDocs site is the Drupal package's documentation. It is deployed
 when a tag matching `playwright-drupal-*` is pushed, for example
 `playwright-drupal-1.5.1`. The workflow strips the prefix and runs `mike deploy`
 with the version and `latest` alias. Generic package guides remain canonical in
-`packages/playwright-testing/docs` and are linked from the Drupal site.
+`packages/playwright-testing/docs` and are included directly in the Drupal site.
+Each deployed version includes the generic guides from that version's checkout.
 
 Before the first versioned deployment, configure GitHub Pages to deploy the
 `gh-pages` branch from `/ (root)`. The branch is created by `mike` on the first
