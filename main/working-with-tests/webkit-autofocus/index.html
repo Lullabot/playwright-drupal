@@ -745,10 +745,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-changes-in-your-tests" class="md-nav__link">
+  <a href="#opt-out-for-selected-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What changes in your tests
+        Opt out for selected tests
       
     </span>
   </a>
@@ -756,54 +756,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#opt-out-when-testing-autofocus-or-loading-behavior" class="md-nav__link">
+  <a href="#configure-an-entire-suite-or-project" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Opt out when testing autofocus or loading behavior
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#coverage-and-limitations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Coverage and limitations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#validation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Validation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#when-the-workaround-can-be-removed" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        When the workaround can be removed
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#implementation-details" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Implementation details
+        Configure an entire suite or project
       
     </span>
   </a>
@@ -1051,6 +1007,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../generic-playwright-utilities/webkit-autofocus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebKit Autofocus Workaround
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../generic-playwright-utilities/github-reporting/" class="md-nav__link">
         
   
@@ -1219,10 +1203,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-changes-in-your-tests" class="md-nav__link">
+  <a href="#opt-out-for-selected-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What changes in your tests
+        Opt out for selected tests
       
     </span>
   </a>
@@ -1230,54 +1214,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#opt-out-when-testing-autofocus-or-loading-behavior" class="md-nav__link">
+  <a href="#configure-an-entire-suite-or-project" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Opt out when testing autofocus or loading behavior
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#coverage-and-limitations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Coverage and limitations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#validation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Validation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#when-the-workaround-can-be-removed" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        When the workaround can be removed
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#implementation-details" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Implementation details
+        Configure an entire suite or project
       
     </span>
   </a>
@@ -1302,35 +1242,25 @@
 
 
 <h1 id="webkit-native-autofocus-workaround">WebKit native autofocus workaround</h1>
-<p>Upstream reports: <a href="https://bugs.webkit.org/show_bug.cgi?id=308393">WebKit bug 308393</a>
-and <a href="https://github.com/microsoft/playwright/issues/43086">Playwright issue 43086</a>.
-See also the <a href="https://github.com/WebKit/WebKit/pull/75897">proposed WebKit fix</a> and
-<a href="https://github.com/deviantintegral/playwright-autofocus-repro">standalone reproduction</a>.</p>
-<p>Playwright's bundled WebKit can apply native HTML <code>autofocus</code> after another field
-has received focus. If this happens during <code>locator.fill()</code>, text can land in the
-wrong field. <code>@lullabot/playwright-drupal</code> enables a workaround by default when you
-use its shared <code>test</code> fixture. You can keep using Playwright's bundled browser.</p>
-<h2 id="what-changes-in-your-tests">What changes in your tests</h2>
-<p>Import the shared fixture as usual:</p>
+<p><code>@lullabot/playwright-drupal</code> enables <code>webkitAutofocusWorkaround: true</code> by default
+when you use its shared <code>test</code> fixture:</p>
 <div class="language-typescript highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">expect</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@lullabot/playwright-drupal'</span><span class="p">;</span>
 </span></code></pre></div>
-<p>The fixture enables <code>webkitAutofocusWorkaround: true</code> for every project whose
-<code>browserName</code> is <code>webkit</code>, including desktop Safari and mobile device profiles.
-Project names do not affect selection. Chromium and Firefox retain their normal
-autofocus behavior. The workaround also runs with <code>PLAYWRIGHT_NO_TEST_ISOLATION=1</code>.</p>
-<p><strong>Native document autofocus is suppressed.</strong> Elements with <code>autofocus</code> briefly
-become unfocusable while WebKit discards their pending autofocus requests. Normal
-form controls become invisible but keep their layout boxes; other HTML candidates
-and their descendants temporarily leave layout. Their authored styles are restored
-afterward, and the <code>autofocus</code> attribute is retained.</p>
-<p>Ordinary Playwright actions wait for these elements to become visible. The
-workaround leaves <code>Locator.fill()</code>, focus methods, selection, keyboard input,
-input events, disabled/read-only checks and timeouts unchanged. However, application
-code that measures or focuses an affected element during loading can observe the
-temporary hiding. Slow stylesheets and background-page rendering can extend it.</p>
-<h2 id="opt-out-when-testing-autofocus-or-loading-behavior">Opt out when testing autofocus or loading behavior</h2>
-<p>Disable the workaround for tests that exercise native autofocus, dialog/popover
-autofocus, initial scripted focus, or layout while the page is loading:</p>
+<p>It installs <code>suppressWebKitAutofocus()</code> from <code>@lullabot/playwright-testing</code> for
+every project whose <code>browserName</code> is <code>webkit</code>, including desktop Safari and mobile
+device profiles. Project names do not affect selection. Chromium and Firefox retain
+their normal autofocus behavior. Installation also runs with
+<code>PLAYWRIGHT_NO_TEST_ISOLATION=1</code>.</p>
+<p>The workaround suppresses native document autofocus to prevent queued WebKit
+focus from redirecting <code>locator.fill()</code> into the wrong field. It briefly hides
+autofocus candidates and restores their authored styles afterward. Tests that
+exercise native autofocus or focus/layout during loading should opt out.</p>
+<p>The canonical <a href="../../generic-playwright-utilities/webkit-autofocus/">generic workaround guide</a>
+describes installation in custom contexts, the mechanism, coverage, limitations,
+validation, upstream issues, and removal criteria. The Drupal package also
+re-exports the helper for contexts you create separately; those contexts do not
+inherit the shared fixture's workaround.</p>
+<h2 id="opt-out-for-selected-tests">Opt out for selected tests</h2>
 <div class="language-typescript highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">expect</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@lullabot/playwright-drupal'</span><span class="p">;</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nx">test</span><span class="p">.</span><span class="nx">describe</span><span class="p">(</span><span class="s1">'native autofocus behavior'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
@@ -1342,77 +1272,18 @@ autofocus, initial scripted focus, or layout while the page is loading:</p>
 </span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="p">});</span>
 </span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">});</span>
 </span></code></pre></div>
-<p>You can also disable it for an entire suite or set it in a project's <code>use</code> options:</p>
+<h2 id="configure-an-entire-suite-or-project">Configure an entire suite or project</h2>
 <div class="language-typescript highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">definePlaywrightDrupalConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@lullabot/playwright-drupal/config'</span><span class="p">;</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">definePlaywrightDrupalConfig</span><span class="p">({</span>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nx">use</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">webkitAutofocusWorkaround</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="w"> </span><span class="p">},</span>
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">});</span>
 </span></code></pre></div>
-<p>If you use Playwright's own configuration helper, use
-<code>defineConfig&lt;DrupalTestOptions&gt;</code> with a type-only import of <code>DrupalTestOptions</code>
-from <code>@lullabot/playwright-drupal</code>. Set the option before the browser context is
-created; changing it afterward cannot remove the installed workaround.</p>
-<h2 id="coverage-and-limitations">Coverage and limitations</h2>
-<p>The workaround protects standard light-DOM HTML forms in the fixture's browser
-context across navigations, reloads, popups, <code>context.newPage()</code>, same-origin frame
-navigations, <code>srcdoc</code>, and Drupal AJAX form insertion, replacement and reinsertion.
-It handles queued candidates even if application code removes their <code>autofocus</code>
-attribute or temporarily detaches them before the queue is processed.</p>
-<p>Keep these boundaries in mind when deciding whether a test should opt out:</p>
-<ul>
-<li>Contexts created separately with <code>browser.newContext()</code> do not inherit the
-  workaround. Tests using <code>test</code> directly from <code>@playwright/test</code> do not install it.</li>
-<li>Cross-origin frames are left alone because WebKit already rejects their native
-  document autofocus candidates.</li>
-<li>Application JavaScript can still steal focus during a fill. The reproduction's
-  controlled JavaScript focus-stealing case remains observable with the workaround
-  enabled; it is separate from the native autofocus race.</li>
-<li>SVG autofocus, shadow-root internals, synchronous dialog/popover focusing, and
-  CSS transitions or animations that keep a hidden candidate focusable are outside
-  the validated scope.</li>
-<li><code>force: true</code>, direct keyboard input and page scripts can bypass the visibility
-  wait. Wait for an autofocus candidate to become visible before using them.</li>
-<li>An application style change to exactly the temporary
-  <code>visibility: hidden !important</code> or <code>display: none !important</code> value cannot be
-  distinguished from the workaround's own value during that interval.</li>
-</ul>
-<h2 id="validation">Validation</h2>
-<p>The workaround was validated on Debian 13 with Playwright 1.63.0 and bundled
-WebKit 26.6 (build 2359). The standalone reproduction, using the shared fixture,
-completed 2,000 desktop native navigations without a wrong-field fill. The iPhone 13
-project also completed 2,000 native navigations. Both runs suppressed native
-autofocus before filling. Chromium and Firefox retained native autofocus and
-passed 300 repeated navigations each.</p>
-<p>The browser suite passed 44 tests covering navigation, frames, popups, dynamic
-forms, blocked stylesheets, authored styles, input behavior and opt-out. Native
-stress runs can also pass without the workaround because the race is intermittent;
-queue-specific regressions verify suppression separately. The controlled
-JavaScript route still produces Username <code>alicesecret</code> and an empty Password.</p>
-<p>Desktop Safari and iPhone 13 here use Playwright's Linux WebKit and device
-emulation. macOS, Windows, system Safari, physical iPhones and older Playwright
-bundles were not tested. Check your tests on the host and bundled browser versions
-you support when adopting the workaround or upgrading Playwright.</p>
-<h2 id="when-the-workaround-can-be-removed">When the workaround can be removed</h2>
-<p>Keep the workaround enabled until the WebKit bundled with your Playwright version
-includes the upstream fix and your native autofocus tests pass with
-<code>webkitAutofocusWorkaround: false</code>. A merged WebKit PR alone does not establish
-that your bundled browser is fixed.</p>
-<p>The package can remove the workaround once its minimum supported Playwright
-version includes the fix and native stress, focus-preservation, dynamic-form and
-frame tests pass without it on supported platforms and desktop/mobile profiles.</p>
-<h2 id="implementation-details">Implementation details</h2>
-<p>WebKit queues autofocus candidates on insertion and does not recheck the
-<code>autofocus</code> attribute when processing them. Removing the attribute in a
-MutationObserver therefore cannot reliably cancel the pending focus.</p>
-<p>The workaround instead temporarily makes candidates unfocusable so WebKit discards
-them. It restores their styles after the top document's <code>DOMContentLoaded</code> and an
-animation-frame callback: WebKit flushes autofocus before these callbacks, but a
-parser waiting for stylesheets can defer the flush. This uses investigated WebKit
-rendering order rather than assuming that a two-frame delay guarantees safety.
-Relevant source: <a href="https://github.com/WebKit/WebKit/blob/0971e7a2270b21f25bac302361018c20175f445e/Source/WebCore/dom/Element.cpp">candidate insertion</a>,
-<a href="https://github.com/WebKit/WebKit/blob/0971e7a2270b21f25bac302361018c20175f445e/Source/WebCore/dom/Document.cpp">queue processing</a>,
-and <a href="https://github.com/WebKit/WebKit/blob/0971e7a2270b21f25bac302361018c20175f445e/Source/WebCore/page/Page.cpp">rendering order</a>.</p>
+<p>You can also set the option in a project's <code>use</code> options. If you use Playwright's
+own configuration helper, use <code>defineConfig&lt;DrupalTestOptions&gt;</code> with a type-only
+import of <code>DrupalTestOptions</code> from <code>@lullabot/playwright-drupal</code>.</p>
+<p>Set the option before the browser context is created; changing it afterward
+cannot remove the installed workaround.</p>
 
 
 

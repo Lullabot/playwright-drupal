@@ -933,6 +933,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../generic-playwright-utilities/webkit-autofocus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebKit Autofocus Workaround
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../generic-playwright-utilities/github-reporting/" class="md-nav__link">
         
   
@@ -1094,6 +1122,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#webkit-autofocus-browser-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebKit autofocus browser tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ddev-integration-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1219,6 +1258,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#webkit-autofocus-browser-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebKit autofocus browser tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ddev-integration-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1307,20 +1357,33 @@ repository root:</p>
 dependency direction is always Drupal to generic. Code that supplies Drupal
 selectors, toolbar behavior, DDEV paths, Drush integration, or database
 isolation belongs in the root adapter.</p>
+<h2 id="webkit-autofocus-browser-tests">WebKit autofocus browser tests</h2>
+<p>Install the bundled browsers once, then run both the generic browser regression
+suite and the Drupal fixture integration checks:</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="go">npx playwright install --with-deps chromium firefox webkit</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="go">npm run build</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="go">npm run test:autofocus</span>
+</span></code></pre></div>
+<p>The generic suite imports the public <code>@lullabot/playwright-testing</code> API and uses a
+local context fixture. The smaller Drupal suite checks the production fixture's
+default, opt-out, and no-isolation behavior. Neither suite requires Drupal or DDEV.
+Run one suite with <code>npm run test:autofocus --workspace=@lullabot/playwright-testing</code>
+or <code>npm run test:autofocus:drupal</code>. Failure traces live under
+<code>test-results/webkit-autofocus/</code> in separate <code>generic</code> and <code>drupal</code> directories.</p>
 <h2 id="ddev-integration-tests">DDEV integration tests</h2>
 <p>The repository uses <a href="https://github.com/bats-core/bats-core">bats-core</a> for
 consumer-style Drupal integration tests. They create a fresh DDEV project,
 pack and install both local packages, and run the example Playwright tests.</p>
 <p>Prerequisites are <a href="https://ddev.readthedocs.io/en/stable/">DDEV</a> v1.25 or
 newer and <a href="https://bats-core.readthedocs.io/en/stable/installation.html">bats-core</a>.</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="go">npm run test:bats</span>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="go">npm run test:bats</span>
 </span></code></pre></div>
 <p>The suite can take 10–15 minutes because it provisions a complete Drupal
 environment.</p>
 <h2 id="verify-package-contents">Verify package contents</h2>
 <p>Both packages should be checked independently before release:</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="go">npm pack --dry-run --json</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="go">npm pack --dry-run --json --workspace=@lullabot/playwright-testing</span>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="go">npm pack --dry-run --json</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="go">npm pack --dry-run --json --workspace=@lullabot/playwright-testing</span>
 </span></code></pre></div>
 <p>Confirm that every declared export and executable target, its JavaScript and
 declaration output, required runtime source, and README are present. The root
@@ -1342,9 +1405,9 @@ reference links with local destinations so readers stay within the site while
 the standalone README keeps its GitHub links. Missing snippet files fail the
 build.</p>
 <p>Install <a href="https://docs.astral.sh/uv/"><code>uv</code></a> and run:</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="go">npm run docs:dev      # live reload at http://localhost:8000</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="go">npm run docs:build    # strict static build</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="go">npm run docs:preview  # preview the built site</span>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="go">npm run docs:dev      # live reload at http://localhost:8000</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="go">npm run docs:build    # strict static build</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="go">npm run docs:preview  # preview the built site</span>
 </span></code></pre></div>
 <h2 id="pull-request-commands">Pull request commands</h2>
 <p>Maintainers can post these comments on a pull request:</p>

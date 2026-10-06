@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://lullabot.github.io/playwright-drupal/main/generic-playwright-utilities/github-reporting/">
+        <link rel="canonical" href="https://lullabot.github.io/playwright-drupal/main/generic-playwright-utilities/webkit-autofocus/">
       
       
-        <link rel="prev" href="../webkit-autofocus/">
+        <link rel="prev" href="../screenshots-and-visual-comparisons/">
       
       
-        <link rel="next" href="../../contributing/development/">
+        <link rel="next" href="../github-reporting/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>GitHub Reporting - playwright-drupal</title>
+        <title>WebKit Autofocus Workaround - playwright-drupal</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#github-reporting" class="md-skip">
+        <a href="#webkit-native-autofocus-workaround" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              GitHub Reporting
+              WebKit Autofocus Workaround
             
           </span>
         </div>
@@ -935,34 +935,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../webkit-autofocus/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    WebKit Autofocus Workaround
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -982,7 +954,7 @@
   <span class="md-ellipsis">
     
   
-    GitHub Reporting
+    WebKit Autofocus Workaround
   
 
     
@@ -1000,7 +972,7 @@
   <span class="md-ellipsis">
     
   
-    GitHub Reporting
+    WebKit Autofocus Workaround
   
 
     
@@ -1026,10 +998,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#accessibility-summary" class="md-nav__link">
+  <a href="#install-in-your-context-fixture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Accessibility summary
+        Install in your context fixture
       
     </span>
   </a>
@@ -1037,10 +1009,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#failure-and-flake-summary" class="md-nav__link">
+  <a href="#what-changes-in-your-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Failure and flake summary
+        What changes in your tests
       
     </span>
   </a>
@@ -1048,10 +1020,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#screenshot-upload-credentials" class="md-nav__link">
+  <a href="#opt-out-when-testing-autofocus-or-loading-behavior" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Screenshot upload credentials
+        Opt out when testing autofocus or loading behavior
       
     </span>
   </a>
@@ -1059,10 +1031,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#container-path-remapping" class="md-nav__link">
+  <a href="#coverage-and-limitations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Container path remapping
+        Coverage and limitations
       
     </span>
   </a>
@@ -1070,10 +1042,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#library-api" class="md-nav__link">
+  <a href="#validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Library API
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-the-workaround-can-be-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When the workaround can be removed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation details
       
     </span>
   </a>
@@ -1084,6 +1078,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1236,10 +1258,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#accessibility-summary" class="md-nav__link">
+  <a href="#install-in-your-context-fixture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Accessibility summary
+        Install in your context fixture
       
     </span>
   </a>
@@ -1247,10 +1269,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#failure-and-flake-summary" class="md-nav__link">
+  <a href="#what-changes-in-your-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Failure and flake summary
+        What changes in your tests
       
     </span>
   </a>
@@ -1258,10 +1280,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#screenshot-upload-credentials" class="md-nav__link">
+  <a href="#opt-out-when-testing-autofocus-or-loading-behavior" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Screenshot upload credentials
+        Opt out when testing autofocus or loading behavior
       
     </span>
   </a>
@@ -1269,10 +1291,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#container-path-remapping" class="md-nav__link">
+  <a href="#coverage-and-limitations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Container path remapping
+        Coverage and limitations
       
     </span>
   </a>
@@ -1280,10 +1302,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#library-api" class="md-nav__link">
+  <a href="#validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Library API
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-the-workaround-can-be-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When the workaround can be removed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation details
       
     </span>
   </a>
@@ -1307,142 +1351,152 @@
 
 
 
-<h1 id="github-reporting">GitHub reporting</h1>
-<p>GitHub reporting is an optional secondary entry point of
-<code>@lullabot/playwright-testing</code>. It reads Playwright JSON reports and produces
-accessibility summaries, workflow annotations, failure/flake summaries, and
-pull request comment bodies with relevant screenshots.</p>
-<p>Enable Playwright's JSON reporter first:</p>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">defineConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@playwright/test'</span><span class="p">;</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">defineConfig</span><span class="p">({</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nx">reporter</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">[</span><span class="s1">'line'</span><span class="p">],</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="p">[</span><span class="s1">'html'</span><span class="p">],</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="p">[</span><span class="s1">'json'</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">outputFile</span><span class="o">:</span><span class="w"> </span><span class="s1">'test-results/results.json'</span><span class="w"> </span><span class="p">}],</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="p">],</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">});</span>
+<h1 id="webkit-native-autofocus-workaround">WebKit native autofocus workaround</h1>
+<p>Upstream reports: <a href="https://bugs.webkit.org/show_bug.cgi?id=308393">WebKit bug 308393</a>
+and <a href="https://github.com/microsoft/playwright/issues/43086">Playwright issue 43086</a>.
+See also the <a href="https://github.com/WebKit/WebKit/pull/75897">proposed WebKit fix</a> and
+<a href="https://github.com/deviantintegral/playwright-autofocus-repro">standalone reproduction</a>.</p>
+<p>Playwright's bundled WebKit can apply native HTML <code>autofocus</code> after another field
+has received focus. If this happens during <code>locator.fill()</code>, text can land in the
+wrong field. <code>@lullabot/playwright-testing</code> exports
+<code>suppressWebKitAutofocus()</code> for installing a workaround in your own browser
+contexts. You can keep using Playwright's bundled browser.</p>
+<h2 id="install-in-your-context-fixture">Install in your context fixture</h2>
+<p>The utility runs in the browser through <code>BrowserContext.addInitScript()</code>; do not
+call it directly in Node.js. Install it before navigating any pages, and only
+when <code>browserName === 'webkit'</code>. This includes desktop Safari and mobile device
+profiles; project names do not affect selection. Importing the package alone
+installs nothing and leaves native autofocus unchanged.</p>
+<p>The package does not export a shared <code>test</code> fixture. Extend Playwright's fixture
+locally if you want automatic installation and a per-test opt-out:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">base</span><span class="p">,</span><span class="w"> </span><span class="nx">expect</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@playwright/test'</span><span class="p">;</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">suppressWebKitAutofocus</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@lullabot/playwright-testing'</span><span class="p">;</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">AutofocusOptions</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nx">webkitAutofocusWorkaround</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">}</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="kd">const</span><span class="w"> </span><span class="nx">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">base</span><span class="p">.</span><span class="nx">extend</span><span class="o">&lt;</span><span class="nx">AutofocusOptions</span><span class="o">&gt;</span><span class="p">({</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="nx">webkitAutofocusWorkaround</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">option</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">}],</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="nx">context</span><span class="o">:</span><span class="w"> </span><span class="kt">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">context</span><span class="p">,</span><span class="w"> </span><span class="nx">browserName</span><span class="p">,</span><span class="w"> </span><span class="nx">webkitAutofocusWorkaround</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="nx">use</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">browserName</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'webkit'</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">webkitAutofocusWorkaround</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">      </span><span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">addInitScript</span><span class="p">(</span><span class="nx">suppressWebKitAutofocus</span><span class="p">);</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">use</span><span class="p">(</span><span class="nx">context</span><span class="p">);</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="p">});</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">expect</span><span class="w"> </span><span class="p">};</span>
 </span></code></pre></div>
-<h2 id="accessibility-summary">Accessibility summary</h2>
-<p>Run the accessibility command after the test step, including when tests fail:</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run Playwright tests</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">npx playwright test</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Accessibility summary</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always()</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">npx playwright-testing-a11y-summary --mode=summary</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Accessibility annotations</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always()</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">npx playwright-testing-a11y-summary --mode=annotations</span>
+<p>Chromium and Firefox retain their normal autofocus behavior because this fixture
+skips installation in those browsers. The helper itself does not select a browser.
+For manually created WebKit contexts, install it explicitly before navigation:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">browser</span><span class="p">.</span><span class="nx">newContext</span><span class="p">();</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">addInitScript</span><span class="p">(</span><span class="nx">suppressWebKitAutofocus</span><span class="p">);</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">newPage</span><span class="p">();</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">'/login'</span><span class="p">);</span>
 </span></code></pre></div>
-<p><code>--report-path=PATH</code> overrides <code>test-results/results.json</code>. Summary mode appends
-Markdown to <code>$GITHUB_STEP_SUMMARY</code> when it is available and otherwise writes to
-stdout. Annotation mode writes GitHub workflow commands for the accessibility
-findings. A missing report is non-fatal because the suite may not have run.</p>
-<h2 id="failure-and-flake-summary">Failure and flake summary</h2>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Failure and flake summary</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always()</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">env</span><span class="p">:</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">SCREENSHOT_GITHUB_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.SCREENSHOT_GITHUB_TOKEN }}</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="no">npx playwright-testing-failure-summary</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="no">--report-path=test-results/results.json</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="no">--comment-path=failure-comment.md</span>
+<p><code>@lullabot/playwright-drupal</code> installs the same helper by default in its shared
+fixture. See its <a href="../../working-with-tests/webkit-autofocus/">configuration and opt-out guide</a>.</p>
+<h2 id="what-changes-in-your-tests">What changes in your tests</h2>
+<p><strong>Native document autofocus is suppressed.</strong> Elements with <code>autofocus</code> briefly
+become unfocusable while WebKit discards their pending autofocus requests. Normal
+form controls become invisible but keep their layout boxes; other HTML candidates
+and their descendants temporarily leave layout. Their authored styles are restored
+afterward, and the <code>autofocus</code> attribute is retained.</p>
+<p>Ordinary Playwright actions wait for these elements to become visible. The
+workaround leaves <code>Locator.fill()</code>, focus methods, selection, keyboard input,
+input events, disabled/read-only checks and timeouts unchanged. However, application
+code that measures or focuses an affected element during loading can observe the
+temporary hiding. Slow stylesheets and background-page rendering can extend it.</p>
+<h2 id="opt-out-when-testing-autofocus-or-loading-behavior">Opt out when testing autofocus or loading behavior</h2>
+<p>Skip installation for tests that exercise native autofocus, dialog/popover
+autofocus, initial scripted focus, or layout while the page is loading. With the
+local fixture above, use:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nx">test</span><span class="p">.</span><span class="nx">describe</span><span class="p">(</span><span class="s1">'native autofocus behavior'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nx">test</span><span class="p">.</span><span class="nx">use</span><span class="p">({</span><span class="w"> </span><span class="nx">webkitAutofocusWorkaround</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nx">test</span><span class="p">(</span><span class="s1">'login field receives native focus'</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">'/login'</span><span class="p">);</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">.</span><span class="nx">getByLabel</span><span class="p">(</span><span class="s1">'Username'</span><span class="p">)).</span><span class="nx">toBeFocused</span><span class="p">();</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="p">});</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p">});</span>
 </span></code></pre></div>
-<p>The command writes the job summary to <code>$GITHUB_STEP_SUMMARY</code>, or stdout outside
-GitHub Actions. <code>--comment-path</code> writes a separate pull request comment body;
-that is where uploaded images should be embedded because user attachments do
-not reliably render in job summaries.</p>
-<table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Default</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--report-path=PATH</code></td>
-<td><code>test-results/results.json</code></td>
-<td>JSON report to read.</td>
-</tr>
-<tr>
-<td><code>--comment-path=PATH</code></td>
-<td>none</td>
-<td>Write a pull request comment body.</td>
-</tr>
-<tr>
-<td><code>--include=diff\|all</code></td>
-<td><code>diff</code></td>
-<td>Include only diff images or all comparison images. Accessibility images are always eligible.</td>
-</tr>
-<tr>
-<td><code>--path-prefix=FROM:TO</code></td>
-<td>inferred</td>
-<td>Remap report attachment paths; repeatable.</td>
-</tr>
-<tr>
-<td><code>--max-uploads=COUNT</code></td>
-<td>package default</td>
-<td>Limit uploaded images.</td>
-</tr>
-<tr>
-<td><code>--title=TEXT</code></td>
-<td><code>Playwright results</code></td>
-<td>Change the comment heading.</td>
-</tr>
-</tbody>
-</table>
-<p>The command reports failures and retries that eventually passed as flakes. It
-also emits machine-readable HTML comment markers with the counts so a workflow
-can decide whether to create, update, or remove a sticky pull request comment.</p>
-<h2 id="screenshot-upload-credentials">Screenshot upload credentials</h2>
-<p>Image uploads require these environment variables:</p>
+<p>For configuration-level options with that local fixture, use
+<code>defineConfig&lt;AutofocusOptions&gt;</code> and set <code>use.webkitAutofocusWorkaround</code> to <code>false</code>.
+The option is defined by your fixture, not registered by the generic package.
+Set it before the browser context is created; changing it afterward cannot remove
+an installed init script.</p>
+<h2 id="coverage-and-limitations">Coverage and limitations</h2>
+<p>The workaround protects standard light-DOM HTML forms in the browser context
+where it is installed. Coverage includes navigations, reloads, popups,
+<code>context.newPage()</code>, same-origin frame navigations, <code>srcdoc</code>, and dynamic form
+insertion, replacement and reinsertion.
+It handles queued candidates even if application code removes their <code>autofocus</code>
+attribute or temporarily detaches them before the queue is processed.</p>
+<p>Keep these boundaries in mind when deciding whether a test should opt out:</p>
 <ul>
-<li><code>SCREENSHOT_GITHUB_TOKEN</code>: a fine-grained personal access token for the
-  repository with <strong>Contents: read and write</strong>;</li>
-<li><code>GITHUB_REPOSITORY_ID</code>: set automatically in GitHub Actions; and</li>
-<li>the normal <code>GITHUB_*</code> workflow context variables used to link to the run.</li>
+<li>Contexts created separately with <code>browser.newContext()</code> do not inherit the
+  workaround. Install it explicitly in each context that needs it. Tests using
+  <code>test</code> directly from <code>@playwright/test</code> do not install it automatically.</li>
+<li>Cross-origin frames are left alone because WebKit already rejects their native
+  document autofocus candidates.</li>
+<li>Application JavaScript can still steal focus during a fill. The reproduction's
+  controlled JavaScript focus-stealing case remains observable with the workaround
+  enabled; it is separate from the native autofocus race.</li>
+<li>SVG autofocus, shadow-root internals, synchronous dialog/popover focusing, and
+  CSS transitions or animations that keep a hidden candidate focusable are outside
+  the validated scope.</li>
+<li><code>force: true</code>, direct keyboard input and page scripts can bypass the visibility
+  wait. Wait for an autofocus candidate to become visible before using them.</li>
+<li>An application style change to exactly the temporary
+  <code>visibility: hidden !important</code> or <code>display: none !important</code> value cannot be
+  distinguished from the workaround's own value during that interval.</li>
 </ul>
-<p>GitHub's workflow token and GitHub App installation tokens do not work with the
-user-attachments endpoint. Prefer a dedicated machine account and grant the
-fine-grained token access only to the repository that needs it. Without a
-usable upload token, the summary and comment are still generated and point to
-the test artifact instead of embedding images.</p>
-<p>The endpoint is undocumented. An upload failure disables further uploads for
-that run but does not fail the build; the rendered report explains why images
-are absent.</p>
-<h2 id="container-path-remapping">Container path remapping</h2>
-<p>JSON reports store attachment paths as seen by the Playwright process. When the
-report was generated in a container but the summary runs on the host, use a
-repeatable mapping:</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="go">npx playwright-testing-failure-summary \</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="go">  --path-prefix=/workspace/tests:$GITHUB_WORKSPACE/tests</span>
+<h2 id="validation">Validation</h2>
+<p>The original implementation was validated on Debian 13 with Playwright 1.63.0
+and bundled WebKit 26.6 (build 2359). The standalone reproduction, using the shared fixture,
+completed 2,000 desktop native navigations without a wrong-field fill. The iPhone 13
+project also completed 2,000 native navigations. Both runs suppressed native
+autofocus before filling. Chromium and Firefox retained native autofocus and
+passed 300 repeated navigations each.</p>
+<p>The original browser suite passed 44 tests covering navigation, frames, popups,
+dynamic forms, blocked stylesheets, authored styles, input behavior and opt-out. Native
+stress runs can also pass without the workaround because the race is intermittent;
+queue-specific regressions verify suppression separately. The controlled
+JavaScript route still produces Username <code>alicesecret</code> and an empty Password.</p>
+<p>Desktop Safari and iPhone 13 here use Playwright's Linux WebKit and device
+emulation. macOS, Windows, system Safari, physical iPhones and older Playwright
+bundles were not tested. Check your tests on the host and bundled browser versions
+you support when adopting the workaround or upgrading Playwright.</p>
+<p>Run the generic browser regressions from the monorepo root with:</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="go">npm run build</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="go">npm run test:autofocus --workspace=@lullabot/playwright-testing</span>
 </span></code></pre></div>
-<p>The command also attempts to infer a shared path suffix. Unreadable files are
-reported separately from upload failures so container configuration problems
-remain diagnosable.</p>
-<h2 id="library-api">Library API</h2>
-<p>Import report parsing, summary generation, attachment uploads, and path
-resolution from the secondary entry point:</p>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nx">createPathResolver</span><span class="p">,</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nx">generateFailureSummary</span><span class="p">,</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nx">parseFailures</span><span class="p">,</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@lullabot/playwright-testing/github'</span><span class="p">;</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="kd">const</span><span class="w"> </span><span class="nx">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">parseFailures</span><span class="p">(</span><span class="s1">'test-results/results.json'</span><span class="p">);</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="kd">const</span><span class="w"> </span><span class="nx">resolver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createPathResolver</span><span class="p">({</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="nx">reportPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'test-results/results.json'</span><span class="p">,</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="p">});</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">generateFailureSummary</span><span class="p">(</span><span class="nx">report</span><span class="p">));</span>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="ow">void</span><span class="w"> </span><span class="nx">resolver</span><span class="p">;</span>
-</span></code></pre></div>
-<p>Use the secondary entry point instead of reaching into <code>lib/github/*</code>; only the
-declared package export is part of the public API.</p>
+<p>The root <code>npm run test:autofocus</code> command also runs the Drupal fixture integration
+checks. Both suites use bundled Chromium, Firefox, desktop WebKit, and iPhone 13
+emulation. Set <code>REPEATS</code> to change the native navigation stress count (default 300).</p>
+<h2 id="when-the-workaround-can-be-removed">When the workaround can be removed</h2>
+<p>Keep the workaround enabled until the WebKit bundled with your Playwright version
+includes the upstream fix and your native autofocus tests pass with
+<code>webkitAutofocusWorkaround: false</code>. A merged WebKit PR alone does not establish
+that your bundled browser is fixed.</p>
+<p>The package can remove the workaround once its minimum supported Playwright
+version includes the fix and native stress, focus-preservation, dynamic-form and
+frame tests pass without it on supported platforms and desktop/mobile profiles.</p>
+<h2 id="implementation-details">Implementation details</h2>
+<p>WebKit queues autofocus candidates on insertion and does not recheck the
+<code>autofocus</code> attribute when processing them. Removing the attribute in a
+MutationObserver therefore cannot reliably cancel the pending focus.</p>
+<p>The workaround instead temporarily makes candidates unfocusable so WebKit discards
+them. It restores their styles after the top document's <code>DOMContentLoaded</code> and an
+animation-frame callback: WebKit flushes autofocus before these callbacks, but a
+parser waiting for stylesheets can defer the flush. This uses investigated WebKit
+rendering order rather than assuming that a two-frame delay guarantees safety.
+Relevant source: <a href="https://github.com/WebKit/WebKit/blob/0971e7a2270b21f25bac302361018c20175f445e/Source/WebCore/dom/Element.cpp">candidate insertion</a>,
+<a href="https://github.com/WebKit/WebKit/blob/0971e7a2270b21f25bac302361018c20175f445e/Source/WebCore/dom/Document.cpp">queue processing</a>,
+and <a href="https://github.com/WebKit/WebKit/blob/0971e7a2270b21f25bac302361018c20175f445e/Source/WebCore/page/Page.cpp">rendering order</a>.</p>
+<!-- Keep the standalone guide's Drupal link within the documentation site. -->
 
 
 

@@ -996,6 +996,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../generic-playwright-utilities/webkit-autofocus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebKit Autofocus Workaround
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../generic-playwright-utilities/github-reporting/" class="md-nav__link">
         
   
@@ -1199,7 +1227,8 @@ DDEV behavior remain exclusive to <code>@lullabot/playwright-drupal</code>. The 
 replacement Playwright configuration.</p>
 <p>The shared Drupal <code>test</code> fixture also enables <code>webkitAutofocusWorkaround</code> by
 default for <code>browserName === 'webkit'</code>, including desktop Safari and mobile
-projects. It suppresses queued native document autofocus to prevent wrong-field
+projects. It installs the helper from <code>@lullabot/playwright-testing</code> and
+suppresses queued native document autofocus to prevent wrong-field
 <code>fill()</code> calls. See <a href="../../working-with-tests/webkit-autofocus/">configuration, opt-out and limitations</a>.</p>
 <table>
 <thead>
