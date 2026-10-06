@@ -22,6 +22,7 @@
     "test:all": "npm test && npm test --workspaces --if-present",
     "pretest:unit": "npm run build --workspace=@lullabot/playwright-testing",
     "test:unit": "vitest run",
+    "test:autofocus": "playwright test --config tests/webkit-autofocus/playwright.config.ts",
     "test:bats": "bats test/",
     "docs:dev": "uvx --with-requirements docs/requirements.txt mkdocs@1.6.1 serve",
     "docs:build": "uvx --with-requirements docs/requirements.txt mkdocs@1.6.1 build --strict",

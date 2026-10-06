@@ -51,6 +51,32 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
 
+  autofocus-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Install bundled browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Test native autofocus workaround
+        run: npm run test:autofocus
+      - name: Upload failure traces
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: webkit-autofocus-traces
+          path: test-results/webkit-autofocus/
+          retention-days: 7
+
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
