@@ -1109,6 +1109,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#release-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Release CI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#versioned-documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1173,6 +1184,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#release-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Release CI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#versioned-documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1224,6 +1246,21 @@ one package does not require a version bump or npm publication of the other.</p>
 <p>Both publications use npm trusted publishing. Before merging a release, verify
 the package-specific changelog and run the workspace build, tests, and dry-run
 pack commands from the <a href="../development/">development guide</a>.</p>
+<h2 id="release-ci">Release CI</h2>
+<p>The full Test workflow runs on every pull request, including Release Please's
+release PRs. New commits to a PR cancel its outdated test run. The release path
+is:</p>
+<ol>
+<li>Feature PR checks pass, then the PR is merged into <code>main</code>.</li>
+<li>Release Please immediately creates or updates the release PR.</li>
+<li>Release PR checks pass, then the release PR is merged into <code>main</code>.</li>
+<li>Release Please creates the release and publishes the affected packages to npm.</li>
+</ol>
+<p>The Release workflow does not rerun the Test workflow on pushes to <code>main</code>.
+This removes two full test runs from the release path. Keep the Test workflow's
+PR checks required on <code>main</code>, require PRs to be up to date before merging, and
+merge changes through PRs so the checks remain the gate for releasing code.
+Maintainers can also run Test manually from the Actions tab when needed.</p>
 <h2 id="versioned-documentation">Versioned documentation</h2>
 <p>The deployed MkDocs site is the Drupal package's documentation. It is deployed
 when a tag matching <code>playwright-drupal-*</code> is pushed, for example
