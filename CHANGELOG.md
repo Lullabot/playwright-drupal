@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.16.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.15.0...playwright-drupal-1.16.0) (2026-10-06)
+
+
+### Features
+
+* **playwright-testing:** expose WebKit autofocus workaround ([3771eee](https://github.com/Lullabot/playwright-drupal/commit/3771eeea41d26c107c45877c5989fb5794a791af))
+
+
+### Bug Fixes
+
+* suppress delayed native autofocus in WebKit ([36f29e3](https://github.com/Lullabot/playwright-drupal/commit/36f29e39611910b06d13081a3c62df71e8fdd3db))
+
+
+### Documentation
+
+* include generic testing guides in documentation site ([e1c77d2](https://github.com/Lullabot/playwright-drupal/commit/e1c77d2f5d95cdab5dd9f2466690ac0b2a4849c8))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @lullabot/playwright-testing bumped from 1.1.0 to 1.2.0
+
 ## [1.15.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.14.1...playwright-drupal-1.15.0) (2026-10-02)
 
 

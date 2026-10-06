@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-testing-1.1.0...playwright-testing-1.2.0) (2026-10-06)
+
+
+### Features
+
+* **playwright-testing:** expose WebKit autofocus workaround ([3771eee](https://github.com/Lullabot/playwright-drupal/commit/3771eeea41d26c107c45877c5989fb5794a791af))
+
 ## [1.1.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-testing-1.0.1...playwright-testing-1.1.0) (2026-10-02)
 
 
