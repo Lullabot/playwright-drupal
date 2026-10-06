@@ -959,13 +959,15 @@ describe("accessibility baseline", () => {
     });
 
     it("still uses snapshot mode when a legacy snapshot file exists for the test", async () => {
-      mockAnalyze.mockResolvedValue(makeAxeResults({ violations: [] }));
+      mockAnalyze.mockResolvedValue(
+        makeAxeResults({ violations: [makeViolation("image-alt", [["img"]])] }),
+      );
 
       // Pre-create a Playwright-style snapshot file in the snapshots dir.
       const fs = await import("fs");
       const path = await import("path");
       await fs.promises.writeFile(
-        path.join(tmpDir, "legacy-test-1-chromium-linux.txt"),
+        path.join(tmpDir, "legacy-test-1.txt"),
         "[]\n",
       );
 
@@ -978,6 +980,21 @@ describe("accessibility baseline", () => {
         bestPracticeMode: "off",
       });
 
+      // A retry must stay in snapshot mode without creating TODO metadata.
+      await checkAccessibility(
+        makePage() as any,
+        makeTestInfo({
+          updateSnapshots: "none",
+          snapshotsDir: tmpDir,
+          title: "legacy test",
+        }) as any,
+        { bestPracticeMode: "off" },
+      );
+      expect(
+        (await fs.promises.readdir(tmpDir)).filter((name) =>
+          name.endsWith(".json"),
+        ),
+      ).toEqual([]);
       // Snapshot mode -> toMatchSnapshot was invoked.
       expect(mockToMatchSnapshot).toHaveBeenCalled();
     });

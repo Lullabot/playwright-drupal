@@ -1,5 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { createHash } from "crypto";
 import type { TestInfo } from "@playwright/test";
 import type { AccessibilityBaselineEntry } from "./accessibility-baseline.js";
 
@@ -45,9 +46,7 @@ export function resetAccessibilityScanCounts(testInfo: object): void {
 }
 
 /**
- * Slugify a test's fully qualified title the same way we use it as the
- * stem of both on-disk baseline filenames and (for existence checks) the
- * prefix of Playwright's auto-generated snapshot filenames.
+ * Slugify a test's fully qualified title for on-disk JSON baseline filenames.
  *
  * Implemented as a single-pass character scan to avoid regex-based
  * polynomial backtracking on library-supplied input (CodeQL
@@ -80,19 +79,23 @@ function slugifyTitle(testInfo: Pick<TestInfo, "titlePath" | "title">): string {
 }
 
 /**
- * Reproduce the stem Playwright uses for auto-named snapshot files: the
- * title path (minus the spec file) joined with spaces, with every run of
- * control/punctuation characters collapsed to a single hyphen. Unlike
- * `slugifyTitle()` this preserves case and does not trim hyphens, so it
- * matches committed snapshot filenames exactly. Mirrors Playwright's
- * `sanitizeForFilePath()`. Very long titles, which Playwright truncates
- * and hashes, are not handled.
+ * Playwright's anonymous snapshot argument: trim the full title INCLUDING
+ * the counter to 100 UTF-16 code units, inserting five SHA-1 hex characters
+ * in the middle, then sanitize it. There is no public API for generating an
+ * arbitrary anonymous counter; snapshotPath() resolves this explicit argument.
+ * Keep this compatibility implementation covered by real runner tests.
  */
 function playwrightSnapshotStem(
   testInfo: Pick<TestInfo, "titlePath" | "title">,
+  counter: string,
 ): string {
   const segments = testInfo.titlePath?.slice(1) ?? [];
-  const raw = segments.length > 0 ? segments.join(" ") : testInfo.title;
+  const title = segments.length > 0 ? segments.join(" ") : testInfo.title;
+  let raw = `${title} ${counter}`;
+  if (raw.length > 100) {
+    const hash = createHash("sha1").update(raw).digest("hex").slice(0, 5);
+    raw = `${raw.slice(0, 46)}-${hash}-${raw.slice(-47)}`;
+  }
   let out = "";
   let lastWasReplaced = false;
   for (let i = 0; i < raw.length; i++) {
@@ -148,7 +151,7 @@ export function baselineFilePath(
 export async function snapshotExists(
   testInfo: Pick<TestInfo, "snapshotPath" | "titlePath" | "title">,
 ): Promise<boolean> {
-  const dir = path.dirname(testInfo.snapshotPath("a11y-baseline-probe"));
+  const dir = path.dirname(testInfo.snapshotPath("a11y-baseline-probe.txt"));
   let entries: string[];
   try {
     entries = await fs.readdir(dir);
@@ -156,21 +159,23 @@ export async function snapshotExists(
     if (err?.code === "ENOENT") return false;
     throw err;
   }
-  // Playwright names snapshots `<stem>-<counter>[-<project>-<platform>].txt`.
-  // Require the counter so a title that merely extends this one (e.g.
-  // "Video" vs "Video Promo") is not mistaken for this test's snapshot.
-  const prefix = `${playwrightSnapshotStem(testInfo)}-`;
-  return entries.some((name) => {
-    if (!name.startsWith(prefix) || !name.endsWith(".txt")) return false;
-    let i = prefix.length;
-    while (
-      i < name.length &&
-      name.charCodeAt(i) >= 48 &&
-      name.charCodeAt(i) <= 57
-    )
-      i++;
-    return i > prefix.length && (name[i] === "-" || name[i] === ".");
-  });
+  // Extract possible counters, then compare the entire resolved path. A
+  // prefix match can accidentally select another test (e.g. "Video 2").
+  // Resolving via the public API honors project, suffix, and path templates.
+  for (const name of entries) {
+    if (!name.endsWith(".txt")) continue;
+    for (const match of name.matchAll(/[0-9]+/g)) {
+      const counter = match[0];
+      if (counter.startsWith("0")) continue;
+      const expected = testInfo.snapshotPath(
+        `${playwrightSnapshotStem(testInfo, counter)}.txt`,
+      );
+      if (path.resolve(expected) === path.resolve(dir, name)) {
+        if ((await fs.stat(expected)).isFile()) return true;
+      }
+    }
+  }
+  return false;
 }
 
 export async function readBaselineFile(
