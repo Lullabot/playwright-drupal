@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://lullabot.github.io/playwright-drupal/main/contributing/development/">
       
       
-        <link rel="prev" href="../../working-with-tests/drupal-testing-utilities/">
+        <link rel="prev" href="../../generic-playwright-utilities/github-reporting/">
       
       
         <link rel="next" href="../releases/">
@@ -276,7 +276,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/README.md" class="md-tabs__link">
+        <a href="../../generic-playwright-utilities/" class="md-tabs__link">
           
   
   
@@ -849,7 +849,7 @@
   
   
     <li class="md-nav__item">
-      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/README.md" class="md-nav__link">
+      <a href="../../generic-playwright-utilities/" class="md-nav__link">
         
   
   
@@ -877,7 +877,7 @@
   
   
     <li class="md-nav__item">
-      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/accessibility.md" class="md-nav__link">
+      <a href="../../generic-playwright-utilities/accessibility/" class="md-nav__link">
         
   
   
@@ -905,7 +905,7 @@
   
   
     <li class="md-nav__item">
-      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md" class="md-nav__link">
+      <a href="../../generic-playwright-utilities/screenshots-and-visual-comparisons/" class="md-nav__link">
         
   
   
@@ -933,7 +933,7 @@
   
   
     <li class="md-nav__item">
-      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/github-reporting.md" class="md-nav__link">
+      <a href="../../generic-playwright-utilities/github-reporting/" class="md-nav__link">
         
   
   
@@ -1333,8 +1333,14 @@ than importing the worktree directly.</p>
 <p>The Drupal site uses <a href="https://www.mkdocs.org/">MkDocs</a> with the Material theme
 and <a href="https://github.com/jimporter/mike"><code>mike</code></a> for versioned deployments. The
 canonical generic guides live beside their package in
-<code>packages/playwright-testing/docs</code>; MkDocs navigation links to those sources
-without maintaining duplicate copies.</p>
+<code>packages/playwright-testing/docs</code>. Wrapper pages in
+<code>docs/generic-playwright-utilities</code> include those guides and the package README
+with <code>pymdownx.snippets</code>, so the site renders them without maintaining duplicate
+copies. Edit the package sources to update the content; the development server
+watches those files too. The overview wrapper overrides the README's guide
+reference links with local destinations so readers stay within the site while
+the standalone README keeps its GitHub links. Missing snippet files fail the
+build.</p>
 <p>Install <a href="https://docs.astral.sh/uv/"><code>uv</code></a> and run:</p>
 <div class="language-console highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="go">npm run docs:dev      # live reload at http://localhost:8000</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="go">npm run docs:build    # strict static build</span>

@@ -14,7 +14,7 @@
         <link rel="prev" href="../screenshots-in-ci/">
       
       
-        <link rel="next" href="../../contributing/development/">
+        <link rel="next" href="../../generic-playwright-utilities/">
       
       
         
@@ -278,7 +278,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/README.md" class="md-tabs__link">
+        <a href="../../generic-playwright-utilities/" class="md-tabs__link">
           
   
   
@@ -1552,7 +1552,7 @@
   
   
     <li class="md-nav__item">
-      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/README.md" class="md-nav__link">
+      <a href="../../generic-playwright-utilities/" class="md-nav__link">
         
   
   
@@ -1580,7 +1580,7 @@
   
   
     <li class="md-nav__item">
-      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/accessibility.md" class="md-nav__link">
+      <a href="../../generic-playwright-utilities/accessibility/" class="md-nav__link">
         
   
   
@@ -1608,7 +1608,7 @@
   
   
     <li class="md-nav__item">
-      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md" class="md-nav__link">
+      <a href="../../generic-playwright-utilities/screenshots-and-visual-comparisons/" class="md-nav__link">
         
   
   
@@ -1636,7 +1636,7 @@
   
   
     <li class="md-nav__item">
-      <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/github-reporting.md" class="md-nav__link">
+      <a href="../../generic-playwright-utilities/github-reporting/" class="md-nav__link">
         
   
   
@@ -3000,7 +3000,7 @@
 </tr>
 </tbody>
 </table>
-<p>Removes keyboard focus from a genuinely focused control so its focus ring does not appear in only some screenshot runs. Returns <code>true</code> if an element was blurred, <code>false</code> if nothing was focused (the <code>&lt;body&gt;</code>/<code>&lt;html&gt;</code> fallback is left alone). <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#capture-one-page-or-element"><code>takeAccessibleScreenshot()</code></a> calls this for you unless <code>blur: false</code> is passed.</p>
+<p>Removes keyboard focus from a genuinely focused control so its focus ring does not appear in only some screenshot runs. Returns <code>true</code> if an element was blurred, <code>false</code> if nothing was focused (the <code>&lt;body&gt;</code>/<code>&lt;html&gt;</code> fallback is left alone). <a href="../../generic-playwright-utilities/screenshots-and-visual-comparisons/#capture-one-page-or-element"><code>takeAccessibleScreenshot()</code></a> calls this for you unless <code>blur: false</code> is passed.</p>
 <h3 id="clearhover">clearHover()</h3>
 <p><code>clearHover(page: Page): Promise&lt;() =&gt; Promise&lt;void&gt;&gt;</code></p>
 <table>
@@ -3019,7 +3019,7 @@
 </tr>
 </tbody>
 </table>
-<p>Moves the pointer onto a temporary transparent viewport shield so stale pointer activity cannot leave unrelated page content in its <code>:hover</code> state. Returns an idempotent cleanup function that removes the shield and restores normal pointer hit testing. <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#capture-one-page-or-element"><code>takeAccessibleScreenshot()</code></a> calls and cleans this up automatically unless <code>clearHover: false</code> is passed.</p>
+<p>Moves the pointer onto a temporary transparent viewport shield so stale pointer activity cannot leave unrelated page content in its <code>:hover</code> state. Returns an idempotent cleanup function that removes the shield and restores normal pointer hit testing. <a href="../../generic-playwright-utilities/screenshots-and-visual-comparisons/#capture-one-page-or-element"><code>takeAccessibleScreenshot()</code></a> calls and cleans this up automatically unless <code>clearHover: false</code> is passed.</p>
 <h3 id="forcepseudostate">forcePseudoState()</h3>
 <p><code>forcePseudoState(page: Page, selector: string, pseudoClasses: ForcedPseudoClass[]): Promise&lt;() =&gt; Promise&lt;void&gt;&gt;</code></p>
 <table>
@@ -3053,13 +3053,13 @@ in a deterministic state. It is Chromium-only and throws when the selector has
 no match. The returned cleanup function clears the forced classes, detaches the
 DevTools session, and is safe to call more than once.</p>
 <p>For ordinary cross-browser hover and focus testing, prefer the
-<a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#capture-one-page-or-element"><code>interactionStates</code></a> option. It uses
+<a href="../../generic-playwright-utilities/screenshots-and-visual-comparisons/#capture-one-page-or-element"><code>interactionStates</code></a> option. It uses
 real Playwright interactions and keeps them active through the screenshot and
 accessibility scan.</p>
 <p>Forced pseudo-states are independent of real pointer hover and DOM focus, so
-<a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#capture-one-page-or-element"><code>takeAccessibleScreenshot()</code></a>
+<a href="../../generic-playwright-utilities/screenshots-and-visual-comparisons/#capture-one-page-or-element"><code>takeAccessibleScreenshot()</code></a>
 can still clear those incidental states while preserving the requested styling
-through both the screenshot and accessibility scan. See <a href="https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md#capture-one-page-or-element">Testing Hover and
+through both the screenshot and accessibility scan. See <a href="../../generic-playwright-utilities/screenshots-and-visual-comparisons/#capture-one-page-or-element">Testing Hover and
 Focus States</a> for the
 declarative visual-diff configuration and a custom-test example.</p>
 <h2 id="fallback-selectors">Fallback selectors</h2>
