@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.16.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.16.0...playwright-drupal-1.16.1) (2026-10-06)
+
+
+### Bug Fixes
+
+* **playwright-testing:** detect legacy anonymous accessibility snapshots ([5e7296a](https://github.com/Lullabot/playwright-drupal/commit/5e7296a8632c4f289549ea718c7f105d474e8781))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @lullabot/playwright-testing bumped from 1.2.0 to 1.2.1
+
 ## [1.16.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.15.0...playwright-drupal-1.16.0) (2026-10-06)
 
 
