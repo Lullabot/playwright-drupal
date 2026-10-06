@@ -1,5 +1,5 @@
 import http from "node:http";
-import { test, expect } from "../../src/testcase/test";
+import { test, expect } from "./fixtures";
 import type { Page } from "@playwright/test";
 
 // The form and native stress loop follow deviantintegral/playwright-autofocus-repro
@@ -160,7 +160,7 @@ test("frame navigation and srcdoc", async ({ page, browserName }) => {
   await expect(frame.getByLabel("Password")).toHaveValue("secret");
 });
 
-test("dynamic Drupal-style replacement, reinsertion and removed attribute", async ({
+test("dynamic form replacement, reinsertion and removed attribute", async ({
   page,
   browserName,
 }) => {
@@ -168,7 +168,7 @@ test("dynamic Drupal-style replacement, reinsertion and removed attribute", asyn
   for (let attempt = 0; attempt < 30; attempt++) {
     await page.evaluate(
       ({ markup, remove }) => {
-        document.body.innerHTML = `<form data-drupal-selector="login-form">${markup}</form>`;
+        document.body.innerHTML = `<form>${markup}</form>`;
         // This removal cannot cancel the already queued native candidate.
         if (remove)
           document.querySelector("[autofocus]")!.removeAttribute("autofocus");

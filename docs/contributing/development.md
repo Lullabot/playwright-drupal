@@ -38,6 +38,24 @@ dependency direction is always Drupal to generic. Code that supplies Drupal
 selectors, toolbar behavior, DDEV paths, Drush integration, or database
 isolation belongs in the root adapter.
 
+## WebKit autofocus browser tests
+
+Install the bundled browsers once, then run both the generic browser regression
+suite and the Drupal fixture integration checks:
+
+```console
+npx playwright install --with-deps chromium firefox webkit
+npm run build
+npm run test:autofocus
+```
+
+The generic suite imports the public `@lullabot/playwright-testing` API and uses a
+local context fixture. The smaller Drupal suite checks the production fixture's
+default, opt-out, and no-isolation behavior. Neither suite requires Drupal or DDEV.
+Run one suite with `npm run test:autofocus --workspace=@lullabot/playwright-testing`
+or `npm run test:autofocus:drupal`. Failure traces live under
+`test-results/webkit-autofocus/` in separate `generic` and `drupal` directories.
+
 ## DDEV integration tests
 
 The repository uses [bats-core](https://github.com/bats-core/bats-core) for

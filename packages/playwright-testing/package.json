@@ -33,7 +33,8 @@
   "scripts": {
     "build": "tsc",
     "prepack": "npm run build",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "test:autofocus": "playwright test --config tests/webkit-autofocus/playwright.config.ts"
   },
   "dependencies": {
     "@axe-core/playwright": "^4.8.5",

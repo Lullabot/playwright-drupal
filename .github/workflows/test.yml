@@ -72,7 +72,7 @@ jobs:
         run: npm run build
       - name: Install bundled browsers
         run: npx playwright install --with-deps chromium firefox webkit
-      - name: Test native autofocus workaround
+      - name: Test generic autofocus workaround and Drupal fixture integration
         run: npm run test:autofocus
       - name: Upload failure traces
         if: failure()
