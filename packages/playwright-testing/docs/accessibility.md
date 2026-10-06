@@ -64,7 +64,19 @@ reason and tracking link before committing it:
 When `CI` is set, a missing baseline is still written and attached to the
 report, but the test fails. Download and commit the seed rather than silently
 accepting new violations. A committed legacy `.txt` accessibility snapshot is
-still honored, but new tests should use JSON baselines.
+still honored, but new tests should use JSON baselines. Detection uses Playwright's
+anonymous text snapshot naming, including counter-dependent truncation and
+hashing, and resolves the exact path for the current project and snapshot
+suffix with `testInfo.snapshotPath()`. PNG snapshots and files belonging to
+other tests or projects do not select snapshot mode.
+
+Detection supports templates that place `{arg}` in the filename, with a
+stable parent directory (which may use `{testName}`, `{projectName}`, and
+`{ext}`). Explicitly named snapshots and templates that put `{arg}` in a
+directory are not discovered. Tests whose titles sanitize to the same filename
+have Playwright's own collision limitations. Anonymous argument generation
+mirrors Playwright's naming algorithm because no public API generates an
+arbitrary counter; runner regression tests guard against upstream changes.
 
 Entries that match current violations are reported as baselined annotations.
 New violations fail the assertion with a copy-pasteable entry, while entries
