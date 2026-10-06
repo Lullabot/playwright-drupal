@@ -8,15 +8,11 @@ permissions:
   contents: write
   pull-requests: write
   id-token: write
-  # A called workflow cannot request more than its caller was granted, and an
-  # explicit block here denies everything it does not list. test.yml's
-  # failure-comment job asks for actions: read, so without this the whole run
-  # is rejected before any job starts and release-please never executes.
-  actions: read
 
 jobs:
+  # Both feature PRs and release PRs run test.yml before merging. Keep release
+  # automation off that suite's critical path instead of testing each merge again.
   release-please:
-    needs: test
     runs-on: ubuntu-24.04
     outputs:
       drupal_release_created: ${{ steps.release.outputs.release_created }}
@@ -32,9 +28,6 @@ jobs:
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           token: ${{ steps.app-token.outputs.token }}
-
-  test:
-    uses: ./.github/workflows/test.yml
 
   publish-drupal:
     needs: release-please

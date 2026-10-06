@@ -2,7 +2,12 @@ name: Test
 
 on:
   pull_request:
-  workflow_call:
+  workflow_dispatch:
+
+# A new PR commit supersedes its previous test run. Manual runs are not canceled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   lint:

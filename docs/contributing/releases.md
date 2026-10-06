@@ -14,6 +14,23 @@ Both publications use npm trusted publishing. Before merging a release, verify
 the package-specific changelog and run the workspace build, tests, and dry-run
 pack commands from the [development guide](development.md).
 
+## Release CI
+
+The full Test workflow runs on every pull request, including Release Please's
+release PRs. New commits to a PR cancel its outdated test run. The release path
+is:
+
+1. Feature PR checks pass, then the PR is merged into `main`.
+2. Release Please immediately creates or updates the release PR.
+3. Release PR checks pass, then the release PR is merged into `main`.
+4. Release Please creates the release and publishes the affected packages to npm.
+
+The Release workflow does not rerun the Test workflow on pushes to `main`.
+This removes two full test runs from the release path. Keep the Test workflow's
+PR checks required on `main`, require PRs to be up to date before merging, and
+merge changes through PRs so the checks remain the gate for releasing code.
+Maintainers can also run Test manually from the Actions tab when needed.
+
 ## Versioned documentation
 
 The deployed MkDocs site is the Drupal package's documentation. It is deployed
