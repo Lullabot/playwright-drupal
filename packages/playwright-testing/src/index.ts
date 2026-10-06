@@ -11,3 +11,4 @@ export * from "./pseudo-state.js";
 export * from "./videos.js";
 export * from "./visualdiff.js";
 export * from "./mock/index.js";
+export * from "./webkit-autofocus.js";

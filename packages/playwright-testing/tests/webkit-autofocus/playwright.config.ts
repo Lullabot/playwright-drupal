@@ -1,13 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
-import type { DrupalTestOptions } from "../../src/testcase/test";
+import type { AutofocusTestOptions } from "./fixtures";
 
-// Exercise the real shared context fixture, including its no-isolation branch.
-process.env.PLAYWRIGHT_NO_TEST_ISOLATION = "1";
-
-export default defineConfig<DrupalTestOptions>({
+export default defineConfig<AutofocusTestOptions>({
   testDir: ".",
   testMatch: "*.spec.ts",
-  outputDir: "../../test-results/webkit-autofocus/drupal",
+  outputDir: "../../../../test-results/webkit-autofocus/generic",
   workers: 1,
   retries: 0,
   reporter: "list",

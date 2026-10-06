@@ -17,7 +17,7 @@ import { collector, isVerbose } from "../cli/output-collector";
 import * as fs from "fs";
 import * as util from "util";
 import child_process from "child_process";
-import { suppressWebKitAutofocus } from "./webkit-autofocus";
+import { suppressWebKitAutofocus } from "@lullabot/playwright-testing";
 
 export interface DrupalTestOptions {
   /** Suppress queued native document autofocus in WebKit. Default: true. */

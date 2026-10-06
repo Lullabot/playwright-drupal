@@ -79,6 +79,7 @@ nav:
     - Package Overview: generic-playwright-utilities/index.md
     - Accessibility Testing: generic-playwright-utilities/accessibility.md
     - Screenshots and Visual Comparisons: generic-playwright-utilities/screenshots-and-visual-comparisons.md
+    - WebKit Autofocus Workaround: generic-playwright-utilities/webkit-autofocus.md
     - GitHub Reporting: generic-playwright-utilities/github-reporting.md
   - Contributing:
     - Development: contributing/development.md

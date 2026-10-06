@@ -9,7 +9,8 @@ replacement Playwright configuration.
 
 The shared Drupal `test` fixture also enables `webkitAutofocusWorkaround` by
 default for `browserName === 'webkit'`, including desktop Safari and mobile
-projects. It suppresses queued native document autofocus to prevent wrong-field
+projects. It installs the helper from `@lullabot/playwright-testing` and
+suppresses queued native document autofocus to prevent wrong-field
 `fill()` calls. See [configuration, opt-out and limitations](../working-with-tests/webkit-autofocus.md).
 
 | Setting | Default |
