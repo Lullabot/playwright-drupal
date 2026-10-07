@@ -51,6 +51,7 @@ test('home page', async ({ page }, testInfo) => {
 
 - [Accessibility testing][testing-accessibility]
 - [Stable screenshots and visual comparisons][testing-screenshots]
+- [Page readiness and browser state][testing-page-readiness]
 - [WebKit native autofocus workaround][testing-webkit-autofocus]
 - [GitHub reporting][testing-github-reporting]
 
@@ -67,3 +68,5 @@ package.
 [testing-screenshots]: https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/screenshots-and-visual-comparisons.md
 [testing-github-reporting]: https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/github-reporting.md
 [testing-webkit-autofocus]: https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/webkit-autofocus.md
+
+[testing-page-readiness]: https://github.com/Lullabot/playwright-drupal/blob/main/packages/playwright-testing/docs/page-readiness.md

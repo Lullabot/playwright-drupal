@@ -5,3 +5,4 @@
 [testing-screenshots]: screenshots-and-visual-comparisons.md
 [testing-github-reporting]: github-reporting.md
 [testing-webkit-autofocus]: webkit-autofocus.md
+[testing-page-readiness]: page-readiness.md
