@@ -1,11 +1,13 @@
 import { Page } from "@playwright/test";
 import { clickSubmit } from "./gin";
 
+export { openAllDetails } from "@lullabot/playwright-testing";
+
 /**
  * Drupal form-interaction primitives.
  *
  * Covers the cross-distribution quirks tests run into when driving Drupal
- * forms: in-flight AJAX, collapsed <details>, autosave_form hijacking the
+ * forms: in-flight AJAX, autosave_form hijacking the
  * primary Save button, Thunder's moderation "Save as", and the typical
  * save-outcome race between URL change and visible error messages. The
  * Gin sticky-header click workaround lives in `./gin`.
@@ -60,22 +62,6 @@ export async function waitForAjax(
     undefined,
     { timeout },
   );
-}
-
-/**
- * Expand every collapsed `<details>` element on the page.
- *
- * Drupal renders vertical tabs and field groups as `<details>`; fields inside
- * a closed element are in the DOM but not interactable in the usual sense.
- * Running this once after navigation lets subsequent `.fill()` / `.click()`
- * calls target nested fields directly.
- */
-export async function openAllDetails(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    document.querySelectorAll("details:not([open])").forEach((d) => {
-      (d as HTMLDetailsElement).open = true;
-    });
-  });
 }
 
 /**

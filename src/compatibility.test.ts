@@ -3,6 +3,7 @@ import * as generic from "@lullabot/playwright-testing";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 
+import { openAllDetails } from "./util/forms";
 import { blurActiveElement } from "./util/focus";
 import { suppressWebKitAutofocus } from "./testcase/webkit-autofocus";
 import { defineAccessibilityBaseline } from "./util/accessibility-baseline";
@@ -15,6 +16,7 @@ import {
 
 describe("legacy package compatibility", () => {
   it("re-exports neutral generic APIs instead of owning copies", () => {
+    expect(openAllDetails).toBe(generic.openAllDetails);
     expect(blurActiveElement).toBe(generic.blurActiveElement);
     expect(suppressWebKitAutofocus).toBe(generic.suppressWebKitAutofocus);
     expect(defineAccessibilityBaseline).toBe(

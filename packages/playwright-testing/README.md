@@ -25,7 +25,7 @@ version.
 
 - `@lullabot/playwright-testing` exports screenshot stabilization,
   accessibility checks and baselines, visual-diff definitions, interaction and
-  pseudo-state helpers, reusable mocks, and the `suppressWebKitAutofocus()` init
+  pseudo-state helpers, `openAllDetails()`, reusable mocks, and the `suppressWebKitAutofocus()` init
   script (installed explicitly in WebKit contexts).
 - `@lullabot/playwright-testing/github` exports the optional GitHub report,
   attachment-upload, and path-remapping APIs.
