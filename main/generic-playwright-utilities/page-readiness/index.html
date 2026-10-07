@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://lullabot.github.io/playwright-drupal/main/working-with-tests/webkit-autofocus/">
+        <link rel="canonical" href="https://lullabot.github.io/playwright-drupal/main/generic-playwright-utilities/page-readiness/">
       
       
-        <link rel="prev" href="../debugging-tests/">
+        <link rel="prev" href="../screenshots-and-visual-comparisons/">
       
       
-        <link rel="next" href="../running-tests-concurrently/">
+        <link rel="next" href="../webkit-autofocus/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>WebKit Autofocus Workaround - playwright-drupal</title>
+        <title>Page Readiness and Browser State - playwright-drupal</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#webkit-native-autofocus-workaround" class="md-skip">
+        <a href="#page-readiness-and-browser-state" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              WebKit Autofocus Workaround
+              Page Readiness and Browser State
             
           </span>
         </div>
@@ -252,13 +252,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../writing-tests/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../working-with-tests/writing-tests/" class="md-tabs__link">
           
   
   
@@ -274,11 +272,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../generic-playwright-utilities/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -515,29 +515,24 @@
       
   
   
-    
   
   
-  
     
     
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
             
   
   
@@ -555,7 +550,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -573,7 +568,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../writing-tests/" class="md-nav__link">
+      <a href="../../working-with-tests/writing-tests/" class="md-nav__link">
         
   
   
@@ -601,7 +596,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../visual-comparisons/" class="md-nav__link">
+      <a href="../../working-with-tests/visual-comparisons/" class="md-nav__link">
         
   
   
@@ -629,7 +624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../accessibility-tests/" class="md-nav__link">
+      <a href="../../working-with-tests/accessibility-tests/" class="md-nav__link">
         
   
   
@@ -657,7 +652,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../debugging-tests/" class="md-nav__link">
+      <a href="../../working-with-tests/debugging-tests/" class="md-nav__link">
         
   
   
@@ -665,6 +660,264 @@
     
   
     Debugging Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../working-with-tests/webkit-autofocus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebKit Autofocus Workaround
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../working-with-tests/running-tests-concurrently/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running Tests Concurrently
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../working-with-tests/screenshots-in-ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Screenshots in CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../working-with-tests/drupal-testing-utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drupal Testing Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generic Playwright Utilities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Generic Playwright Utilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../accessibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accessibility Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../screenshots-and-visual-comparisons/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Screenshots and Visual Comparisons
   
 
     
@@ -701,7 +954,7 @@
   <span class="md-ellipsis">
     
   
-    WebKit Autofocus Workaround
+    Page Readiness and Browser State
   
 
     
@@ -719,7 +972,7 @@
   <span class="md-ellipsis">
     
   
-    WebKit Autofocus Workaround
+    Page Readiness and Browser State
   
 
     
@@ -745,10 +998,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#opt-out-for-selected-tests" class="md-nav__link">
+  <a href="#waitforimages" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Opt out for selected tests
+        waitForImages()
       
     </span>
   </a>
@@ -756,10 +1009,76 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configure-an-entire-suite-or-project" class="md-nav__link">
+  <a href="#waitforallimages" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configure an entire suite or project
+        waitForAllImages()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#waitforimagestodecode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForImagesToDecode()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#waitforfonts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForFonts()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#waitforframes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForFrames()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bluractiveelement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        blurActiveElement()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#clearhover" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clearHover()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#forcepseudostate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        forcePseudoState()
       
     </span>
   </a>
@@ -782,260 +1101,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../running-tests-concurrently/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Running Tests Concurrently
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../screenshots-in-ci/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Screenshots in CI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../drupal-testing-utilities/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Drupal Testing Utilities
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Generic Playwright Utilities
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Generic Playwright Utilities
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../generic-playwright-utilities/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Package Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../generic-playwright-utilities/accessibility/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Accessibility Testing
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../generic-playwright-utilities/screenshots-and-visual-comparisons/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Screenshots and Visual Comparisons
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../generic-playwright-utilities/page-readiness/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Page Readiness and Browser State
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../generic-playwright-utilities/webkit-autofocus/" class="md-nav__link">
+      <a href="../webkit-autofocus/" class="md-nav__link">
         
   
   
@@ -1063,7 +1129,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../generic-playwright-utilities/github-reporting/" class="md-nav__link">
+      <a href="../github-reporting/" class="md-nav__link">
         
   
   
@@ -1231,10 +1297,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#opt-out-for-selected-tests" class="md-nav__link">
+  <a href="#waitforimages" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Opt out for selected tests
+        waitForImages()
       
     </span>
   </a>
@@ -1242,10 +1308,76 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configure-an-entire-suite-or-project" class="md-nav__link">
+  <a href="#waitforallimages" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configure an entire suite or project
+        waitForAllImages()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#waitforimagestodecode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForImagesToDecode()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#waitforfonts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForFonts()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#waitforframes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        waitForFrames()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bluractiveelement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        blurActiveElement()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#clearhover" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clearHover()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#forcepseudostate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        forcePseudoState()
       
     </span>
   </a>
@@ -1269,49 +1401,219 @@
 
 
 
-<h1 id="webkit-native-autofocus-workaround">WebKit native autofocus workaround</h1>
-<p><code>@lullabot/playwright-drupal</code> enables <code>webkitAutofocusWorkaround: true</code> by default
-when you use its shared <code>test</code> fixture:</p>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">expect</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@lullabot/playwright-drupal'</span><span class="p">;</span>
+<h1 id="page-readiness-and-browser-state">Page readiness and browser state</h1>
+<p>These helpers are exported by <code>@lullabot/playwright-testing</code> and work without Drupal. <a href="../screenshots-and-visual-comparisons/#capture-one-page-or-element"><code>takeAccessibleScreenshot()</code></a> runs the readiness and incidental browser-state cleanup stages automatically; use the individual helpers for custom capture flows.</p>
+<p>Lazy-loaded images and iframes may not have loaded when Playwright first queries the DOM. These utilities scroll resources into view and wait for them to settle before assertions. They are especially important before visual comparisons.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">expect</span><span class="p">,</span><span class="w"> </span><span class="nx">test</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@playwright/test'</span><span class="p">;</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">,</span><span class="w"> </span><span class="nx">waitForFrames</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@lullabot/playwright-testing'</span><span class="p">;</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nx">test</span><span class="p">(</span><span class="s1">'hero renders with images and embedded video'</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">'/'</span><span class="p">);</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForAllImages</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForFrames</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">).</span><span class="nx">toHaveScreenshot</span><span class="p">();</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">});</span>
 </span></code></pre></div>
-<p>It installs <code>suppressWebKitAutofocus()</code> from <code>@lullabot/playwright-testing</code> for
-every project whose <code>browserName</code> is <code>webkit</code>, including desktop Safari and mobile
-device profiles. Project names do not affect selection. Chromium and Firefox retain
-their normal autofocus behavior. Installation also runs with
-<code>PLAYWRIGHT_NO_TEST_ISOLATION=1</code>.</p>
-<p>The workaround suppresses native document autofocus to prevent queued WebKit
-focus from redirecting <code>locator.fill()</code> into the wrong field. It briefly hides
-autofocus candidates and restores their authored styles afterward. Tests that
-exercise native autofocus or focus/layout during loading should opt out.</p>
-<p>The canonical <a href="../../generic-playwright-utilities/webkit-autofocus/">generic workaround guide</a>
-describes installation in custom contexts, the mechanism, coverage, limitations,
-validation, upstream issues, and removal criteria. The Drupal package also
-re-exports the helper for contexts you create separately; those contexts do not
-inherit the shared fixture's workaround.</p>
-<h2 id="opt-out-for-selected-tests">Opt out for selected tests</h2>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">expect</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@lullabot/playwright-drupal'</span><span class="p">;</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nx">test</span><span class="p">.</span><span class="nx">describe</span><span class="p">(</span><span class="s1">'native autofocus behavior'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nx">test</span><span class="p">.</span><span class="nx">use</span><span class="p">({</span><span class="w"> </span><span class="nx">webkitAutofocusWorkaround</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="w"> </span><span class="p">});</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nx">test</span><span class="p">(</span><span class="s1">'login field receives native focus'</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">'/user/login'</span><span class="p">);</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">.</span><span class="nx">getByLabel</span><span class="p">(</span><span class="s1">'Username'</span><span class="p">)).</span><span class="nx">toBeFocused</span><span class="p">();</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="p">});</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">});</span>
-</span></code></pre></div>
-<h2 id="configure-an-entire-suite-or-project">Configure an entire suite or project</h2>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">definePlaywrightDrupalConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@lullabot/playwright-drupal/config'</span><span class="p">;</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">definePlaywrightDrupalConfig</span><span class="p">({</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nx">use</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">webkitAutofocusWorkaround</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">});</span>
-</span></code></pre></div>
-<p>You can also set the option in a project's <code>use</code> options. If you use Playwright's
-own configuration helper, use <code>defineConfig&lt;DrupalTestOptions&gt;</code> with a type-only
-import of <code>DrupalTestOptions</code> from <code>@lullabot/playwright-drupal</code>.</p>
-<p>Set the option before the browser context is created; changing it afterward
-cannot remove the installed workaround.</p>
+<h3 id="waitforimages">waitForImages()</h3>
+<p><code>waitForImages(page: Page, selector: string, options?: WaitForImagesOptions): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>selector</code></td>
+<td><em>(required)</em></td>
+<td>CSS selector for the <code>&lt;img&gt;</code> elements to wait for.</td>
+</tr>
+</tbody>
+</table>
+<p>Scrolls each matching image into view to trigger lazy loading, waits for requests to settle and visible images to decode, then returns the page to the top. Requests that fail also settle, so broken images do not hang the initial load wait.</p>
+<p><code>WaitForImagesOptions</code> accepts:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>decodeTimeoutMs</code></td>
+<td><code>15000</code></td>
+<td>Maximum time to wait for visible images to decode.</td>
+</tr>
+<tr>
+<td><code>recoverErroredImages</code></td>
+<td><code>false</code></td>
+<td>Re-request broken images with a cache-busting URL. This rewrites <code>src</code>, removes <code>srcset</code>, and removes enclosing <code>&lt;picture&gt;</code> sources.</td>
+</tr>
+<tr>
+<td><code>afterScroll</code></td>
+<td><code>undefined</code></td>
+<td>Optional async callback receiving the page after it returns to the top.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="waitforallimages">waitForAllImages()</h3>
+<p><code>waitForAllImages(page: Page, options?: WaitForImagesOptions): Promise&lt;void&gt;</code></p>
+<p>Shorthand for <a href="#waitforimages"><code>waitForImages(page, 'img:visible', options)</code></a>.</p>
+<h3 id="waitforimagestodecode">waitForImagesToDecode()</h3>
+<p><code>waitForImagesToDecode(page: Page, timeoutMs?: number, recoverErroredImages?: boolean): Promise&lt;string[]&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>timeoutMs</code></td>
+<td><code>15000</code></td>
+<td>How long to wait for images to decode before giving up.</td>
+</tr>
+<tr>
+<td><code>recoverErroredImages</code></td>
+<td><code>false</code></td>
+<td>Allow broken image sources to be rewritten and re-requested.</td>
+</tr>
+</tbody>
+</table>
+<p>Called by <a href="#waitforimages"><code>waitForImages()</code></a>; call it directly only to use a different timeout or to assert on the result. Waits for every visible image to decode. When <code>recoverErroredImages</code> is enabled, it re-requests failed images with a cache-busting query parameter. Images that never decode are not an error. Instead, they are warned about on the console and returned, so a broken image in a screenshot has an explanation instead of just a pixel diff.</p>
+<h3 id="waitforfonts">waitForFonts()</h3>
+<p><code>waitForFonts(page: Page): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+</tbody>
+</table>
+<p>Awaits <code>document.fonts.ready</code> so text is not captured with fallback-font metrics. Fallback glyphs have different widths, so text can wrap onto a different number of lines and render the page at a slightly different height until the real web fonts apply — a flake that typically only shows up on the first attempt.</p>
+<h3 id="waitforframes">waitForFrames()</h3>
+<p><code>waitForFrames(page: Page): Promise&lt;void&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+</tbody>
+</table>
+<p>Scrolls each visible, connected <code>&lt;iframe&gt;</code> into view and waits for its frame URL and <code>load</code> state. Operates serially to avoid concurrency bugs; fast enough that parallelism is not worth the complexity.</p>
+<h3 id="bluractiveelement">blurActiveElement()</h3>
+<p><code>blurActiveElement(page: Page): Promise&lt;boolean&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+</tbody>
+</table>
+<p>Removes keyboard focus from a genuinely focused control so its focus ring does not appear in only some screenshot runs. Returns <code>true</code> if an element was blurred, <code>false</code> if nothing was focused (the <code>&lt;body&gt;</code>/<code>&lt;html&gt;</code> fallback is left alone). <a href="../screenshots-and-visual-comparisons/#capture-one-page-or-element"><code>takeAccessibleScreenshot()</code></a> calls this for you unless <code>blur: false</code> is passed.</p>
+<h3 id="clearhover">clearHover()</h3>
+<p><code>clearHover(page: Page): Promise&lt;() =&gt; Promise&lt;void&gt;&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+</tbody>
+</table>
+<p>Moves the pointer onto a temporary transparent viewport shield so stale pointer activity cannot leave unrelated page content in its <code>:hover</code> state. Returns an idempotent cleanup function that removes the shield and restores normal pointer hit testing. <a href="../screenshots-and-visual-comparisons/#capture-one-page-or-element"><code>takeAccessibleScreenshot()</code></a> calls and cleans this up automatically unless <code>clearHover: false</code> is passed.</p>
+<h3 id="forcepseudostate">forcePseudoState()</h3>
+<p><code>forcePseudoState(page: Page, selector: string, pseudoClasses: ForcedPseudoClass[]): Promise&lt;() =&gt; Promise&lt;void&gt;&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page</code></td>
+<td><em>(required)</em></td>
+<td>The Playwright page object.</td>
+</tr>
+<tr>
+<td><code>selector</code></td>
+<td><em>(required)</em></td>
+<td>CSS selector whose first matching element receives the forced state.</td>
+</tr>
+<tr>
+<td><code>pseudoClasses</code></td>
+<td><em>(required)</em></td>
+<td>One or more of <code>active</code>, <code>focus</code>, <code>focus-visible</code>, <code>focus-within</code>, <code>hover</code>, or <code>target</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Uses Chromium's <code>CSS.forcePseudoState</code> DevTools command to hold interaction CSS
+in a deterministic state. It is Chromium-only and throws when the selector has
+no match. The returned cleanup function clears the forced classes, detaches the
+DevTools session, and is safe to call more than once.</p>
+<p>For ordinary cross-browser hover and focus testing, prefer the
+<a href="../screenshots-and-visual-comparisons/#capture-one-page-or-element"><code>interactionStates</code></a> option. It uses
+real Playwright interactions and keeps them active through the screenshot and
+accessibility scan.</p>
+<p>Forced pseudo-states are independent of real pointer hover and DOM focus, so
+<a href="../screenshots-and-visual-comparisons/#capture-one-page-or-element"><code>takeAccessibleScreenshot()</code></a>
+can still clear those incidental states while preserving the requested styling
+through both the screenshot and accessibility scan. See <a href="../screenshots-and-visual-comparisons/#force-css-pseudo-states">Force CSS pseudo-states</a> for the
+declarative visual-diff configuration and a custom-test example.</p>
 
 
 
