@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.17.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.16.1...playwright-drupal-1.17.0) (2026-10-07)
+
+
+### Features
+
+* **playwright-testing:** expose openAllDetails helper ([aac99e5](https://github.com/Lullabot/playwright-drupal/commit/aac99e5640bd9b6b97fa725caa60bfc2215dfb44))
+* **playwright-testing:** extract CKEditor 5 utilities ([64705bd](https://github.com/Lullabot/playwright-drupal/commit/64705bd28e344014150ff91839630f15e099036d))
+
+
+### Documentation
+
+* move page readiness reference to generic utilities ([ec2e875](https://github.com/Lullabot/playwright-drupal/commit/ec2e8758e33ed4eac7d5331f3647133dc3c2cbd1))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @lullabot/playwright-testing bumped from 1.2.1 to 1.3.0
+
 ## [1.16.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.16.0...playwright-drupal-1.16.1) (2026-10-06)
 
 
