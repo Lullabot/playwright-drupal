@@ -1,0 +1,1 @@
+--8<-- "packages/playwright-testing/docs/ckeditor5.md"
