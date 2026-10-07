@@ -1004,23 +1004,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="CKEditor 5">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fill" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        fill()
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1542,6 +1525,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../generic-playwright-utilities/ckeditor5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CKEditor 5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../generic-playwright-utilities/page-readiness/" class="md-nav__link">
         
   
@@ -1940,23 +1951,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="CKEditor 5">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fill" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        fill()
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2531,11 +2525,10 @@
 <p><code>clickSubmit(locator: Locator): Promise&lt;void&gt;</code></p>
 <p>Scrolls <code>locator</code> into view and clicks it with <code>force: true</code>. Two steps are needed because Playwright's default actionability check passes once the button is in the viewport, but Gin's sticky header can still cover it; <code>force: true</code> bypasses the overlap check, and the scroll ensures the button actually lands at a free position. Use for delete buttons, moderation actions, and any other submit-style click you don't want the pinned header to intercept. <a href="#clicksavebutton"><code>clickSaveButton</code></a> already delegates here internally.</p>
 <h2 id="ckeditor-5">CKEditor 5</h2>
-<p>The <code>Ckeditor5</code> class drives <strong>CKEditor 5</strong> fields — the editor Drupal core has shipped by default since Drupal 10. It clears any existing content, then types the new value through <code>page.keyboard</code> so CKEditor's event pipeline processes the edits correctly (Playwright's <code>locator.fill()</code> can be silently dropped because the editor re-renders from its internal model).</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This class is for CKEditor <strong>5</strong> only. It does not work with CKEditor 4, which Drupal 10 still ships via the <code>ckeditor</code> module for sites that opted in. For CKEditor 4 use a plain <code>page.frameLocator(...)</code> + <code>fill()</code>.</p>
-</div>
+<p>The framework-neutral <code>Ckeditor5</code> helper is provided by
+<code>@lullabot/playwright-testing</code> and re-exported by <code>@lullabot/playwright-drupal</code>
+for existing imports. See the <a href="../../generic-playwright-utilities/ckeditor5/">CKEditor 5 guide</a>
+for its API and iframe usage. Drupal tests can target the field wrapper:</p>
 <div class="language-typescript highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">Ckeditor5</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@packages/playwright-drupal'</span><span class="p">;</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nx">test</span><span class="p">(</span><span class="s1">'edits the body copy'</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
@@ -2544,36 +2537,6 @@
 </span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">body</span><span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="s1">'New body text'</span><span class="p">);</span>
 </span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">});</span>
 </span></code></pre></div>
-<p><strong>Constructor:</strong> <code>new Ckeditor5(page: Page, selector: string, root?: Page | FrameLocator)</code></p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>page</code></td>
-<td><em>(required)</em></td>
-<td>The owning <code>Page</code>. Keyboard events target this page.</td>
-</tr>
-<tr>
-<td><code>selector</code></td>
-<td><em>(required)</em></td>
-<td>Selector for the widget <strong>wrapper</strong> containing the editor (e.g. <code>#edit-body-wrapper</code>, <code>[data-drupal-selector="edit-field-body-wrapper"]</code>). The class drills into <code>.ck-editor__editable</code> internally.</td>
-</tr>
-<tr>
-<td><code>root</code></td>
-<td><code>page</code></td>
-<td>Optional <code>FrameLocator</code> if the editor renders inside an iframe.</td>
-</tr>
-</tbody>
-</table>
-<h3 id="fill">fill()</h3>
-<p><code>async fill(text: string): Promise&lt;void&gt;</code></p>
-<p>Waits for the editor to become visible, clicks to place the caret, clears existing content via select-all + Backspace (platform-aware), and types the new text. Final value is exactly <code>text</code>, regardless of whether the field was empty — matching Playwright's <code>fill()</code> semantics.</p>
 <h2 id="media-library">Media Library</h2>
 <p>Drive Drupal's <code>media_library</code> widget end-to-end: open the modal, optionally upload a fixture when the library is empty, select the first available item, and click "Insert selected". <a href="#findmediaidfromlisting"><code>findMediaIdFromListing</code></a> covers the post-save fallback for distributions where the redirect doesn't land on <code>/media/N</code>.</p>
 <div class="language-typescript highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">import</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'node:path'</span><span class="p">;</span>
