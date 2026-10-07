@@ -58,7 +58,8 @@ scan, then are cleaned up even if capture fails.
 
 Lower-level helpers such as `waitForAllImages()`, `waitForFrames()`,
 `waitForFonts()`, `waitForVideos()`, `blurActiveElement()`, and `clearHover()`
-are also exported when a custom capture flow needs individual stages.
+are also exported when a custom capture flow needs individual stages. See
+[Page readiness and browser state](page-readiness.md) for their API reference.
 
 ## Locator-derived page clips
 

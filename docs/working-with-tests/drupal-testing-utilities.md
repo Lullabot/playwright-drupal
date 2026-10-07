@@ -320,113 +320,16 @@ Returns the numeric ID as a string, or `undefined` when neither the URL nor any 
 
 ## Page readiness
 
-Lazy-loaded images and iframes are often not present when Playwright first queries the DOM. These utilities scroll hidden regions into view and wait for network-backed resources to settle, so assertions run against a stable page. They are especially important before visual comparisons.
+Image, font, frame, focus, hover, and pseudo-state helpers are documented in [Page readiness and browser state](../generic-playwright-utilities/page-readiness.md). They are available through both `@lullabot/playwright-testing` and this package.
 
-```typescript
-import { test, waitForAllImages, waitForFrames } from '@packages/playwright-drupal';
+The Drupal image wrappers preserve these defaults:
 
-test('hero renders with images and embedded video', async ({ page }) => {
-  await page.goto('/');
-  await waitForAllImages(page);
-  await waitForFrames(page);
-  await expect(page).toHaveScreenshot();
-});
-```
+- `waitForImages()` and `waitForAllImages()` enable broken-image recovery and wait for the Drupal toolbar to settle after returning the page to the top.
+- `waitForImagesToDecode()` and `decodeVisibleImages()` enable broken-image recovery by default.
 
-### waitForImages()
+Recovery can help with Stage File Proxy URLs that temporarily fail while fetching originals. It re-requests failed images with cache-busting URLs and rewrites their responsive sources. The generic package leaves recovery disabled unless explicitly requested.
 
-`waitForImages(page: Page, selector: string): Promise<void>`
-
-| Parameter | Default | Description |
-|---|---|---|
-| `page` | *(required)* | The Playwright page object. |
-| `selector` | *(required)* | CSS selector for the `<img>` elements to wait for. |
-
-Scrolls each matching image into view (to trigger lazy loading) and waits for them to finish loading. It also waits for every visible image to finish decoding and re-requests any that errored — a 404, or a Stage File Proxy URL that 503s while it fetches the original on demand — so a slow on-demand fetch can recover before the screenshot is taken instead of being captured as a broken image. After all images have loaded, the page is scrolled back to the top so screenshots are stable.
-
-### waitForAllImages()
-
-`waitForAllImages(page: Page): Promise<void>`
-
-Shorthand for [`waitForImages(page, 'img:visible')`](#waitforimages).
-
-### waitForImagesToDecode()
-
-`waitForImagesToDecode(page: Page, timeoutMs?: number): Promise<string[]>`
-
-| Parameter | Default | Description |
-|---|---|---|
-| `page` | *(required)* | The Playwright page object. |
-| `timeoutMs` | `15000` | How long to wait for images to decode before giving up. |
-
-Called by [`waitForImages()`](#waitforimages); call it directly only to use a different timeout or to assert on the result. Waits for every visible image to decode, re-requesting any that errored with a cache-busting query parameter so a slow on-demand fetch can recover. Images that never decode are not an error. Instead, they are warned about on the console and returned, so a broken image in a screenshot has an explanation instead of just a pixel diff.
-
-### waitForFonts()
-
-`waitForFonts(page: Page): Promise<void>`
-
-| Parameter | Default | Description |
-|---|---|---|
-| `page` | *(required)* | The Playwright page object. |
-
-Awaits `document.fonts.ready` so text is not captured with fallback-font metrics. Fallback glyphs have different widths, so text can wrap onto a different number of lines and render the page at a slightly different height until the real web fonts apply — a flake that typically only shows up on the first attempt.
-
-### waitForFrames()
-
-`waitForFrames(page: Page): Promise<void>`
-
-| Parameter | Default | Description |
-|---|---|---|
-| `page` | *(required)* | The Playwright page object. |
-
-Scrolls every `<iframe>` into view and waits for each one to have loaded a URL. Operates serially to avoid concurrency bugs; fast enough that parallelism is not worth the complexity.
-
-### blurActiveElement()
-
-`blurActiveElement(page: Page): Promise<boolean>`
-
-| Parameter | Default | Description |
-|---|---|---|
-| `page` | *(required)* | The Playwright page object. |
-
-Removes keyboard focus from a genuinely focused control so its focus ring does not appear in only some screenshot runs. Returns `true` if an element was blurred, `false` if nothing was focused (the `<body>`/`<html>` fallback is left alone). [`takeAccessibleScreenshot()`](../generic-playwright-utilities/screenshots-and-visual-comparisons.md#capture-one-page-or-element) calls this for you unless `blur: false` is passed.
-
-### clearHover()
-
-`clearHover(page: Page): Promise<() => Promise<void>>`
-
-| Parameter | Default | Description |
-|---|---|---|
-| `page` | *(required)* | The Playwright page object. |
-
-Moves the pointer onto a temporary transparent viewport shield so stale pointer activity cannot leave unrelated page content in its `:hover` state. Returns an idempotent cleanup function that removes the shield and restores normal pointer hit testing. [`takeAccessibleScreenshot()`](../generic-playwright-utilities/screenshots-and-visual-comparisons.md#capture-one-page-or-element) calls and cleans this up automatically unless `clearHover: false` is passed.
-
-### forcePseudoState()
-
-`forcePseudoState(page: Page, selector: string, pseudoClasses: ForcedPseudoClass[]): Promise<() => Promise<void>>`
-
-| Parameter | Default | Description |
-|---|---|---|
-| `page` | *(required)* | The Playwright page object. |
-| `selector` | *(required)* | CSS selector whose first matching element receives the forced state. |
-| `pseudoClasses` | *(required)* | One or more of `active`, `focus`, `focus-visible`, `focus-within`, `hover`, or `target`. |
-
-Uses Chromium's `CSS.forcePseudoState` DevTools command to hold interaction CSS
-in a deterministic state. It is Chromium-only and throws when the selector has
-no match. The returned cleanup function clears the forced classes, detaches the
-DevTools session, and is safe to call more than once.
-
-For ordinary cross-browser hover and focus testing, prefer the
-[`interactionStates`](../generic-playwright-utilities/screenshots-and-visual-comparisons.md#capture-one-page-or-element) option. It uses
-real Playwright interactions and keeps them active through the screenshot and
-accessibility scan.
-
-Forced pseudo-states are independent of real pointer hover and DOM focus, so
-[`takeAccessibleScreenshot()`](../generic-playwright-utilities/screenshots-and-visual-comparisons.md#capture-one-page-or-element)
-can still clear those incidental states while preserving the requested styling
-through both the screenshot and accessibility scan. See [Testing Hover and
-Focus States](../generic-playwright-utilities/screenshots-and-visual-comparisons.md#capture-one-page-or-element) for the
-declarative visual-diff configuration and a custom-test example.
+Existing Drupal imports and signatures remain supported. Use the generic package directly when you need its configurable image options.
 
 ## Fallback selectors
 
