@@ -13,3 +13,4 @@ export * from "./videos.js";
 export * from "./visualdiff.js";
 export * from "./mock/index.js";
 export * from "./webkit-autofocus.js";
+export * from "./ckeditor5.js";

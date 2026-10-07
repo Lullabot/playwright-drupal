@@ -1,20 +1,19 @@
 import { describe, it, expect } from "vitest";
-import { selectAllModifier } from "./ckeditor5";
+import {
+  Ckeditor5 as GenericCkeditor5,
+  selectAllModifier as genericSelectAllModifier,
+} from "@lullabot/playwright-testing";
+import { Ckeditor5, selectAllModifier } from "./ckeditor5";
+import {
+  Ckeditor5 as ExportedCkeditor5,
+  selectAllModifier as exportedSelectAllModifier,
+} from "./index";
 
-describe("selectAllModifier", () => {
-  it("returns Meta on darwin", () => {
-    expect(selectAllModifier("darwin")).toBe("Meta");
-  });
-
-  it("returns Control on linux", () => {
-    expect(selectAllModifier("linux")).toBe("Control");
-  });
-
-  it("returns Control on win32", () => {
-    expect(selectAllModifier("win32")).toBe("Control");
-  });
-
-  it("returns Control on freebsd / other", () => {
-    expect(selectAllModifier("freebsd")).toBe("Control");
+describe("CKEditor 5 compatibility exports", () => {
+  it("preserves the generic helpers through Drupal imports", () => {
+    expect(Ckeditor5).toBe(GenericCkeditor5);
+    expect(selectAllModifier).toBe(genericSelectAllModifier);
+    expect(ExportedCkeditor5).toBe(GenericCkeditor5);
+    expect(exportedSelectAllModifier).toBe(genericSelectAllModifier);
   });
 });
