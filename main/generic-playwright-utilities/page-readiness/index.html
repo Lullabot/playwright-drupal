@@ -1085,6 +1085,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#openalldetails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        openAllDetails()
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1384,6 +1395,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#openalldetails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        openAllDetails()
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1614,6 +1636,16 @@ accessibility scan.</p>
 can still clear those incidental states while preserving the requested styling
 through both the screenshot and accessibility scan. See <a href="../screenshots-and-visual-comparisons/#force-css-pseudo-states">Force CSS pseudo-states</a> for the
 declarative visual-diff configuration and a custom-test example.</p>
+<h3 id="openalldetails">openAllDetails()</h3>
+<p><code>openAllDetails(page: Page): Promise&lt;void&gt;</code></p>
+<p>Expands every collapsed native HTML <code>&lt;details&gt;</code> element on the page so nested
+controls become interactable. Call after navigation and before filling fields
+inside collapsible regions. This sets the <code>open</code> property directly.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">openAllDetails</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@lullabot/playwright-testing'</span><span class="p">;</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">await</span><span class="w"> </span><span class="nx">openAllDetails</span><span class="p">(</span><span class="nx">page</span><span class="p">);</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="nx">getByLabel</span><span class="p">(</span><span class="s1">'Title'</span><span class="p">).</span><span class="nx">fill</span><span class="p">(</span><span class="s1">'Hello'</span><span class="p">);</span>
+</span></code></pre></div>
 
 
 

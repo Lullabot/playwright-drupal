@@ -2443,7 +2443,7 @@
 <p>Waits for <code>Drupal.ajax.instances[i].ajaxing</code>, <code>jQuery.active</code>, and <code>jQuery(':animated')</code> to all be clear. Mirrors the predicate used by Drupal core's <code>JSWebAssert::assertWaitOnAjaxRequest()</code>. Call <em>after</em> the action that triggers AJAX — the wait resolves immediately if nothing is in flight. The animation check catches post-AJAX transitions (throbbers, vertical tabs) that can otherwise race with assertions.</p>
 <h3 id="openalldetails">openAllDetails()</h3>
 <p><code>openAllDetails(page: Page): Promise&lt;void&gt;</code></p>
-<p>Expands every <code>&lt;details&gt;</code> element on the page (vertical tabs, field groups, collapsible regions) so nested fields become interactable.</p>
+<p>Re-exported from <code>@lullabot/playwright-testing</code>. Expands native HTML <code>&lt;details&gt;</code> elements, including Drupal field groups and collapsible regions, so nested fields become interactable. See <a href="../../generic-playwright-utilities/page-readiness/#openalldetails">openAllDetails()</a> for the shared API.</p>
 <h3 id="clicksavebutton">clickSaveButton()</h3>
 <p><code>clickSaveButton(page: Page, fallback: string): Promise&lt;void&gt;</code></p>
 <table>
