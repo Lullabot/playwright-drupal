@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-testing-1.2.1...playwright-testing-1.3.0) (2026-10-07)
+
+
+### Features
+
+* **playwright-testing:** expose openAllDetails helper ([aac99e5](https://github.com/Lullabot/playwright-drupal/commit/aac99e5640bd9b6b97fa725caa60bfc2215dfb44))
+* **playwright-testing:** extract CKEditor 5 utilities ([64705bd](https://github.com/Lullabot/playwright-drupal/commit/64705bd28e344014150ff91839630f15e099036d))
+
 ## [1.2.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-testing-1.2.0...playwright-testing-1.2.1) (2026-10-06)
 
 
