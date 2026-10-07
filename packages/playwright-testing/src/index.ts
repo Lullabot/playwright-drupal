@@ -1,3 +1,4 @@
+export * from "./details.js";
 export * from "./focus.js";
 export * from "./accessibility-baseline.js";
 export * from "./accessibility-baseline-file.js";

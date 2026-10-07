@@ -93,7 +93,7 @@ Waits for `Drupal.ajax.instances[i].ajaxing`, `jQuery.active`, and `jQuery(':ani
 
 `openAllDetails(page: Page): Promise<void>`
 
-Expands every `<details>` element on the page (vertical tabs, field groups, collapsible regions) so nested fields become interactable.
+Re-exported from `@lullabot/playwright-testing`. Expands native HTML `<details>` elements, including Drupal field groups and collapsible regions, so nested fields become interactable. See [openAllDetails()](../generic-playwright-utilities/page-readiness.md#openalldetails) for the shared API.
 
 ### clickSaveButton()
 

@@ -118,3 +118,18 @@ Forced pseudo-states are independent of real pointer hover and DOM focus, so
 can still clear those incidental states while preserving the requested styling
 through both the screenshot and accessibility scan. See [Force CSS pseudo-states](screenshots-and-visual-comparisons.md#force-css-pseudo-states) for the
 declarative visual-diff configuration and a custom-test example.
+
+### openAllDetails()
+
+`openAllDetails(page: Page): Promise<void>`
+
+Expands every collapsed native HTML `<details>` element on the page so nested
+controls become interactable. Call after navigation and before filling fields
+inside collapsible regions. This sets the `open` property directly.
+
+```typescript
+import { openAllDetails } from '@lullabot/playwright-testing';
+
+await openAllDetails(page);
+await page.getByLabel('Title').fill('Hello');
+```
