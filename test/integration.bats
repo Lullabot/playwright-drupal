@@ -38,6 +38,79 @@ setup() {
   configure_playwright
 }
 
+@test "doctor: checks effective settings and explicit configuration before install" {
+  cd "$(cat "$BATS_FILE_TMPDIR/project_dir")"
+  local script="test/playwright/node_modules/@lullabot/playwright-drupal/tasks/scripts/sqlite-preflight.php"
+  # This must work before the base SQLite database exists.
+  run ddev exec task playwright:doctor
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"prerequisites passed"* ]]
+  ddev exec test ! -f /tmp/sqlite/.ht.sqlite
+
+  mkdir -p config/preflight
+  printf 'module:\n  system: 0\n' > config/preflight/core.extension.yml
+  printf '\n$settings["config_sync_directory"] = "../config/preflight";\n' >> web/sites/default/settings.php
+  run ddev exec task playwright:doctor existing_config=1
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"sqlite module is missing"* ]]
+  [[ "$output" == *"ddev drush pm:enable sqlite -y"* ]]
+  [[ "$output" == *"ddev drush config:export -y"* ]]
+
+  # The documented hook must stop before reaching the installer.
+  cp Taskfile.yml Taskfile.preflight-backup.yml
+  cat >> Taskfile.yml <<'EOF'
+tasks:
+  playwright:install:hook:
+    cmds:
+      - task: playwright:doctor
+        vars:
+          existing_config: "1"
+      - touch installer-was-called
+EOF
+  run ddev exec task playwright:install
+  mv Taskfile.preflight-backup.yml Taskfile.yml
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"sqlite module is missing"* ]]
+  [ ! -e installer-was-called ]
+
+  # A zero module weight counts as enabled. Read the effective sync directory.
+  printf 'module:\n  system: 0\n  sqlite: 0\n' > config/preflight/core.extension.yml
+  run ddev exec task playwright:doctor existing_config=1
+  [ "$status" -eq 0 ]
+
+  # An explicit installer directory takes precedence over settings.
+  mkdir -p config/override
+  printf 'module:\n  system: 0\n' > config/override/core.extension.yml
+  run ddev exec task playwright:doctor config_dir=config/override
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"config/override/core.extension.yml"* ]]
+
+  printf 'module: [invalid\n' > config/override/core.extension.yml
+  run ddev exec task playwright:doctor config_dir=config/override
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"Cannot read"* ]]
+
+  run ddev exec task playwright:doctor existing_config=1 config_dir=config/missing
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"Missing or invalid"* ]]
+
+  # PHP support has a separate diagnostic, before Drupal is loaded.
+  run ddev exec php -n "$script" web
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"PHP requires both pdo_sqlite and sqlite3"* ]]
+
+  # Prove an actual inability to create a database file is reported separately.
+  ddev exec mkdir -p /tmp/sqlite
+  ddev exec -u root chmod 555 /tmp/sqlite
+  run ddev exec task playwright:doctor
+  ddev exec -u root chmod 1777 /tmp/sqlite
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"storage /tmp/sqlite is not writable"* ]]
+
+  # Leave the project ready for the normal profile install.
+  ddev exec sed -i '/config_sync_directory.*preflight/d' web/sites/default/settings.php
+}
+
 @test "setup: write example tests" {
   write_example_test
 }
