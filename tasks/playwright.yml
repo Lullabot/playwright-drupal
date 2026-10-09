@@ -68,6 +68,7 @@ tasks:
       any time configuration has changed that would change the installed site
       state.
     cmds:
+      - task: doctor
       - |
         # This environment variable tells Drupal to alter the database settings
         # in settings.php.
@@ -80,6 +81,21 @@ tasks:
         else
           task playwright:install:hook
         fi
+
+  doctor:
+    desc: "Check SQLite prerequisites before installing a test site."
+    summary: |
+      Checks PHP SQLite support, Drupal's SQLite driver, and database storage.
+      For --existing-config installs, run with existing_config=1 to also check
+      the configured sync directory. Pass config_dir for a --config-dir install.
+      Set site_path for a multisite (defaults to sites/default).
+    cmds:
+      - >-
+        PLAYWRIGHT_SETUP=1 php {{ shellQuote .TASKFILE_DIR }}/scripts/sqlite-preflight.php
+        {{ shellQuote .DOCROOT }}
+        {{ shellQuote (default "0" .existing_config) }}
+        {{ shellQuote (default "" .config_dir) }}
+        {{ shellQuote (default "sites/default" .site_path) }}
 
   mysql-to-sqlite:
     desc: "Convert the active MySQL/MariaDB database to SQLite for Playwright tests"
