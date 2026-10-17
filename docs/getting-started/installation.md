@@ -253,10 +253,26 @@ Out of the box, we can't know what setup steps your site needs to work correctly
   playwright:install:hook:
     desc: "Run our installer for Playwright tests. Call playwright:install instead."
     cmds:
+      - task: playwright:doctor
+        vars:
+          existing_config: "1"
       - ./vendor/bin/drush site:install --existing-config --yes
       # Or, call another task (or series of tasks) to set up your site.
       # - task: build:dev:install
 ```
+
+Before installing from existing configuration, enable Drupal's SQLite driver module on your normal local site and export configuration:
+
+```console
+ddev drush pm:enable sqlite -y
+ddev drush config:export -y
+```
+
+Review and commit the exported change, including `sqlite: 0` under `module` in `core.extension.yml`. Enabling the module makes the driver available; it does not change the database used by your production site. Without this entry, Drupal tries to uninstall the SQLite driver while installing the test site from configuration.
+
+`playwright:install` checks PHP's `pdo_sqlite` and `sqlite3` extensions, the Drupal driver, and writable storage at `/tmp/sqlite` before calling your install hook. The `playwright:doctor` step above additionally checks the effective `config_sync_directory` loaded from Drupal settings, without connecting to the database. Run it separately with `ddev exec task playwright:doctor existing_config=1` to diagnose an existing-config setup.
+
+If your hook generates configuration or uses `--config-dir`, run the check after generating it and pass the same directory as `config_dir` (relative to the project root). For multisite, pass the same `site_path` used by your installer. Custom hooks must call this check before their existing-config install; the library cannot infer configuration paths or transformations inside arbitrary project tasks.
 
 ## Testing With an Existing Database
 
