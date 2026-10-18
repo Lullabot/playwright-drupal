@@ -16,10 +16,16 @@ which applies Drupal-specific defaults and preserves the original API.
 npm install --save-dev @lullabot/playwright-testing @playwright/test
 ```
 
-`@axe-core/playwright` and `@playwright/test` are runtime dependencies of this
-package. Your project should still declare its own compatible
-`@playwright/test` dependency so the test runner and imported types use the same
-version.
+`@axe-core/playwright` is a runtime dependency. `@playwright/test` is a required
+peer dependency: install Playwright 1.50.0 or newer within 1.x in your project.
+Both Lullabot packages use that exact runner instance.
+
+For an existing project that has not declared the runner directly, run
+`npm install --save-dev '@playwright/test@^1.50.0'` or
+`yarn add --dev '@playwright/test@^1.50.0'`, then commit the updated manifest and
+lockfile. If you already declare a supported runner, keep its chosen version.
+npm 7 and newer install required peers by default; Yarn expects your project to
+provide them.
 
 ## Package entry points
 

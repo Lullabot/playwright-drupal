@@ -56,6 +56,35 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
 
+  playwright-compatibility:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        playwright-version: ['1.50.0', 'latest']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: npm ci
+      - name: Select Playwright
+        run: npm install --no-save --ignore-scripts @playwright/test@${{ matrix.playwright-version }} playwright-core@${{ matrix.playwright-version }} --workspaces --include-workspace-root
+      - name: Build both packages
+        run: npm run build
+      - name: Unit tests
+        run: npm run test:unit && npm test --workspace=@lullabot/playwright-testing
+      - name: Enable Corepack
+        if: matrix.playwright-version == 'latest'
+        run: npm install --global corepack@0.36.0 && corepack enable
+      - name: Packed consumer minimum, latest, and Yarn upgrade regression
+        if: matrix.playwright-version == 'latest'
+        run: npm run test:consumer
+
   autofocus-test:
     runs-on: ubuntu-24.04
     timeout-minutes: 15

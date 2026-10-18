@@ -25,7 +25,7 @@ Non-Drupal projects should install `@lullabot/playwright-testing` directly.
 
 ```console
 # Drupal and DDEV integration, including the compatibility API
-npm install --save-dev @lullabot/playwright-drupal
+npm install --save-dev @lullabot/playwright-drupal @playwright/test
 
 # Framework-neutral utilities
 npm install --save-dev @lullabot/playwright-testing @playwright/test
@@ -54,3 +54,9 @@ and Prettier uses its default formatting, including semicolons and double quotes
 CI checks both. Build output and bundled agent tooling are excluded.
 The lint config allows existing `any` types and fields omitted with rest
 destructuring; other recommended rules retain their defaults.
+
+Both packages require `@playwright/test` as a peer dependency (Playwright 1.50.0
+or newer within 1.x). Install the runner in the consumer project so both helpers
+use its exact instance. Upgrade Playwright there; do not install a separate
+runner inside either helper. The minimum covers screenshot `stylePath` (1.41)
+and the `updateSnapshots: "changed"` mode used by accessibility baselines (1.50).

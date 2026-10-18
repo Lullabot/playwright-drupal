@@ -38,6 +38,27 @@ dependency direction is always Drupal to generic. Code that supplies Drupal
 selectors, toolbar behavior, DDEV paths, Drush integration, or database
 isolation belongs in the root adapter.
 
+## Playwright dependency compatibility
+
+CI builds and unit-tests both packages with Playwright **1.50.0** and **latest**.
+The former minimum, 1.39.0, fails the build because accessibility baselines use
+`updateSnapshots: "changed"` (added in 1.50); `stylePath` also requires 1.41.
+
+```console
+corepack enable
+npm run test:consumer
+```
+
+This check requires Corepack and network access, but no browsers, DDEV, or Drupal.
+It packs both packages and installs them in a temporary consumer with Yarn 4.18.1.
+Only the packed Drupal manifest's generic-helper locator is rewritten to the
+local tarball, preventing Yarn from fetching an older published helper. Runner
+metadata stays intact; there are no resolutions overrides or deduplication steps.
+It verifies runner identity and executes tests importing both helpers at the
+minimum, at 1.63.0, after `yarn up '@playwright/test@^1.64.1' 'playwright-core@^1.64.1'`,
+and at the current latest stable release. The consumer's manifest and lockfile
+are retained through each upgrade.
+
 ## WebKit autofocus browser tests
 
 Install the bundled browsers once, then run both the generic browser regression

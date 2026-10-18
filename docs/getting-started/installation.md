@@ -39,8 +39,27 @@ ddev exec -d /var/www/html/test/playwright npx playwright test
 ## Add the playwright-drupal Integration
 
 ```console
-ddev exec -d /var/www/html/test/playwright npm i @lullabot/playwright-drupal@latest
+ddev exec -d /var/www/html/test/playwright npm i --save-dev @lullabot/playwright-drupal@latest @playwright/test@latest
 ```
+
+Both packages require `@playwright/test` **1.50.0 or newer within 1.x** as a peer
+dependency. Declare the runner in this consumer manifest so both helpers share
+its exact instance. If you also declare `playwright-core` directly, keep it at
+the same version.
+
+For an existing project that has not declared the runner directly, add it from
+`test/playwright` and commit the updated manifest and lockfile:
+
+```console
+npm install --save-dev '@playwright/test@^1.50.0'
+# Or, with Yarn:
+yarn add --dev '@playwright/test@^1.50.0'
+```
+
+If the project already declares a supported runner, keep its chosen version.
+npm 7 and newer install required peers by default; Yarn expects the consumer to
+provide them. An explicit dependency makes runner ownership clear with either
+package manager.
 
 This installs `@lullabot/playwright-testing` transitively. The Drupal package
 re-exports its generic APIs and applies Drupal-specific defaults, so existing
