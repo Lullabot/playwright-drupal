@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-testing-1.3.0...playwright-testing-2.0.0) (2026-10-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* Both packages now require the consumer to provide @playwright/test ^1.50.0. Add it as a direct development dependency if it is not already declared. Playwright versions below 1.50.0 are unsupported.
+
+### Bug Fixes
+
+* share the consumer's Playwright runner ([2b9e574](https://github.com/Lullabot/playwright-drupal/commit/2b9e57416483bf32e460d47916906acbd598056d))
+
 ## [1.3.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-testing-1.2.1...playwright-testing-1.3.0) (2026-10-07)
 
 
