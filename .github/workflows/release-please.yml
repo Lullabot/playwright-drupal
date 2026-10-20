@@ -13,7 +13,7 @@ jobs:
   # Both feature PRs and release PRs run test.yml before merging. Keep release
   # automation off that suite's critical path instead of testing each merge again.
   release-please:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       drupal_release_created: ${{ steps.release.outputs.release_created }}
       testing_release_created: ${{ steps.release.outputs['packages/playwright-testing--release_created'] }}
@@ -32,7 +32,7 @@ jobs:
   publish-drupal:
     needs: release-please
     if: needs.release-please.outputs.drupal_release_created == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     environment: release-please
     steps:
       - name: Checkout
@@ -53,7 +53,7 @@ jobs:
   publish-testing:
     needs: release-please
     if: needs.release-please.outputs.testing_release_created == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     environment: release-please
     steps:
       - name: Checkout
