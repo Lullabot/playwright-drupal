@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.0.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.17.0...playwright-drupal-2.0.0) (2026-10-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* Both packages now require the consumer to provide @playwright/test ^1.50.0. Add it as a direct development dependency if it is not already declared. Playwright versions below 1.50.0 are unsupported.
+
+### Bug Fixes
+
+* preflight SQLite test installation prerequisites ([#377](https://github.com/Lullabot/playwright-drupal/issues/377)) ([5c04215](https://github.com/Lullabot/playwright-drupal/commit/5c0421598a906dddefc7fa1d2258e7b57352693d)), closes [#375](https://github.com/Lullabot/playwright-drupal/issues/375)
+* share the consumer's Playwright runner ([2b9e574](https://github.com/Lullabot/playwright-drupal/commit/2b9e57416483bf32e460d47916906acbd598056d))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @lullabot/playwright-testing bumped from 1.3.0 to 2.0.0
+
 ## [1.17.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.16.1...playwright-drupal-1.17.0) (2026-10-07)
 
 
