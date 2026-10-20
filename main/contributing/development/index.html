@@ -1178,6 +1178,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#playwright-dependency-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Playwright dependency compatibility
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#webkit-autofocus-browser-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1314,6 +1325,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#playwright-dependency-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Playwright dependency compatibility
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#webkit-autofocus-browser-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1413,12 +1435,28 @@ repository root:</p>
 dependency direction is always Drupal to generic. Code that supplies Drupal
 selectors, toolbar behavior, DDEV paths, Drush integration, or database
 isolation belongs in the root adapter.</p>
+<h2 id="playwright-dependency-compatibility">Playwright dependency compatibility</h2>
+<p>CI builds and unit-tests both packages with Playwright <strong>1.50.0</strong> and <strong>latest</strong>.
+The former minimum, 1.39.0, fails the build because accessibility baselines use
+<code>updateSnapshots: "changed"</code> (added in 1.50); <code>stylePath</code> also requires 1.41.</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="go">corepack enable</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="go">npm run test:consumer</span>
+</span></code></pre></div>
+<p>This check requires Corepack and network access, but no browsers, DDEV, or Drupal.
+It packs both packages and installs them in a temporary consumer with Yarn 4.18.1.
+Only the packed Drupal manifest's generic-helper locator is rewritten to the
+local tarball, preventing Yarn from fetching an older published helper. Runner
+metadata stays intact; there are no resolutions overrides or deduplication steps.
+It verifies runner identity and executes tests importing both helpers at the
+minimum, at 1.63.0, after <code>yarn up '@playwright/test@^1.64.1' 'playwright-core@^1.64.1'</code>,
+and at the current latest stable release. The consumer's manifest and lockfile
+are retained through each upgrade.</p>
 <h2 id="webkit-autofocus-browser-tests">WebKit autofocus browser tests</h2>
 <p>Install the bundled browsers once, then run both the generic browser regression
 suite and the Drupal fixture integration checks:</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="go">npx playwright install --with-deps chromium firefox webkit</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="go">npm run build</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="go">npm run test:autofocus</span>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="go">npx playwright install --with-deps chromium firefox webkit</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="go">npm run build</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="go">npm run test:autofocus</span>
 </span></code></pre></div>
 <p>The generic suite imports the public <code>@lullabot/playwright-testing</code> API and uses a
 local context fixture. The smaller Drupal suite checks the production fixture's
@@ -1432,14 +1470,14 @@ consumer-style Drupal integration tests. They create a fresh DDEV project,
 pack and install both local packages, and run the example Playwright tests.</p>
 <p>Prerequisites are <a href="https://ddev.readthedocs.io/en/stable/">DDEV</a> v1.25 or
 newer and <a href="https://bats-core.readthedocs.io/en/stable/installation.html">bats-core</a>.</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="go">npm run test:bats</span>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="go">npm run test:bats</span>
 </span></code></pre></div>
 <p>The suite can take 10–15 minutes because it provisions a complete Drupal
 environment.</p>
 <h2 id="verify-package-contents">Verify package contents</h2>
 <p>Both packages should be checked independently before release:</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="go">npm pack --dry-run --json</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="go">npm pack --dry-run --json --workspace=@lullabot/playwright-testing</span>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="go">npm pack --dry-run --json</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="go">npm pack --dry-run --json --workspace=@lullabot/playwright-testing</span>
 </span></code></pre></div>
 <p>Confirm that every declared export and executable target, its JavaScript and
 declaration output, required runtime source, and README are present. The root
@@ -1461,9 +1499,9 @@ reference links with local destinations so readers stay within the site while
 the standalone README keeps its GitHub links. Missing snippet files fail the
 build.</p>
 <p>Install <a href="https://docs.astral.sh/uv/"><code>uv</code></a> and run:</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="go">npm run docs:dev      # live reload at http://localhost:8000</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="go">npm run docs:build    # strict static build</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="go">npm run docs:preview  # preview the built site</span>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="go">npm run docs:dev      # live reload at http://localhost:8000</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="go">npm run docs:build    # strict static build</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="go">npm run docs:preview  # preview the built site</span>
 </span></code></pre></div>
 <h2 id="pull-request-commands">Pull request commands</h2>
 <p>Maintainers can post these comments on a pull request:</p>

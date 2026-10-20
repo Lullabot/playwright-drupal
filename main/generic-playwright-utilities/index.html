@@ -1353,10 +1353,15 @@ which applies Drupal-specific defaults and preserves the original API.</p>
 <h2 id="install">Install</h2>
 <div class="language-console highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="go">npm install --save-dev @lullabot/playwright-testing @playwright/test</span>
 </span></code></pre></div>
-<p><code>@axe-core/playwright</code> and <code>@playwright/test</code> are runtime dependencies of this
-package. Your project should still declare its own compatible
-<code>@playwright/test</code> dependency so the test runner and imported types use the same
-version.</p>
+<p><code>@axe-core/playwright</code> is a runtime dependency. <code>@playwright/test</code> is a required
+peer dependency: install Playwright 1.50.0 or newer within 1.x in your project.
+Both Lullabot packages use that exact runner instance.</p>
+<p>For an existing project that has not declared the runner directly, run
+<code>npm install --save-dev '@playwright/test@^1.50.0'</code> or
+<code>yarn add --dev '@playwright/test@^1.50.0'</code>, then commit the updated manifest and
+lockfile. If you already declare a supported runner, keep its chosen version.
+npm 7 and newer install required peers by default; Yarn expects your project to
+provide them.</p>
 <h2 id="package-entry-points">Package entry points</h2>
 <ul>
 <li><code>@lullabot/playwright-testing</code> exports screenshot stabilization,
