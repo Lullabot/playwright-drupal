@@ -41,6 +41,8 @@ Markdown to `$GITHUB_STEP_SUMMARY` when it is available and otherwise writes to
 stdout. Annotation mode writes GitHub workflow commands for the accessibility
 findings. A missing report is non-fatal because the suite may not have run.
 
+![Rendered Accessibility Results markdown emitted to $GITHUB_STEP_SUMMARY: violation count, per-test heading with the Accessibility annotation, and a table of rule, impact, description, and affected CSS target selectors](../images/github-a11y-summary.webp)
+
 ## Failure and flake summary
 
 ```yaml

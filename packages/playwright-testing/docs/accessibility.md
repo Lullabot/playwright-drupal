@@ -27,6 +27,12 @@ adds an `@a11y` annotation, attaches the complete axe results, and attaches a
 full-page screenshot with WCAG violations outlined in red. Set
 `screenshotViolations: false` to omit that image.
 
+![Full-page Drupal screenshot with each WCAG-violating element outlined in red](../images/a11y-violation-screenshot.webp)
+
+A passing test shows the `@a11y` tag and a scan summary:
+
+![Annotations section showing the @a11y tag and a WCAG scan summary](../images/a11y-report-annotations.webp)
+
 The most useful `AccessibilityOptions` are:
 
 | Field | Default | Purpose |
@@ -81,6 +87,13 @@ arbitrary counter; runner regression tests guard against upstream changes.
 Entries that match current violations are reported as baselined annotations.
 New violations fail the assertion with a copy-pasteable entry, while entries
 that no longer match are reported as stale so they can be removed.
+
+![Report annotations listing baselined violations alongside a stale baseline entry](../images/a11y-report-baseline-annotations.webp)
+
+Unmatched violations fail the test with the rule, impact, help URL, affected
+targets, and a baseline entry you can paste into `.a11y-baseline.json`:
+
+![Playwright error output showing violation details, help URL, and a ready-to-paste baseline entry](../images/a11y-report-baseline-errors.webp)
 
 ## Shared baselines
 
