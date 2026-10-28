@@ -69,7 +69,10 @@ the [canonical accessibility guide](../generic-playwright-utilities/accessibilit
 When WCAG violations are found, the report attaches a full-page screenshot with
 each violating element outlined in red:
 
-![Full-page Drupal screenshot with each WCAG-violating element outlined in red](../images/a11y-violation-screenshot.webp)
+![Drupal recipe cards with pale grey titles and an intro line, each outlined by a red box marking a color-contrast violation](../images/a11y-violation-screenshot.webp)
+
+In this example, the text color was deliberately lightened to fail the
+color-contrast rule.
 
 A passing test shows the `@a11y` tag and a scan summary:
 
