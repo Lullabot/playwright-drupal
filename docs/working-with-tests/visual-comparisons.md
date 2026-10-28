@@ -10,6 +10,10 @@ generic package's canonical
 Drupal preset: toolbar settling, Stage File Proxy-friendly image recovery,
 Drupal axe exclusions, and the legacy browser thresholds.
 
+A failed comparison is reported in the Playwright HTML report:
+
+![Playwright HTML report showing a failed visual comparison with the Diff/Actual/Expected/Side by side/Slider pane selector at the top, image dimensions, and red diff highlighting over the rendered page below](../images/visual-diff-failure.webp)
+
 ```typescript
 import { defineVisualDiffConfig } from '@packages/playwright-drupal';
 
@@ -38,6 +42,10 @@ config.describe();
 Masks, accessibility baselines, mocks, real interaction states, Chromium
 pseudo-states, and custom test functions work as described in the generic
 guide. Existing Drupal imports do not need to change.
+
+Masked elements are covered with an overlay box, pink `#FF00FF` by default:
+
+![Rendered Umami home page with a bright pink #FF00FF mask overlay box covering the site branding element](../images/visual-diff-mask-overlay.webp)
 
 ## Direct generic imports
 

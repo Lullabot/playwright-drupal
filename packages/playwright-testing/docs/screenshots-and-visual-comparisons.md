@@ -4,6 +4,8 @@
 `toHaveScreenshot()` matcher, then runs the same accessibility checks described
 in [Accessibility testing](accessibility.md).
 
+![Playwright HTML report showing a failed visual comparison with the Diff/Actual/Expected/Side by side/Slider pane selector at the top, image dimensions, and red diff highlighting over the rendered page below](../images/visual-diff-failure.webp)
+
 The helper:
 
 1. blurs incidental focus and clears incidental hover state;
@@ -170,7 +172,10 @@ full-page screenshot, and runs accessibility checks. `pathPrefix`,
 `representativeUrl`, `mockClass`, `mask`, `maskColor`, `a11yBaseline`,
 `interactionStates`, and `pseudoStates` can be assigned at appropriate config,
 group, or case levels. Arrays such as masks and states merge from broad to
-specific scopes; the most specific mask color wins.
+specific scopes; the most specific mask color wins. Masked elements are covered
+with an overlay box, pink `#FF00FF` by default:
+
+![Rendered Umami home page with a bright pink #FF00FF mask overlay box covering the site branding element](../images/visual-diff-mask-overlay.webp)
 
 ## Mock changing embeds
 
