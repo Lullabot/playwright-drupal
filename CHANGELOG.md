@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.0.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-2.0.0...playwright-drupal-2.0.1) (2026-10-28)
+
+
+### Bug Fixes
+
+* **deps:** update dependency node to v26 ([#413](https://github.com/Lullabot/playwright-drupal/issues/413)) ([8168852](https://github.com/Lullabot/playwright-drupal/commit/816885215a1cdc02fcd23c45b07109eff8c5a852))
+
+
+### Documentation
+
+* add screenshots to home page feature cards ([0ca0f02](https://github.com/Lullabot/playwright-drupal/commit/0ca0f0236c6a06b0334a276c74dfdf1e3f80835f))
+* regenerate a11y and visual diff screenshots ([d7f2df3](https://github.com/Lullabot/playwright-drupal/commit/d7f2df32eedf87c604198ce94d3e7488354edfc1))
+* restore screenshot references on a11y and visual diff pages ([f4112a4](https://github.com/Lullabot/playwright-drupal/commit/f4112a492d2eecf58db60f21d02d4e84eab2e3f3))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @lullabot/playwright-testing bumped from 2.0.0 to 2.0.1
+
 ## [2.0.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-1.17.0...playwright-drupal-2.0.0) (2026-10-20)
 
 
