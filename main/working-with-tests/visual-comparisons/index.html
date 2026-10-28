@@ -1350,6 +1350,8 @@ generic package's canonical
 <code>defaultTestFunction()</code>, and <code>VisualDiffTestCases</code> entry points apply the
 Drupal preset: toolbar settling, Stage File Proxy-friendly image recovery,
 Drupal axe exclusions, and the legacy browser thresholds.</p>
+<p>A failed comparison is reported in the Playwright HTML report:</p>
+<p><img alt="Playwright HTML report Diff view for a failed visual comparison: a faded Drupal home page with red marks only where the navigation underline, hero heading and button changed" src="../../images/visual-diff-failure.webp" /></p>
 <div class="language-typescript highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">defineVisualDiffConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@packages/playwright-drupal'</span><span class="p">;</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">defineVisualDiffConfig</span><span class="p">({</span>
@@ -1373,6 +1375,8 @@ Drupal axe exclusions, and the legacy browser thresholds.</p>
 <p>Masks, accessibility baselines, mocks, real interaction states, Chromium
 pseudo-states, and custom test functions work as described in the generic
 guide. Existing Drupal imports do not need to change.</p>
+<p>Masked elements are covered with an overlay box, pink <code>#FF00FF</code> by default:</p>
+<p><img alt="Rendered Umami home page with a bright pink #FF00FF mask overlay box covering the site branding element" src="../../images/visual-diff-mask-overlay.webp" /></p>
 <h2 id="direct-generic-imports">Direct generic imports</h2>
 <p>Use the generic package directly when a Drupal project deliberately wants
 framework-neutral defaults:</p>

@@ -1398,7 +1398,20 @@ exclusions too.</p>
 <h2 id="baselines-and-reports">Baselines and reports</h2>
 <p>Baseline files, first-run seeding, accessibility annotations, violation
 screenshots, shared in-code baselines, and scan options behave as documented in
-the <a href="../../generic-playwright-utilities/accessibility/">canonical accessibility guide</a>.
+the <a href="../../generic-playwright-utilities/accessibility/">canonical accessibility guide</a>.</p>
+<p>When WCAG violations are found, the report attaches a full-page screenshot with
+each violating element outlined in red:</p>
+<p><img alt="Drupal recipe cards with pale grey titles and an intro line, each outlined by a red box marking a color-contrast violation" src="../../images/a11y-violation-screenshot.webp" /></p>
+<p>In this example, the text color was deliberately lightened to fail the
+color-contrast rule.</p>
+<p>A passing test shows the <code>@a11y</code> tag and a scan summary:</p>
+<p><img alt="Annotations section showing the @a11y tag and a WCAG scan summary" src="../../images/a11y-report-annotations.webp" /></p>
+<p>When a baseline is in use, the report also lists baselined violations and any
+stale entries:</p>
+<p><img alt="Report annotations listing baselined violations alongside a stale baseline entry" src="../../images/a11y-report-baseline-annotations.webp" /></p>
+<p>Unmatched violations fail the test with the rule, impact, help URL, affected
+targets, and a baseline entry you can paste into <code>.a11y-baseline.json</code>:</p>
+<p><img alt="Playwright error output showing violation details, help URL, and a ready-to-paste baseline entry" src="../../images/a11y-report-baseline-errors.webp" />
 The Drupal package re-exports <code>defineAccessibilityBaseline</code> and the associated
 types, so existing code does not need to change.</p>
 <div class="language-typescript highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span>
@@ -1433,6 +1446,8 @@ Drupal preset and does not provide the Drupal <code>a11y</code> fixture.</p>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">});</span>
 </span></code></pre></div>
 <h2 id="github-annotations">GitHub annotations</h2>
+<p>The summary command renders the accessibility results into the GitHub job summary:</p>
+<p><img alt="Rendered Accessibility Results markdown emitted to $GITHUB_STEP_SUMMARY: violation count, per-test heading with the Accessibility annotation, and a table of rule, impact, description, and affected CSS target selectors" src="../../images/github-a11y-summary.webp" /></p>
 <p>The legacy <code>playwright-drupal-a11y-summary</code> executable remains available and
 uses the same report implementation as
 <code>playwright-testing-a11y-summary</code>. Existing workflows can continue to use it:</p>

@@ -1364,6 +1364,11 @@ unless the caller supplies them.</p>
 adds an <code>@a11y</code> annotation, attaches the complete axe results, and attaches a
 full-page screenshot with WCAG violations outlined in red. Set
 <code>screenshotViolations: false</code> to omit that image.</p>
+<p><img alt="Drupal recipe cards with pale grey titles and an intro line, each outlined by a red box marking a color-contrast violation" src="../../images/a11y-violation-screenshot.webp" /></p>
+<p>Each red box marks an element that failed the WCAG scan. In this example, the
+text color was deliberately lightened to fail the color-contrast rule.</p>
+<p>A passing test shows the <code>@a11y</code> tag and a scan summary:</p>
+<p><img alt="Annotations section showing the @a11y tag and a WCAG scan summary" src="../../images/a11y-report-annotations.webp" /></p>
 <p>The most useful <code>AccessibilityOptions</code> are:</p>
 <table>
 <thead>
@@ -1451,6 +1456,10 @@ arbitrary counter; runner regression tests guard against upstream changes.</p>
 <p>Entries that match current violations are reported as baselined annotations.
 New violations fail the assertion with a copy-pasteable entry, while entries
 that no longer match are reported as stale so they can be removed.</p>
+<p><img alt="Report annotations listing baselined violations alongside a stale baseline entry" src="../../images/a11y-report-baseline-annotations.webp" /></p>
+<p>Unmatched violations fail the test with the rule, impact, help URL, affected
+targets, and a baseline entry you can paste into <code>.a11y-baseline.json</code>:</p>
+<p><img alt="Playwright error output showing violation details, help URL, and a ready-to-paste baseline entry" src="../../images/a11y-report-baseline-errors.webp" /></p>
 <h2 id="shared-baselines">Shared baselines</h2>
 <p>Use <code>defineAccessibilityBaseline()</code> for a baseline shared by multiple tests or
 generated from test data. An explicit baseline takes precedence over a JSON

@@ -239,6 +239,18 @@
   color: var(--md-accent-fg-color);
 }
 
+.md-typeset .mdx-features__image {
+  aspect-ratio: 16 / 9;
+  border: .05rem solid var(--md-default-fg-color--lightest);
+  border-radius: .2rem;
+  display: block;
+  height: auto;
+  margin: 0 0 1rem;
+  object-fit: cover;
+  object-position: top;
+  width: 100%;
+}
+
 .md-typeset .mdx-features__title {
   font-size: .85rem;
   font-weight: 700;

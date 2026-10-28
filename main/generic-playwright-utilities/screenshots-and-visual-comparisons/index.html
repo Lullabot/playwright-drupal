@@ -1389,6 +1389,7 @@
 <p><code>takeAccessibleScreenshot()</code> stabilizes a page before calling Playwright's
 <code>toHaveScreenshot()</code> matcher, then runs the same accessibility checks described
 in <a href="../accessibility/">Accessibility testing</a>.</p>
+<p><img alt="Playwright HTML report Diff view for a failed visual comparison: a faded Drupal home page with red marks only where the navigation underline, hero heading and button changed" src="../../images/visual-diff-failure.webp" /></p>
 <p>The helper:</p>
 <ol>
 <li>blurs incidental focus and clears incidental hover state;</li>
@@ -1568,7 +1569,9 @@ full-page screenshot, and runs accessibility checks. <code>pathPrefix</code>,
 <code>representativeUrl</code>, <code>mockClass</code>, <code>mask</code>, <code>maskColor</code>, <code>a11yBaseline</code>,
 <code>interactionStates</code>, and <code>pseudoStates</code> can be assigned at appropriate config,
 group, or case levels. Arrays such as masks and states merge from broad to
-specific scopes; the most specific mask color wins.</p>
+specific scopes; the most specific mask color wins. Masked elements are covered
+with an overlay box, pink <code>#FF00FF</code> by default:</p>
+<p><img alt="Rendered Umami home page with a bright pink #FF00FF mask overlay box covering the site branding element" src="../../images/visual-diff-mask-overlay.webp" /></p>
 <h2 id="mock-changing-embeds">Mock changing embeds</h2>
 <p>Use <code>YoutubeMock</code> or implement <code>Mockable</code> to replace third-party frames before
 navigation:</p>
