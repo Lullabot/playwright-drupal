@@ -4,7 +4,7 @@
 `toHaveScreenshot()` matcher, then runs the same accessibility checks described
 in [Accessibility testing](accessibility.md).
 
-![Playwright HTML report showing a failed visual comparison with the Diff/Actual/Expected/Side by side/Slider pane selector at the top, image dimensions, and red diff highlighting over the rendered page below](../images/visual-diff-failure.webp)
+![Playwright HTML report Diff view for a failed visual comparison: a faded Drupal home page with red marks only where the navigation underline, hero heading and button changed](../images/visual-diff-failure.webp)
 
 The helper:
 

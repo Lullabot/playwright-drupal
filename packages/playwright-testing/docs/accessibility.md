@@ -27,7 +27,10 @@ adds an `@a11y` annotation, attaches the complete axe results, and attaches a
 full-page screenshot with WCAG violations outlined in red. Set
 `screenshotViolations: false` to omit that image.
 
-![Full-page Drupal screenshot with each WCAG-violating element outlined in red](../images/a11y-violation-screenshot.webp)
+![Drupal recipe cards with pale grey titles and an intro line, each outlined by a red box marking a color-contrast violation](../images/a11y-violation-screenshot.webp)
+
+Each red box marks an element that failed the WCAG scan. In this example, the
+text color was deliberately lightened to fail the color-contrast rule.
 
 A passing test shows the `@a11y` tag and a scan summary:
 
