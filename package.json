@@ -1,6 +1,6 @@
 {
   "name": "@lullabot/playwright-drupal",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Playwright / Drupal integration, supporting fast parallel tests and visual comparisons",
   "workspaces": [
     "packages/*"
@@ -70,7 +70,7 @@
     }
   },
   "dependencies": {
-    "@lullabot/playwright-testing": "2.0.0",
+    "@lullabot/playwright-testing": "2.0.1",
     "@axe-core/playwright": "^4.8.5",
     "@types/node": "^26.0.0",
     "shell-quote": "^1.8.3"

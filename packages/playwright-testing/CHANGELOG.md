@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-testing-2.0.0...playwright-testing-2.0.1) (2026-10-28)
+
+
+### Bug Fixes
+
+* **deps:** update dependency node to v26 ([#413](https://github.com/Lullabot/playwright-drupal/issues/413)) ([8168852](https://github.com/Lullabot/playwright-drupal/commit/816885215a1cdc02fcd23c45b07109eff8c5a852))
+
 ## [2.0.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-testing-1.3.0...playwright-testing-2.0.0) (2026-10-20)
 
 
