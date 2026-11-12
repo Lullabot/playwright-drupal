@@ -74,6 +74,7 @@ if (defined('DRUPAL_TEST_IN_CHILD_SITE') && DRUPAL_TEST_IN_CHILD_SITE) {
     // Split cache prefixes when using non-database caches. This still splits
     // caches for database caching, but has no real effect in that case.
     $settings['cache_prefix']['default'] = $id;
+    $settings['memcache']['key_prefix'] = $id;
   }
 }
 
