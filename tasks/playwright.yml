@@ -99,6 +99,17 @@ tasks:
 
   mysql-to-sqlite:
     desc: "Convert the active MySQL/MariaDB database to SQLite for Playwright tests"
+    summary: |
+      Converts the active MySQL/MariaDB database to SQLite.
+        - quiet=1: Suppress mysql2sqlite's progress output, showing only
+                   errors. Optional.
+
+      Examples:
+        Convert using the defaults, showing mysql2sqlite's progress output.
+        - task playwright:mysql-to-sqlite
+
+        Suppress mysql2sqlite's progress output, showing only errors.
+        - task playwright:mysql-to-sqlite quiet=1
     cmds:
       - mkdir -p /tmp/sqlite
       - >-
@@ -111,6 +122,7 @@ tasks:
         --mysql-password db
         --mysql-database db
         --sqlite-file /tmp/sqlite/.ht.sqlite
+        {{if .quiet}}--quiet{{end}}
 
   prepare:
     desc: "Copy a database in preparation for a test run."
