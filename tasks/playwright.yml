@@ -4,6 +4,13 @@ vars:
   DOCROOT:
     sh: node -e "try { const c = require('./composer.json'); const w = (c.extra?.['drupal-scaffold']?.locations?.['web-root'] || 'web').replace(/\/$/, ''); process.stdout.write(w); } catch(e) { process.stdout.write('web'); }"
 
+  # The site path to copy settings.php and services.yml from when building
+  # each test's private site directory. Defaults to "sites/default" for
+  # single-site projects. Multisite projects where sites/default has no real
+  # settings.php (bootstrapping instead happens from a per-domain site
+  # folder) can override this, e.g. PLAYWRIGHT_SITE_PATH=sites/example.com.
+  PLAYWRIGHT_SITE_PATH: '{{ default "sites/default" .PLAYWRIGHT_SITE_PATH }}'
+
   # Wrapper that serialises Playwright runs across every DDEV project on the
   # machine. It is a no-op unless PLAYWRIGHT_MUTEX=1 is set, so wiring it in
   # here changes nothing by default. See bin/playwright-mutex and the
@@ -121,6 +128,11 @@ tasks:
 
       will import the database into `<DOCROOT>/sites/simpletest/456/.ht.sqlite`
       where DOCROOT is read from composer.json (defaults to `web`).
+
+      settings.php and services.yml for the test site are copied from
+      `<DOCROOT>/<PLAYWRIGHT_SITE_PATH>/` (defaults to `sites/default`).
+      Multisite projects that don't bootstrap from sites/default can set
+      PLAYWRIGHT_SITE_PATH to the site path that does.
     preconditions:
       - sh: test -f /tmp/sqlite/.ht.sqlite
         msg: 'playwright:install needs to be run before tests can run.'
@@ -137,8 +149,8 @@ tasks:
         # downloaded via stage file proxy) saves several seconds.
 
         # Copy in settings.php and our services files.
-        cp -a "{{ .DOCROOT }}/sites/default/"*.php "{{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/"
-        cp -a "{{ .DOCROOT }}/sites/default/"*.yml "{{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/"
+        cp -a "{{ .DOCROOT }}/{{ .PLAYWRIGHT_SITE_PATH }}/"*.php "{{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/"
+        cp -a "{{ .DOCROOT }}/{{ .PLAYWRIGHT_SITE_PATH }}/"*.yml "{{ .DOCROOT }}/sites/simpletest/{{ shellQuote .test_id }}/"
 
         # Copy the database while holding an exclusive lock. Multiple test
         # workers run prepare concurrently, and drush bootstrap writes to

@@ -150,6 +150,8 @@ The relative path `../test/playwright/...` resolves from Drupal's docroot direct
 
 This addon assumes that DDEV's built in settings.php management is used. If you have set `disable_settings_management` in your `.ddev/config.yml` file, or are testing with a multisite where bootstrapping is not in `sites/default`, edit your custom files manually to make sure tests can bootstrap properly.
 
+`playwright:prepare` separately copies `settings.php` and `services.yml` into each test's private site directory (`sites/simpletest/<test_id>/`), from `sites/default` by default. If your multisite project doesn't bootstrap from `sites/default`, set `PLAYWRIGHT_SITE_PATH` (e.g. in `.ddev/config.yaml` under `web_environment`) to the site path that does, such as `sites/example.com`. This is independent of the `settings.playwright.php` include above; both need to point at a site path that actually has a working `settings.php`.
+
 ## Create and Run an Example Drupal Test
 
 Copy the following to `test/playwright/tests/example.drupal.spec.ts`.
