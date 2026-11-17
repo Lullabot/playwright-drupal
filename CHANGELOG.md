@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-2.1.0...playwright-drupal-2.1.1) (2026-11-17)
+
+
+### Bug Fixes
+
+* **tasks:** only pass --quiet to mysql2sqlite when quiet=1 ([08b6ca7](https://github.com/Lullabot/playwright-drupal/commit/08b6ca79bb790ddd16eacab0e7c4e28914503284))
+
 ## [2.1.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-2.0.1...playwright-drupal-2.1.0) (2026-11-17)
 
 
