@@ -122,7 +122,7 @@ tasks:
         --mysql-password db
         --mysql-database db
         --sqlite-file /tmp/sqlite/.ht.sqlite
-        {{if .quiet}}--quiet{{end}}
+        {{if eq (print .quiet) "1"}}--quiet{{end}}
 
   prepare:
     desc: "Copy a database in preparation for a test run."
