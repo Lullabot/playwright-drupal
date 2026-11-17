@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.0](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-2.0.1...playwright-drupal-2.1.0) (2026-11-17)
+
+
+### Features
+
+* **tasks:** add quiet option to mysql-to-sqlite task ([4d722db](https://github.com/Lullabot/playwright-drupal/commit/4d722db67cdf92367692e7f6d83eace37f334267))
+
+
+### Bug Fixes
+
+* isolate memcache keys per test to prevent parallel worker login collisions ([6fd7374](https://github.com/Lullabot/playwright-drupal/commit/6fd73744b8e968c51ae7c69019046a7b3038f30b))
+
 ## [2.0.1](https://github.com/Lullabot/playwright-drupal/compare/playwright-drupal-2.0.0...playwright-drupal-2.0.1) (2026-10-28)
 
 
