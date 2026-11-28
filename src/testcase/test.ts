@@ -7,6 +7,7 @@ import {
 } from "@playwright/test";
 import { task, taskSync } from "../cli/task";
 import { getDocroot } from "../util/docroot";
+import { drushPlaywrightCommand, findDdevProjectRoot } from "./project-paths";
 import {
   checkAccessibility,
   takeAccessibleScreenshot,
@@ -15,6 +16,7 @@ import {
 } from "../util";
 import { collector, isVerbose } from "../cli/output-collector";
 import * as fs from "fs";
+import path from "path";
 import * as util from "util";
 import child_process from "child_process";
 import { suppressWebKitAutofocus } from "@lullabot/playwright-testing";
@@ -28,7 +30,19 @@ export interface DrupalTestOptions {
  * Keep a reference to the test ID, so we can use it to attach the error log.
  */
 let drupal_test_id: number;
-const docroot = getDocroot("../../composer.json");
+const projectRoot = findProjectRoot();
+const docroot = getDocroot(path.join(projectRoot, "composer.json"));
+
+/**
+ * The DDEV project root, or two levels above the suite outside of DDEV.
+ */
+function findProjectRoot(): string {
+  try {
+    return findDdevProjectRoot(__dirname);
+  } catch {
+    return path.resolve("../..");
+  }
+}
 
 export interface A11yFixture {
   check(options?: AccessibilityOptions): Promise<void>;
@@ -145,8 +159,13 @@ const testBase = base_test.extend<DrupalTestOptions>({
     await waitForCleanup(cleanup);
 
     // Attach the PHP error log to the test results.
-    const logPath =
-      "../../" + docroot + "/sites/simpletest/" + drupal_test_id + "/error.log";
+    const logPath = path.join(
+      projectRoot,
+      docroot,
+      "sites/simpletest",
+      String(drupal_test_id),
+      "error.log",
+    );
     if (fs.existsSync(logPath)) {
       await testInfo.attach("error.log", { path: logPath });
     }
@@ -205,9 +224,11 @@ const test = testBase.extend<{ a11y: A11yFixture }>({
  *   `pm:uninstall environment_indicator -y`.
  */
 async function execDrushInTestSite(command: string) {
-  const drush = process.env.DDEV_HOSTNAME
-    ? `./test/playwright/node_modules/@lullabot/playwright-drupal/bin/drush-playwright ${drupal_test_id}`
-    : `ddev exec ./test/playwright/node_modules/@lullabot/playwright-drupal/bin/drush-playwright ${drupal_test_id}`;
+  const drush = drushPlaywrightCommand(
+    drupal_test_id,
+    __dirname,
+    Boolean(process.env.DDEV_HOSTNAME),
+  );
 
   const exec = util.promisify(child_process.exec);
   const p = exec(`${drush} ${command}`, {
