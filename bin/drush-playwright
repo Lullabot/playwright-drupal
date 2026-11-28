@@ -3,6 +3,9 @@
 # Wraps drush-playwright so we can pass an environment variable in when running
 # playwright from the host.
 
+# Resolve this script's own directory so the suite can live in any folder.
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+
 if [ "$#" -lt 1 ]; then
     echo "Error: No arguments provided. Please provide a numeric argument." >&2
     exit 1
@@ -15,7 +18,7 @@ if [[ "$1" =~ ^[0-9]+$ ]]; then
     # This path is relative to the Drupal docroot (not the project root), matching
     # what Drupal core's RecipeTestTrait passes.
     DRUPAL_DEV_SITE_PATH="sites/simpletest/$1" \
-    DRUPAL_TEST_ID=$1 test/playwright/node_modules/@lullabot/playwright-drupal/bin/drush-playwright-internal "${@:2}"
+    DRUPAL_TEST_ID=$1 "$SCRIPT_DIR/drush-playwright-internal" "${@:2}"
 else
     echo "Error: The first argument $1 is not numeric. Please provide a numeric argument." >&2
     exit 1
