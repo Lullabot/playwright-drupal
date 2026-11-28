@@ -170,9 +170,13 @@ tasks:
         # test, so we may as well add this early check to make sure the test
         # site is working.
         curl -s -k -b SIMPLETEST_USER_AGENT=$UA $DDEV_PRIMARY_URL/core/rebuild.php > /dev/null
-        STATUS=$(curl -s -k -b SIMPLETEST_USER_AGENT=$UA -w "%{http_code}\n" -o /dev/null $DDEV_PRIMARY_URL)
+        # Follow redirects so sites that redirect the home page (for example
+        # to a language prefix) pass. The cookie is resent on same-host hops.
+        RESULT=$(curl -s -k -L --max-redirs 5 -b SIMPLETEST_USER_AGENT=$UA -w "%{http_code} %{url_effective}" -o /dev/null $DDEV_PRIMARY_URL)
+        STATUS=${RESULT%% *}
+        FINAL_URL=${RESULT#* }
         if [[ $STATUS != "200" ]]; then
-          (echo "The test site {{ shellQuote .test_id }} is not working as it returned HTTP status $STATUS.";
+          (echo "The test site {{ shellQuote .test_id }} is not working as it returned HTTP status $STATUS for $FINAL_URL.";
           echo "Likely your code changes are causing an exception to be thrown.";
           echo "Test by reinstalling the base site and ensuring the home page loads.";) >&2
           exit 1
