@@ -8,7 +8,7 @@ import * as fs from "fs";
  * doesn't exist, or parsing fails.
  *
  * @param composerJsonPath - Path to the composer.json file. Defaults to
- *   `../../composer.json` (relative to `test/playwright/` cwd).
+ *   `../../composer.json` (relative to the suite directory, the cwd).
  * @returns The docroot directory name without a trailing slash (e.g. `web` or `docroot`).
  */
 export function getDocroot(
