@@ -52,7 +52,8 @@ tasks:
     cmds:
       - task: install
       - |
-        cd test/playwright
+        # This file lives in <suite>/node_modules/@lullabot/playwright-drupal/tasks.
+        cd "{{ .TASKFILE_DIR }}/../../../.."
         npx playwright test --shard={{ default "1/1" .shard }} {{ .CLI_ARGS }}
         STATUS=$?
         echo "System uptime and load average statistics:"; uptime
@@ -245,7 +246,8 @@ tasks:
     cmds:
       - task: install
       - |
-        cd test/playwright
+        # This file lives in <suite>/node_modules/@lullabot/playwright-drupal/tasks.
+        cd "{{ .TASKFILE_DIR }}/../../../.."
 
         # First capture all tests that have snapshots.
         TESTS=$(find . -name '*-snapshots' -type d | sed 's/-snapshots//' | sed 's/\.\///')
@@ -254,7 +256,7 @@ tasks:
         # executes the command, and `playwright test` with no file filter runs
         # the entire suite -- a green result that tested far more than asked.
         if [ -z "$TESTS" ]; then
-          echo "No *-snapshots directories found under test/playwright." >&2
+          echo "No *-snapshots directories found under $PWD." >&2
           echo "Nothing was run. Run the test once so Playwright writes its first" >&2
           echo "snapshot, which is what creates the directory this looks for." >&2
           exit 1
@@ -301,12 +303,13 @@ tasks:
     cmds:
       - task: install
       - |
-        cd test/playwright
+        # This file lives in <suite>/node_modules/@lullabot/playwright-drupal/tasks.
+        cd "{{ .TASKFILE_DIR }}/../../../.."
         # First capture all tests that have snapshots.
         TESTS=$(find . -name '*-snapshots' -type d | sed 's/-snapshots//' | sed 's/\.\///')
 
         if [ -z "$TESTS" ]; then
-          echo "No *-snapshots directories found under test/playwright." >&2
+          echo "No *-snapshots directories found under $PWD." >&2
           echo "Nothing was run. Create the directory for a test before regenerating," >&2
           echo "or run the test once so Playwright writes its first snapshot." >&2
           exit 1
@@ -340,7 +343,7 @@ tasks:
         echo "Be sure to review for unexpected changes, and don't be surprised if modified tests cause"
         echo "files to be renamed."
         echo ""
-        echo "find test/playwright -name '*-snapshots' -type d | xargs git add -A"
+        echo "find $(realpath --relative-to="{{ .ROOT_DIR }}" .) -name '*-snapshots' -type d | xargs git add -A"
         echo ""
         echo "Some images may show minor variations, especially with the position of Drupal's admin"
         echo "toolbar. Typically those variations are handled automatically by Playwright's retry"
